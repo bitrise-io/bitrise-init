@@ -215,7 +215,7 @@ func (detector *Xamarin) DetectPlatform() (bool, error) {
 }
 
 // Analyze ...
-func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
+func (detector *Xamarin) Analyze() (models.OptionModel, error) {
 	for _, file := range detector.FileList {
 		baseName := filepath.Base(file)
 		if baseName == "packages.config" {
@@ -237,7 +237,7 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 	for _, solutionFile := range detector.SolutionFiles {
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
-			return nil, err
+			return models.OptionModel{}, err
 		}
 
 		if len(configs) > 0 {
@@ -248,14 +248,12 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 	}
 
 	// Check for solution projects
-	options := []models.OptionModel{}
+	xamarinProjectOption := models.NewOptionModel(xamarinProjectTitle, xamarinProjectEnvKey)
 
 	for solutionFile, configMap := range validSolutionMap {
-		xamarinProjectOption := models.NewOptionModel(xamarinProjectTitle, xamarinProjectEnvKey)
-
 		projects, err := getProjects(solutionFile)
 		if err != nil {
-			return nil, err
+			return models.OptionModel{}, err
 		}
 
 		// Inspect projects
@@ -265,7 +263,7 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 
 			api, err := getProjectPlatformAPI(project)
 			if err != nil {
-				return nil, err
+				return models.OptionModel{}, err
 			}
 
 			if api == "" {
@@ -290,11 +288,9 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 		}
 
 		xamarinProjectOption.ValueMap[solutionFile] = xamarinConfigurationOption
-
-		options = append(options, xamarinProjectOption)
 	}
 
-	return options, nil
+	return xamarinProjectOption, nil
 }
 
 // Configs ...

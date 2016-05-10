@@ -144,7 +144,7 @@ func (detector *Android) DetectPlatform() (bool, error) {
 }
 
 // Analyze ...
-func (detector *Android) Analyze() ([]models.OptionModel, error) {
+func (detector *Android) Analyze() (models.OptionModel, error) {
 	//
 	// Search for gradlew_path input
 	gradlewFiles := filterGradlewFiles(detector.FileList)
@@ -159,15 +159,13 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 	if detector.HasGradlewFile {
 		err := os.Chmod(rootGradlewPath, 0770)
 		if err != nil {
-			return []models.OptionModel{}, fmt.Errorf("failed to add executable permission on gradlew file (%s), error: %s", rootGradlewPath, err)
+			return models.OptionModel{}, fmt.Errorf("failed to add executable permission on gradlew file (%s), error: %s", rootGradlewPath, err)
 		}
 
 		gradleBin = rootGradlewPath
 	}
 
 	// Inspect Gradle files
-	options := []models.OptionModel{}
-
 	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
 
 	for _, gradleFile := range detector.GradleFiles {
@@ -176,7 +174,7 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 
 		configs, err := inspectGradleFile(gradleFile, gradleBin)
 		if err != nil {
-			return []models.OptionModel{}, fmt.Errorf("failed to inspect gradle files, error: %s", err)
+			return models.OptionModel{}, fmt.Errorf("failed to inspect gradle files, error: %s", err)
 		}
 
 		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
@@ -198,9 +196,7 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
 	}
 
-	options = append(options, gradleFileOption)
-
-	return options, nil
+	return gradleFileOption, nil
 }
 
 // Configs ...

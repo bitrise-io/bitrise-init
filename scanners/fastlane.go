@@ -143,8 +143,8 @@ func (detector *Fastlane) DetectPlatform() (bool, error) {
 }
 
 // Analyze ...
-func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
-	options := []models.OptionModel{}
+func (detector *Fastlane) Analyze() (models.OptionModel, error) {
+	fastFileOption := models.NewOptionModel("Fatsfile's path", "")
 
 	// Inspect Fastfiles
 	for _, fastFile := range detector.FastFiles {
@@ -152,14 +152,14 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 
 		lanes, err := inspectFastFile(fastFile)
 		if err != nil {
-			return []models.OptionModel{}, err
+			return models.OptionModel{}, err
 		}
 
 		// Check if `Fastfile` is in `PROJECT_ROOT/fastlane/Fastfile`
 		// If no - generated fastlane step will require `work_dir` input too
 		relFastfile, err := filepath.Rel(detector.SearchDir, fastFile)
 		if err != nil {
-			return []models.OptionModel{}, err
+			return models.OptionModel{}, err
 		}
 
 		relFastlaneDir := filepath.Dir(relFastfile)
@@ -180,7 +180,7 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 			workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 			workDirOption.ValueMap[fastFileDir] = laneOption
 
-			options = append(options, workDirOption)
+			fastFileOption.ValueMap[fastFile] = workDirOption
 		} else {
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = fastlaneConfigName(false)
@@ -190,11 +190,11 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 				laneOption.ValueMap[lane] = configOption
 			}
 
-			options = append(options, laneOption)
+			fastFileOption.ValueMap[fastFile] = laneOption
 		}
 	}
 
-	return options, nil
+	return fastFileOption, nil
 }
 
 // Configs ...

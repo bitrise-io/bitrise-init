@@ -209,7 +209,7 @@ func (detector *Ios) DetectPlatform() (bool, error) {
 }
 
 // Analyze ...
-func (detector *Ios) Analyze() ([]models.OptionModel, error) {
+func (detector *Ios) Analyze() (models.OptionModel, error) {
 	// Check for Podfiles
 	podFiles := filterPodFiles(detector.FileList)
 	detector.HasPodFile = (len(podFiles) > 0)
@@ -217,12 +217,12 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 	workspaceMap := map[string]string{}
 	for _, podFile := range podFiles {
 		if err := os.Setenv("pod_file_path", podFile); err != nil {
-			return nil, err
+			return models.OptionModel{}, err
 		}
 
 		podfileWorkspaceMap, err := utility.GetWorkspaces()
 		if err != nil {
-			return nil, err
+			return models.OptionModel{}, err
 		}
 
 		for workspace, project := range podfileWorkspaceMap {
@@ -248,14 +248,12 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 		}
 	}
 
-	options := []models.OptionModel{}
+	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
 
 	for _, project := range validProjects {
-		projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
-
 		schemes, err := filterSharedSchemes(detector.FileList, project)
 		if err != nil {
-			return []models.OptionModel{}, err
+			return models.OptionModel{}, err
 		}
 
 		log.Infof("Schemes: %v", schemes)
@@ -278,11 +276,9 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 		}
 
 		projectPathOption.ValueMap[project] = schemeOption
-
-		options = append(options, projectPathOption)
 	}
 
-	return options, nil
+	return projectPathOption, nil
 }
 
 // Configs ...

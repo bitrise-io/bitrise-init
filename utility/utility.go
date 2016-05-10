@@ -27,6 +27,10 @@ func FileList(searchDir string) ([]string, error) {
 		// 	return err
 		// }
 		//
+		// rel = filepath.Join("./", rel)
+		//
+		// // fmt.Println(rel)
+		//
 		// fileList = append(fileList, rel)
 		fileList = append(fileList, path)
 

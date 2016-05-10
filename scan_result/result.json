@@ -1,96 +1,97 @@
 {
 	"options": {
-		"android": [
-			{
-				"title": "Path to the gradle file to use",
-				"env_key": "BITRISE_PROJECT_PATH",
-				"value_map": {
-					"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/app/build.gradle": {
-						"title": "Gradle task to run",
-						"env_key": "GRADLE_TASK",
-						"value_map": {
-							"assembleAndroidTest": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+		"android": {
+			"title": "Path to the gradle file to use",
+			"env_key": "BITRISE_PROJECT_PATH",
+			"value_map": {
+				"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/app/build.gradle": {
+					"title": "Gradle task to run",
+					"env_key": "GRADLE_TASK",
+					"value_map": {
+						"assembleAndroidTest": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
-							},
-							"assembleDebug": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+							}
+						},
+						"assembleDebug": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
-							},
-							"assembleRelease": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+							}
+						},
+						"assembleRelease": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
 							}
 						}
-					},
-					"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/build.gradle": {
-						"title": "Gradle task to run",
-						"env_key": "GRADLE_TASK",
-						"value_map": {
-							"assembleAndroidTest": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+					}
+				},
+				"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/build.gradle": {
+					"title": "Gradle task to run",
+					"env_key": "GRADLE_TASK",
+					"value_map": {
+						"assembleAndroidTest": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
-							},
-							"assembleDebug": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+							}
+						},
+						"assembleDebug": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
-							},
-							"assembleRelease": {
-								"title": "Gradlew file path",
-								"env_key": "GRADLEW_PATH",
-								"value_map": {
-									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
-										"config": "android-gradlew-config"
-									}
+							}
+						},
+						"assembleRelease": {
+							"title": "Gradlew file path",
+							"env_key": "GRADLEW_PATH",
+							"value_map": {
+								"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+									"config": "android-gradlew-config"
 								}
 							}
 						}
 					}
 				}
 			}
-		],
-		"fastlane": [
-			{
-				"title": "fastlane lane",
-				"env_key": "FASTLANE_LANE",
-				"value_map": {
-					"beta": {
-						"config": "fastlane-config"
-					},
-					"deploy": {
-						"config": "fastlane-config"
-					},
-					"test": {
-						"config": "fastlane-config"
+		},
+		"fastlane": {
+			"title": "Fatsfile's path",
+			"value_map": {
+				"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/fastlane/Fastfile": {
+					"title": "fastlane lane",
+					"env_key": "FASTLANE_LANE",
+					"value_map": {
+						"beta": {
+							"config": "fastlane-config"
+						},
+						"deploy": {
+							"config": "fastlane-config"
+						},
+						"test": {
+							"config": "fastlane-config"
+						}
 					}
 				}
 			}
-		]
+		}
 	},
 	"configs": {
 		"android": {

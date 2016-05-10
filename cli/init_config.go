@@ -63,6 +63,19 @@ func initConfig(c *cli.Context) {
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 	}
 
+	if searchDir != currentDir {
+		log.Infof("Change work dir to (%s)", searchDir)
+		if err := os.Chdir(searchDir); err != nil {
+			log.Fatalf("Failed to change dir, to (%s), error: %s", searchDir, err)
+		}
+		defer func() {
+			log.Infof("Change work dir to (%s)", currentDir)
+			if err := os.Chdir(currentDir); err != nil {
+				log.Warnf("Failed to change dir, to (%s), error: %s", searchDir, err)
+			}
+		}()
+	}
+
 	if outputDir == "" {
 		outputDir = filepath.Join(currentDir, "scan_result")
 	}
@@ -89,7 +102,7 @@ func initConfig(c *cli.Context) {
 		new(scanners.Ios),
 		new(scanners.Fastlane),
 	}
-	optionsMap := map[string][]models.OptionModel{}
+	optionsMap := map[string]models.OptionModel{}
 	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
 
 	log.Infof(colorstring.Blue("Running scanners:"))
@@ -113,20 +126,20 @@ func initConfig(c *cli.Context) {
 		log.Info("  +------------------------------------------------------------------------------+")
 		log.Info("  |                                                                              |")
 
-		options, err := detector.Analyze()
+		option, err := detector.Analyze()
 		if err != nil {
 			log.Fatalf("Analyzer failed, error: %s", err)
 		}
 
 		log.Debug()
 		log.Debug("Analyze result:")
-		bytes, err := yaml.Marshal(options)
+		bytes, err := yaml.Marshal(option)
 		if err != nil {
-			log.Fatalf("Failed to marshal options, err: %s", err)
+			log.Fatalf("Failed to marshal option, err: %s", err)
 		}
 		log.Debugf("\n%v", string(bytes))
 
-		optionsMap[detectorName] = options
+		optionsMap[detectorName] = option
 
 		// Generate configs
 		log.Debug()
@@ -137,7 +150,7 @@ func initConfig(c *cli.Context) {
 
 			bytes, err := yaml.Marshal(config)
 			if err != nil {
-				log.Fatalf("Failed to marshal options, err: %s", err)
+				log.Fatalf("Failed to marshal option, err: %s", err)
 			}
 			log.Debugf("\n%v", string(bytes))
 		}
@@ -155,7 +168,7 @@ func initConfig(c *cli.Context) {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
 		scanResult := models.ScanResultModel{
-			OptionsMap: optionsMap,
+			OptionMap:  optionsMap,
 			ConfigsMap: configsMap,
 		}
 
@@ -179,10 +192,10 @@ func initConfig(c *cli.Context) {
 	}
 
 	//
-	// Select options
+	// Select option
 	log.Infof(colorstring.Blue("Collecting inputs:"))
 
-	for detectorName, options := range optionsMap {
+	for detectorName, option := range optionsMap {
 		log.Infof("  Scanner: %s", colorstring.Blue(detectorName))
 
 		// Init
@@ -203,7 +216,7 @@ func initConfig(c *cli.Context) {
 		configPth := ""
 		appEnvs := []envmanModels.EnvironmentItemModel{}
 
-		var walkDepth func(options models.OptionModel)
+		var walkDepth func(option models.OptionModel)
 
 		walkDepth = func(option models.OptionModel) {
 			optionEnvKey, selectedValue, err := askForValue(option)
@@ -227,9 +240,7 @@ func initConfig(c *cli.Context) {
 			walkDepth(nestedOptions)
 		}
 
-		for _, option := range options {
-			walkDepth(option)
-		}
+		walkDepth(option)
 
 		log.Debug()
 		log.Debug("Selected app envs:")

@@ -6,7 +6,7 @@ import (
 
 // ScanResultModel ...
 type ScanResultModel struct {
-	OptionsMap map[string][]OptionModel                             `json:"options,omitempty" yaml:"options,omitempty"`
+	OptionMap  map[string]OptionModel                               `json:"options,omitempty" yaml:"options,omitempty"`
 	ConfigsMap map[string]map[string]bitriseModels.BitriseDataModel `json:"configs,omitempty" yaml:"configs,omitempty"`
 }
 
