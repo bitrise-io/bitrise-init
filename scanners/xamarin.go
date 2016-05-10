@@ -283,13 +283,13 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 				configOption := models.NewEmptyOptionModel()
 				configOption.Config = xamarinConfigName(detector.HasNugetPackages, detector.HasXamarinComponents)
 
-				xamarinPlatformOption.AddValueMapItem(platform, configOption)
+				xamarinPlatformOption.ValueMap[platform] = configOption
 			}
 
-			xamarinConfigurationOption.AddValueMapItem(config, xamarinPlatformOption)
+			xamarinConfigurationOption.ValueMap[config] = xamarinPlatformOption
 		}
 
-		xamarinProjectOption.AddValueMapItem(solutionFile, xamarinConfigurationOption)
+		xamarinProjectOption.ValueMap[solutionFile] = xamarinConfigurationOption
 
 		options = append(options, xamarinProjectOption)
 	}

@@ -50,11 +50,6 @@ func NewEmptyOptionModel() OptionModel {
 	}
 }
 
-// AddValueMapItem ...
-func (option *OptionModel) AddValueMapItem(value string, nestedOption OptionModel) {
-	option.ValueMap[value] = nestedOption
-}
-
 // GetValues ...
 func (option OptionModel) GetValues() []string {
 	if option.Config != "" {

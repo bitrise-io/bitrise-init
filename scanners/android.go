@@ -187,15 +187,15 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 
 			if detector.HasGradlewFile {
 				gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
-				gradlewPathOption.AddValueMapItem(rootGradlewPath, configOption)
+				gradlewPathOption.ValueMap[rootGradlewPath] = configOption
 
-				gradleTaskOption.AddValueMapItem(config, gradlewPathOption)
+				gradleTaskOption.ValueMap[config] = gradlewPathOption
 			} else {
-				gradleTaskOption.AddValueMapItem(config, configOption)
+				gradleTaskOption.ValueMap[config] = configOption
 			}
 		}
 
-		gradleFileOption.AddValueMapItem(gradleFile, gradleTaskOption)
+		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
 	}
 
 	options = append(options, gradleFileOption)

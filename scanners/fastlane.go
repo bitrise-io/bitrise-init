@@ -172,13 +172,13 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 
 			laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 			for _, lane := range lanes {
-				laneOption.AddValueMapItem(lane, configOption)
+				laneOption.ValueMap[lane] = configOption
 			}
 
 			fastFileDir := filepath.Dir(fastFile)
 
 			workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
-			workDirOption.AddValueMapItem(fastFileDir, laneOption)
+			workDirOption.ValueMap[fastFileDir] = laneOption
 
 			options = append(options, workDirOption)
 		} else {
@@ -187,7 +187,7 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 
 			laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 			for _, lane := range lanes {
-				laneOption.AddValueMapItem(lane, configOption)
+				laneOption.ValueMap[lane] = configOption
 			}
 
 			options = append(options, laneOption)

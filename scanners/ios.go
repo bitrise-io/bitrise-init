@@ -274,10 +274,10 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = iOSConfigName(detector.HasPodFile, hasTest)
 
-			schemeOption.AddValueMapItem(scheme.Name, configOption)
+			schemeOption.ValueMap[scheme.Name] = configOption
 		}
 
-		projectPathOption.AddValueMapItem(project, schemeOption)
+		projectPathOption.ValueMap[project] = schemeOption
 
 		options = append(options, projectPathOption)
 	}
