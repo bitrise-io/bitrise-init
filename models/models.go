@@ -11,24 +11,21 @@ type ScanResultModel struct {
 }
 
 /*
-- key: project_path
-  title: Project (or Workspace) path
+- title: Project (or Workspace) path
   envkey: BITRISE_PROJECT_PATH
   valuemap:
     ~/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj:
-    - key: scheme
-      title: Scheme name
+    - title: Scheme name
       envkey: BITRISE_SCHEME
       valuemap:
         SampleAppWithCocoapods: []
 */
 
 // OptionValueMap ...
-type OptionValueMap map[string][]OptionModel
+type OptionValueMap map[string]OptionModel
 
 // OptionModel ...
 type OptionModel struct {
-	Key    string `json:"key,omitempty" yaml:"key,omitempty"`
 	Title  string `json:"title,omitempty"  yaml:"title,omitempty"`
 	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
 
@@ -37,9 +34,8 @@ type OptionModel struct {
 }
 
 // NewOptionModel ...
-func NewOptionModel(key, title, envKey string) OptionModel {
+func NewOptionModel(title, envKey string) OptionModel {
 	return OptionModel{
-		Key:    key,
 		Title:  title,
 		EnvKey: envKey,
 
@@ -54,11 +50,9 @@ func NewEmptyOptionModel() OptionModel {
 	}
 }
 
-// AddValueMapItems ...
-func (option *OptionModel) AddValueMapItems(value string, options ...OptionModel) {
-	nestedOptions := option.ValueMap[value]
-	nestedOptions = append(nestedOptions, options...)
-	option.ValueMap[value] = nestedOptions
+// AddValueMapItem ...
+func (option *OptionModel) AddValueMapItem(value string, nestedOption OptionModel) {
+	option.ValueMap[value] = nestedOption
 }
 
 // GetValues ...

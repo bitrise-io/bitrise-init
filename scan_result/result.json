@@ -1,0 +1,175 @@
+{
+	"options": {
+		"android": [
+			{
+				"title": "Path to the gradle file to use",
+				"env_key": "BITRISE_PROJECT_PATH",
+				"value_map": {
+					"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/app/build.gradle": {
+						"title": "Gradle task to run",
+						"env_key": "GRADLE_TASK",
+						"value_map": {
+							"assembleAndroidTest": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							},
+							"assembleDebug": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							},
+							"assembleRelease": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							}
+						}
+					},
+					"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/build.gradle": {
+						"title": "Gradle task to run",
+						"env_key": "GRADLE_TASK",
+						"value_map": {
+							"assembleAndroidTest": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							},
+							"assembleDebug": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							},
+							"assembleRelease": {
+								"title": "Gradlew file path",
+								"env_key": "GRADLEW_PATH",
+								"value_map": {
+									"/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android/gradlew": {
+										"config": "android-gradlew-config"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		],
+		"fastlane": [
+			{
+				"title": "fastlane lane",
+				"env_key": "FASTLANE_LANE",
+				"value_map": {
+					"beta": {
+						"config": "fastlane-config"
+					},
+					"deploy": {
+						"config": "fastlane-config"
+					},
+					"test": {
+						"config": "fastlane-config"
+					}
+				}
+			}
+		]
+	},
+	"configs": {
+		"android": {
+			"android-gradlew-config": {
+				"format_version": "1.1.0",
+				"default_step_lib_source": "https://github.com/bitrise-io/bitrise-steplib.git",
+				"app": {},
+				"workflows": {
+					"primary": {
+						"steps": [
+							{
+								"git-clone@3.1.1": {
+									"source": {},
+									"deps": {}
+								}
+							},
+							{
+								"gradle-runner@1.3.1": {
+									"source": {},
+									"deps": {},
+									"inputs": [
+										{
+											"gradle_file": "$BITRISE_PROJECT_PATH"
+										},
+										{
+											"gradle_task": "$GRADLE_TASK"
+										},
+										{
+											"gradlew_path": "$GRADLEW_PATH"
+										}
+									]
+								}
+							},
+							{
+								"deploy-to-bitrise-io@1.2.2": {
+									"source": {},
+									"deps": {}
+								}
+							}
+						]
+					}
+				}
+			}
+		},
+		"fastlane": {
+			"fastlane-config": {
+				"format_version": "1.1.0",
+				"default_step_lib_source": "https://github.com/bitrise-io/bitrise-steplib.git",
+				"app": {},
+				"workflows": {
+					"primary": {
+						"steps": [
+							{
+								"git-clone@3.1.1": {
+									"source": {},
+									"deps": {}
+								}
+							},
+							{
+								"certificate-and-profile-installer@1.4.0": {
+									"source": {},
+									"deps": {}
+								}
+							},
+							{
+								"fastlane@2.1.3": {
+									"source": {},
+									"deps": {},
+									"inputs": [
+										{
+											"lane": "$FASTLANE_LANE"
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

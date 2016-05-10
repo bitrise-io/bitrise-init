@@ -155,7 +155,6 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 		detector.HasGradlewFile = true
 	}
 
-	var gradlewPathOption models.OptionModel
 	gradleBin := "gradle"
 	if detector.HasGradlewFile {
 		err := os.Chmod(rootGradlewPath, 0770)
@@ -164,13 +163,13 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 		}
 
 		gradleBin = rootGradlewPath
-
-		gradlewPathOption = models.NewOptionModel(gradlewPathKey, gradlewPathTitle, gradlewPathEnvKey)
-		gradlewPathOption.AddValueMapItems(rootGradlewPath)
 	}
 
 	// Inspect Gradle files
-	gradleFileOption := models.NewOptionModel(gradleFileKey, gradleFileTitle, gradleFileEnvKey)
+	options := []models.OptionModel{}
+
+	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
+
 	for _, gradleFile := range detector.GradleFiles {
 		log.Infof("Inspecting gradle file: %s", gradleFile)
 		log.Infof(" $ %s tasks --build-file %s", gradleBin, gradleFile)
@@ -180,24 +179,26 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 			return []models.OptionModel{}, fmt.Errorf("failed to inspect gradle files, error: %s", err)
 		}
 
-		gradleTaskOption := models.NewOptionModel(gradleTaskKey, gradleTaskTitle, gradleTaskEnvKey)
+		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
 		for _, config := range configs {
+
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = androidConfigName(detector.HasGradlewFile)
 
-			gradleTaskOption.AddValueMapItems(config, configOption)
+			if detector.HasGradlewFile {
+				gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
+				gradlewPathOption.AddValueMapItem(rootGradlewPath, configOption)
+
+				gradleTaskOption.AddValueMapItem(config, gradlewPathOption)
+			} else {
+				gradleTaskOption.AddValueMapItem(config, configOption)
+			}
 		}
 
-		gradleFileOption.AddValueMapItems(gradleFile, gradleTaskOption)
+		gradleFileOption.AddValueMapItem(gradleFile, gradleTaskOption)
 	}
 
-	options := []models.OptionModel{
-		gradleFileOption,
-	}
-
-	if rootGradlewPath != "" {
-		options = append(options, gradlewPathOption)
-	}
+	options = append(options, gradleFileOption)
 
 	return options, nil
 }

@@ -248,8 +248,11 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 		}
 	}
 
-	projectPathOption := models.NewOptionModel(projectPathKey, projectPathTitle, projectPathEnvKey)
+	options := []models.OptionModel{}
+
 	for _, project := range validProjects {
+		projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
+
 		schemes, err := filterSharedSchemes(detector.FileList, project)
 		if err != nil {
 			return []models.OptionModel{}, err
@@ -261,7 +264,7 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 			continue
 		}
 
-		schemeOption := models.NewOptionModel(schemeKey, schemeTitle, schemeEnvKey)
+		schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
 		for _, scheme := range schemes {
 			hasTest := scheme.HasTest
 			if hasTest {
@@ -271,14 +274,12 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = iOSConfigName(detector.HasPodFile, hasTest)
 
-			schemeOption.AddValueMapItems(scheme.Name, configOption)
+			schemeOption.AddValueMapItem(scheme.Name, configOption)
 		}
 
-		projectPathOption.AddValueMapItems(project, schemeOption)
-	}
+		projectPathOption.AddValueMapItem(project, schemeOption)
 
-	options := []models.OptionModel{
-		projectPathOption,
+		options = append(options, projectPathOption)
 	}
 
 	return options, nil

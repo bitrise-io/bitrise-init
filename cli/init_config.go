@@ -30,7 +30,7 @@ func askForValue(option models.OptionModel) (string, string, error) {
 	if len(optionValues) == 1 {
 		selectedValue = optionValues[0]
 	} else {
-		question := fmt.Sprintf("Select: %s (%s)", option.Title, option.Key)
+		question := fmt.Sprintf("Select: %s", option.Title)
 		answer, err := goinp.SelectFromStrings(question, optionValues)
 		if err != nil {
 			return "", "", err
@@ -203,12 +203,12 @@ func initConfig(c *cli.Context) {
 		configPth := ""
 		appEnvs := []envmanModels.EnvironmentItemModel{}
 
-		var walkWidth func(options []models.OptionModel)
+		var walkDepth func(options models.OptionModel)
 
-		walkDepth := func(option models.OptionModel) {
+		walkDepth = func(option models.OptionModel) {
 			optionEnvKey, selectedValue, err := askForValue(option)
 			if err != nil {
-				log.Fatalf("Failed to ask for vale of key (%s), error: %s", option.Key, err)
+				log.Fatalf("Failed to ask for vale, error: %s", err)
 			}
 
 			if optionEnvKey == "" {
@@ -219,21 +219,17 @@ func initConfig(c *cli.Context) {
 				})
 			}
 
-			nestedOptions := option.ValueMap[selectedValue]
-			if len(nestedOptions) == 0 {
+			nestedOptions, found := option.ValueMap[selectedValue]
+			if !found {
 				return
 			}
 
-			walkWidth(nestedOptions)
+			walkDepth(nestedOptions)
 		}
 
-		walkWidth = func(options []models.OptionModel) {
-			for _, option := range options {
-				walkDepth(option)
-			}
+		for _, option := range options {
+			walkDepth(option)
 		}
-
-		walkWidth(options)
 
 		log.Debug()
 		log.Debug("Selected app envs:")

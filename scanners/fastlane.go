@@ -76,6 +76,9 @@ func inspectFastFile(fastFile string) ([]string, error) {
 		if expectedLinesStart {
 			expectedLines = append(expectedLines, line)
 		}
+		if line == "}" {
+			expectedLinesStart = false
+		}
 	}
 
 	expectedLinesStr := strings.Join(expectedLines, "\n")
@@ -167,24 +170,24 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = fastlaneConfigName(true)
 
-			laneOption := models.NewOptionModel(laneKey, laneTitle, laneEnvKey)
+			laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 			for _, lane := range lanes {
-				laneOption.AddValueMapItems(lane, configOption)
+				laneOption.AddValueMapItem(lane, configOption)
 			}
 
 			fastFileDir := filepath.Dir(fastFile)
 
-			workDirOption := models.NewOptionModel(workDirKey, workDirTitle, workDirEnvKey)
-			workDirOption.AddValueMapItems(fastFileDir, laneOption)
+			workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
+			workDirOption.AddValueMapItem(fastFileDir, laneOption)
 
 			options = append(options, workDirOption)
 		} else {
 			configOption := models.NewEmptyOptionModel()
 			configOption.Config = fastlaneConfigName(false)
 
-			laneOption := models.NewOptionModel(laneKey, laneTitle, laneEnvKey)
+			laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 			for _, lane := range lanes {
-				laneOption.AddValueMapItems(lane, configOption)
+				laneOption.AddValueMapItem(lane, configOption)
 			}
 
 			options = append(options, laneOption)

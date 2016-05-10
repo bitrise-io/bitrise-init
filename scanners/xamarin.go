@@ -248,8 +248,11 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 	}
 
 	// Check for solution projects
-	xamarinProjectOption := models.NewOptionModel(xamarinProjectKey, xamarinProjectTitle, xamarinProjectEnvKey)
+	options := []models.OptionModel{}
+
 	for solutionFile, configMap := range validSolutionMap {
+		xamarinProjectOption := models.NewOptionModel(xamarinProjectTitle, xamarinProjectEnvKey)
+
 		projects, err := getProjects(solutionFile)
 		if err != nil {
 			return nil, err
@@ -272,24 +275,24 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 			apis = append(apis, api)
 		}
 
-		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationKey, xamarinConfigurationTitle, xamarinConfigurationEnvKey)
-		for config, platforms := range configMap {
+		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
 
-			xamarinPlatformOption := models.NewOptionModel(xamarinPlatformKey, xamarinPlatformTitle, xamarinPlatformEnvKey)
+		for config, platforms := range configMap {
+			xamarinPlatformOption := models.NewOptionModel(xamarinPlatformTitle, xamarinPlatformEnvKey)
 			for _, platform := range platforms {
 				configOption := models.NewEmptyOptionModel()
 				configOption.Config = xamarinConfigName(detector.HasNugetPackages, detector.HasXamarinComponents)
 
-				xamarinPlatformOption.AddValueMapItems(platform, configOption)
+				xamarinPlatformOption.AddValueMapItem(platform, configOption)
 			}
 
-			xamarinConfigurationOption.AddValueMapItems(config, xamarinPlatformOption)
+			xamarinConfigurationOption.AddValueMapItem(config, xamarinPlatformOption)
 		}
 
-		xamarinProjectOption.AddValueMapItems(solutionFile, xamarinConfigurationOption)
-	}
+		xamarinProjectOption.AddValueMapItem(solutionFile, xamarinConfigurationOption)
 
-	options := []models.OptionModel{xamarinProjectOption}
+		options = append(options, xamarinProjectOption)
+	}
 
 	return options, nil
 }
