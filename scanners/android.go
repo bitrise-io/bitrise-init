@@ -60,6 +60,10 @@ func filterGradlewFiles(fileList []string) []string {
 }
 
 func inspectGradleFile(gradleFile string, gradleBin string) ([]string, error) {
+	if !strings.HasPrefix(gradleBin, "./") {
+		gradleBin = "./" + gradleBin
+	}
+
 	out, err := cmdex.RunCommandAndReturnCombinedStdoutAndStderr(gradleBin, "tasks", "--build-file", gradleFile)
 	if err != nil {
 		return []string{}, fmt.Errorf("output: %s, error: %s", out, err)

@@ -155,14 +155,9 @@ func (detector *Fastlane) Analyze() (models.OptionModel, error) {
 			return models.OptionModel{}, err
 		}
 
-		// Check if `Fastfile` is in `PROJECT_ROOT/fastlane/Fastfile`
+		// Check if `Fastfile` is in `./fastlane/Fastfile`
 		// If no - generated fastlane step will require `work_dir` input too
-		relFastfile, err := filepath.Rel(detector.SearchDir, fastFile)
-		if err != nil {
-			return models.OptionModel{}, err
-		}
-
-		relFastlaneDir := filepath.Dir(relFastfile)
+		relFastlaneDir := filepath.Dir(fastFile)
 
 		if relFastlaneDir != "fastlane" {
 			detector.IsWorkDirSet = true

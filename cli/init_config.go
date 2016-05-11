@@ -13,7 +13,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/version"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/colorstring"
@@ -58,9 +57,9 @@ func initConfig(c *cli.Context) {
 	if searchDir == "" {
 		searchDir = currentDir
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
+		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 	}
 
 	if searchDir != currentDir {
@@ -81,7 +80,7 @@ func initConfig(c *cli.Context) {
 	}
 
 	fmt.Println()
-	log.Info(colorstring.Greenf("Running scanner v%s", version.VERSION))
+	log.Info(colorstring.Greenf("Running %s v%s", c.App.Name, c.App.Version))
 	fmt.Println()
 
 	if isCI {
