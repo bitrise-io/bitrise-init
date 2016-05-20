@@ -56,8 +56,8 @@ func initConfig(c *cli.Context) {
 
 	if searchDir == "" {
 		searchDir = currentDir
-		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
+		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 	}

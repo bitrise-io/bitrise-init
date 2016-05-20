@@ -48,6 +48,18 @@ var (
 // Utility
 //--------------------------------------------------
 
+func fixedGradlewPath(gradlewPth string) string {
+	split := strings.Split(gradlewPth, "/")
+	if len(split) != 1 {
+		return gradlewPth
+	}
+
+	if !strings.HasPrefix(gradlewPth, "./") {
+		return "./" + gradlewPth
+	}
+	return gradlewPth
+}
+
 func filterGradleFiles(fileList []string) []string {
 	gradleFiles := utility.FilterFilesWithBasPaths(fileList, buildGradleBasePath)
 	sort.Sort(utility.ByComponents(gradleFiles))
@@ -57,16 +69,18 @@ func filterGradleFiles(fileList []string) []string {
 
 func filterGradlewFiles(fileList []string) []string {
 	gradlewFiles := utility.FilterFilesWithBasPaths(fileList, gradlewBasePath)
-	sort.Sort(utility.ByComponents(gradlewFiles))
 
-	return gradlewFiles
+	fixedGradlewFiles := []string{}
+	for _, gradlewFile := range gradlewFiles {
+		fixedGradlewFiles = append(fixedGradlewFiles, fixedGradlewPath(gradlewFile))
+	}
+
+	sort.Sort(utility.ByComponents(fixedGradlewFiles))
+
+	return fixedGradlewFiles
 }
 
 func inspectGradleFile(gradleFile string, gradleBin string) ([]string, error) {
-	if !strings.HasPrefix(gradleBin, "./") {
-		gradleBin = "./" + gradleBin
-	}
-
 	out, err := cmdex.RunCommandAndReturnCombinedStdoutAndStderr(gradleBin, "tasks", "--build-file", gradleFile)
 	if err != nil {
 		return []string{}, fmt.Errorf("output: %s, error: %s", out, err)
