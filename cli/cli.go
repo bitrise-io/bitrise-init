@@ -85,9 +85,16 @@ func Run() {
 					Name:  "output-dir",
 					Usage: "Directory to save scan results.",
 				},
-				cli.BoolFlag{
-					Name:  "private",
-					Usage: "If true it indicates that source repository is private!",
+			},
+		},
+		cli.Command{
+			Name:   "defaults",
+			Usage:  "Generates default bitrise config files.",
+			Action: manualInitConfig,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "output-dir",
+					Usage: "Directory to save scan results.",
 				},
 			},
 		},

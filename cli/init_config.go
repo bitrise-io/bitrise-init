@@ -45,7 +45,6 @@ func initConfig(c *cli.Context) {
 	//
 	// Config
 	isCI := c.GlobalBool("ci")
-	isPrivate := c.Bool("private")
 	searchDir := c.String("dir")
 	outputDir := c.String("output-dir")
 
@@ -56,8 +55,8 @@ func initConfig(c *cli.Context) {
 
 	if searchDir == "" {
 		searchDir = currentDir
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
+		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 	}
@@ -86,9 +85,6 @@ func initConfig(c *cli.Context) {
 	if isCI {
 		log.Info(colorstring.Yellow("plugin runs in CI mode"))
 	}
-	if isPrivate {
-		log.Info(colorstring.Yellow("scanning private repository"))
-	}
 	log.Info(colorstring.Yellowf("scan dir: %s", searchDir))
 	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
 	fmt.Println()
@@ -101,6 +97,7 @@ func initConfig(c *cli.Context) {
 		new(scanners.Ios),
 		new(scanners.Fastlane),
 	}
+
 	optionsMap := map[string]models.OptionModel{}
 	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
 
@@ -125,7 +122,7 @@ func initConfig(c *cli.Context) {
 			continue
 		}
 
-		option, err := detector.Analyze()
+		option, err := detector.Options()
 		if err != nil {
 			log.Fatalf("Analyzer failed, error: %s", err)
 		}
@@ -143,7 +140,7 @@ func initConfig(c *cli.Context) {
 		// Generate configs
 		log.Debug()
 		log.Debug("Generated configs:")
-		configs := detector.Configs(isPrivate)
+		configs := detector.Configs()
 		for name, config := range configs {
 			log.Debugf("  name: %s", name)
 

@@ -15,6 +15,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
@@ -165,6 +166,10 @@ func iOSConfigName(hasPodfile, hasTest bool) string {
 	return name + "config"
 }
 
+func iOSDefaultConfigName() string {
+	return "default-ios-config"
+}
+
 //--------------------------------------------------
 // Detector
 //--------------------------------------------------
@@ -216,8 +221,8 @@ func (detector *Ios) DetectPlatform() (bool, error) {
 	return true, nil
 }
 
-// Analyze ...
-func (detector *Ios) Analyze() (models.OptionModel, error) {
+// Options ...
+func (detector *Ios) Options() (models.OptionModel, error) {
 	// Check for Podfiles
 	logger.InfoSection("Searching for Podfiles")
 
@@ -302,17 +307,33 @@ func (detector *Ios) Analyze() (models.OptionModel, error) {
 	return projectPathOption, nil
 }
 
+// DefaultOptions ...
+func (detector *Ios) DefaultOptions() models.OptionModel {
+	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
+
+	schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
+
+	configOption := models.NewEmptyOptionModel()
+	configOption.Config = iOSDefaultConfigName()
+
+	schemeOption.ValueMap["_"] = configOption
+
+	projectPathOption.ValueMap["_"] = schemeOption
+
+	return projectPathOption
+}
+
 // Configs ...
-func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDataModel {
+func (detector *Ios) Configs() map[string]bitriseModels.BitriseDataModel {
 	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{}
 	steps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
-	if isPrivate {
-		steps = append(steps, bitriseModels.StepListItemModel{
-			stepActivateSSHKeyIDComposite: stepmanModels.StepModel{},
-		})
-	}
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
+		},
+	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
@@ -391,7 +412,59 @@ func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDat
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
 
-	configName := iOSConfigName(detector.HasPodFile, false)
+	configName := iOSDefaultConfigName()
+	bitriseDataMap[configName] = bitriseData
+
+	return bitriseDataMap
+}
+
+// DefaultConfigs ...
+func (detector *Ios) DefaultConfigs() map[string]bitriseModels.BitriseDataModel {
+	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{}
+	steps := []bitriseModels.StepListItemModel{}
+
+	// ActivateSSHKey
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
+		},
+	})
+
+	// GitClone
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepGitCloneIDComposite: stepmanModels.StepModel{},
+	})
+
+	// CertificateAndProfileInstaller
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+	})
+
+	// CocoapodsInstall
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepCocoapodsInstallIDComposite: stepmanModels.StepModel{},
+	})
+
+	// XcodeArchive
+	inputs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
+	}
+
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepXcodeArchiveIDComposite: stepmanModels.StepModel{
+			Inputs: inputs,
+		},
+	})
+
+	// DeployToBitriseIo
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+	})
+
+	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
+
+	configName := iOSDefaultConfigName()
 	bitriseDataMap[configName] = bitriseData
 
 	return bitriseDataMap

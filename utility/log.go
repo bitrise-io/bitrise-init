@@ -42,6 +42,11 @@ func (logger *LoggerModel) InfofDetails(format string, args ...interface{}) {
 	logger.Logger.Infof("  " + fmt.Sprintf(format, args...))
 }
 
+// InfoDetails ...
+func (logger *LoggerModel) InfoDetails(args ...interface{}) {
+	logger.Logger.Info("  " + fmt.Sprint(args...))
+}
+
 // InfofReceipt ...
 func (logger *LoggerModel) InfofReceipt(format string, args ...interface{}) {
 	logger.Logger.Info(colorstring.Green("  " + fmt.Sprintf(format, args...)))
