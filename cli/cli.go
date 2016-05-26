@@ -74,7 +74,7 @@ func Run() {
 	app.Commands = []cli.Command{
 		cli.Command{
 			Name:   "config",
-			Usage:  "Generates a bitrise config files.",
+			Usage:  "Generates a bitrise config files based on your project.",
 			Action: initConfig,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -88,7 +88,7 @@ func Run() {
 			},
 		},
 		cli.Command{
-			Name:   "defaults",
+			Name:   "default-config",
 			Usage:  "Generates default bitrise config files.",
 			Action: manualInitConfig,
 			Flags: []cli.Flag{

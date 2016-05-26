@@ -25,15 +25,25 @@ func NewLogger() LoggerModel {
 	}
 }
 
+// Info ...
+func (logger *LoggerModel) Info(args ...interface{}) {
+	logger.Logger.Info(colorstring.Blue(args...))
+}
+
+// Infof ...
+func (logger *LoggerModel) Infof(format string, args ...interface{}) {
+	logger.Logger.Info(colorstring.Bluef(format, args...))
+}
+
 // InfoSection ...
 func (logger *LoggerModel) InfoSection(args ...interface{}) {
-	fmt.Println()
+	logger.Logger.Info()
 	logger.Logger.Info(colorstring.Blue(args...))
 }
 
 // InfofSection ...
 func (logger *LoggerModel) InfofSection(format string, args ...interface{}) {
-	fmt.Println()
+	logger.Logger.Info()
 	logger.Logger.Info(colorstring.Bluef(format, args...))
 }
 

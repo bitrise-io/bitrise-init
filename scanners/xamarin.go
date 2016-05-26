@@ -1,6 +1,7 @@
 package scanners
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -27,13 +28,21 @@ const (
 	solutionConfigurationStart = "GlobalSection(SolutionConfigurationPlatforms) = preSolution"
 	solutionConfigurationEnd   = "EndGlobalSection"
 
-	includemonoTouchAPIPattern   = `Include="monotouch"`
+	includeMonoTouchAPIPattern   = `Include="monotouch"`
 	includeXamarinIosAPIPattern  = `Include="Xamarin.iOS"`
 	includeMonoAndroidAPIPattern = `Include="Mono.Android"`
 
 	monoTouchAPI   = "monotouch"
 	xamarinIosAPI  = "Xamarin.iOS"
 	monoAndroidAPI = "Mono.Android"
+
+	includeXamarinUITestFrameworkPattern = `Include="Xamarin.UITest`
+	includeNunitFrameworkPattern         = `Include="nunit.framework`
+	includeNunitLiteFrameworkPattern     = `Include="MonoTouch.NUnitLite`
+
+	xamarinUITestType = "Xamarin UITest"
+	nunitTestType     = "NUnit test"
+	nunitLiteTestType = "NUnitLite test"
 )
 
 const (
@@ -128,10 +137,27 @@ func getProjectPlatformAPI(projectFile string) (string, error) {
 
 	if utility.CaseInsensitiveContains(content, includeMonoAndroidAPIPattern) {
 		return monoAndroidAPI, nil
-	} else if utility.CaseInsensitiveContains(content, includemonoTouchAPIPattern) {
+	} else if utility.CaseInsensitiveContains(content, includeMonoTouchAPIPattern) {
 		return monoTouchAPI, nil
 	} else if utility.CaseInsensitiveContains(content, includeXamarinIosAPIPattern) {
 		return xamarinIosAPI, nil
+	}
+
+	return "", nil
+}
+
+func getProjectTestType(projectFile string) (string, error) {
+	content, err := fileutil.ReadStringFromFile(projectFile)
+	if err != nil {
+		return "", err
+	}
+
+	if utility.CaseInsensitiveContains(content, includeXamarinUITestFrameworkPattern) {
+		return xamarinUITestType, nil
+	} else if utility.CaseInsensitiveContains(content, includeNunitLiteFrameworkPattern) {
+		return nunitLiteTestType, nil
+	} else if utility.CaseInsensitiveContains(content, includeNunitFrameworkPattern) {
+		return nunitTestType, nil
 	}
 
 	return "", nil
@@ -208,12 +234,12 @@ func (detector *Xamarin) DetectPlatform() (bool, error) {
 	detector.FileList = fileList
 
 	// Search for solution file
-	logger.InfoSection("Searching for solution files")
+	logger.Info("Searching for solution files")
 
 	solutionFiles := filterSolutionFiles(fileList)
 	detector.SolutionFiles = solutionFiles
 
-	logger.InfofDetails("%d solution files detected", len(solutionFiles))
+	logger.InfofDetails("%d solution file(s) detected", len(solutionFiles))
 
 	if len(solutionFiles) == 0 {
 		logger.InfofDetails("platform not detected")
@@ -269,16 +295,24 @@ func (detector *Xamarin) Options() (models.OptionModel, error) {
 	// Check for solution configs
 	validSolutionMap := map[string]map[string][]string{}
 	for _, solutionFile := range detector.SolutionFiles {
+		logger.InfofSection("Inspecting solution file: %s", solutionFile)
+
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
 			return models.OptionModel{}, err
 		}
 
 		if len(configs) > 0 {
+			logger.InfofReceipt("found configs: %v", configs)
+
 			validSolutionMap[solutionFile] = configs
 		} else {
 			log.Warnf("No config found for %s", solutionFile)
 		}
+	}
+
+	if len(validSolutionMap) == 0 {
+		return models.OptionModel{}, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
@@ -291,9 +325,8 @@ func (detector *Xamarin) Options() (models.OptionModel, error) {
 		}
 
 		// Inspect projects
-		apis := []string{}
 		for _, project := range projects {
-			logger.InfofSection("Inspecting project file: %s", project)
+			logger.InfofSection("  Inspecting project file: %s", project)
 
 			api, err := getProjectPlatformAPI(project)
 			if err != nil {
@@ -301,13 +334,21 @@ func (detector *Xamarin) Options() (models.OptionModel, error) {
 			}
 
 			if api == "" {
-				continue
+				testType, err := getProjectTestType(project)
+				if err != nil {
+					return models.OptionModel{}, err
+				}
+
+				if testType == "" {
+					log.Warn("    No platform api or test framework found")
+					continue
+				}
+
+				logger.InfofDetails("  %s test project", testType)
+			} else {
+				logger.InfofDetails("  %s project", api)
 			}
-
-			apis = append(apis, api)
 		}
-
-		logger.InfofReceipt("found configs: %v", configMap)
 
 		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
 

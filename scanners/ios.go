@@ -203,12 +203,12 @@ func (detector *Ios) DetectPlatform() (bool, error) {
 	detector.FileList = fileList
 
 	// Search for xcodeproj/xcworkspace file
-	logger.InfoSection("Searching for xcodeproj/xcworkspace files")
+	logger.Info("Searching for xcodeproj/xcworkspace files")
 
 	xcodeProjectFiles := filterXcodeprojectFiles(fileList)
 	detector.XcodeProjectFiles = xcodeProjectFiles
 
-	logger.InfofDetails("%d xcodeproj/xcworkspace files detected", len(xcodeProjectFiles))
+	logger.InfofDetails("%d xcodeproj/xcworkspace file(s) detected", len(xcodeProjectFiles))
 
 	if len(xcodeProjectFiles) == 0 {
 		logger.InfofDetails("platform not detected")
@@ -229,7 +229,7 @@ func (detector *Ios) Options() (models.OptionModel, error) {
 	podFiles := filterPodFiles(detector.FileList)
 	detector.HasPodFile = (len(podFiles) > 0)
 
-	logger.InfofDetails("%d Podfiles detected", len(podFiles))
+	logger.InfofDetails("%d Podfile(s) detected", len(podFiles))
 
 	workspaceMap := map[string]string{}
 	for _, podFile := range podFiles {
@@ -412,7 +412,7 @@ func (detector *Ios) Configs() map[string]bitriseModels.BitriseDataModel {
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
 
-	configName := iOSDefaultConfigName()
+	configName := iOSConfigName(detector.HasPodFile, false)
 	bitriseDataMap[configName] = bitriseData
 
 	return bitriseDataMap

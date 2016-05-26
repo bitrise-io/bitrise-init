@@ -159,12 +159,12 @@ func (detector *Android) DetectPlatform() (bool, error) {
 	detector.FileList = fileList
 
 	// Search for gradle file
-	logger.InfoSection("Searching for gradle files")
+	logger.Info("Searching for gradle files")
 
 	gradleFiles := filterGradleFiles(fileList)
 	detector.GradleFiles = gradleFiles
 
-	logger.InfofDetails("%d gradle files detected", len(gradleFiles))
+	logger.InfofDetails("%d gradle file(s) detected", len(gradleFiles))
 
 	if len(gradleFiles) == 0 {
 		logger.InfofDetails("platform not detected")
@@ -183,7 +183,7 @@ func (detector *Android) Options() (models.OptionModel, error) {
 
 	gradlewFiles := filterGradlewFiles(detector.FileList)
 
-	logger.InfofDetails("%d gradlew file detected", len(gradlewFiles))
+	logger.InfofDetails("%d gradlew file(s) detected", len(gradlewFiles))
 
 	rootGradlewPath := ""
 	if len(gradlewFiles) > 0 {

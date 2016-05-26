@@ -2,12 +2,14 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -15,7 +17,10 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/codegangsta/cli"
-	"github.com/going/toolkit/log"
+)
+
+const (
+	defaultOutputDir = "_defaults"
 )
 
 func manualInitConfig(c *cli.Context) {
@@ -30,8 +35,18 @@ func manualInitConfig(c *cli.Context) {
 	}
 
 	if outputDir == "" {
-		outputDir = filepath.Join(currentDir, "defaults")
+		outputDir = filepath.Join(currentDir, defaultOutputDir)
 	}
+
+	fmt.Println()
+	log.Info(colorstring.Greenf("Running %s v%s", c.App.Name, c.App.Version))
+	fmt.Println()
+
+	if isCI {
+		log.Info(colorstring.Yellow("CI mode"))
+	}
+	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
+	fmt.Println()
 
 	//
 	// Scan

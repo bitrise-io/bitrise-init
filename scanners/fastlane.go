@@ -136,12 +136,12 @@ func (detector *Fastlane) DetectPlatform() (bool, error) {
 	}
 
 	// Search for Fastfile
-	logger.InfoSection("Searching for Fastfiles")
+	logger.Info("Searching for Fastfiles")
 
 	fastFiles := filterFastFiles(fileList)
 	detector.FastFiles = fastFiles
 
-	logger.InfofDetails("%d Fastfiles detected", len(fastFiles))
+	logger.InfofDetails("%d Fastfile(s) detected", len(fastFiles))
 
 	if len(fastFiles) == 0 {
 		logger.InfofDetails("platform not detected")
