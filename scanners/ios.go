@@ -39,9 +39,9 @@ const (
 	schemeTitle  = "Scheme name"
 	schemeEnvKey = "BITRISE_SCHEME"
 
-	stepCocoapodsInstallIDComposite = "cocoapods-install@1.1.0"
-	stepXcodeArchiveIDComposite     = "xcode-archive@1.7.0"
-	stepXcodeTestIDComposite        = "xcode-test@1.13.3"
+	stepCocoapodsInstallIDComposite = "cocoapods-install@1.4.0"
+	stepXcodeArchiveIDComposite     = "xcode-archive@1.7.3"
+	stepXcodeTestIDComposite        = "xcode-test@1.13.7"
 )
 
 // SchemeModel ...

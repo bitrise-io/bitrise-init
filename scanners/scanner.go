@@ -9,9 +9,9 @@ import (
 
 const (
 	stepActivateSSHKeyIDComposite                 = "activate-ssh-key@3.1.0"
-	stepGitCloneIDComposite                       = "git-clone@3.1.1"
-	stepCertificateAndProfileInstallerIDComposite = "certificate-and-profile-installer@1.4.0"
-	stepDeployToBitriseIoIDComposite              = "deploy-to-bitrise-io@1.2.2"
+	stepGitCloneIDComposite                       = "git-clone@3.2.0"
+	stepCertificateAndProfileInstallerIDComposite = "certificate-and-profile-installer@1.5.0"
+	stepDeployToBitriseIoIDComposite              = "deploy-to-bitrise-io@1.2.3"
 )
 
 // ScannerInterface ...
