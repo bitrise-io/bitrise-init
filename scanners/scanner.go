@@ -5,6 +5,7 @@ import (
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -24,8 +25,8 @@ type ScannerInterface interface {
 	Options() (models.OptionModel, error)
 	DefaultOptions() models.OptionModel
 
-	Configs() map[string]bitriseModels.BitriseDataModel
-	DefaultConfigs() map[string]bitriseModels.BitriseDataModel
+	Configs() (map[string]string, error)
+	DefaultConfigs() (map[string]string, error)
 }
 
 func customConfigName() string {
@@ -33,8 +34,8 @@ func customConfigName() string {
 }
 
 // CustomConfig ...
-func CustomConfig() map[string]bitriseModels.BitriseDataModel {
-	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{}
+func CustomConfig() (map[string]string, error) {
+	bitriseDataMap := map[string]string{}
 	steps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -50,9 +51,13 @@ func CustomConfig() map[string]bitriseModels.BitriseDataModel {
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
+	data, err := yaml.Marshal(bitriseData)
+	if err != nil {
+		return map[string]string{}, err
+	}
 
 	configName := customConfigName()
-	bitriseDataMap[configName] = bitriseData
+	bitriseDataMap[configName] = string(data)
 
-	return bitriseDataMap
+	return bitriseDataMap, nil
 }

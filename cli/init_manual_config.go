@@ -73,7 +73,7 @@ func initManualConfig(c *cli.Context) {
 	}
 
 	optionsMap := map[string]models.OptionModel{}
-	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
+	configsMap := map[string]map[string]string{}
 
 	for _, detector := range platformDetectors {
 		detectorName := detector.Name()
@@ -90,7 +90,10 @@ func initManualConfig(c *cli.Context) {
 
 		optionsMap[detectorName] = option
 
-		configs := detector.DefaultConfigs()
+		configs, err := detector.DefaultConfigs()
+		if err != nil {
+			log.Fatalf("Failed create default configs, error: %s", err)
+		}
 
 		for name, config := range configs {
 			log.Debugf("  name: %s", name)
@@ -105,7 +108,12 @@ func initManualConfig(c *cli.Context) {
 		configsMap[detectorName] = configs
 	}
 
-	configsMap["custom"] = scanners.CustomConfig()
+	customConfigs, err := scanners.CustomConfig()
+	if err != nil {
+		log.Fatalf("Failed create default custom configs, error: %s", err)
+	}
+
+	configsMap["custom"] = customConfigs
 
 	//
 	// Write output to files
@@ -213,7 +221,13 @@ func initManualConfig(c *cli.Context) {
 		log.Debugf("\n%v", string(aBytes))
 
 		configMap := configsMap[detectorName]
-		config := configMap[configPth]
+		configStr := configMap[configPth]
+
+		var config bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
+			log.Fatalf("Failed to unmarshal config, error: %s", err)
+		}
+
 		config.App.Environments = appEnvs
 
 		log.Debug()
