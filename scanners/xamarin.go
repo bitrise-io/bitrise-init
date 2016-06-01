@@ -68,9 +68,8 @@ const (
 	xamarinAndroidLicenceTitle  = "Xamarin.Android License"
 	xamarinAndroidLicenceEnvKey = "__XAMARIN_ANDROID_LICENSE_VALUE__"
 
-	stepXamarinUserManagementIDComposite = "xamarin-user-management@1.0.1"
-
-	stepNugetRestoreIDComposite             = "nuget-restore@0.9.0"
+	stepXamarinUserManagementIDComposite    = "xamarin-user-management@1.0.2"
+	stepNugetRestoreIDComposite             = "nuget-restore@0.9.1"
 	stepXamarinComponentsRestoreIDComposite = "xamarin-components-restore@0.9.0"
 )
 

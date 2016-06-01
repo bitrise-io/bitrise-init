@@ -28,14 +28,14 @@ const (
 
 const (
 	laneKey    = "lane"
-	laneTitle  = "fastlane lane"
+	laneTitle  = "Fastlane lane"
 	laneEnvKey = "FASTLANE_LANE"
 
 	workDirKey    = "work_dir"
 	workDirTitle  = "Working directory"
 	workDirEnvKey = "FASTLANE_WORK_DIR"
 
-	stepFastlaneIDComposite = "fastlane@2.1.3"
+	stepFastlaneIDComposite = "fastlane@2.2.0"
 )
 
 //--------------------------------------------------

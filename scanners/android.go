@@ -28,7 +28,7 @@ const (
 const (
 	gradleFileKey    = "gradle_file"
 	gradleFileTitle  = "Path to the gradle file to use"
-	gradleFileEnvKey = "BITRISE_PROJECT_PATH"
+	gradleFileEnvKey = "GRADLE_BUILD_FILE_PATH"
 
 	gradleTaskKey    = "gradle_task"
 	gradleTaskTitle  = "Gradle task to run"
