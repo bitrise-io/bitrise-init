@@ -36,8 +36,8 @@ func BitriseDataWithPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel
 
 // ScanResultModel ...
 type ScanResultModel struct {
-	OptionMap  map[string]OptionModel                               `json:"options,omitempty" yaml:"options,omitempty"`
-	ConfigsMap map[string]map[string]bitriseModels.BitriseDataModel `json:"configs,omitempty" yaml:"configs,omitempty"`
+	OptionMap  map[string]OptionModel       `json:"options,omitempty" yaml:"options,omitempty"`
+	ConfigsMap map[string]map[string]string `json:"configs,omitempty" yaml:"configs,omitempty"`
 }
 
 // OptionValueMap ...

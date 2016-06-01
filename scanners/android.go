@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -262,7 +264,7 @@ func (detector *Android) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (detector *Android) Configs() map[string]bitriseModels.BitriseDataModel {
+func (detector *Android) Configs() (map[string]string, error) {
 	steps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -302,17 +304,21 @@ func (detector *Android) Configs() map[string]bitriseModels.BitriseDataModel {
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
-
-	configName := androidConfigName(detector.HasGradlewFile)
-	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
-		configName: bitriseData,
+	data, err := yaml.Marshal(bitriseData)
+	if err != nil {
+		return map[string]string{}, err
 	}
 
-	return bitriseDataMap
+	configName := androidConfigName(detector.HasGradlewFile)
+	bitriseDataMap := map[string]string{
+		configName: string(data),
+	}
+
+	return bitriseDataMap, nil
 }
 
 // DefaultConfigs ...
-func (detector *Android) DefaultConfigs() map[string]bitriseModels.BitriseDataModel {
+func (detector *Android) DefaultConfigs() (map[string]string, error) {
 	steps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -350,11 +356,15 @@ func (detector *Android) DefaultConfigs() map[string]bitriseModels.BitriseDataMo
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
-
-	configName := androidDefaultConfigName()
-	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
-		configName: bitriseData,
+	data, err := yaml.Marshal(bitriseData)
+	if err != nil {
+		return map[string]string{}, err
 	}
 
-	return bitriseDataMap
+	configName := androidDefaultConfigName()
+	bitriseDataMap := map[string]string{
+		configName: string(data),
+	}
+
+	return bitriseDataMap, nil
 }

@@ -119,7 +119,7 @@ func initConfig(c *cli.Context) {
 	}
 
 	optionsMap := map[string]models.OptionModel{}
-	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
+	configsMap := map[string]map[string]string{}
 
 	log.Infof(colorstring.Blue("Running scanners:"))
 	fmt.Println()
@@ -162,7 +162,11 @@ func initConfig(c *cli.Context) {
 		// Generate configs
 		log.Debug()
 		log.Debug("Generated configs:")
-		configs := detector.Configs()
+		configs, err := detector.Configs()
+		if err != nil {
+			log.Fatalf("Failed create configs, error: %s", err)
+		}
+
 		for name, config := range configs {
 			log.Debugf("  name: %s", name)
 
@@ -263,7 +267,13 @@ func initConfig(c *cli.Context) {
 		log.Debugf("\n%v", string(aBytes))
 
 		configMap := configsMap[detectorName]
-		config := configMap[configPth]
+		configStr := configMap[configPth]
+
+		var config bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
+			log.Fatalf("Failed to unmarshal config, error: %s", err)
+		}
+
 		config.App.Environments = appEnvs
 
 		log.Debug()
