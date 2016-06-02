@@ -13,16 +13,14 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/pointers"
-	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
 const (
-	fastlaneDetectorName = "fastlane"
+	scannerName = "fastlane"
 )
 
 const (
@@ -37,8 +35,6 @@ const (
 	workDirKey    = "work_dir"
 	workDirTitle  = "Working directory"
 	workDirEnvKey = "FASTLANE_WORK_DIR"
-
-	stepFastlaneIDComposite = "fastlane@2.2.0"
 )
 
 var (
@@ -106,47 +102,47 @@ func inspectFastFile(fastFile string) ([]string, error) {
 	return lanes, nil
 }
 
-func fastlaneConfigName() string {
+func configName() string {
 	name := "fastlane-"
 	return name + "config"
 }
 
-func fastlaneDefaultConfigName() string {
+func defaultConfigName() string {
 	return "default-fastlane-config"
 }
 
 //--------------------------------------------------
-// Detector
+// Scanner
 //--------------------------------------------------
 
-// Fastlane ...
-type Fastlane struct {
+// Scanner ...
+type Scanner struct {
 	SearchDir string
 	FastFiles []string
 }
 
 // Name ...
-func (detector Fastlane) Name() string {
-	return fastlaneDetectorName
+func (scanner Scanner) Name() string {
+	return scannerName
 }
 
 // Configure ...
-func (detector *Fastlane) Configure(searchDir string) {
-	detector.SearchDir = searchDir
+func (scanner *Scanner) Configure(searchDir string) {
+	scanner.SearchDir = searchDir
 }
 
 // DetectPlatform ...
-func (detector *Fastlane) DetectPlatform() (bool, error) {
-	fileList, err := utility.FileList(detector.SearchDir)
+func (scanner *Scanner) DetectPlatform() (bool, error) {
+	fileList, err := utility.FileList(scanner.SearchDir)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for files in (%s), error: %s", detector.SearchDir, err)
+		return false, fmt.Errorf("failed to search for files in (%s), error: %s", scanner.SearchDir, err)
 	}
 
 	// Search for Fastfile
 	logger.Info("Searching for Fastfiles")
 
 	fastFiles := filterFastFiles(fileList)
-	detector.FastFiles = fastFiles
+	scanner.FastFiles = fastFiles
 
 	logger.InfofDetails("%d Fastfile(s) detected", len(fastFiles))
 
@@ -161,11 +157,11 @@ func (detector *Fastlane) DetectPlatform() (bool, error) {
 }
 
 // Options ...
-func (detector *Fastlane) Options() (models.OptionModel, error) {
+func (scanner *Scanner) Options() (models.OptionModel, error) {
 	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 
 	// Inspect Fastfiles
-	for _, fastFile := range detector.FastFiles {
+	for _, fastFile := range scanner.FastFiles {
 		logger.InfofSection("Inspecting Fastfile: %s", fastFile)
 		logger.InfoDetails("$ fastlane lanes --json")
 
@@ -187,7 +183,7 @@ func (detector *Fastlane) Options() (models.OptionModel, error) {
 		logger.InfofReceipt("fastlane work dir: %s", workDir)
 
 		configOption := models.NewEmptyOptionModel()
-		configOption.Config = fastlaneConfigName()
+		configOption.Config = configName()
 
 		laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 		for _, lane := range lanes {
@@ -201,11 +197,11 @@ func (detector *Fastlane) Options() (models.OptionModel, error) {
 }
 
 // DefaultOptions ...
-func (detector *Fastlane) DefaultOptions() models.OptionModel {
+func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 
 	configOption := models.NewEmptyOptionModel()
-	configOption.Config = fastlaneDefaultConfigName()
+	configOption.Config = defaultConfigName()
 
 	laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 
@@ -217,92 +213,68 @@ func (detector *Fastlane) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (detector *Fastlane) Configs() (map[string]string, error) {
-	steps := []bitriseModels.StepListItemModel{}
+func (scanner *Scanner) Configs() (map[string]string, error) {
+	stepList := []bitriseModels.StepListItemModel{}
 	bitriseDataMap := map[string]string{}
 
 	// ActivateSSHKey
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
-			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
-		},
-	})
+	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
 
 	// GitClone
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
-	})
+	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// CertificateAndProfileInstaller
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
-	})
+	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
 
+	// Fastlane
 	inputs := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
 		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
 	}
 
-	// Fastlane
-	steps = append(steps, bitriseModels.StepListItemModel{
-		stepFastlaneIDComposite: stepmanModels.StepModel{
-			Inputs: inputs,
-		},
-	})
+	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
+	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return map[string]string{}, err
 	}
 
-	configName := fastlaneConfigName()
+	configName := configName()
 	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil
 }
 
 // DefaultConfigs ...
-func (detector *Fastlane) DefaultConfigs() (map[string]string, error) {
-	steps := []bitriseModels.StepListItemModel{}
+func (scanner *Scanner) DefaultConfigs() (map[string]string, error) {
+	stepList := []bitriseModels.StepListItemModel{}
 	bitriseDataMap := map[string]string{}
 
 	// ActivateSSHKey
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
-			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
-		},
-	})
+	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
 
 	// GitClone
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
-	})
+	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// CertificateAndProfileInstaller
-	steps = append(steps, bitriseModels.StepListItemModel{
-		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
-	})
+	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
 
+	// Fastlane
 	inputs := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
 		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
 	}
 
-	// Fastlane
-	steps = append(steps, bitriseModels.StepListItemModel{
-		stepFastlaneIDComposite: stepmanModels.StepModel{
-			Inputs: inputs,
-		},
-	})
+	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
+	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return map[string]string{}, err
 	}
 
-	configName := fastlaneDefaultConfigName()
+	configName := defaultConfigName()
 	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil

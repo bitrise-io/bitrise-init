@@ -69,17 +69,17 @@ func initManualConfig(c *cli.Context) {
 
 	//
 	// Scan
-	platformDetectors := []scanners.ScannerInterface{
-		new(android.Android),
-		new(xamarin.Xamarin),
-		new(ios.Ios),
-		new(fastlane.Fastlane),
+	projectScanners := []scanners.ScannerInterface{
+		new(android.Scanner),
+		new(xamarin.Scanner),
+		new(ios.Scanner),
+		new(fastlane.Scanner),
 	}
 
 	optionsMap := map[string]models.OptionModel{}
 	configsMap := map[string]map[string]string{}
 
-	for _, detector := range platformDetectors {
+	for _, detector := range projectScanners {
 		detectorName := detector.Name()
 
 		option := detector.DefaultOptions()

@@ -115,11 +115,11 @@ func initConfig(c *cli.Context) {
 
 	//
 	// Scan
-	platformDetectors := []scanners.ScannerInterface{
-		new(android.Android),
-		new(xamarin.Xamarin),
-		new(ios.Ios),
-		new(fastlane.Fastlane),
+	projectScanners := []scanners.ScannerInterface{
+		new(android.Scanner),
+		new(xamarin.Scanner),
+		new(ios.Scanner),
+		new(fastlane.Scanner),
 	}
 
 	optionsMap := map[string]models.OptionModel{}
@@ -128,7 +128,7 @@ func initConfig(c *cli.Context) {
 	log.Infof(colorstring.Blue("Running scanners:"))
 	fmt.Println()
 
-	for _, detector := range platformDetectors {
+	for _, detector := range projectScanners {
 		detectorName := detector.Name()
 		log.Infof("Scanner: %s", colorstring.Blue(detectorName))
 

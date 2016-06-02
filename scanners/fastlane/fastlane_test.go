@@ -38,5 +38,5 @@ func TestFilterFastFiles(t *testing.T) {
 }
 
 func TestFastlaneConfigName(t *testing.T) {
-	require.Equal(t, "fastlane-config", fastlaneConfigName())
+	require.Equal(t, "fastlane-config", configName())
 }
