@@ -49,5 +49,7 @@ func printVersionCmd(c *cli.Context) {
 		out = versionOutput
 	}
 
-	output.Print(out, format, "")
+	if err := output.Print(out, format, ""); err != nil {
+		log.Fatalf("Failed to print version, error: %s", err)
+	}
 }
