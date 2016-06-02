@@ -385,19 +385,15 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	xamarinProjectOption := models.NewOptionModel(xamarinProjectTitle, xamarinProjectEnvKey)
-
-	xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
-
-	xamarinPlatformOption := models.NewOptionModel(xamarinPlatformTitle, xamarinPlatformEnvKey)
-
 	configOption := models.NewEmptyOptionModel()
 	configOption.Config = defaultConfigName()
 
+	xamarinProjectOption := models.NewOptionModel(xamarinProjectTitle, xamarinProjectEnvKey)
+	xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+	xamarinPlatformOption := models.NewOptionModel(xamarinPlatformTitle, xamarinPlatformEnvKey)
+
 	xamarinPlatformOption.ValueMap["_"] = configOption
-
 	xamarinConfigurationOption.ValueMap["_"] = xamarinPlatformOption
-
 	xamarinProjectOption.ValueMap["_"] = xamarinConfigurationOption
 
 	return xamarinProjectOption

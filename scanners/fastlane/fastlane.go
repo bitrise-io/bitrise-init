@@ -103,8 +103,7 @@ func inspectFastFile(fastFile string) ([]string, error) {
 }
 
 func configName() string {
-	name := "fastlane-"
-	return name + "config"
+	return "fastlane-config"
 }
 
 func defaultConfigName() string {
@@ -198,15 +197,13 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
-
 	configOption := models.NewEmptyOptionModel()
 	configOption.Config = defaultConfigName()
 
+	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 	laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 
 	laneOption.ValueMap["_"] = configOption
-
 	workDirOption.ValueMap["_"] = laneOption
 
 	return workDirOption

@@ -244,13 +244,11 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
-
-	gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
-
 	configOption := models.NewEmptyOptionModel()
 	configOption.Config = defaultConfigName()
 
+	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
+	gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
 	gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
 
 	gradlewPathOption.ValueMap["_"] = configOption

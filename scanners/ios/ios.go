@@ -310,15 +310,13 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
-
-	schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
-
 	configOption := models.NewEmptyOptionModel()
 	configOption.Config = defaultConfigName()
 
-	schemeOption.ValueMap["_"] = configOption
+	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
+	schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
 
+	schemeOption.ValueMap["_"] = configOption
 	projectPathOption.ValueMap["_"] = schemeOption
 
 	return projectPathOption
