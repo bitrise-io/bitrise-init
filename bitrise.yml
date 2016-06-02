@@ -6,6 +6,10 @@ trigger_map:
   is_pull_request_allowed: true
   workflow: ci
 
+app:
+  envs:
+  - BIN_NAME: bitrise-init
+
 workflows:
   # ----------------------------------------------------------------
   # --- workflows for CI and testing
