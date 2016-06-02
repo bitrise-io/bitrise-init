@@ -1,4 +1,4 @@
-package scanners
+package fastlane
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -38,6 +39,10 @@ const (
 	workDirEnvKey = "FASTLANE_WORK_DIR"
 
 	stepFastlaneIDComposite = "fastlane@2.2.0"
+)
+
+var (
+	logger = utility.NewLogger()
 )
 
 //--------------------------------------------------
@@ -218,19 +223,19 @@ func (detector *Fastlane) Configs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	inputs := []envmanModels.EnvironmentItemModel{
@@ -264,19 +269,19 @@ func (detector *Fastlane) DefaultConfigs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	inputs := []envmanModels.EnvironmentItemModel{

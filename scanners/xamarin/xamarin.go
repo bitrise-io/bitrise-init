@@ -1,4 +1,4 @@
-package scanners
+package xamarin
 
 import (
 	"errors"
@@ -13,6 +13,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -73,6 +74,10 @@ const (
 	stepXamarinUserManagementIDComposite    = "xamarin-user-management@1.0.2"
 	stepNugetRestoreIDComposite             = "nuget-restore@0.9.1"
 	stepXamarinComponentsRestoreIDComposite = "xamarin-components-restore@0.9.0"
+)
+
+var (
+	logger = utility.NewLogger()
 )
 
 //--------------------------------------------------
@@ -412,19 +417,19 @@ func (detector *Xamarin) Configs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	// XamarinUserManagement
@@ -469,7 +474,7 @@ func (detector *Xamarin) Configs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
@@ -492,18 +497,18 @@ func (detector *Xamarin) DefaultConfigs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	// XamarinUserManagement
@@ -544,7 +549,7 @@ func (detector *Xamarin) DefaultConfigs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)

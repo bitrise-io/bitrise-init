@@ -9,10 +9,14 @@ import (
 )
 
 const (
-	stepActivateSSHKeyIDComposite                 = "activate-ssh-key@3.1.0"
-	stepGitCloneIDComposite                       = "git-clone@3.2.0"
-	stepCertificateAndProfileInstallerIDComposite = "certificate-and-profile-installer@1.5.0"
-	stepDeployToBitriseIoIDComposite              = "deploy-to-bitrise-io@1.2.3"
+	// StepActivateSSHKeyIDComposite ...
+	StepActivateSSHKeyIDComposite = "activate-ssh-key@3.1.0"
+	// StepGitCloneIDComposite ...
+	StepGitCloneIDComposite = "git-clone@3.2.0"
+	// StepCertificateAndProfileInstallerIDComposite ...
+	StepCertificateAndProfileInstallerIDComposite = "certificate-and-profile-installer@1.5.0"
+	// StepDeployToBitriseIoIDComposite ...
+	StepDeployToBitriseIoIDComposite = "deploy-to-bitrise-io@1.2.3"
 )
 
 // ScannerInterface ...
@@ -40,14 +44,14 @@ func CustomConfig() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)

@@ -1,4 +1,4 @@
-package scanners
+package fastlane
 
 import (
 	"testing"

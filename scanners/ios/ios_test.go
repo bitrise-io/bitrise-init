@@ -1,4 +1,4 @@
-package scanners
+package ios
 
 import (
 	"testing"

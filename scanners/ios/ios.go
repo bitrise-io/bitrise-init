@@ -1,4 +1,4 @@
-package scanners
+package ios
 
 import (
 	"bufio"
@@ -14,6 +14,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -44,6 +45,10 @@ const (
 	stepCocoapodsInstallIDComposite = "cocoapods-install@1.4.0"
 	stepXcodeArchiveIDComposite     = "xcode-archive@1.7.3"
 	stepXcodeTestIDComposite        = "xcode-test@1.13.7"
+)
+
+var (
+	logger = utility.NewLogger()
 )
 
 // SchemeModel ...
@@ -332,19 +337,19 @@ func (detector *Ios) Configs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CocoapodsInstall
@@ -376,7 +381,7 @@ func (detector *Ios) Configs() (map[string]string, error) {
 
 		// DeployToBitriseIo
 		stepsWithTest = append(stepsWithTest, bitriseModels.StepListItemModel{
-			stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+			scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 		})
 
 		bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepsWithTest)
@@ -403,7 +408,7 @@ func (detector *Ios) Configs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
@@ -425,19 +430,19 @@ func (detector *Ios) DefaultConfigs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CertificateAndProfileInstaller
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+		scanners.StepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
 	})
 
 	// CocoapodsInstall
@@ -459,7 +464,7 @@ func (detector *Ios) DefaultConfigs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)

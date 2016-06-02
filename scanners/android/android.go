@@ -1,4 +1,4 @@
-package scanners
+package android
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -269,14 +270,14 @@ func (detector *Android) Configs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// GradleRunner
@@ -300,7 +301,7 @@ func (detector *Android) Configs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
@@ -323,14 +324,14 @@ func (detector *Android) DefaultConfigs() (map[string]string, error) {
 
 	// ActivateSSHKey
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepActivateSSHKeyIDComposite: stepmanModels.StepModel{
+		scanners.StepActivateSSHKeyIDComposite: stepmanModels.StepModel{
 			RunIf: pointers.NewStringPtr(`{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`),
 		},
 	})
 
 	// GitClone
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepGitCloneIDComposite: stepmanModels.StepModel{},
+		scanners.StepGitCloneIDComposite: stepmanModels.StepModel{},
 	})
 
 	// GradleRunner
@@ -352,7 +353,7 @@ func (detector *Android) DefaultConfigs() (map[string]string, error) {
 
 	// DeployToBitriseIo
 	steps = append(steps, bitriseModels.StepListItemModel{
-		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		scanners.StepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
 	})
 
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(steps)
