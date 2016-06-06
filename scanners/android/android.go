@@ -69,13 +69,13 @@ func filterGradleFiles(fileList []string) []string {
 
 func filterGradlewFiles(fileList []string) []string {
 	gradlewFiles := utility.FilterFilesWithBasPaths(fileList, gradlewBasePath)
+	sort.Sort(utility.ByComponents(gradlewFiles))
 
 	fixedGradlewFiles := []string{}
 	for _, gradlewFile := range gradlewFiles {
-		fixedGradlewFiles = append(fixedGradlewFiles, fixedGradlewPath(gradlewFile))
+		fixed := fixedGradlewPath(gradlewFile)
+		fixedGradlewFiles = append(fixedGradlewFiles, fixed)
 	}
-
-	sort.Sort(utility.ByComponents(fixedGradlewFiles))
 
 	return fixedGradlewFiles
 }
