@@ -60,11 +60,32 @@ func fixedGradlewPath(gradlewPth string) string {
 	return gradlewPth
 }
 
-func filterGradleFiles(fileList []string) []string {
+func filterRootGradleFiles(fileList []string) ([]string, error) {
 	gradleFiles := utility.FilterFilesWithBasPaths(fileList, buildGradleBasePath)
 	sort.Sort(utility.ByComponents(gradleFiles))
 
-	return gradleFiles
+	if len(gradleFiles) == 0 {
+		return []string{}, nil
+	}
+
+	mindDepth, err := utility.PathDept(gradleFiles[0])
+	if err != nil {
+		return []string{}, nil
+	}
+
+	rootGradleFiles := []string{}
+	for _, gradleFile := range gradleFiles {
+		depth, err := utility.PathDept(gradleFile)
+		if err != nil {
+			return []string{}, nil
+		}
+
+		if depth == mindDepth {
+			rootGradleFiles = append(rootGradleFiles, gradleFile)
+		}
+	}
+
+	return rootGradleFiles, nil
 }
 
 func filterGradlewFiles(fileList []string) []string {
@@ -160,7 +181,10 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	// Search for gradle file
 	logger.Info("Searching for gradle files")
 
-	gradleFiles := filterGradleFiles(fileList)
+	gradleFiles, err := filterRootGradleFiles(fileList)
+	if err != nil {
+		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
+	}
 	scanner.GradleFiles = gradleFiles
 
 	logger.InfofDetails("%d gradle file(s) detected", len(gradleFiles))
