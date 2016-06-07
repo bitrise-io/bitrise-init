@@ -7,7 +7,7 @@ import (
 )
 
 func TestFilterXcodeprojectFiles(t *testing.T) {
-	t.Log(`Contains ".xcodeproj" & ".xcworkspace" files`)
+	t.Log(`Contains ".xcodeproj" files`)
 	{
 		fileList := []string{
 			"/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj",
@@ -19,14 +19,13 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 		}
 
 		files := filterXcodeprojectFiles(fileList)
-		require.Equal(t, 2, len(files))
+		require.Equal(t, 1, len(files))
 
 		// Also sorts ".xcodeproj" & ".xcworkspace" files by path components length
-		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcworkspace", files[0])
-		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj", files[1])
+		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj", files[0])
 	}
 
-	t.Log(`Do not contains ".xcodeproj" | ".xcworkspace" file`)
+	t.Log(`Do not contains ".xcodeproj" file`)
 	{
 		fileList := []string{
 			"path/to/my/gradlew/build.",

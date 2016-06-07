@@ -143,7 +143,10 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	fastFiles := filterFastFiles(fileList)
 	scanner.FastFiles = fastFiles
 
-	logger.InfofDetails("%d Fastfile(s) detected", len(fastFiles))
+	logger.InfofDetails("%d Fastfile(s) detected:", len(fastFiles))
+	for _, file := range fastFiles {
+		logger.InfofDetails("  - %s", file)
+	}
 
 	if len(fastFiles) == 0 {
 		logger.InfofDetails("platform not detected")

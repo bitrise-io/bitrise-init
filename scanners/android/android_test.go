@@ -12,7 +12,7 @@ func TestFixedGradlewPath(t *testing.T) {
 	require.Equal(t, "test/gradlew", fixedGradlewPath("test/gradlew"))
 }
 
-func TestFilterRootGradleFiles(t *testing.T) {
+func TestFilterRootBuildGradleFiles(t *testing.T) {
 	t.Log(`Contains "build.gradle" files`)
 	{
 		fileList := []string{
@@ -22,7 +22,7 @@ func TestFilterRootGradleFiles(t *testing.T) {
 			"path/to/my",
 		}
 
-		files, err := filterRootGradleFiles(fileList)
+		files, err := filterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(files))
 
@@ -37,7 +37,7 @@ func TestFilterRootGradleFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files, err := filterRootGradleFiles(fileList)
+		files, err := filterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}
@@ -50,7 +50,7 @@ func TestFilterRootGradleFiles(t *testing.T) {
 			"path/to/my/file",
 		}
 
-		files, err := filterRootGradleFiles(fileList)
+		files, err := filterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 	}
