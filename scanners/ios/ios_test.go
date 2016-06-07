@@ -7,7 +7,7 @@ import (
 )
 
 func TestFilterXcodeprojectFiles(t *testing.T) {
-	t.Log(`Contains ".xcodeproj" files`)
+	t.Log(`Contains ".xcodeproj" & ".xcworkspace" files`)
 	{
 		fileList := []string{
 			"/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj",
@@ -19,10 +19,11 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 		}
 
 		files := filterXcodeprojectFiles(fileList)
-		require.Equal(t, 1, len(files))
+		require.Equal(t, 2, len(files))
 
 		// Also sorts ".xcodeproj" & ".xcworkspace" files by path components length
-		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj", files[0])
+		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcworkspace", files[0])
+		require.Equal(t, "/Users/bitrise/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj", files[1])
 	}
 
 	t.Log(`Do not contains ".xcodeproj" file`)
