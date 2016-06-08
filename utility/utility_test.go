@@ -277,3 +277,23 @@ func TestByComponents(t *testing.T) {
 		require.Equal(t, "./c", fileList[2])
 	}
 }
+
+func TestMapStringStringHasValue(t *testing.T) {
+	mapStringString := map[string]string{
+		"key1": "value1",
+		"key2": "value2",
+		"key3": "value3",
+	}
+
+	t.Log("Found")
+	{
+		found := MapStringStringHasValue(mapStringString, "value1")
+		require.Equal(t, true, found)
+	}
+
+	t.Log("NOT Found")
+	{
+		found := MapStringStringHasValue(mapStringString, "value")
+		require.Equal(t, false, found)
+	}
+}

@@ -93,6 +93,16 @@ func PathDept(pth string) (int, error) {
 	return len(fixedComp), nil
 }
 
+// MapStringStringHasValue ...
+func MapStringStringHasValue(mapStringString map[string]string, value string) bool {
+	for _, v := range mapStringString {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
 //--------------------------------------------------
 // Sorting
 //--------------------------------------------------
