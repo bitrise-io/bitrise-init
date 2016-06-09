@@ -2,7 +2,6 @@ package fastlane
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -81,30 +80,13 @@ func inspectFastFile(fastFile string) ([]string, error) {
 // Returns:
 //  - fastlane dir's parent, if Fastfile is in fastlane dir (test/fastlane/Fastfile)
 //  - Fastfile's dir, if Fastfile is NOT in fastlane dir (test/Fastfile)
-func fastlaneWorkDir(fastfile string) string {
-	cleanedPth := filepath.Clean(fastfile)
-	split := strings.Split(cleanedPth, string(os.PathSeparator))
-	if len(split) == 1 {
-		return "./"
+func fastlaneWorkDir(fastfilePth string) string {
+	dirPth := filepath.Dir(fastfilePth)
+	dirName := filepath.Base(dirPth)
+	if dirName == "fastlane" {
+		return filepath.Dir(dirPth)
 	}
-
-	if len(split) == 2 {
-		fastFileDir := split[0]
-		if fastFileDir == "fastlane" {
-			return "./"
-		}
-
-		return fastFileDir
-	}
-
-	fastFileDir := split[len(split)-2]
-	if fastFileDir == "fastlane" {
-		relevant := split[0 : len(split)-2]
-		return strings.Join(relevant, string(os.PathSeparator))
-	}
-
-	relevant := split[0 : len(split)-1]
-	return strings.Join(relevant, string(os.PathSeparator))
+	return dirPth
 }
 
 func configName() string {

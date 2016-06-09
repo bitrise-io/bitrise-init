@@ -80,14 +80,14 @@ func TestInspectFastFileContent(t *testing.T) {
 func TestFastlaneWorkDir(t *testing.T) {
 	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
 	{
-		expected := "./"
+		expected := "."
 		actual := fastlaneWorkDir("Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
 	{
-		expected := "./"
+		expected := "."
 		actual := fastlaneWorkDir("fastlane/Fastfile")
 		require.Equal(t, expected, actual)
 	}
