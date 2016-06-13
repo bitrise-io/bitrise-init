@@ -77,6 +77,18 @@ func inspectFastFile(fastFile string) ([]string, error) {
 	return inspectFastfileContent(content)
 }
 
+// Returns:
+//  - fastlane dir's parent, if Fastfile is in fastlane dir (test/fastlane/Fastfile)
+//  - Fastfile's dir, if Fastfile is NOT in fastlane dir (test/Fastfile)
+func fastlaneWorkDir(fastfilePth string) string {
+	dirPth := filepath.Dir(fastfilePth)
+	dirName := filepath.Base(dirPth)
+	if dirName == "fastlane" {
+		return filepath.Dir(dirPth)
+	}
+	return dirPth
+}
+
 func configName() string {
 	return "fastlane-config"
 }
@@ -140,7 +152,6 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 	// Inspect Fastfiles
 	for _, fastFile := range scanner.FastFiles {
 		logger.InfofSection("Inspecting Fastfile: %s", fastFile)
-		logger.InfoDetails("$ fastlane lanes --json")
 
 		lanes, err := inspectFastFile(fastFile)
 		if err != nil {
@@ -149,13 +160,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 		logger.InfofReceipt("found lanes: %v", lanes)
 
-		// Check if `Fastfile` is in `./fastlane/Fastfile`
-		// If no - generated fastlane step will require `work_dir` input too
-		workDir := "./"
-		relFastlaneDir := filepath.Dir(fastFile)
-		if relFastlaneDir != "fastlane" {
-			workDir = relFastlaneDir
-		}
+		workDir := fastlaneWorkDir(fastFile)
 
 		logger.InfofReceipt("fastlane work dir: %s", workDir)
 

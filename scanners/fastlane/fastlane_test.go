@@ -76,3 +76,47 @@ func TestInspectFastFileContent(t *testing.T) {
 		require.Equal(t, true, found, fmt.Sprintf("lane: %s not found", lane))
 	}
 }
+
+func TestFastlaneWorkDir(t *testing.T) {
+	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
+	{
+		expected := "."
+		actual := fastlaneWorkDir("Fastfile")
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
+	{
+		expected := "."
+		actual := fastlaneWorkDir("fastlane/Fastfile")
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
+	{
+		expected := "test"
+		actual := fastlaneWorkDir("test/Fastfile")
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
+	{
+		expected := "test"
+		actual := fastlaneWorkDir("test/fastlane/Fastfile")
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
+	{
+		expected := "my/app/test"
+		actual := fastlaneWorkDir("my/app/test/Fastfile")
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
+	{
+		expected := "my/app/test"
+		actual := fastlaneWorkDir("my/app/test/fastlane/Fastfile")
+		require.Equal(t, expected, actual)
+	}
+}
