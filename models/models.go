@@ -8,36 +8,10 @@ const (
 	primaryWorkflowID = "primary"
 )
 
-// BitriseDataWithPrimaryWorkflowSteps ...
-func BitriseDataWithPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: steps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			Pattern:              "*",
-			IsPullRequestAllowed: true,
-			WorkflowID:           primaryWorkflowID,
-		},
-	}
-
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        "1.2.0",
-		DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-	}
-
-	return bitriseData
-}
-
 // ScanResultModel ...
 type ScanResultModel struct {
-	OptionMap  map[string]OptionModel       `json:"options,omitempty" yaml:"options,omitempty"`
-	ConfigsMap map[string]map[string]string `json:"configs,omitempty" yaml:"configs,omitempty"`
+	OptionMap  map[string]OptionModel      `json:"options,omitempty" yaml:"options,omitempty"`
+	ConfigsMap map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
 }
 
 // OptionValueMap ...
@@ -51,6 +25,9 @@ type OptionModel struct {
 	ValueMap OptionValueMap `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
 	Config   string         `json:"config,omitempty"  yaml:"config,omitempty"`
 }
+
+// BitriseConfigMap ...
+type BitriseConfigMap map[string]string
 
 // NewOptionModel ...
 func NewOptionModel(title, envKey string) OptionModel {
@@ -80,4 +57,30 @@ func (option OptionModel) GetValues() []string {
 		values = append(values, value)
 	}
 	return values
+}
+
+// BitriseDataWithPrimaryWorkflowSteps ...
+func BitriseDataWithPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
+	workflows := map[string]bitriseModels.WorkflowModel{
+		primaryWorkflowID: bitriseModels.WorkflowModel{
+			Steps: steps,
+		},
+	}
+
+	triggerMap := []bitriseModels.TriggerMapItemModel{
+		bitriseModels.TriggerMapItemModel{
+			Pattern:              "*",
+			IsPullRequestAllowed: true,
+			WorkflowID:           primaryWorkflowID,
+		},
+	}
+
+	bitriseData := bitriseModels.BitriseDataModel{
+		FormatVersion:        "1.2.0",
+		DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
+		TriggerMap:           triggerMap,
+		Workflows:            workflows,
+	}
+
+	return bitriseData
 }

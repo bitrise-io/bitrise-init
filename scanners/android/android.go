@@ -289,7 +289,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs() (map[string]string, error) {
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	stepList := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -318,11 +318,11 @@ func (scanner *Scanner) Configs() (map[string]string, error) {
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
-		return map[string]string{}, err
+		return models.BitriseConfigMap{}, err
 	}
 
 	configName := configName(scanner.HasGradlewFile)
-	bitriseDataMap := map[string]string{
+	bitriseDataMap := models.BitriseConfigMap{
 		configName: string(data),
 	}
 
@@ -330,7 +330,7 @@ func (scanner *Scanner) Configs() (map[string]string, error) {
 }
 
 // DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (map[string]string, error) {
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	stepList := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -357,11 +357,11 @@ func (scanner *Scanner) DefaultConfigs() (map[string]string, error) {
 	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
-		return map[string]string{}, err
+		return models.BitriseConfigMap{}, err
 	}
 
 	configName := defaultConfigName()
-	bitriseDataMap := map[string]string{
+	bitriseDataMap := models.BitriseConfigMap{
 		configName: string(data),
 	}
 
