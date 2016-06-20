@@ -17,8 +17,8 @@ type ScannerInterface interface {
 	Options() (models.OptionModel, error)
 	DefaultOptions() models.OptionModel
 
-	Configs() (map[string]string, error)
-	DefaultConfigs() (map[string]string, error)
+	Configs() (models.BitriseConfigMap, error)
+	DefaultConfigs() (models.BitriseConfigMap, error)
 }
 
 func customConfigName() string {
@@ -26,8 +26,8 @@ func customConfigName() string {
 }
 
 // CustomConfig ...
-func CustomConfig() (map[string]string, error) {
-	bitriseDataMap := map[string]string{}
+func CustomConfig() (models.BitriseConfigMap, error) {
+	bitriseDataMap := models.BitriseConfigMap{}
 	stepList := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
