@@ -3,7 +3,6 @@ package android
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/cmdex"
 )
 
 const (
@@ -39,6 +37,12 @@ const (
 	gradlewPathTitle  = "Gradlew file path"
 	gradlewPathEnvKey = "GRADLEW_PATH"
 )
+
+var defaultGradleTasks = []string{
+	"assemble",
+	"assembleDebug",
+	"assembleRelease",
+}
 
 var (
 	logger = utility.NewLogger()
@@ -99,40 +103,6 @@ func filterGradlewFiles(fileList []string) []string {
 	}
 
 	return fixedGradlewFiles
-}
-
-func inspectGradleFile(gradleFile string, gradleBin string) ([]string, error) {
-	out, err := cmdex.RunCommandAndReturnCombinedStdoutAndStderr(gradleBin, "tasks", "--build-file", gradleFile)
-	if err != nil {
-		return []string{}, fmt.Errorf("output: %s, error: %s", out, err)
-	}
-
-	lines := strings.Split(out, "\n")
-	isBuildTaskSection := false
-	buildTasksExp := regexp.MustCompile(`^Build tasks`)
-	configurationExp := regexp.MustCompile(`^(assemble\S+)(\s*-\s*.*)*`)
-
-	configurations := []string{}
-	for _, line := range lines {
-		if !isBuildTaskSection && buildTasksExp.FindString(line) != "" {
-			isBuildTaskSection = true
-			continue
-		} else if line == "" {
-			isBuildTaskSection = false
-			continue
-		}
-
-		if !isBuildTaskSection {
-			continue
-		}
-
-		match := configurationExp.FindStringSubmatch(line)
-		if len(match) > 1 {
-			configurations = append(configurations, match[1])
-		}
-	}
-
-	return configurations, nil
 }
 
 func configName(hasGradlew bool) string {
@@ -240,15 +210,11 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
 
 	for _, gradleFile := range scanner.GradleFiles {
-		logger.InfofSection("Inspecting gradle file: %s", gradleFile)
-		logger.InfofDetails("$ %s tasks --build-file %s", gradleBin, gradleFile)
+		logger.InfofSection("Gradle file: %s", gradleFile)
 
-		configs, err := inspectGradleFile(gradleFile, gradleBin)
-		if err != nil {
-			return models.OptionModel{}, fmt.Errorf("failed to inspect gradle files, error: %s", err)
-		}
+		configs := defaultGradleTasks
 
-		logger.InfofReceipt("found gradle tasks: %v", configs)
+		logger.InfofReceipt("gradle tasks: %v", configs)
 
 		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
 		for _, config := range configs {
