@@ -19,7 +19,7 @@ func TestFilterFastFiles(t *testing.T) {
 			"path/to/my",
 		}
 
-		files := filterFastFiles(fileList)
+		files := filterFastfiles(fileList)
 		require.Equal(t, 2, len(files))
 
 		// Also sorts "Fastfile" files by path components length
@@ -34,7 +34,7 @@ func TestFilterFastFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files := filterFastFiles(fileList)
+		files := filterFastfiles(fileList)
 		require.Equal(t, 0, len(files))
 	}
 }
