@@ -44,6 +44,16 @@ const (
 )
 
 var (
+	embeddedWorkspaceExp = regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
+
+	podProjectExp   = regexp.MustCompile(`.+/Pods/.+.xcodeproj`)
+	podWorkspaceExp = regexp.MustCompile(`.+/Pods/.+.xcworkspace`)
+
+	carthageProjectExp   = regexp.MustCompile(`.+/Carthage/.+.xcodeproj`)
+	carthageWorkspaceExp = regexp.MustCompile(`.+/Carthage/.+.xcworkspace`)
+)
+
+var (
 	logger = utility.NewLogger()
 )
 
@@ -57,27 +67,51 @@ type SchemeModel struct {
 // Utility
 //--------------------------------------------------
 
+func isEmbededWorkspace(file string) bool {
+	return (embeddedWorkspaceExp.FindString(file) != "")
+}
+
+func isPodProject(file string) bool {
+	pathComponents := strings.Split(file, string(filepath.Separator))
+	if len(pathComponents) > 0 && pathComponents[0] == "Pods" {
+		return true
+	}
+	if podProjectExp.FindString(file) != "" {
+		return true
+	}
+	return (podWorkspaceExp.FindString(file) != "")
+}
+
+func isCarthageProject(file string) bool {
+	pathComponents := strings.Split(file, string(filepath.Separator))
+	if len(pathComponents) > 0 && pathComponents[0] == "Carthage" {
+		return true
+	}
+	if carthageProjectExp.FindString(file) != "" {
+		return true
+	}
+	return (carthageWorkspaceExp.FindString(file) != "")
+}
+
 func filterXcodeprojectFiles(fileList []string) []string {
 	filteredFiles := utility.FilterFilesWithExtensions(fileList, xcodeprojExtension, xcworkspaceExtension)
 
 	relevantFiles := []string{}
-	workspaceEmbeddedInProjectExp := regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
-	podProjectExp := regexp.MustCompile(`.*/Pods/.+.xcodeproj`)
 
 	for _, file := range filteredFiles {
-		isWorkspaceEmbeddedInProject := false
-		if workspaceEmbeddedInProjectExp.FindString(file) != "" {
-			isWorkspaceEmbeddedInProject = true
+		if isEmbededWorkspace(file) {
+			continue
 		}
 
-		isPodProject := false
-		if podProjectExp.FindString(file) != "" {
-			isPodProject = true
+		if isPodProject(file) {
+			continue
 		}
 
-		if !isWorkspaceEmbeddedInProject && !isPodProject {
-			relevantFiles = append(relevantFiles, file)
+		if isCarthageProject(file) {
+			continue
 		}
+
+		relevantFiles = append(relevantFiles, file)
 	}
 
 	sort.Sort(utility.ByComponents(relevantFiles))
