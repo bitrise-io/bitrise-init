@@ -6,7 +6,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// embeddedWorkspaceExp = regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
+
 func TestIsEmbededWorkspace(t *testing.T) {
+	t.Log("not embedded workspace")
+	{
+		actual := isEmbededWorkspace("samplexcodeproj/sample.xcworkspace")
+		expected := false
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("embedded workspace")
+	{
+		actual := isEmbededWorkspace("sample.xcodeproj/sample.xcworkspace")
+		expected := true
+		require.Equal(t, expected, actual)
+	}
+
 	t.Log("not embedded workspace")
 	{
 		actual := isEmbededWorkspace("/Users/bitrise/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcworkspace")
@@ -64,6 +80,20 @@ func TestIsPodProject(t *testing.T) {
 		expected := true
 		require.Equal(t, expected, actual)
 	}
+
+	t.Log("pod workspace - relative path")
+	{
+		actual := isPodProject("./sub/dir/Pods/Pods.xcworkspace")
+		expected := true
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("pod workspace - relative path")
+	{
+		actual := isPodProject("sub/dir/Pods/Pods.xcworkspace")
+		expected := true
+		require.Equal(t, expected, actual)
+	}
 }
 
 func TestIsCarthageProject(t *testing.T) {
@@ -91,6 +121,20 @@ func TestIsCarthageProject(t *testing.T) {
 	t.Log("Carthage workspace - relative path")
 	{
 		actual := isCarthageProject("Carthage/Checkouts/Result/Result.xcworkspace")
+		expected := true
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("Carthage workspace - relative path")
+	{
+		actual := isCarthageProject("./sub/dir/Carthage/Checkouts/Result/Result.xcworkspace")
+		expected := true
+		require.Equal(t, expected, actual)
+	}
+
+	t.Log("Carthage workspace - relative path")
+	{
+		actual := isCarthageProject("sub/dir/Carthage/Checkouts/Result/Result.xcworkspace")
 		expected := true
 		require.Equal(t, expected, actual)
 	}

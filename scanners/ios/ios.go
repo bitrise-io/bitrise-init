@@ -44,13 +44,7 @@ const (
 )
 
 var (
-	embeddedWorkspaceExp = regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
-
-	podProjectExp   = regexp.MustCompile(`.+/Pods/.+.xcodeproj`)
-	podWorkspaceExp = regexp.MustCompile(`.+/Pods/.+.xcworkspace`)
-
-	carthageProjectExp   = regexp.MustCompile(`.+/Carthage/.+.xcodeproj`)
-	carthageWorkspaceExp = regexp.MustCompile(`.+/Carthage/.+.xcworkspace`)
+	embeddedWorkspaceExp = regexp.MustCompile(`.+\.xcodeproj/.+\.xcworkspace`)
 )
 
 var (
@@ -73,24 +67,22 @@ func isEmbededWorkspace(file string) bool {
 
 func isPodProject(file string) bool {
 	pathComponents := strings.Split(file, string(filepath.Separator))
-	if len(pathComponents) > 0 && pathComponents[0] == "Pods" {
-		return true
+	for _, component := range pathComponents {
+		if component == "Pods" {
+			return true
+		}
 	}
-	if podProjectExp.FindString(file) != "" {
-		return true
-	}
-	return (podWorkspaceExp.FindString(file) != "")
+	return false
 }
 
 func isCarthageProject(file string) bool {
 	pathComponents := strings.Split(file, string(filepath.Separator))
-	if len(pathComponents) > 0 && pathComponents[0] == "Carthage" {
-		return true
+	for _, component := range pathComponents {
+		if component == "Carthage" {
+			return true
+		}
 	}
-	if carthageProjectExp.FindString(file) != "" {
-		return true
-	}
-	return (carthageWorkspaceExp.FindString(file) != "")
+	return false
 }
 
 func filterXcodeprojectFiles(fileList []string) []string {
