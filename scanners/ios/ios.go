@@ -44,6 +44,10 @@ const (
 )
 
 var (
+	embeddedWorkspaceExp = regexp.MustCompile(`.+\.xcodeproj/.+\.xcworkspace`)
+)
+
+var (
 	logger = utility.NewLogger()
 )
 
@@ -57,27 +61,49 @@ type SchemeModel struct {
 // Utility
 //--------------------------------------------------
 
+func isEmbededWorkspace(file string) bool {
+	return (embeddedWorkspaceExp.FindString(file) != "")
+}
+
+func isPodProject(file string) bool {
+	pathComponents := strings.Split(file, string(filepath.Separator))
+	for _, component := range pathComponents {
+		if component == "Pods" {
+			return true
+		}
+	}
+	return false
+}
+
+func isCarthageProject(file string) bool {
+	pathComponents := strings.Split(file, string(filepath.Separator))
+	for _, component := range pathComponents {
+		if component == "Carthage" {
+			return true
+		}
+	}
+	return false
+}
+
 func filterXcodeprojectFiles(fileList []string) []string {
 	filteredFiles := utility.FilterFilesWithExtensions(fileList, xcodeprojExtension, xcworkspaceExtension)
 
 	relevantFiles := []string{}
-	workspaceEmbeddedInProjectExp := regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
-	podProjectExp := regexp.MustCompile(`.*/Pods/.+.xcodeproj`)
 
 	for _, file := range filteredFiles {
-		isWorkspaceEmbeddedInProject := false
-		if workspaceEmbeddedInProjectExp.FindString(file) != "" {
-			isWorkspaceEmbeddedInProject = true
+		if isEmbededWorkspace(file) {
+			continue
 		}
 
-		isPodProject := false
-		if podProjectExp.FindString(file) != "" {
-			isPodProject = true
+		if isPodProject(file) {
+			continue
 		}
 
-		if !isWorkspaceEmbeddedInProject && !isPodProject {
-			relevantFiles = append(relevantFiles, file)
+		if isCarthageProject(file) {
+			continue
 		}
+
+		relevantFiles = append(relevantFiles, file)
 	}
 
 	sort.Sort(utility.ByComponents(relevantFiles))
