@@ -296,9 +296,10 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, error) {
+func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// Check for Podfiles
 	logger.InfoSection("Searching for Podfiles")
+	warnings := models.Warnings{}
 
 	podFiles := filterPodFiles(scanner.FileList)
 	scanner.HasPodFile = (len(podFiles) > 0)
@@ -313,13 +314,13 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 		logger.InfofSection("Inspecting Podfile: %s", podFile)
 
 		if err := os.Setenv("pod_file_path", podFile); err != nil {
-			return models.OptionModel{}, err
+			return models.OptionModel{}, models.Warnings{}, err
 		}
 
 		var err error
 		podfileWorkspaceProjectMap, err = utility.GetWorkspaces(scanner.SearchDir)
 		if err != nil {
-			return models.OptionModel{}, err
+			return models.OptionModel{}, models.Warnings{}, err
 		}
 
 		logger.InfoDetails("workspace mapping:")
@@ -340,6 +341,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 	// Inspect Projects
 	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
+	isValidProjectFound := false
 
 	for _, project := range cleanProjectFiles {
 		isWorkspace := isWorkspace(project)
@@ -361,21 +363,21 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 			// Collect workspace shared scehemes
 			workspaceSchemes, err := filterProjectOrWorkspaceSharedSchemes(scanner.FileList, project)
 			if err != nil {
-				return models.OptionModel{}, err
+				return models.OptionModel{}, models.Warnings{}, err
 			}
 			logger.InfofDetails("workspace own shared schemes: %v", workspaceSchemes)
 
 			// Collect referred project shared scehemes
 			workspaceProjects, err := workspaceProjects(project)
 			if err != nil {
-				return models.OptionModel{}, err
+				return models.OptionModel{}, models.Warnings{}, err
 			}
 
 			for _, workspaceProject := range workspaceProjects {
 				logger.InfofDetails("inspecting referred project: %s", workspaceProject)
 				workspaceProjectSchemes, err := filterProjectOrWorkspaceSharedSchemes(scanner.FileList, workspaceProject)
 				if err != nil {
-					return models.OptionModel{}, err
+					return models.OptionModel{}, models.Warnings{}, err
 				}
 
 				workspaceSchemes = append(workspaceSchemes, workspaceProjectSchemes...)
@@ -407,7 +409,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 			projectSchemes, err := filterProjectOrWorkspaceSharedSchemes(scanner.FileList, project)
 			if err != nil {
-				return models.OptionModel{}, err
+				return models.OptionModel{}, models.Warnings{}, err
 			}
 
 			schemes = projectSchemes
@@ -419,8 +421,11 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 		if len(schemes) == 0 {
 			log.Warn("No shared scheme found")
+			warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 			continue
 		}
+
+		isValidProjectFound = true
 
 		for _, validProject := range validProjects {
 			schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
@@ -440,7 +445,11 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 		}
 	}
 
-	return projectPathOption, nil
+	if !isValidProjectFound {
+		projectPathOption = models.NewEmptyOptionModel()
+	}
+
+	return projectPathOption, warnings, nil
 }
 
 // DefaultOptions ...

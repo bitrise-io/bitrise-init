@@ -8,10 +8,14 @@ const (
 	primaryWorkflowID = "primary"
 )
 
+// Warnings ...
+type Warnings []string
+
 // ScanResultModel ...
 type ScanResultModel struct {
-	OptionMap  map[string]OptionModel      `json:"options,omitempty" yaml:"options,omitempty"`
-	ConfigsMap map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
+	OptionsMap  map[string]OptionModel      `json:"options,omitempty" yaml:"options,omitempty"`
+	ConfigsMap  map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
+	WarningsMap map[string]Warnings         `json:"warnings,omitempty" yaml:"warnings,omitempty"`
 }
 
 // OptionValueMap ...

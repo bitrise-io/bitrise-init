@@ -14,7 +14,7 @@ type ScannerInterface interface {
 
 	DetectPlatform() (bool, error)
 
-	Options() (models.OptionModel, error)
+	Options() (models.OptionModel, models.Warnings, error)
 	DefaultOptions() models.OptionModel
 
 	Configs() (models.BitriseConfigMap, error)

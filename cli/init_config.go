@@ -122,6 +122,7 @@ func initConfig(c *cli.Context) {
 		new(fastlane.Scanner),
 	}
 
+	projectTypeWarningMap := map[string]models.Warnings{}
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
@@ -148,10 +149,12 @@ func initConfig(c *cli.Context) {
 			continue
 		}
 
-		option, err := detector.Options()
+		option, warnings, err := detector.Options()
 		if err != nil {
 			log.Fatalf("Analyzer failed, error: %s", err)
 		}
+
+		projectTypeWarningMap[detectorName] = warnings
 
 		log.Debug()
 		log.Debug("Analyze result:")
@@ -194,8 +197,9 @@ func initConfig(c *cli.Context) {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
 		scanResult := models.ScanResultModel{
-			OptionMap:  projectTypeOptionMap,
-			ConfigsMap: projectTypeConfigMap,
+			OptionsMap:  projectTypeOptionMap,
+			ConfigsMap:  projectTypeConfigMap,
+			WarningsMap: projectTypeWarningMap,
 		}
 
 		if err := os.MkdirAll(outputDir, 0700); err != nil {

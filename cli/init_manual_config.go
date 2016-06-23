@@ -125,7 +125,7 @@ func initManualConfig(c *cli.Context) {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
 		scanResult := models.ScanResultModel{
-			OptionMap:  projectTypeOptionMap,
+			OptionsMap: projectTypeOptionMap,
 			ConfigsMap: projectTypeConfigMap,
 		}
 
@@ -148,7 +148,7 @@ func initManualConfig(c *cli.Context) {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
 		scanResult := models.ScanResultModel{
-			OptionMap:  projectTypeOptionMap,
+			OptionsMap: projectTypeOptionMap,
 			ConfigsMap: projectTypeConfigMap,
 		}
 
