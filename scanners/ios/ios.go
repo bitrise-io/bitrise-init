@@ -468,6 +468,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
+	// Script
+	stepList = append(stepList, steps.ScriptSteplistItem())
+
 	// CertificateAndProfileInstaller
 	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
 
@@ -534,6 +537,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
+
+	// Script
+	stepList = append(stepList, steps.ScriptSteplistItem())
 
 	// CertificateAndProfileInstaller
 	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
