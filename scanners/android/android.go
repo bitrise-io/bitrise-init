@@ -269,6 +269,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
+	// Script
+	stepList = append(stepList, steps.ScriptSteplistItem())
+
 	// GradleRunner
 	inputs := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{gradleFileKey: "$" + gradleFileEnvKey},
@@ -309,6 +312,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
+
+	// Script
+	stepList = append(stepList, steps.ScriptSteplistItem())
 
 	// GradleRunner
 	inputs := []envmanModels.EnvironmentItemModel{
