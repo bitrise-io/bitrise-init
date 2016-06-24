@@ -8,6 +8,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -173,10 +174,11 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, error) {
+func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// Search for gradlew_path input
 	logger.InfoSection("Searching for gradlew files")
 
+	warnings := models.Warnings{}
 	gradlewFiles := filterGradlewFiles(scanner.FileList)
 
 	logger.InfofDetails("%d gradlew file(s) detected:", len(gradlewFiles))
@@ -190,6 +192,9 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 		scanner.HasGradlewFile = true
 
 		logger.InfofDetails("root gradlew path: %s", rootGradlewPath)
+	} else {
+		log.Warn("No gradlew file found")
+		warnings = append(warnings, "no gradlew file found")
 	}
 
 	gradleBin := "gradle"
@@ -198,7 +203,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 		err := os.Chmod(rootGradlewPath, 0770)
 		if err != nil {
-			return models.OptionModel{}, fmt.Errorf("failed to add executable permission on gradlew file (%s), error: %s", rootGradlewPath, err)
+			return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to add executable permission on gradlew file (%s), error: %s", rootGradlewPath, err)
 		}
 
 		gradleBin = rootGradlewPath
@@ -235,7 +240,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
 	}
 
-	return gradleFileOption, nil
+	return gradleFileOption, warnings, nil
 }
 
 // DefaultOptions ...

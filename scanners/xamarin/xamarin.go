@@ -268,8 +268,10 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, error) {
+func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	logger.InfoSection("Searching for Nuget packages & Xamarin Components")
+
+	warnings := models.Warnings{}
 
 	for _, file := range scanner.FileList {
 		// Search for nuget packages
@@ -315,7 +317,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
-			return models.OptionModel{}, err
+			return models.OptionModel{}, models.Warnings{}, err
 		}
 
 		if len(configs) > 0 {
@@ -328,7 +330,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 	}
 
 	if len(validSolutionMap) == 0 {
-		return models.OptionModel{}, errors.New("No valid solution file found")
+		return models.OptionModel{}, models.Warnings{}, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
@@ -337,7 +339,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 	for solutionFile, configMap := range validSolutionMap {
 		projects, err := getProjects(solutionFile)
 		if err != nil {
-			return models.OptionModel{}, err
+			return models.OptionModel{}, models.Warnings{}, err
 		}
 
 		// Inspect projects
@@ -346,13 +348,13 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 
 			api, err := getProjectPlatformAPI(project)
 			if err != nil {
-				return models.OptionModel{}, err
+				return models.OptionModel{}, models.Warnings{}, err
 			}
 
 			if api == "" {
 				testType, err := getProjectTestType(project)
 				if err != nil {
-					return models.OptionModel{}, err
+					return models.OptionModel{}, models.Warnings{}, err
 				}
 
 				if testType == "" {
@@ -383,7 +385,7 @@ func (scanner *Scanner) Options() (models.OptionModel, error) {
 		xamarinProjectOption.ValueMap[solutionFile] = xamarinConfigurationOption
 	}
 
-	return xamarinProjectOption, nil
+	return xamarinProjectOption, warnings, nil
 }
 
 // DefaultOptions ...
