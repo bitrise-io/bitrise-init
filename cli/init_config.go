@@ -21,7 +21,7 @@ import (
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/goinp/goinp"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 const (
