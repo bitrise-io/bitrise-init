@@ -34,10 +34,10 @@ const (
 
 	// iOS Step IDs
 	cocoapodsInstallID      = "cocoapods-install"
-	cocoapodsInstallVersion = "1.4.2"
+	cocoapodsInstallVersion = "1.5.2"
 
 	xcodeArchiveID      = "xcode-archive"
-	xcodeArchiveVersion = "1.8.1"
+	xcodeArchiveVersion = "1.8.2"
 
 	xcodeTestID      = "xcode-test"
 	xcodeTestVersion = "1.13.7"
@@ -53,7 +53,7 @@ const (
 	xamarinComponentsRestoreVersion = "0.9.0"
 
 	xamarinBuilderID      = "xamarin-builder"
-	xamarinBuilderVersion = "1.3.3"
+	xamarinBuilderVersion = "1.3.4"
 )
 
 func stepIDComposite(ID, version string) string {
