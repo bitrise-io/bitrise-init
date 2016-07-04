@@ -109,7 +109,7 @@ func DeployToBitriseIoStepListItem() bitrise.StepListItemModel {
 // ScriptSteplistItem ...
 func ScriptSteplistItem() bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(scriptID, scriptVersion)
-	return stepListItem(stepIDComposite, "Do anything with script step", "", nil)
+	return stepListItem(stepIDComposite, "Do anything with Script step", "", nil)
 }
 
 //------------------------
