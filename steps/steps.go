@@ -37,7 +37,7 @@ const (
 	cocoapodsInstallVersion = "1.5.2"
 
 	xcodeArchiveID      = "xcode-archive"
-	xcodeArchiveVersion = "1.8.2"
+	xcodeArchiveVersion = "1.8.3"
 
 	xcodeTestID      = "xcode-test"
 	xcodeTestVersion = "1.13.7"
