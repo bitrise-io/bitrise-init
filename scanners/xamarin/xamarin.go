@@ -454,7 +454,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			} else if projectType == "Xamarin.tvOS" {
 				scanner.HasTVOSProject = true
 			} else {
-				log.Warn("    Unknow project type for GUIDa: %v", guids)
+				log.Warn("    Unknow project type for GUIDs: %v", guids)
 				continue
 			}
 
