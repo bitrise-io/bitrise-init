@@ -300,7 +300,7 @@ func TestIsRelevantPodfile(t *testing.T) {
 		}
 	}
 
-	t.Log(`relevant project`)
+	t.Log(`relevant podfile`)
 	{
 		fileList := []string{
 			"/Users/bitrise/sample-apps-ios-cocoapods/Podfile",

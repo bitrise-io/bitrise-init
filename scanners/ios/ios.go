@@ -135,6 +135,11 @@ func filterXcodeprojectFiles(fileList []string) []string {
 }
 
 func isRelevantPodfile(pth string) bool {
+	basename := filepath.Base(pth)
+	if !utility.CaseInsensitiveEquals(basename, "podfile") {
+		return false
+	}
+
 	for _, folderName := range scanFolderNameBlackList {
 		if isPathContainsComponent(pth, folderName) {
 			return false
@@ -151,20 +156,21 @@ func isRelevantPodfile(pth string) bool {
 }
 
 func filterPodFiles(fileList []string) []string {
-	filteredFiles := utility.FilterFilesWithBasPaths(fileList, podFileBasePath)
-	relevantFiles := []string{}
+	podfiles := []string{}
 
-	for _, file := range filteredFiles {
-		if !isRelevantPodfile(file) {
-			continue
+	for _, file := range fileList {
+		if isRelevantPodfile(file) {
+			podfiles = append(podfiles, file)
 		}
-
-		relevantFiles = append(relevantFiles, file)
 	}
 
-	sort.Sort(utility.ByComponents(relevantFiles))
+	if len(podfiles) == 0 {
+		return []string{}
+	}
 
-	return relevantFiles
+	sort.Sort(utility.ByComponents(podfiles))
+
+	return podfiles
 }
 
 func hasTest(schemeFile string) (bool, error) {
