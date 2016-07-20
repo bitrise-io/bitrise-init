@@ -17,7 +17,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
-	"github.com/bitrise-io/cocoapods-install/sorting"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -169,7 +168,7 @@ func filterPodFiles(fileList []string) []string {
 		return []string{}
 	}
 
-	sort.Sort(sorting.ByComponents(podfiles))
+	sort.Sort(utility.ByComponents(podfiles))
 
 	return podfiles
 }
