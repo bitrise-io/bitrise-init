@@ -9,13 +9,16 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
+)
+
+var (
+	log = utility.NewLogger()
 )
 
 const (
@@ -34,10 +37,6 @@ const (
 	workDirKey    = "work_dir"
 	workDirTitle  = "Working directory"
 	workDirEnvKey = "FASTLANE_WORK_DIR"
-)
-
-var (
-	logger = utility.NewLogger()
 )
 
 //--------------------------------------------------
@@ -126,22 +125,22 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	}
 
 	// Search for Fastfile
-	logger.Info("Searching for Fastfiles")
+	log.Info("Searching for Fastfiles")
 
 	fastfiles := filterFastfiles(fileList)
 	scanner.Fastfiles = fastfiles
 
-	logger.InfofDetails("%d Fastfile(s) detected:", len(fastfiles))
+	log.InfofDetails("%d Fastfile(s) detected:", len(fastfiles))
 	for _, file := range fastfiles {
-		logger.InfofDetails("  - %s", file)
+		log.InfofDetails("  - %s", file)
 	}
 
 	if len(fastfiles) == 0 {
-		logger.InfofDetails("platform not detected")
+		log.InfofDetails("platform not detected")
 		return false, nil
 	}
 
-	logger.InfofReceipt("platform detected")
+	log.InfofReceipt("platform detected")
 
 	return true, nil
 }
@@ -155,17 +154,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	// Inspect Fastfiles
 	for _, fastfile := range scanner.Fastfiles {
-		logger.InfofSection("Inspecting Fastfile: %s", fastfile)
+		log.InfofSection("Inspecting Fastfile: %s", fastfile)
 
 		lanes, err := inspectFastfile(fastfile)
 		if err != nil {
 			return models.OptionModel{}, models.Warnings{}, err
 		}
 
-		logger.InfofReceipt("found lanes: %v", lanes)
+		log.InfofReceipt("found lanes: %v", lanes)
 
 		if len(lanes) == 0 {
-			log.Warn("No lanes found")
+			log.Warnf("No lanes found")
 			warnings = append(warnings, fmt.Sprintf("no lanes found for Fastfile: %s", fastfile))
 			continue
 		}
@@ -174,7 +173,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		workDir := fastlaneWorkDir(fastfile)
 
-		logger.InfofReceipt("fastlane work dir: %s", workDir)
+		log.InfofReceipt("fastlane work dir: %s", workDir)
 
 		configOption := models.NewEmptyOptionModel()
 		configOption.Config = configName()
