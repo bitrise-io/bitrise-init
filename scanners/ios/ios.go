@@ -546,7 +546,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		// DeployToBitriseIo
 		stepListWithTest = append(stepListWithTest, steps.DeployToBitriseIoStepListItem())
 
-		bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepListWithTest)
+		bitriseData := models.BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(stepListWithTest)
 		data, err := yaml.Marshal(bitriseData)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
@@ -567,7 +567,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	// DeployToBitriseIo
 	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
+	bitriseData := models.BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
@@ -610,7 +610,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// DeployToBitriseIo
 	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
+	bitriseData := models.BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return models.BitriseConfigMap{}, err

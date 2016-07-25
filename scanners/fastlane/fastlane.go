@@ -34,6 +34,9 @@ const (
 	workDirKey    = "work_dir"
 	workDirTitle  = "Working directory"
 	workDirEnvKey = "FASTLANE_WORK_DIR"
+
+	fastlaneXcodeListTimeoutEnvKey   = "FASTLANE_XCODE_LIST_TIMEOUT"
+	fastlaneXcodeListTimeoutEnvValue = "120"
 )
 
 var (
@@ -233,7 +236,15 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
+	// DeployToBitriseIo
+	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
+
+	// App envs
+	appEnvs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
+	}
+
+	bitriseData := models.BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs, stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
@@ -270,7 +281,15 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
-	bitriseData := models.BitriseDataWithPrimaryWorkflowSteps(stepList)
+	// DeployToBitriseIo
+	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
+
+	// App envs
+	appEnvs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
+	}
+
+	bitriseData := models.BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs, stepList)
 	data, err := yaml.Marshal(bitriseData)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
