@@ -12,7 +12,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -20,6 +19,10 @@ import (
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
+)
+
+var (
+	log = utility.NewLogger()
 )
 
 const (
@@ -54,10 +57,6 @@ var (
 
 	frameworkExt           = ".framework"
 	scanFolderExtBlackList = []string{frameworkExt}
-)
-
-var (
-	logger = utility.NewLogger()
 )
 
 // SchemeModel ...
@@ -321,23 +320,23 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	scanner.FileList = fileList
 
 	// Search for xcodeproj file
-	logger.Info("Searching for xcodeproj files")
+	log.Info("Searching for xcodeproj files")
 
 	xcodeProjectFiles := filterXcodeprojectFiles(fileList)
 	scanner.XcodeProjectAndWorkspaceFiles = xcodeProjectFiles
 
-	logger.InfofDetails("%d xcodeproj file(s) detected:", len(xcodeProjectFiles))
+	log.InfofDetails("%d xcodeproj file(s) detected:", len(xcodeProjectFiles))
 	for _, file := range xcodeProjectFiles {
-		logger.InfofDetails("  - %s", file)
+		log.InfofDetails("  - %s", file)
 	}
 
 	if len(xcodeProjectFiles) == 0 {
-		logger.InfofDetails("platform not detected")
+		log.InfofDetails("platform not detected")
 
 		return false, nil
 	}
 
-	logger.InfofReceipt("platform detected")
+	log.InfofReceipt("platform detected")
 
 	return true, nil
 }
@@ -345,30 +344,37 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// Check for Podfiles
-	logger.InfoSection("Searching for Podfiles")
+	log.InfoSection("Searching for Podfiles")
 	warnings := models.Warnings{}
 
 	podFiles := filterPodFiles(scanner.FileList)
 	scanner.HasPodFile = (len(podFiles) > 0)
 
-	logger.InfofDetails("%d Podfile(s) detected:", len(podFiles))
+	log.InfofDetails("%d Podfile(s) detected:", len(podFiles))
 	for _, file := range podFiles {
-		logger.InfofDetails("  - %s", file)
+		log.InfofDetails("  - %s", file)
 	}
 
 	podfileWorkspaceProjectMap := map[string]string{}
 	for _, podFile := range podFiles {
-		logger.InfofSection("Inspecting Podfile: %s", podFile)
+		log.InfofSection("Inspecting Podfile: %s", podFile)
 
 		var err error
 		podfileWorkspaceProjectMap, err = utility.GetRelativeWorkspaceProjectPathMap(podFile, scanner.SearchDir)
 		if err != nil {
+			log.Warnf("Analyze Podfile (%s) failed", podFile)
+			if podfileContent, err := fileutil.ReadStringFromFile(podFile); err != nil {
+				log.Warnf("Failed to read Podfile (%s)", podFile)
+			} else {
+				fmt.Println(podfileContent)
+				fmt.Println("")
+			}
 			return models.OptionModel{}, models.Warnings{}, err
 		}
 
-		logger.InfoDetails("workspace mapping:")
+		log.InfoDetails("workspace mapping:")
 		for workspace, linkedProject := range podfileWorkspaceProjectMap {
-			logger.InfofDetails(" - %s -> %s", workspace, linkedProject)
+			log.InfofDetails(" - %s -> %s", workspace, linkedProject)
 		}
 	}
 
@@ -389,9 +395,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	for _, project := range cleanProjectFiles {
 		isWorkspace := isWorkspace(project)
 		if isWorkspace {
-			logger.InfofSection("Inspecting workspace file: %s", project)
+			log.InfofSection("Inspecting workspace file: %s", project)
 		} else {
-			logger.InfofSection("Inspecting project file: %s", project)
+			log.InfofSection("Inspecting project file: %s", project)
 		}
 
 		schemes := []SchemeModel{}
@@ -408,7 +414,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			if err != nil {
 				return models.OptionModel{}, models.Warnings{}, err
 			}
-			logger.InfofDetails("workspace own shared schemes: %v", workspaceSchemes)
+			log.InfofDetails("workspace own shared schemes: %v", workspaceSchemes)
 
 			// Collect referred project shared scehemes
 			workspaceProjects, err := workspaceProjects(project)
@@ -417,14 +423,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			for _, workspaceProject := range workspaceProjects {
-				logger.InfofDetails("inspecting referred project: %s", workspaceProject)
+				log.InfofDetails("inspecting referred project: %s", workspaceProject)
 				workspaceProjectSchemes, err := filterProjectOrWorkspaceSharedSchemes(scanner.FileList, workspaceProject)
 				if err != nil {
 					return models.OptionModel{}, models.Warnings{}, err
 				}
 
 				workspaceSchemes = append(workspaceSchemes, workspaceProjectSchemes...)
-				logger.InfofDetails("  referred project's shared schemes: %v", workspaceProjectSchemes)
+				log.InfofDetails("  referred project's shared schemes: %v", workspaceProjectSchemes)
 			}
 
 			validProjects = []string{project}
@@ -436,7 +442,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				// CocoaPods will generate a workspace for this project
 				for workspace, linkedProject := range podfileWorkspaceProjectMap {
 					if linkedProject == project {
-						logger.InfofDetails("workspace will be generated by CocoaPods: %s", workspace)
+						log.InfofDetails("workspace will be generated by CocoaPods: %s", workspace)
 						// We should use the generated workspace instead of the project
 						validProjectMap[workspace] = true
 					}
@@ -459,11 +465,11 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 		// ---
 
-		logger.InfofReceipt("valid projects: %v", validProjects)
-		logger.InfofReceipt("found shared schemes: %v", schemes)
+		log.InfofReceipt("valid projects: %v", validProjects)
+		log.InfofReceipt("found shared schemes: %v", schemes)
 
 		if len(schemes) == 0 {
-			log.Warn("No shared scheme found")
+			log.Warnf("No shared scheme found")
 			warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 			continue
 		}
