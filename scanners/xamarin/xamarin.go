@@ -345,7 +345,7 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	log.InfoSection("Searching for Nuget packages & Xamarin Components")
+	log.InfoSection("Searching for NuGet packages & Xamarin Components")
 
 	warnings := models.Warnings{}
 

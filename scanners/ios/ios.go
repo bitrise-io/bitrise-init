@@ -363,10 +363,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		podfileWorkspaceProjectMap, err = utility.GetRelativeWorkspaceProjectPathMap(podFile, scanner.SearchDir)
 		if err != nil {
 			log.Warnf("Analyze Podfile (%s) failed", podFile)
-			if podfileCont, err := fileutil.ReadStringFromFile(podFile); err != nil {
+			if podfileContent, err := fileutil.ReadStringFromFile(podFile); err != nil {
 				log.Warnf("Failed to read Podfile (%s)", podFile)
 			} else {
-				fmt.Println(podfileCont)
+				fmt.Println(podfileContent)
 				fmt.Println("")
 			}
 			return models.OptionModel{}, models.Warnings{}, err
