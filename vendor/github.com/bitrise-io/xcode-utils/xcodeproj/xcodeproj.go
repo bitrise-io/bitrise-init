@@ -2,6 +2,7 @@ package xcodeproj
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -221,8 +222,21 @@ end
 	projectBase := filepath.Base(projectPth)
 	envs = append(os.Environ(), "project_path="+projectBase, "LC_ALL=en_US.UTF-8", "BUNDLE_GEMFILE="+gemfilePth)
 
-	out, err = cmdex.NewCommand("bundle", "exec", "ruby", rubyScriptPth).SetDir(projectDir).SetEnvs(envs).RunAndReturnTrimmedCombinedOutput()
+	var outBuffer bytes.Buffer
+	outWriter := bufio.NewWriter(&outBuffer)
+
+	var errBuffer bytes.Buffer
+	errWriter := bufio.NewWriter(&errBuffer)
+
+	cmd := cmdex.NewCommand("bundle", "exec", "ruby", rubyScriptPth)
+	cmd.SetDir(projectDir).SetEnvs(envs)
+	cmd.SetStdout(outWriter)
+	cmd.SetStderr(errWriter)
+	err = cmd.Run()
 	if err != nil {
+		fmt.Printf("error: %s", errBuffer.String())
+		fmt.Printf("out: %s", outBuffer.String())
+
 		if errorutil.IsExitStatusError(err) && out != "" {
 			return errors.New(out)
 		}
