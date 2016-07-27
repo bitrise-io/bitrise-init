@@ -196,7 +196,6 @@ gem 'xcodeproj'`
 	}
 
 	rubyScriptContent := `require 'xcodeproj'
-require 'json'
 
 project_path = ENV['project_path']
 
