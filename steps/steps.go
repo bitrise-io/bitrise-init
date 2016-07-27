@@ -36,6 +36,9 @@ const (
 	cocoapodsInstallID      = "cocoapods-install"
 	cocoapodsInstallVersion = "1.5.3"
 
+	recreateUserSchemesID      = "recreate-user-schemes"
+	recreateUserSchemesVersion = "0.9.0"
+
 	xcodeArchiveID      = "xcode-archive"
 	xcodeArchiveVersion = "1.8.3"
 
@@ -140,6 +143,12 @@ func FastlaneStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepList
 func CocoapodsInstallStepListItem() bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(cocoapodsInstallID, cocoapodsInstallVersion)
 	return stepListItem(stepIDComposite, "", "", nil)
+}
+
+// RecreateUserSchemesStepListItem ...
+func RecreateUserSchemesStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(recreateUserSchemesID, recreateUserSchemesVersion)
+	return stepListItem(stepIDComposite, "", "", inputs)
 }
 
 // XcodeArchiveStepListItem ...

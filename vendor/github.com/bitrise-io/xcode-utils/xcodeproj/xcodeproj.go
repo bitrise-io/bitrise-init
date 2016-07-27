@@ -32,33 +32,34 @@ const (
 	XCSchemes    = "xcschemes"
 )
 
-// ------------------------------
-// Schemes
-
-// IsSharedSchemeFilePath ...
-func IsSharedSchemeFilePath(pth string) bool {
-	regexpPattern := filepath.Join(".*[/]?xcshareddata", "xcschemes", ".+[.]xcscheme")
-	regexp := regexp.MustCompile(regexpPattern)
-	return (regexp.FindString(pth) != "")
+// IsXCodeProj ...
+func IsXCodeProj(pth string) bool {
+	return strings.HasSuffix(pth, XCodeProjExt)
 }
 
-// FilterSharedSchemeFilePaths ...
-func FilterSharedSchemeFilePaths(paths []string) []string {
-	filteredPaths := []string{}
-	for _, pth := range paths {
-		if IsSharedSchemeFilePath(pth) {
-			filteredPaths = append(filteredPaths, pth)
-		}
+// IsXCWorkspace ...
+func IsXCWorkspace(pth string) bool {
+	return strings.HasSuffix(pth, XCWorkspaceExt)
+}
+
+// SchemeNameFromPath ...
+func SchemeNameFromPath(schemePth string) string {
+	basename := filepath.Base(schemePth)
+	ext := filepath.Ext(schemePth)
+	if ext != XCSchemeExt {
+		return ""
 	}
-	return filteredPaths
+	return strings.TrimSuffix(basename, ext)
 }
 
-func sharedSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
-	paths, err := filesInDir(projectOrWorkspacePth)
+// SchemeFileContainsXCTestBuildAction ...
+func SchemeFileContainsXCTestBuildAction(schemeFilePth string) (bool, error) {
+	content, err := fileutil.ReadStringFromFile(schemeFilePth)
 	if err != nil {
-		return []string{}, err
+		return false, err
 	}
-	return FilterSharedSchemeFilePaths(paths), nil
+
+	return schemeFileContentContainsXCTestBuildAction(content)
 }
 
 // ProjectSharedSchemeFilePaths ...
@@ -88,29 +89,6 @@ func WorkspaceSharedSchemeFilePaths(workspacePth string) ([]string, error) {
 	return workspaceSchemeFilePaths, nil
 }
 
-// SchemeNameFromPath ...
-func SchemeNameFromPath(schemePth string) string {
-	basename := filepath.Base(schemePth)
-	ext := filepath.Ext(schemePth)
-	if ext != XCSchemeExt {
-		return ""
-	}
-	return strings.TrimSuffix(basename, ext)
-}
-
-func sharedSchemes(projectOrWorkspacePth string) ([]string, error) {
-	schemePaths, err := sharedSchemeFilePaths(projectOrWorkspacePth)
-	if err != nil {
-		return []string{}, err
-	}
-
-	schemes := []string{}
-	for _, schemePth := range schemePaths {
-		schemes = append(schemes, SchemeNameFromPath(schemePth))
-	}
-	return schemes, nil
-}
-
 // ProjectSharedSchemes ...
 func ProjectSharedSchemes(projectPth string) ([]string, error) {
 	return sharedSchemes(projectPth)
@@ -138,44 +116,31 @@ func WorkspaceSharedSchemes(workspacePth string) ([]string, error) {
 	return workspaceSchemes, nil
 }
 
-// IsUserSchemeFilePath ...
-func IsUserSchemeFilePath(pth string) bool {
-	regexpPattern := filepath.Join(".*[/]?xcuserdata", ".*[.]xcuserdatad", "xcschemes", ".+[.]xcscheme")
-	regexp := regexp.MustCompile(regexpPattern)
-	return (regexp.FindString(pth) != "")
+// ProjectUserSchemeFilePaths ...
+func ProjectUserSchemeFilePaths(projectPth string) ([]string, error) {
+	return userSchemeFilePaths(projectPth)
 }
 
-// FilterUserSchemeFilePaths ...
-func FilterUserSchemeFilePaths(paths []string) []string {
-	filteredPaths := []string{}
-	for _, pth := range paths {
-		if IsUserSchemeFilePath(pth) {
-			filteredPaths = append(filteredPaths, pth)
+// WorkspaceUserSchemeFilePaths ...
+func WorkspaceUserSchemeFilePaths(workspacePth string) ([]string, error) {
+	workspaceSchemeFilePaths, err := userSchemeFilePaths(workspacePth)
+	if err != nil {
+		return []string{}, err
+	}
+
+	projects, err := WorkspaceProjectReferences(workspacePth)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, project := range projects {
+		projectSchemeFilePaths, err := userSchemeFilePaths(project)
+		if err != nil {
+			return []string{}, err
 		}
+		workspaceSchemeFilePaths = append(workspaceSchemeFilePaths, projectSchemeFilePaths...)
 	}
-	return filteredPaths
-}
-
-// UserSchemeFilePaths ...
-func UserSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
-	paths, err := filesInDir(projectOrWorkspacePth)
-	if err != nil {
-		return []string{}, err
-	}
-	return FilterUserSchemeFilePaths(paths), nil
-}
-
-func userSchemes(projectOrWorkspacePth string) ([]string, error) {
-	schemePaths, err := UserSchemeFilePaths(projectOrWorkspacePth)
-	if err != nil {
-		return []string{}, err
-	}
-
-	schemes := []string{}
-	for _, schemePth := range schemePaths {
-		schemes = append(schemes, SchemeNameFromPath(schemePth))
-	}
-	return schemes, nil
+	return workspaceSchemeFilePaths, nil
 }
 
 // ProjectUserSchemes ...
@@ -203,36 +168,6 @@ func WorkspaceUserSchemes(workspacePth string) ([]string, error) {
 		workspaceSchemes = append(workspaceSchemes, projectSchemes...)
 	}
 	return workspaceSchemes, nil
-}
-
-// SchemeFileContentContainsXCTestBuildAction ...
-func SchemeFileContentContainsXCTestBuildAction(schemeFileContent string) (bool, error) {
-	regexpPattern := `BuildableName = ".+.xctest"`
-	regexp := regexp.MustCompile(regexpPattern)
-
-	scanner := bufio.NewScanner(strings.NewReader(schemeFileContent))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if regexp.FindString(line) != "" {
-			return true, nil
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return false, err
-	}
-
-	return false, nil
-}
-
-// SchemeFileContainsXCTestBuildAction ...
-func SchemeFileContainsXCTestBuildAction(schemeFilePth string) (bool, error) {
-	content, err := fileutil.ReadStringFromFile(schemeFilePth)
-	if err != nil {
-		return false, err
-	}
-
-	return SchemeFileContentContainsXCTestBuildAction(content)
 }
 
 // ReCreateProjectUserSchemes ...
@@ -297,24 +232,6 @@ func ReCreateWorkspaceUserSchemes(workspace string) error {
 	return nil
 }
 
-// ------------------------------
-
-// ------------------------------
-// Project
-
-// IsXCodeProj ...
-func IsXCodeProj(pth string) bool {
-	return strings.HasSuffix(pth, XCodeProjExt)
-}
-
-// ------------------------------
-// Workspace
-
-// IsXCWorkspace ...
-func IsXCWorkspace(pth string) bool {
-	return strings.HasSuffix(pth, XCWorkspaceExt)
-}
-
 // WorkspaceProjectReferences ...
 func WorkspaceProjectReferences(workspace string) ([]string, error) {
 	projects := []string{}
@@ -358,8 +275,6 @@ func WorkspaceProjectReferences(workspace string) ([]string, error) {
 }
 
 // ------------------------------
-
-// ------------------------------
 // Utility
 
 func filesInDir(dir string) ([]string, error) {
@@ -371,4 +286,97 @@ func filesInDir(dir string) ([]string, error) {
 		return []string{}, err
 	}
 	return files, nil
+}
+
+func isUserSchemeFilePath(pth string) bool {
+	regexpPattern := filepath.Join(".*[/]?xcuserdata", ".*[.]xcuserdatad", "xcschemes", ".+[.]xcscheme")
+	regexp := regexp.MustCompile(regexpPattern)
+	return (regexp.FindString(pth) != "")
+}
+
+func filterUserSchemeFilePaths(paths []string) []string {
+	filteredPaths := []string{}
+	for _, pth := range paths {
+		if isUserSchemeFilePath(pth) {
+			filteredPaths = append(filteredPaths, pth)
+		}
+	}
+	return filteredPaths
+}
+
+func userSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
+	paths, err := filesInDir(projectOrWorkspacePth)
+	if err != nil {
+		return []string{}, err
+	}
+	return filterUserSchemeFilePaths(paths), nil
+}
+
+func userSchemes(projectOrWorkspacePth string) ([]string, error) {
+	schemePaths, err := userSchemeFilePaths(projectOrWorkspacePth)
+	if err != nil {
+		return []string{}, err
+	}
+
+	schemes := []string{}
+	for _, schemePth := range schemePaths {
+		schemes = append(schemes, SchemeNameFromPath(schemePth))
+	}
+	return schemes, nil
+}
+
+func isSharedSchemeFilePath(pth string) bool {
+	regexpPattern := filepath.Join(".*[/]?xcshareddata", "xcschemes", ".+[.]xcscheme")
+	regexp := regexp.MustCompile(regexpPattern)
+	return (regexp.FindString(pth) != "")
+}
+
+func filterSharedSchemeFilePaths(paths []string) []string {
+	filteredPaths := []string{}
+	for _, pth := range paths {
+		if isSharedSchemeFilePath(pth) {
+			filteredPaths = append(filteredPaths, pth)
+		}
+	}
+	return filteredPaths
+}
+
+func sharedSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
+	paths, err := filesInDir(projectOrWorkspacePth)
+	if err != nil {
+		return []string{}, err
+	}
+	return filterSharedSchemeFilePaths(paths), nil
+}
+
+func sharedSchemes(projectOrWorkspacePth string) ([]string, error) {
+	schemePaths, err := sharedSchemeFilePaths(projectOrWorkspacePth)
+	if err != nil {
+		return []string{}, err
+	}
+
+	schemes := []string{}
+	for _, schemePth := range schemePaths {
+		schemes = append(schemes, SchemeNameFromPath(schemePth))
+	}
+	return schemes, nil
+}
+
+func schemeFileContentContainsXCTestBuildAction(schemeFileContent string) (bool, error) {
+	regexpPattern := `BuildableName = ".+.xctest"`
+	regexp := regexp.MustCompile(regexpPattern)
+
+	scanner := bufio.NewScanner(strings.NewReader(schemeFileContent))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if regexp.FindString(line) != "" {
+			return true, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false, err
+	}
+
+	return false, nil
 }
