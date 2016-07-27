@@ -436,7 +436,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				missingSharedSchemes = true
 
 				if err := xcodeproj.ReCreateWorkspaceUserSchemes(project); err != nil {
-					return models.OptionModel{}, models.Warnings{}, err
+					return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to recreate user schemes, error: %s", err)
 				}
 
 				workspaceSchemes, err = workspaceUserSchemes(project)
@@ -481,7 +481,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				missingSharedSchemes = true
 
 				if err := xcodeproj.ReCreateProjectUserSchemes(project); err != nil {
-					return models.OptionModel{}, models.Warnings{}, err
+					return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to recreate user schemes, error: %s", err)
 				}
 
 				projectSchemes, err = projectUserSchemes(project)
