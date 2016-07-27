@@ -432,6 +432,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			if len(workspaceSchemes) == 0 {
 				log.Warnf("No shared schemes found, recreating user default schemes...")
 
+				warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 				missingSharedSchemes = true
 
 				if err := xcodeproj.ReCreateWorkspaceUserSchemes(project); err != nil {
@@ -476,6 +477,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			if len(projectSchemes) == 0 {
 				log.Warnf("No shared schemes found, recreating user default schemes...")
 
+				warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 				missingSharedSchemes = true
 
 				if err := xcodeproj.ReCreateProjectUserSchemes(project); err != nil {
