@@ -487,7 +487,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 					return models.OptionModel{}, models.Warnings{}, err
 				}
 
-				log.InfofDetails("workspace user schemes: %v", projectSchemes)
+				log.InfofDetails("project user schemes: %v", projectSchemes)
 			}
 
 			schemes = projectSchemes
