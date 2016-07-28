@@ -60,7 +60,7 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/xcode-utils/xcodeproj",
-			"Rev": "b53ae4c0cd88cff27bd128eee32ba6fe4d5accc8"
+			"Rev": "5635e4f1887be5b0ff593bb7b3fd4fe8a24c3be4"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",

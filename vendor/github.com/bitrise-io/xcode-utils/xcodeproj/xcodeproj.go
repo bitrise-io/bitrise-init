@@ -529,6 +529,7 @@ func pbxprojContentTartgets(pbxprojContent string) (map[string]bool, error) {
 
 		if match := nameRegexp.FindStringSubmatch(line); len(match) == 2 {
 			targetName = match[1]
+			targetName = strings.Trim(targetName, `"`)
 		}
 
 		if match := xcTestRegexp.FindString(line); match != "" {
