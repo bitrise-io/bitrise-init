@@ -170,98 +170,6 @@ func filterPodFiles(fileList []string) []string {
 	return podfiles
 }
 
-func projectSharedSchemes(projectPth string) ([]SchemeModel, error) {
-	schemeFilePaths, err := xcodeproj.ProjectSharedSchemeFilePaths(projectPth)
-	if err != nil {
-		return []SchemeModel{}, err
-	}
-
-	schemes := []SchemeModel{}
-	for _, schemeFilePth := range schemeFilePaths {
-		hasTest, err := xcodeproj.SchemeFileContainsXCTestBuildAction(schemeFilePth)
-		if err != nil {
-			return []SchemeModel{}, err
-		}
-		name := xcodeproj.SchemeNameFromPath(schemeFilePth)
-
-		schemes = append(schemes, SchemeModel{
-			Name:    name,
-			HasTest: hasTest,
-		})
-	}
-
-	return schemes, nil
-}
-
-func workspaceSharedSchemes(workspacePth string) ([]SchemeModel, error) {
-	schemeFilePaths, err := xcodeproj.WorkspaceSharedSchemeFilePaths(workspacePth)
-	if err != nil {
-		return []SchemeModel{}, err
-	}
-
-	schemes := []SchemeModel{}
-	for _, schemeFilePth := range schemeFilePaths {
-		hasTest, err := xcodeproj.SchemeFileContainsXCTestBuildAction(schemeFilePth)
-		if err != nil {
-			return []SchemeModel{}, err
-		}
-		name := xcodeproj.SchemeNameFromPath(schemeFilePth)
-
-		schemes = append(schemes, SchemeModel{
-			Name:    name,
-			HasTest: hasTest,
-		})
-	}
-
-	return schemes, nil
-}
-
-func projectUserSchemes(projectPth string) ([]SchemeModel, error) {
-	schemeFilePaths, err := xcodeproj.ProjectUserSchemeFilePaths(projectPth)
-	if err != nil {
-		return []SchemeModel{}, err
-	}
-
-	schemes := []SchemeModel{}
-	for _, schemeFilePth := range schemeFilePaths {
-		hasTest, err := xcodeproj.SchemeFileContainsXCTestBuildAction(schemeFilePth)
-		if err != nil {
-			return []SchemeModel{}, err
-		}
-		name := xcodeproj.SchemeNameFromPath(schemeFilePth)
-
-		schemes = append(schemes, SchemeModel{
-			Name:    name,
-			HasTest: hasTest,
-		})
-	}
-
-	return schemes, nil
-}
-
-func workspaceUserSchemes(workspacePth string) ([]SchemeModel, error) {
-	schemeFilePaths, err := xcodeproj.WorkspaceSharedSchemeFilePaths(workspacePth)
-	if err != nil {
-		return []SchemeModel{}, err
-	}
-
-	schemes := []SchemeModel{}
-	for _, schemeFilePth := range schemeFilePaths {
-		hasTest, err := xcodeproj.SchemeFileContainsXCTestBuildAction(schemeFilePth)
-		if err != nil {
-			return []SchemeModel{}, err
-		}
-		name := xcodeproj.SchemeNameFromPath(schemeFilePth)
-
-		schemes = append(schemes, SchemeModel{
-			Name:    name,
-			HasTest: hasTest,
-		})
-	}
-
-	return schemes, nil
-}
-
 func configName(hasPodfile, hasTest, missingSharedSchemes bool) string {
 	name := "ios-"
 	if hasPodfile {
@@ -414,7 +322,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		validProjectMap := map[string]bool{}
-		schemes := []SchemeModel{}
+		schemeXCTestMap := map[string]bool{}
 
 		missingSharedSchemes := false
 		hasPodFile := false
@@ -422,33 +330,31 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		// ---
 		if isWorkspace {
 			// Collect workspace shared scehemes
-			workspaceSchemes, err := workspaceSharedSchemes(project)
+			workspaceSchemeXCTestMap, err := xcodeproj.WorkspaceSharedSchemes(project)
 			if err != nil {
 				return models.OptionModel{}, models.Warnings{}, err
 			}
 
-			log.InfofDetails("workspace shared schemes: %v", workspaceSchemes)
+			log.InfofDetails("workspace shared schemes: %v", workspaceSchemeXCTestMap)
 
-			if len(workspaceSchemes) == 0 {
-				log.Warnf("No shared schemes found, recreating user default schemes...")
+			if len(workspaceSchemeXCTestMap) == 0 {
+				log.Warnf("No shared schemes found, adding recreate-user-schemes step...")
 
 				warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 				missingSharedSchemes = true
 
-				if err := xcodeproj.ReCreateWorkspaceUserSchemes(project); err != nil {
-					return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to recreate user schemes, error: %s", err)
-				}
-
-				workspaceSchemes, err = workspaceUserSchemes(project)
+				targetXCTestMap, err := xcodeproj.WorkspaceTargets(project)
 				if err != nil {
 					return models.OptionModel{}, models.Warnings{}, err
 				}
 
-				log.InfofDetails("workspace user schemes: %v", workspaceSchemes)
+				log.InfofDetails("workspace user schemes: %v", targetXCTestMap)
+
+				workspaceSchemeXCTestMap = targetXCTestMap
 			}
 
 			validProjectMap[project] = true
-			schemes = workspaceSchemes
+			schemeXCTestMap = workspaceSchemeXCTestMap
 		} else {
 			found := utility.MapStringStringHasValue(podfileWorkspaceProjectMap, project)
 			if found {
@@ -467,49 +373,45 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				validProjectMap[project] = true
 			}
 
-			projectSchemes, err := projectSharedSchemes(project)
+			projectSchemeXCtestMap, err := xcodeproj.ProjectSharedSchemes(project)
 			if err != nil {
 				return models.OptionModel{}, models.Warnings{}, err
 			}
 
-			log.InfofDetails("project shared schemes: %v", projectSchemes)
+			log.InfofDetails("project shared schemes: %v", projectSchemeXCtestMap)
 
-			if len(projectSchemes) == 0 {
-				log.Warnf("No shared schemes found, recreating user default schemes...")
+			if len(projectSchemeXCtestMap) == 0 {
+				log.Warnf("No shared schemes found, adding recreate-user-schemes step...")
 
 				warnings = append(warnings, fmt.Sprintf("no shared scheme found for project: %s", project))
 				missingSharedSchemes = true
 
-				if err := xcodeproj.ReCreateProjectUserSchemes(project); err != nil {
-					return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to recreate user schemes, error: %s", err)
-				}
-
-				projectSchemes, err = projectUserSchemes(project)
+				targetXCTestMap, err := xcodeproj.ProjectTargets(project)
 				if err != nil {
 					return models.OptionModel{}, models.Warnings{}, err
 				}
 
-				log.InfofDetails("project user schemes: %v", projectSchemes)
+				log.InfofDetails("project user schemes: %v", targetXCTestMap)
+
+				projectSchemeXCtestMap = targetXCTestMap
 			}
 
-			schemes = projectSchemes
+			schemeXCTestMap = projectSchemeXCtestMap
 		}
 		// ---
 
-		log.InfofReceipt("found schemes: %v", schemes)
+		log.InfofReceipt("found schemes: %v", schemeXCTestMap)
 
-		if len(schemes) == 0 {
+		if len(schemeXCTestMap) == 0 {
 			return models.OptionModel{}, models.Warnings{}, errors.New("No shared schemes found, or failed to create user schemes")
 		}
 
 		for validProject := range validProjectMap {
 			schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
-			for _, scheme := range schemes {
-				hasTest := scheme.HasTest
-
+			for schemeName, hasXCtest := range schemeXCTestMap {
 				configDescriptor := ConfigDescriptor{
-					HasTest:              hasTest,
 					HasPodfile:           hasPodFile,
+					HasTest:              hasXCtest,
 					MissingSharedSchemes: missingSharedSchemes,
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
@@ -517,7 +419,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				configOption := models.NewEmptyOptionModel()
 				configOption.Config = configDescriptor.String()
 
-				schemeOption.ValueMap[scheme.Name] = configOption
+				schemeOption.ValueMap[schemeName] = configOption
 			}
 
 			projectPathOption.ValueMap[validProject] = schemeOption

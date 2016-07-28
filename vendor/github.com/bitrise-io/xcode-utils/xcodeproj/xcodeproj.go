@@ -88,15 +88,15 @@ func WorkspaceSharedSchemeFilePaths(workspacePth string) ([]string, error) {
 }
 
 // ProjectSharedSchemes ...
-func ProjectSharedSchemes(projectPth string) ([]string, error) {
+func ProjectSharedSchemes(projectPth string) (map[string]bool, error) {
 	return sharedSchemes(projectPth)
 }
 
 // WorkspaceSharedSchemes ...
-func WorkspaceSharedSchemes(workspacePth string) ([]string, error) {
-	workspaceSchemes, err := sharedSchemes(workspacePth)
+func WorkspaceSharedSchemes(workspacePth string) (map[string]bool, error) {
+	schemeMap, err := sharedSchemes(workspacePth)
 	if err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
 	projects, err := WorkspaceProjectReferences(workspacePth)
@@ -105,16 +105,17 @@ func WorkspaceSharedSchemes(workspacePth string) ([]string, error) {
 	}
 
 	for _, project := range projects {
-		projectSchemes, err := sharedSchemes(project)
+		projectSchemeMap, err := sharedSchemes(project)
 		if err != nil {
-			return []string{}, err
+			return map[string]bool{}, err
 		}
-		workspaceSchemes = append(workspaceSchemes, projectSchemes...)
+
+		for name, hasXCtest := range projectSchemeMap {
+			schemeMap[name] = hasXCtest
+		}
 	}
 
-	sort.Strings(workspaceSchemes)
-
-	return workspaceSchemes, nil
+	return schemeMap, nil
 }
 
 // ProjectUserSchemeFilePaths ...
@@ -148,15 +149,15 @@ func WorkspaceUserSchemeFilePaths(workspacePth string) ([]string, error) {
 }
 
 // ProjectUserSchemes ...
-func ProjectUserSchemes(projectPth string) ([]string, error) {
+func ProjectUserSchemes(projectPth string) (map[string]bool, error) {
 	return userSchemes(projectPth)
 }
 
 // WorkspaceUserSchemes ...
-func WorkspaceUserSchemes(workspacePth string) ([]string, error) {
-	workspaceSchemes, err := userSchemes(workspacePth)
+func WorkspaceUserSchemes(workspacePth string) (map[string]bool, error) {
+	schemeMap, err := userSchemes(workspacePth)
 	if err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
 	projects, err := WorkspaceProjectReferences(workspacePth)
@@ -165,16 +166,17 @@ func WorkspaceUserSchemes(workspacePth string) ([]string, error) {
 	}
 
 	for _, project := range projects {
-		projectSchemes, err := userSchemes(project)
+		projectSchemeMap, err := userSchemes(project)
 		if err != nil {
-			return []string{}, err
+			return map[string]bool{}, err
 		}
-		workspaceSchemes = append(workspaceSchemes, projectSchemes...)
+
+		for name, hasXCtest := range projectSchemeMap {
+			schemeMap[name] = hasXCtest
+		}
 	}
 
-	sort.Strings(workspaceSchemes)
-
-	return workspaceSchemes, nil
+	return schemeMap, nil
 }
 
 // ReCreateProjectUserSchemes ...
@@ -186,6 +188,7 @@ func ReCreateProjectUserSchemes(projectPth string) error {
 
 	projectDir := filepath.Dir(projectPth)
 
+	// Write Gemfile to file and install
 	gemfileContent := `source 'https://rubygems.org'
 
 gem 'xcodeproj'`
@@ -202,6 +205,7 @@ gem 'xcodeproj'`
 		return err
 	}
 
+	// Write recreate_user_schemes.rb to file and run
 	rubyScriptContent := `require 'xcodeproj'
 
 project_path = ENV['project_path']
@@ -240,8 +244,8 @@ end
 }
 
 // ReCreateWorkspaceUserSchemes ...
-func ReCreateWorkspaceUserSchemes(workspace string) error {
-	projects, err := WorkspaceProjectReferences(workspace)
+func ReCreateWorkspaceUserSchemes(workspacePth string) error {
+	projects, err := WorkspaceProjectReferences(workspacePth)
 	if err != nil {
 		return err
 	}
@@ -256,20 +260,42 @@ func ReCreateWorkspaceUserSchemes(workspace string) error {
 }
 
 // ProjectTargets ...
-func ProjectTargets(projectPth string) ([]string, error) {
+func ProjectTargets(projectPth string) (map[string]bool, error) {
 	pbxProjPth := filepath.Join(projectPth, "project.pbxproj")
 	if exist, err := pathutil.IsPathExists(pbxProjPth); err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	} else if !exist {
-		return []string{}, fmt.Errorf("project.pbxproj does not exist at: %s", pbxProjPth)
+		return map[string]bool{}, fmt.Errorf("project.pbxproj does not exist at: %s", pbxProjPth)
 	}
 
 	content, err := fileutil.ReadStringFromFile(pbxProjPth)
 	if err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
 	return pbxprojContentTartgets(content)
+}
+
+// WorkspaceTargets ...
+func WorkspaceTargets(workspacePth string) (map[string]bool, error) {
+	projects, err := WorkspaceProjectReferences(workspacePth)
+	if err != nil {
+		return nil, err
+	}
+
+	targetMap := map[string]bool{}
+	for _, project := range projects {
+		projectTargetMap, err := ProjectTargets(project)
+		if err != nil {
+			return map[string]bool{}, err
+		}
+
+		for name, hasXCTest := range projectTargetMap {
+			targetMap[name] = hasXCTest
+		}
+	}
+
+	return targetMap, nil
 }
 
 // WorkspaceProjectReferences ...
@@ -357,20 +383,23 @@ func userSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
 	return filterUserSchemeFilePaths(paths), nil
 }
 
-func userSchemes(projectOrWorkspacePth string) ([]string, error) {
+func userSchemes(projectOrWorkspacePth string) (map[string]bool, error) {
 	schemePaths, err := userSchemeFilePaths(projectOrWorkspacePth)
 	if err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
-	schemes := []string{}
+	schemeMap := map[string]bool{}
 	for _, schemePth := range schemePaths {
-		schemes = append(schemes, SchemeNameFromPath(schemePth))
+		schemeName := SchemeNameFromPath(schemePth)
+		hasXCtest, err := SchemeFileContainsXCTestBuildAction(schemePth)
+		if err != nil {
+			return map[string]bool{}, err
+		}
+		schemeMap[schemeName] = hasXCtest
 	}
 
-	sort.Strings(schemes)
-
-	return schemes, nil
+	return schemeMap, nil
 }
 
 func isSharedSchemeFilePath(pth string) bool {
@@ -400,20 +429,24 @@ func sharedSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
 	return filterSharedSchemeFilePaths(paths), nil
 }
 
-func sharedSchemes(projectOrWorkspacePth string) ([]string, error) {
+func sharedSchemes(projectOrWorkspacePth string) (map[string]bool, error) {
 	schemePaths, err := sharedSchemeFilePaths(projectOrWorkspacePth)
 	if err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
-	schemes := []string{}
+	schemeMap := map[string]bool{}
 	for _, schemePth := range schemePaths {
-		schemes = append(schemes, SchemeNameFromPath(schemePth))
+		schemeName := SchemeNameFromPath(schemePth)
+		hasXCTest, err := SchemeFileContainsXCTestBuildAction(schemePth)
+		if err != nil {
+			return map[string]bool{}, err
+		}
+
+		schemeMap[schemeName] = hasXCTest
 	}
 
-	sort.Strings(schemes)
-
-	return schemes, nil
+	return schemeMap, nil
 }
 
 func schemeFileContentContainsXCTestBuildAction(schemeFileContent string) (bool, error) {
@@ -435,43 +468,77 @@ func schemeFileContentContainsXCTestBuildAction(schemeFileContent string) (bool,
 	return false, nil
 }
 
-func pbxprojContentTartgets(pbxprojContent string) ([]string, error) {
+func pbxprojContentTartgets(pbxprojContent string) (map[string]bool, error) {
 	nativeTargetSectionStart := "/* Begin PBXNativeTarget section */"
 	nativeTargetSectionEnd := "/* End PBXNativeTarget section */"
 
-	regexpPattern := `\s*name = (?P<name>.+);`
-	regexp := regexp.MustCompile(regexpPattern)
+	targetStartRegexpPattern := `\s*[A-Z0-9]+ /\* .* \*/ = {`
+	targetStartRegexp := regexp.MustCompile(targetStartRegexpPattern)
+	targetEnd := "};"
 
-	targets := []string{}
+	xcTestRegexpPattern := `\s*productReference = .* /\* .*.xctest \*/;`
+	xcTestRegexp := regexp.MustCompile(xcTestRegexpPattern)
+
+	nameRegexpPattern := `\s*name = (?P<name>.+);`
+	nameRegexp := regexp.MustCompile(nameRegexpPattern)
+
 	isTargetSection := false
+	isTarget := false
+
+	targetMap := map[string]bool{}
+	targetName := ""
+	targetHasXCTest := false
 
 	scanner := bufio.NewScanner(strings.NewReader(pbxprojContent))
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		// End PBXNativeTarget section
 		if strings.TrimSpace(line) == nativeTargetSectionEnd {
 			break
 		}
 
+		// Begin PBXNativeTarget section
 		if strings.TrimSpace(line) == nativeTargetSectionStart {
 			isTargetSection = true
+			continue
 		}
 
 		if !isTargetSection {
 			continue
 		}
 
-		if match := regexp.FindStringSubmatch(line); len(match) == 2 {
-			target := match[1]
-			targets = append(targets, target)
+		if strings.TrimSpace(line) == targetEnd {
+			isTarget = false
+
+			targetMap[targetName] = targetHasXCTest
+
+			targetName = ""
+			targetHasXCTest = false
+
+			continue
+		}
+
+		if targetStartRegexp.FindString(line) != "" {
+			isTarget = true
+		}
+
+		if !isTarget {
+			continue
+		}
+
+		if match := nameRegexp.FindStringSubmatch(line); len(match) == 2 {
+			targetName = match[1]
+		}
+
+		if match := xcTestRegexp.FindString(line); match != "" {
+			targetHasXCTest = true
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return []string{}, err
+		return map[string]bool{}, err
 	}
 
-	sort.Strings(targets)
-
-	return targets, nil
+	return targetMap, nil
 }
