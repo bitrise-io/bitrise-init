@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.8)
+## Changelog (Current version: 0.9.9)
 
 -----------------
+
+### 0.9.9 (2016 Jul 28)
+
+* [e68da49] prepare for 0.9.9
+* [02a019d] step version updates (#35)
 
 ### 0.9.8 (2016 Jul 28)
 
