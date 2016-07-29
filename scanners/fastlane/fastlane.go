@@ -133,9 +133,9 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	fastfiles := filterFastfiles(fileList)
 	scanner.Fastfiles = fastfiles
 
-	log.Details("%d Fastfile(s) detected:", len(fastfiles))
+	log.Details("%d Fastfile(s) detected", len(fastfiles))
 	for _, file := range fastfiles {
-		log.Details("  - %s", file)
+		log.Details("- %s", file)
 	}
 
 	if len(fastfiles) == 0 {
@@ -143,7 +143,7 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 		return false, nil
 	}
 
-	log.Done("platform detected")
+	log.Done("Platform detected")
 
 	return true, nil
 }
@@ -164,7 +164,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			return models.OptionModel{}, models.Warnings{}, err
 		}
 
-		log.Done("found lanes: %v", lanes)
+		log.Details("%d lane(s) found")
+		for _, lane := range lanes {
+			log.Details("- %s", lane)
+		}
 
 		if len(lanes) == 0 {
 			log.Warn("No lanes found")
@@ -176,7 +179,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		workDir := fastlaneWorkDir(fastfile)
 
-		log.Done("fastlane work dir: %s", workDir)
+		log.Details("fastlane work dir: %s", workDir)
 
 		configOption := models.NewEmptyOptionModel()
 		configOption.Config = configName()

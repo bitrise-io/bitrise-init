@@ -52,7 +52,7 @@ func (logger *LoggerModel) Info(format string, v ...interface{}) {
 // Details ...
 func (logger *LoggerModel) Details(format string, v ...interface{}) {
 	errorMsg := fmt.Sprintf(format, v...)
-	logger.Logger.Debugf("  %s", errorMsg)
+	logger.Logger.Infof("  %s", errorMsg)
 }
 
 // Done ...
