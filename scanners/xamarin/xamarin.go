@@ -328,24 +328,24 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	solutionFiles := filterSolutionFiles(fileList)
 	scanner.SolutionFiles = solutionFiles
 
-	log.InfofDetails("%d solution file(s) detected:", len(solutionFiles))
+	log.Details("%d solution file(s) detected:", len(solutionFiles))
 	for _, file := range solutionFiles {
-		log.InfofDetails("  - %s", file)
+		log.Details("  - %s", file)
 	}
 
 	if len(solutionFiles) == 0 {
-		log.InfofDetails("platform not detected")
+		log.Details("platform not detected")
 		return false, nil
 	}
 
-	log.InfofReceipt("platform detected")
+	log.Done("platform detected")
 
 	return true, nil
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	log.InfoSection("Searching for NuGet packages & Xamarin Components")
+	log.Info("Searching for NuGet packages & Xamarin Components")
 
 	warnings := models.Warnings{}
 
@@ -375,21 +375,21 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if scanner.HasNugetPackages {
-		log.InfofReceipt("Nuget packages found")
+		log.Done("Nuget packages found")
 	} else {
-		log.InfofDetails("NO Nuget packages found")
+		log.Details("NO Nuget packages found")
 	}
 
 	if scanner.HasXamarinComponents {
-		log.InfofReceipt("Xamarin Components found")
+		log.Done("Xamarin Components found")
 	} else {
-		log.InfofDetails("NO Xamarin Components found")
+		log.Details("NO Xamarin Components found")
 	}
 
 	// Check for solution configs
 	validSolutionMap := map[string]map[string][]string{}
 	for _, solutionFile := range scanner.SolutionFiles {
-		log.InfofSection("Inspecting solution file: %s", solutionFile)
+		log.Info("Inspecting solution file: %s", solutionFile)
 
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
@@ -397,11 +397,11 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		if len(configs) > 0 {
-			log.InfofReceipt("found configs: %v", configs)
+			log.Done("found configs: %v", configs)
 
 			validSolutionMap[solutionFile] = configs
 		} else {
-			log.Warnf("No config found for %s", solutionFile)
+			log.Warn("No config found for %s", solutionFile)
 		}
 	}
 
@@ -420,7 +420,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		// Inspect projects
 		for _, project := range projects {
-			log.InfofSection("  Inspecting project file: %s", project)
+			log.Info("  Inspecting project file: %s", project)
 
 			guids, err := getProjectGUIDs(project)
 			if err != nil {
@@ -435,12 +435,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			if testType != "" {
-				log.InfofReceipt("    test project type: %s", testType)
+				log.Done("    test project type: %s", testType)
 				continue
 			}
 
 			if projectType == "" {
-				log.Warnf("    No platform api or test framework found")
+				log.Warn("    No platform api or test framework found")
 				continue
 			}
 
@@ -453,11 +453,11 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			} else if projectType == "Xamarin.tvOS" {
 				scanner.HasTVOSProject = true
 			} else {
-				log.Warnf("    Unknow project type for GUIDs: %v", guids)
+				log.Warn("    Unknow project type for GUIDs: %v", guids)
 				continue
 			}
 
-			log.InfofReceipt("    project type: %s", projectType)
+			log.Done("    project type: %s", projectType)
 		}
 
 		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
