@@ -221,7 +221,7 @@ func getWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
 	}
 
 	if !isWorkspaceSpecified(podfileContent) {
-		log.Info("workspace not specified in podfile (%s)", podfilePth)
+		log.Details("workspace not specified in podfile")
 		// If no explicit Xcode workspace is specified and
 		// only one project exists in the same directory as the Podfile,
 		// then the name of that project is used as the workspace’s name.

@@ -328,9 +328,9 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	solutionFiles := filterSolutionFiles(fileList)
 	scanner.SolutionFiles = solutionFiles
 
-	log.Details("%d solution file(s) detected:", len(solutionFiles))
+	log.Details("%d solution file(s) detected", len(solutionFiles))
 	for _, file := range solutionFiles {
-		log.Details("  - %s", file)
+		log.Details("- %s", file)
 	}
 
 	if len(solutionFiles) == 0 {
@@ -338,7 +338,7 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 		return false, nil
 	}
 
-	log.Done("platform detected")
+	log.Done("Platform detected")
 
 	return true, nil
 }
@@ -375,13 +375,13 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if scanner.HasNugetPackages {
-		log.Done("Nuget packages found")
+		log.Details("Nuget packages found")
 	} else {
 		log.Details("NO Nuget packages found")
 	}
 
 	if scanner.HasXamarinComponents {
-		log.Done("Xamarin Components found")
+		log.Details("Xamarin Components found")
 	} else {
 		log.Details("NO Xamarin Components found")
 	}
@@ -397,7 +397,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		if len(configs) > 0 {
-			log.Done("found configs: %v", configs)
+			log.Details("%d configuration(s) found", len(configs))
+			for config, platforms := range configs {
+				log.Details("- %s with platform(s): %v", config, platforms)
+			}
 
 			validSolutionMap[solutionFile] = configs
 		} else {
@@ -435,12 +438,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			if testType != "" {
-				log.Done("    test project type: %s", testType)
+				log.Details("  test project type: %s", testType)
 				continue
 			}
 
 			if projectType == "" {
-				log.Warn("    No platform api or test framework found")
+				log.Warn("  No platform api or test framework found")
 				continue
 			}
 
@@ -457,7 +460,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				continue
 			}
 
-			log.Done("    project type: %s", projectType)
+			log.Details("  project type: %s", projectType)
 		}
 
 		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
