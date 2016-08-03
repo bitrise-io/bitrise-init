@@ -209,7 +209,9 @@ func TestIsRelevantProject(t *testing.T) {
 		}
 
 		for _, file := range fileList {
-			require.Equal(t, false, isRelevantProject(file))
+			is, err := isRelevantProject(file, true)
+			require.NoError(t, err)
+			require.Equal(t, false, is)
 		}
 	}
 
@@ -220,7 +222,9 @@ func TestIsRelevantProject(t *testing.T) {
 		}
 
 		for _, file := range fileList {
-			require.Equal(t, true, isRelevantProject(file))
+			is, err := isRelevantProject(file, true)
+			require.NoError(t, err)
+			require.Equal(t, true, is)
 		}
 	}
 }
@@ -237,7 +241,8 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 			"/Users/bitrise/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcodeproj",
 		}
 
-		files := filterXcodeprojectFiles(fileList)
+		files, err := filterXcodeprojectFiles(fileList, true)
+		require.NoError(t, err)
 		require.Equal(t, 1, len(files))
 		require.Equal(t, "/Users/bitrise/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcodeproj", files[0])
 	}
@@ -253,7 +258,8 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 			"SampleAppWithCocoapods.xcodeproj",
 		}
 
-		files := filterXcodeprojectFiles(fileList)
+		files, err := filterXcodeprojectFiles(fileList, true)
+		require.NoError(t, err)
 		require.Equal(t, 1, len(files))
 		require.Equal(t, "SampleAppWithCocoapods.xcodeproj", files[0])
 	}
@@ -265,7 +271,8 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 			"/Users/bitrise/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcworkspace",
 		}
 
-		files := filterXcodeprojectFiles(fileList)
+		files, err := filterXcodeprojectFiles(fileList, true)
+		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 
 		require.Equal(t, "/Users/bitrise/sample-apps-ios-cocoapods/SampleAppWithCocoapods.xcworkspace", files[0])
@@ -280,7 +287,8 @@ func TestFilterXcodeprojectFiles(t *testing.T) {
 			"build.gradle",
 		}
 
-		files := filterXcodeprojectFiles(fileList)
+		files, err := filterXcodeprojectFiles(fileList, true)
+		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}
 }
