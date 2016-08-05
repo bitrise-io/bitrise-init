@@ -3,6 +3,7 @@ package ios
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -92,34 +93,56 @@ func isPathContainsComponentWithExtension(pth, ext string) bool {
 	return false
 }
 
-func isRelevantProject(pth string) bool {
+func isDir(pth string) (bool, error) {
+	fileInf, err := os.Lstat(pth)
+	if err != nil {
+		return false, err
+	}
+	if fileInf == nil {
+		return false, errors.New("no file info available")
+	}
+	return fileInf.IsDir(), nil
+}
+
+func isRelevantProject(pth string, isTest bool) (bool, error) {
+	// xcodeproj & xcworkspace should be a dir
+	if !isTest {
+		if is, err := isDir(pth); err != nil {
+			return false, err
+		} else if !is {
+			return false, nil
+		}
+	}
+
 	for _, regexp := range scanProjectPathRegexpBlackList {
 		if isPathMatchRegexp(pth, regexp) {
-			return false
+			return false, nil
 		}
 	}
 
 	for _, folderName := range scanFolderNameBlackList {
 		if isPathContainsComponent(pth, folderName) {
-			return false
+			return false, nil
 		}
 	}
 
 	for _, folderExt := range scanFolderExtBlackList {
 		if isPathContainsComponentWithExtension(pth, folderExt) {
-			return false
+			return false, nil
 		}
 	}
 
-	return true
+	return true, nil
 }
 
-func filterXcodeprojectFiles(fileList []string) []string {
+func filterXcodeprojectFiles(fileList []string, isTest bool) ([]string, error) {
 	filteredFiles := utility.FilterFilesWithExtensions(fileList, xcodeprojExtension, xcworkspaceExtension)
 	relevantFiles := []string{}
 
 	for _, file := range filteredFiles {
-		if !isRelevantProject(file) {
+		if is, err := isRelevantProject(file, isTest); err != nil {
+			return []string{}, err
+		} else if !is {
 			continue
 		}
 
@@ -128,7 +151,7 @@ func filterXcodeprojectFiles(fileList []string) []string {
 
 	sort.Sort(utility.ByComponents(relevantFiles))
 
-	return relevantFiles
+	return relevantFiles, nil
 }
 
 func isRelevantPodfile(pth string) bool {
@@ -243,7 +266,10 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	// Search for xcodeproj file
 	log.Info("Searching for .xcodeproj & .xcworkspace files")
 
-	xcodeProjectFiles := filterXcodeprojectFiles(fileList)
+	xcodeProjectFiles, err := filterXcodeprojectFiles(fileList, false)
+	if err != nil {
+		return false, fmt.Errorf("failed to collect .xcodeproj & .xcworkspace files, error: %s", err)
+	}
 	scanner.XcodeProjectAndWorkspaceFiles = xcodeProjectFiles
 
 	log.Details("%d project file(s) detected", len(xcodeProjectFiles))
