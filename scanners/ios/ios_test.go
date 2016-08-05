@@ -1,8 +1,11 @@
 package ios
 
 import (
+	"os"
+	"path"
 	"testing"
 
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -226,6 +229,24 @@ func TestIsRelevantProject(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, true, is)
 		}
+	}
+
+	t.Log("symlink is not valid")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("test")
+		require.NoError(t, err)
+
+		pth := path.Join(tmpDir, "SampleAppWithCocoapods.xcodeproj")
+		require.NoError(t, os.MkdirAll(pth, 0777))
+		is, err := isRelevantProject(pth, false)
+		require.NoError(t, err)
+		require.Equal(t, true, is)
+
+		symlinkPth := path.Join(tmpDir, "symlink-SampleAppWithCocoapods.xcodeproj")
+		require.NoError(t, os.Symlink(pth, symlinkPth))
+		is, err = isRelevantProject(symlinkPth, false)
+		require.NoError(t, err)
+		require.Equal(t, false, is)
 	}
 }
 
