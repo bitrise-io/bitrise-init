@@ -19,10 +19,10 @@ const (
 	certificateAndProfileInstallerVersion = "1.6.0"
 
 	deployToBitriseIoID      = "deploy-to-bitrise-io"
-	deployToBitriseIoVersion = "1.2.4"
+	deployToBitriseIoVersion = "1.2.5"
 
 	scriptID      = "script"
-	scriptVersion = "1.1.2"
+	scriptVersion = "1.1.3"
 
 	// Android Step IDs
 	gradleRunnerID      = "gradle-runner"
@@ -34,13 +34,13 @@ const (
 
 	// iOS Step IDs
 	cocoapodsInstallID      = "cocoapods-install"
-	cocoapodsInstallVersion = "1.5.6"
+	cocoapodsInstallVersion = "1.5.7"
 
 	recreateUserSchemesID      = "recreate-user-schemes"
-	recreateUserSchemesVersion = "0.9.1"
+	recreateUserSchemesVersion = "0.9.2"
 
 	xcodeArchiveID      = "xcode-archive"
-	xcodeArchiveVersion = "1.9.0"
+	xcodeArchiveVersion = "1.9.1"
 
 	xcodeTestID      = "xcode-test"
 	xcodeTestVersion = "1.14.0"
