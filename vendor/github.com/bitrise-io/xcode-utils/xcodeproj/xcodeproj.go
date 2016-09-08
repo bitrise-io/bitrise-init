@@ -3,7 +3,6 @@ package xcodeproj
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -314,7 +313,20 @@ func ReCreateWorkspaceUserSchemes(workspacePth string) error {
 
 // ProjectTargets ...
 func ProjectTargets(projectPth string) (map[string]bool, error) {
-	return projectBuildTartgets(projectPth)
+	pbxProjPth := filepath.Join(projectPth, "project.pbxproj")
+	if exist, err := pathutil.IsPathExists(pbxProjPth); err != nil {
+		return map[string]bool{}, err
+	} else if !exist {
+		return map[string]bool{}, fmt.Errorf("project.pbxproj does not exist at: %s", pbxProjPth)
+	}
+
+	content, err := fileutil.ReadStringFromFile(pbxProjPth)
+	if err != nil {
+		return map[string]bool{}, err
+	}
+
+	return pbxprojContentTartgets(content)
+
 }
 
 // WorkspaceTargets ...
@@ -814,36 +826,6 @@ func targetWithID(targets []PBXNativeTarget, id string) (PBXNativeTarget, bool) 
 	return PBXNativeTarget{}, false
 }
 
-func projectBuildTartgets(projectPth string) (map[string]bool, error) {
-	projectDir := filepath.Dir(projectPth)
-
-	projectBase := filepath.Base(projectPth)
-	envs := append(os.Environ(), "project_path="+projectBase, "LC_ALL=en_US.UTF-8")
-
-	out, err := runRubyScriptForOutput(projectBuildTargetTestTargetsMapRubyScriptContent, xcodeprojGemfileContent, projectDir, envs)
-	if err != nil {
-		return map[string]bool{}, err
-	}
-
-	fmt.Printf("\nout: %v\n\n", out)
-
-	buildTargetTestTargetsMap := map[string][]string{}
-	if err := json.Unmarshal([]byte(out), &buildTargetTestTargetsMap); err != nil {
-		return map[string]bool{}, err
-	}
-
-	buildTargetMap := map[string]bool{}
-	for buildTarget, testTargets := range buildTargetTestTargetsMap {
-		if len(testTargets) > 0 {
-			buildTargetMap[buildTarget] = true
-		} else {
-			buildTargetMap[buildTarget] = false
-		}
-	}
-
-	return buildTargetMap, nil
-}
-
 func pbxprojContentTartgets(pbxprojContent string) (map[string]bool, error) {
 	targetMap := map[string]bool{}
 
@@ -857,6 +839,7 @@ func pbxprojContentTartgets(pbxprojContent string) (map[string]bool, error) {
 		return map[string]bool{}, err
 	}
 
+	// Add targets which has test targets
 	for _, target := range targets {
 		if path.Ext(target.productPath) == ".xctest" {
 			if len(target.dependencies) > 0 {
@@ -871,10 +854,15 @@ func pbxprojContentTartgets(pbxprojContent string) (map[string]bool, error) {
 				}
 			}
 		}
+	}
 
-		_, found := targetMap[target.name]
-		if !found {
-			targetMap[target.name] = false
+	// Add targets which has NO test targets
+	for _, target := range targets {
+		if path.Ext(target.productPath) != ".xctest" {
+			_, found := targetMap[target.name]
+			if !found {
+				targetMap[target.name] = false
+			}
 		}
 	}
 
