@@ -5,7 +5,7 @@
 ### 0.9.14 (2016 Sep 08)
 
 * [ba611ae] prepare for 0.9.14
-* [0107d78] do not add xcode test step if no shared schemes found (#43)
+* [0107d78] fixed scheme generation if no shared scheme found
 
 ### 0.9.13 (2016 Sep 07)
 
