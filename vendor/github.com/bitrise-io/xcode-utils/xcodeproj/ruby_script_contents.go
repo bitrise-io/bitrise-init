@@ -32,6 +32,10 @@ begin
   # Map targets
   target_mapping = {}
 
+  build_targets.each do |target|
+    target_mapping[target] = []
+  end
+
   test_targets.each do |target|
     target_dependencies = target.dependencies
 
@@ -98,6 +102,10 @@ begin
   #-----
   # Map targets
   target_mapping = {}
+
+  build_targets.each do |target|
+    target_mapping[target.name] = []
+  end
 
   test_targets.each do |target|
     target_dependencies = target.dependencies

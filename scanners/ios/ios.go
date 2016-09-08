@@ -428,10 +428,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			log.Warn("%d user scheme(s) will be generated", len(targetXCTestMap))
-			for target := range targetXCTestMap {
+			for target, hasXCTest := range targetXCTestMap {
 				log.Warn("- %s", target)
 
-				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: false, Shared: false})
+				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: hasXCTest, Shared: false})
 			}
 		}
 
@@ -473,10 +473,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			log.Warn("%d user scheme(s) will be generated", len(targetXCTestMap))
-			for target := range targetXCTestMap {
+			for target, hasXCTest := range targetXCTestMap {
 				log.Warn("- %s", target)
 
-				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: false, Shared: false})
+				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: hasXCTest, Shared: false})
 			}
 		}
 
@@ -518,10 +518,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			log.Warn("%d user scheme(s) will be generated", len(targetXCTestMap))
-			for target := range targetXCTestMap {
+			for target, hasXCTest := range targetXCTestMap {
 				log.Warn("- %s", target)
 
-				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: false, Shared: false})
+				schemes = append(schemes, SchemeModel{Name: target, HasXCTest: hasXCTest, Shared: false})
 			}
 		}
 
