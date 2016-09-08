@@ -259,7 +259,7 @@ workflows:
             set -x
 
             rm -rf ./_tmp
-            SAMPLE_APP_REPOSITORY_URL=https://github.com/bitrise-samples/sample-apps-ios-simple-objc.git
+            SAMPLE_APP_REPOSITORY_URL=https://github.com/bitrise-io/sample-apps-ios-simple-objc.git
             git clone $SAMPLE_APP_REPOSITORY_URL ./_tmp/sample-repo
             $SCANNER_BIN config --dir ./_tmp/sample-repo --output-dir ./_tmp/output
     - change-workdir:
