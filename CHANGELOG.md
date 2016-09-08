@@ -1,6 +1,12 @@
-## Changelog (Current version: 0.9.14)
+## Changelog (Current version: 0.9.15)
 
 -----------------
+
+### 0.9.15 (2016 Sep 08)
+
+* [f4c3052] prepare for 0.9.15
+* [309935d] recreate-user-schemes step version update (#44)
+* [6c0b221] changelog update
 
 ### 0.9.14 (2016 Sep 08)
 
