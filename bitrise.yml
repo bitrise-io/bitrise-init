@@ -178,7 +178,7 @@ workflows:
             $SCANNER_BIN --ci config --dir ./_tmp/sample-repo --output-dir ./_tmp/output --format json
 
   # Scanner test with bitrise run config test
-  test_with_bitrise_run:
+  local_test_with_bitrise_run:
     before_run:
     - _install_init_tool
     after_run:
@@ -218,7 +218,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_ios-cocoapods-at-root:
@@ -246,7 +246,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_sample-apps-ios-simple-objc:
@@ -274,7 +274,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_sample-apps-android-sdk22:
@@ -302,7 +302,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_xamarin-sample-app:
@@ -330,7 +330,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_sample-apps-ios-watchkit:
@@ -358,7 +358,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_fastlane:
@@ -386,7 +386,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_sample-apps-xamarin-ios:
@@ -414,7 +414,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_android-non-executable-gradlew:
@@ -442,7 +442,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   _test_sample-apps-xamarin-android:
@@ -470,7 +470,7 @@ workflows:
             #!/bin/bash
             set -x
 
-            config=$(find ./../output/ -name "*.yml" -print -quit)
+            config=$(find ./../output -name "*.yml" -print -quit)
             bitrise run primary --config $config
 
   # ----------------------------------------------------------------
@@ -508,7 +508,7 @@ workflows:
         2, Export RELEASE_VERSION
         3, Create binaries
     envs:
-    - RELEASE_VERSION: 0.9.14
+    - RELEASE_VERSION: 0.9.15
     after_run:
     - _export_release_version
     - create_binaries
