@@ -161,7 +161,8 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		lanes, err := inspectFastfile(fastfile)
 		if err != nil {
-			warnings = append(warnings, fmt.Sprintf("failed to inspect Fastfile (%s), error: %s", fastfile, err))
+			log.Warn("Failed to inspect Fastfile, error: %s", err)
+			warnings = append(warnings, fmt.Sprintf("Failed to inspect Fastfile (%s), error: %s", fastfile, err))
 			continue
 		}
 
@@ -172,7 +173,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		if len(lanes) == 0 {
 			log.Warn("No lanes found")
-			warnings = append(warnings, fmt.Sprintf("no lanes found for Fastfile: %s", fastfile))
+			warnings = append(warnings, fmt.Sprintf("No lanes found for Fastfile: %s", fastfile))
 			continue
 		}
 
@@ -194,8 +195,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if !isValidFastfileFound {
-		warnings = append(warnings, "no valid Fastfile found")
-		workDirOption = models.NewEmptyOptionModel()
+		log.Error("No valid Fastfile found")
+		warnings = append(warnings, "No valid Fastfile found")
+		return models.OptionModel{}, warnings, nil
 	}
 
 	return workDirOption, warnings, nil

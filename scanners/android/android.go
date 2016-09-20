@@ -184,7 +184,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		log.Details("root gradlew path: %s", rootGradlewPath)
 	} else {
 		log.Error("No gradle wrapper (gradlew) found")
-		return models.OptionModel{}, models.Warnings{}, fmt.Errorf("no gradle wrapper (gradlew) found")
+		return models.OptionModel{}, warnings, fmt.Errorf(`<b>No Gradle Wrapper (gradlew) found.</b> 
+Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
+that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
 
 	// Inspect Gradle files
