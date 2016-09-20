@@ -2,7 +2,6 @@ package android
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
@@ -198,13 +197,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	gradleBin := "gradle"
 	if scanner.HasGradlewFile {
-		log.Details("adding executable permission to gradlew file")
-
-		err := os.Chmod(rootGradlewPath, 0770)
-		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to add executable permission on gradlew file (%s), error: %s", rootGradlewPath, err)
-		}
-
 		gradleBin = rootGradlewPath
 	}
 
