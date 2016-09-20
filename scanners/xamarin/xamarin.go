@@ -393,7 +393,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, err
+			log.Warn("Failed to get solution configs, error: %s", err)
+			warnings = append(warnings, fmt.Sprintf("Failed to get solution (%s) configs, error: %s", solutionFile, err))
+			continue
 		}
 
 		if len(configs) > 0 {
@@ -404,12 +406,13 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 			validSolutionMap[solutionFile] = configs
 		} else {
+			warnings = append(warnings, fmt.Sprintf("No configs found for solution: %s", solutionFile))
 			log.Warn("No config found for %s", solutionFile)
 		}
 	}
 
 	if len(validSolutionMap) == 0 {
-		return models.OptionModel{}, models.Warnings{}, errors.New("No valid solution file found")
+		return models.OptionModel{}, warnings, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
@@ -418,7 +421,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	for solutionFile, configMap := range validSolutionMap {
 		projects, err := getProjects(solutionFile)
 		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, err
+			warnings = append(warnings, fmt.Sprintf("Failed to get projects of solution (%s), error: %s", solutionFile, err))
+			log.Warn("Failed to get projects, error: %s", err)
+			continue
 		}
 
 		// Inspect projects
@@ -427,14 +432,18 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 			guids, err := getProjectGUIDs(project)
 			if err != nil {
-				return models.OptionModel{}, models.Warnings{}, err
+				warnings = append(warnings, fmt.Sprintf("Failed to get project (%s) guid, error: %s", project, err))
+				log.Warn("Failed to get project guid, error: %s", err)
+				continue
 			}
 
 			projectType := projectType(guids)
 
 			testType, err := getProjectTestType(project)
 			if err != nil {
-				return models.OptionModel{}, models.Warnings{}, err
+				warnings = append(warnings, fmt.Sprintf("Failed to get project (%s) test framworks, error: %s", project, err))
+				log.Warn("Failed to get project test framworks, error: %s", err)
+				continue
 			}
 
 			if testType != "" {
