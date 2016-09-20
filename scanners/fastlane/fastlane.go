@@ -161,7 +161,8 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		lanes, err := inspectFastfile(fastfile)
 		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, err
+			warnings = append(warnings, fmt.Sprintf("failed to inspect Fastfile (%s), error: %s", fastfile, err))
+			continue
 		}
 
 		log.Details("%d lane(s) found", len(lanes))
@@ -193,6 +194,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if !isValidFastfileFound {
+		warnings = append(warnings, "no valid Fastfile found")
 		workDirOption = models.NewEmptyOptionModel()
 	}
 
@@ -235,7 +237,6 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
 		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
 	}
-
 	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
 	// DeployToBitriseIo
@@ -280,7 +281,6 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
 		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
 	}
-
 	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
 
 	// DeployToBitriseIo
