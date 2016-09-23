@@ -635,50 +635,66 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 }
 
 func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModels.BitriseDataModel {
-	stepList := []bitriseModels.StepListItemModel{}
+	//
+	// Prepare steps
+	prepareSteps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	prepareSteps = append(prepareSteps, steps.ActivateSSHKeyStepListItem())
 
 	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
+	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
 
 	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem())
+	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem())
 
 	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
+	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
 
-	// CocoapodsInstall
 	if hasPodfile {
-		stepList = append(stepList, steps.CocoapodsInstallStepListItem())
+		// CocoapodsInstall
+		prepareSteps = append(prepareSteps, steps.CocoapodsInstallStepListItem())
 	}
 
-	// RecreateUserSchemes
 	if missingSharedSchemes {
-		stepList = append(stepList, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+		// RecreateUserSchemes
+		prepareSteps = append(prepareSteps, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		}))
 	}
+	// ----------
 
-	// XcodeTest
+	//
+	// CI steps
+	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+
 	if hasTest {
-		stepList = append(stepList, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTest
+		ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
 	}
 
+	// DeployToBitriseIo
+	ciSteps = append(ciSteps, steps.DeployToBitriseIoStepListItem())
+	// ----------
+
+	//
+	// Deploy steps
+	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+
 	// XcodeArchive
-	stepList = append(stepList, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
 
 	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
+	deploySteps = append(deploySteps, steps.DeployToBitriseIoStepListItem())
+	// ----------
 
-	return models.BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(stepList)
+	return models.DefaultBitriseConfigForIos(ciSteps, deploySteps)
 }
 
 // Configs ...
@@ -727,18 +743,16 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// CocoapodsInstall
 	stepList = append(stepList, steps.CocoapodsInstallStepListItem())
 
+	// RecreateUserSchemes
 	stepList = append(stepList, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 	}))
 
 	// XcodeArchive
-	inputs := []envmanModels.EnvironmentItemModel{
+	stepList = append(stepList, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
-	}
-
-	// RecreateUserSchemes
-	stepList = append(stepList, steps.XcodeArchiveStepListItem(inputs))
+	}))
 
 	// DeployToBitriseIo
 	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
