@@ -725,45 +725,67 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	bitriseDataMap := models.BitriseConfigMap{}
-	stepList := []bitriseModels.StepListItemModel{}
+	//
+	// Prepare steps
+	prepareSteps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	prepareSteps = append(prepareSteps, steps.ActivateSSHKeyStepListItem())
 
 	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
+	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
 
 	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem())
+	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem())
 
 	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
+	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
 
 	// CocoapodsInstall
-	stepList = append(stepList, steps.CocoapodsInstallStepListItem())
+	prepareSteps = append(prepareSteps, steps.CocoapodsInstallStepListItem())
 
 	// RecreateUserSchemes
-	stepList = append(stepList, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+	prepareSteps = append(prepareSteps, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 	}))
+	// ----------
 
-	// XcodeArchive
-	stepList = append(stepList, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	//
+	// CI steps
+	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+
+	// XcodeTest
+	ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
 
 	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
+	ciSteps = append(ciSteps, steps.DeployToBitriseIoStepListItem())
+	// ----------
 
-	bitriseData := models.BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(stepList)
-	data, err := yaml.Marshal(bitriseData)
+	//
+	// Deploy steps
+	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+
+	// XcodeArchive
+	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
+	}))
+
+	// DeployToBitriseIo
+	deploySteps = append(deploySteps, steps.DeployToBitriseIoStepListItem())
+	// ----------
+
+	config := models.DefaultBitriseConfigForIos(ciSteps, deploySteps)
+	data, err := yaml.Marshal(config)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
 	configName := defaultConfigName()
+	bitriseDataMap := models.BitriseConfigMap{}
 	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil
