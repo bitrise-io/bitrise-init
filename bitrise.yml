@@ -8,7 +8,7 @@ trigger_map:
 
 app:
   envs:
-  - BIN_VERSION: 0.10.1
+  - BIN_VERSION: 0.11.0
   - BIN_NAME: bitrise-init
 
 workflows:
