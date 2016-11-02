@@ -475,7 +475,7 @@ workflows:
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
-  create_release:
+  create-release:
     title: Create Release version
     description: |
         Creates new version with specified $RELEASE_VERSION environment
@@ -483,7 +483,7 @@ workflows:
         1, Create CHANGELOG and git release
         2, Create binaries
     after_run:
-    - create_binaries
+    - create-binaries
     steps:
     - script:
         title: Create CHANGELOG and git release
@@ -497,7 +497,7 @@ workflows:
               --version $RELEASE_VERSION \
               --set-version-script "bash _scripts/set_version.sh version/version.go"
 
-  create_binaries:
+  create-binaries:
     title: Create binaries
     description: |
         Creates Linux and Darwin binaries
@@ -615,7 +615,7 @@ workflows:
             echo "ceated at: ${bin_pth}"
             envman add --key SCANNER_BIN --value $bin_pth
 
-  godeps_update:
+  godeps-update:
     title: Godeps update
     description: |
       Used for updating bitrise dependencies with godep
