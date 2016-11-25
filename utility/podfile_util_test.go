@@ -244,4 +244,34 @@ workspace ‘MyWorkspace’
 
 		require.NoError(t, os.RemoveAll(tmpDir))
 	}
+
+	t.Log("")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
+		require.NoError(t, err)
+
+		podfilePth := filepath.Join(tmpDir, "Podfile")
+		require.NoError(t, fileutil.WriteStringToFile(podfilePth, testPodfileContent))
+
+		project := ""
+		projectPth := filepath.Join(tmpDir, "Project.xcodeproj")
+		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
+
+		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(workspaceProjectMap))
+
+		for workspace, project := range workspaceProjectMap {
+			workspaceBasename := filepath.Base(workspace)
+			workspaceName := strings.TrimSuffix(workspaceBasename, ".xcworkspace")
+
+			projectBasename := filepath.Base(project)
+			projectName := strings.TrimSuffix(projectBasename, ".xcodeproj")
+
+			require.Equal(t, "Workspace", workspaceName, fmt.Sprintf("%v", workspaceProjectMap))
+			require.Equal(t, "Project", projectName, fmt.Sprintf("%v", workspaceProjectMap))
+		}
+
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}
 }
