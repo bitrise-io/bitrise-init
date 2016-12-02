@@ -6,18 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"gopkg.in/yaml.v2"
-
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/output"
-	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
-	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-core/bitrise-init/scanner"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/urfave/cli"
@@ -30,11 +21,17 @@ const (
 func initManualConfig(c *cli.Context) error {
 	PrintHeader(c)
 
-	//
 	// Config
 	isCI := c.GlobalBool("ci")
 	outputDir := c.String("output-dir")
 	formatStr := c.String("format")
+
+	if isCI {
+		log.Info(colorstring.Yellow("CI mode"))
+	}
+	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
+	log.Info(colorstring.Yellowf("output format: %s", formatStr))
+	fmt.Println()
 
 	currentDir, err := pathutil.AbsPath("./")
 	if err != nil {
@@ -59,83 +56,23 @@ func initManualConfig(c *cli.Context) error {
 	if format != output.JSONFormat && format != output.YAMLFormat {
 		return fmt.Errorf("Not allowed output format (%v), options: [%s, %s]", format, output.YAMLFormat.String(), output.JSONFormat.String())
 	}
+	// ---
 
-	if isCI {
-		log.Info(colorstring.Yellow("CI mode"))
-	}
-	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
-	log.Info(colorstring.Yellowf("output format: %s", format))
-	fmt.Println()
-
-	//
-	// Scan
-	projectScanners := []scanners.ScannerInterface{
-		new(android.Scanner),
-		new(xamarin.Scanner),
-		new(ios.Scanner),
-		new(fastlane.Scanner),
-	}
-
-	projectTypeOptionMap := map[string]models.OptionModel{}
-	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
-
-	for _, detector := range projectScanners {
-		detectorName := detector.Name()
-
-		option := detector.DefaultOptions()
-
-		log.Debug()
-		log.Debug("Analyze result:")
-		bytes, err := yaml.Marshal(option)
-		if err != nil {
-			return fmt.Errorf("Failed to marshal option, err: %s", err)
-		}
-		log.Debugf("\n%v", string(bytes))
-
-		projectTypeOptionMap[detectorName] = option
-
-		configs, err := detector.DefaultConfigs()
-		if err != nil {
-			return fmt.Errorf("Failed create default configs, error: %s", err)
-		}
-
-		for name, config := range configs {
-			log.Debugf("  name: %s", name)
-
-			bytes, err := yaml.Marshal(config)
-			if err != nil {
-				return fmt.Errorf("Failed to marshal option, err: %s", err)
-			}
-			log.Debugf("\n%v", string(bytes))
-		}
-
-		projectTypeConfigMap[detectorName] = configs
-	}
-
-	customConfigs, err := scanners.CustomConfig()
+	scanResult, err := scanner.ManualConfig()
 	if err != nil {
-		return fmt.Errorf("Failed create default custom configs, error: %s", err)
+		return err
 	}
 
-	projectTypeConfigMap["custom"] = customConfigs
-
-	//
 	// Write output to files
 	if isCI {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
-		scanResult := models.ScanResultModel{
-			OptionsMap: projectTypeOptionMap,
-			ConfigsMap: projectTypeConfigMap,
-		}
-
 		if err := os.MkdirAll(outputDir, 0700); err != nil {
-			return fmt.Errorf("Failed to create (%s), err: %s", outputDir, err)
+			return fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
 		}
 
 		pth := path.Join(outputDir, "result")
 		outputPth, err := output.WriteToFile(scanResult, format, pth)
-
 		if err != nil {
 			return fmt.Errorf("Failed to print result, error: %s", err)
 		}
@@ -143,96 +80,24 @@ func initManualConfig(c *cli.Context) error {
 
 		return nil
 	}
+	// ---
 
-	//
 	// Select option
 	log.Infof(colorstring.Blue("Collecting inputs:"))
 
-	for detectorName, option := range projectTypeOptionMap {
-		log.Infof("  Scanner: %s", colorstring.Blue(detectorName))
-
-		// Init
-		platformOutputDir := path.Join(outputDir, detectorName)
-		if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
-			return fmt.Errorf("Failed to check if path (%s) exis, error: %s", platformOutputDir, err)
-		} else if exist {
-			if err := os.RemoveAll(platformOutputDir); err != nil {
-				return fmt.Errorf("Failed to cleanup (%s), error: %s", platformOutputDir, err)
-			}
-		}
-
-		if err := os.MkdirAll(platformOutputDir, 0700); err != nil {
-			return fmt.Errorf("Failed to create (%s), error: %s", platformOutputDir, err)
-		}
-
-		// Collect inputs
-		configPth := ""
-		appEnvs := []envmanModels.EnvironmentItemModel{}
-
-		var walkDepth func(option models.OptionModel) error
-
-		walkDepth = func(option models.OptionModel) error {
-			optionEnvKey, selectedValue, err := askForValue(option)
-			if err != nil {
-				return fmt.Errorf("Failed to ask for vale, error: %s", err)
-			}
-
-			if optionEnvKey == "" {
-				configPth = selectedValue
-			} else {
-				appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
-					optionEnvKey: selectedValue,
-				})
-			}
-
-			nestedOptions, found := option.ValueMap[selectedValue]
-			if !found {
-				return err
-			}
-
-			return walkDepth(nestedOptions)
-		}
-
-		if err := walkDepth(option); err != nil {
-			return err
-		}
-
-		log.Debug()
-		log.Debug("Selected app envs:")
-		aBytes, err := yaml.Marshal(appEnvs)
-		if err != nil {
-			return fmt.Errorf("Failed to marshal appEnvs, error: %s", err)
-		}
-		log.Debugf("\n%v", string(aBytes))
-
-		configMap := projectTypeConfigMap[detectorName]
-		configStr := configMap[configPth]
-
-		var config bitriseModels.BitriseDataModel
-		if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
-			return fmt.Errorf("Failed to unmarshal config, error: %s", err)
-		}
-
-		config.App.Environments = append(config.App.Environments, appEnvs...)
-
-		log.Debug()
-		log.Debug("Config:")
-		log.Debugf("  name: %s", configPth)
-		aBytes, err = yaml.Marshal(config)
-		if err != nil {
-			return fmt.Errorf("Failed to marshal config, error: %s", err)
-		}
-		log.Debugf("\n%v", string(aBytes))
-
-		// Write config to file
-		pth := path.Join(platformOutputDir, configPth)
-		outputPth, err := output.WriteToFile(config, format, pth)
-		if err != nil {
-			return fmt.Errorf("Failed to print result, error: %s", err)
-		}
-		log.Infof("  bitrise.yml template: %s", colorstring.Blue(outputPth))
-		fmt.Println()
+	config, err := scanner.AskForConfig(scanResult)
+	if err != nil {
+		return err
 	}
+
+	pth := path.Join(outputDir, "bitrise.yml")
+	outputPth, err := output.WriteToFile(config, format, pth)
+	if err != nil {
+		return fmt.Errorf("Failed to print result, error: %s", err)
+	}
+	log.Infof("  bitrise.yml template: %s", colorstring.Blue(outputPth))
+	fmt.Println()
+	// ---
 
 	return nil
 }
