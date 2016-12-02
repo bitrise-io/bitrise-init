@@ -31,7 +31,9 @@ func getWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
 	podfileContent = strings.Replace(podfileContent, `“`, `"`, -1)
 	podfileContent = strings.Replace(podfileContent, `”`, `"`, -1)
 
-	fileutil.WriteStringToFile(podfilePth, podfileContent)
+	if err := fileutil.WriteStringToFile(podfilePth, podfileContent); err != nil {
+		return map[string]string{}, err
+	}
 	// ----
 
 	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", podfilePth)}
