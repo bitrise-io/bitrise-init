@@ -12,43 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsWorkspaceSpecified(t *testing.T) {
-	t.Log("podfile - no workspace defined")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-`
-		require.Equal(t, false, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined with whitespace")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-  workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined with tab")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-	workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-}
-
 func TestGetWorkspaceProjectMap(t *testing.T) {
 	// ---------------------
 	// No workspace defined
