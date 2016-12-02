@@ -12,43 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsWorkspaceSpecified(t *testing.T) {
-	t.Log("podfile - no workspace defined")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-`
-		require.Equal(t, false, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined with whitespace")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-  workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-
-	t.Log("podfile - workspace defined with tab")
-	{
-		podfile := `platform :ios, '9.0'
-pod 'Alamofire', '~> 3.4'
-	workspace 'MyWorkspace'
-`
-		require.Equal(t, true, isWorkspaceSpecified(podfile))
-	}
-}
-
 func TestGetWorkspaceProjectMap(t *testing.T) {
 	// ---------------------
 	// No workspace defined
@@ -240,36 +203,6 @@ workspace ‘MyWorkspace’
 
 			require.Equal(t, "MyWorkspace", workspaceName, fmt.Sprintf("%v", workspaceProjectMap))
 			require.Equal(t, "project", projectName, fmt.Sprintf("%v", workspaceProjectMap))
-		}
-
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}
-
-	t.Log("")
-	{
-		tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
-		require.NoError(t, err)
-
-		podfilePth := filepath.Join(tmpDir, "Podfile")
-		require.NoError(t, fileutil.WriteStringToFile(podfilePth, testPodfileContent))
-
-		project := ""
-		projectPth := filepath.Join(tmpDir, "Project.xcodeproj")
-		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
-
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
-		require.NoError(t, err)
-		require.Equal(t, 1, len(workspaceProjectMap))
-
-		for workspace, project := range workspaceProjectMap {
-			workspaceBasename := filepath.Base(workspace)
-			workspaceName := strings.TrimSuffix(workspaceBasename, ".xcworkspace")
-
-			projectBasename := filepath.Base(project)
-			projectName := strings.TrimSuffix(projectBasename, ".xcodeproj")
-
-			require.Equal(t, "Workspace", workspaceName, fmt.Sprintf("%v", workspaceProjectMap))
-			require.Equal(t, "Project", projectName, fmt.Sprintf("%v", workspaceProjectMap))
 		}
 
 		require.NoError(t, os.RemoveAll(tmpDir))
