@@ -1,11 +1,12 @@
-package ios
+package macos
 
 import (
 	"errors"
 	"fmt"
-	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v1"
+
+	"strings"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -20,9 +21,9 @@ var (
 	log = utility.NewLogger()
 )
 
-const scannerName = "ios"
+const scannerName = "macos"
 
-const defaultConfigName = "default-ios-config"
+const defaultConfigName = "default-macos-config"
 
 const (
 	projectPathKey    = "project_path"
@@ -34,28 +35,6 @@ const (
 	schemeEnvKey = "BITRISE_SCHEME"
 )
 
-//--------------------------------------------------
-// Utility
-//--------------------------------------------------
-
-func configName(hasPodfile, hasTest, missingSharedSchemes bool) string {
-	name := "ios-"
-	if hasPodfile {
-		name = name + "pod-"
-	}
-	if hasTest {
-		name = name + "test-"
-	}
-	if missingSharedSchemes {
-		name = name + "missing-shared-schemes-"
-	}
-	return name + "config"
-}
-
-//--------------------------------------------------
-// Scanner
-//--------------------------------------------------
-
 // ConfigDescriptor ...
 type ConfigDescriptor struct {
 	HasPodfile           bool
@@ -64,7 +43,7 @@ type ConfigDescriptor struct {
 }
 
 func (descriptor ConfigDescriptor) String() string {
-	name := "ios-"
+	name := "macos-"
 	if descriptor.HasPodfile {
 		name = name + "pod-"
 	}
@@ -112,7 +91,6 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("failed to collect .xcodeproj & .xcworkspace files, error: %s", err)
 	}
-	scanner.projectFiles = xcodeProjectFiles
 
 	log.Details("%d project file(s) detected", len(xcodeProjectFiles))
 	for _, file := range xcodeProjectFiles {
@@ -126,7 +104,7 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 
 	log.Info("Analyzing sdk")
 
-	iOSProjectFiles := []string{}
+	macOSProjectFiles := []string{}
 
 	for _, projectOrWorkspace := range xcodeProjectFiles {
 		if strings.HasSuffix(projectOrWorkspace, ".xcodeproj") {
@@ -142,20 +120,20 @@ func (scanner *Scanner) DetectPlatform() (bool, error) {
 
 			log.Details("%s - %s", projectOrWorkspace, sdkRoot)
 
-			if sdkRoot != "iphoneos" {
-				iOSProjectFiles = append(iOSProjectFiles, projectOrWorkspace)
+			if sdkRoot == "macosx" {
+				macOSProjectFiles = append(macOSProjectFiles, projectOrWorkspace)
 			}
 		}
 	}
 
-	if len(iOSProjectFiles) == 0 {
+	if len(macOSProjectFiles) == 0 {
 		log.Details("platform not detected")
 		return false, nil
 	}
 
 	log.Done("Platform detected")
 
-	scanner.projectFiles = iOSProjectFiles
+	scanner.projectFiles = macOSProjectFiles
 
 	return true, nil
 }
@@ -489,7 +467,7 @@ Make sure to <a href="https://developer.apple.com/library/ios/recipes/xcode_help
 	// -----
 
 	if len(configDescriptors) == 0 {
-		log.Error("No valid iOS config found")
+		log.Error("No valid macOS config found")
 		return models.OptionModel{}, warnings, errors.New("No valid config found")
 	}
 
@@ -547,8 +525,8 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
@@ -563,15 +541,15 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
 	}
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeTestMac
+	deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -640,8 +618,8 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// CI steps
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
-	ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeTestMac
+	ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -654,14 +632,14 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// Deploy steps
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
-	deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeTestMac
+	deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeArchiveMac
+	deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))

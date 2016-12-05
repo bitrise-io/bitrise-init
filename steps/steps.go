@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	// Common Step IDs
+	// Common Steps
 	activateSSHKeyID      = "activate-ssh-key"
 	activateSSHKeyVersion = "3.1.1"
 
@@ -24,15 +24,15 @@ const (
 	scriptID      = "script"
 	scriptVersion = "1.1.3"
 
-	// Android Step IDs
+	// Android Steps
 	gradleRunnerID      = "gradle-runner"
 	gradleRunnerVersion = "1.5.2"
 
-	// Fastlane Step IDs
+	// Fastlane Steps
 	fastlaneID      = "fastlane"
 	fastlaneVersion = "2.2.0"
 
-	// iOS Step IDs
+	// iOS Steps
 	cocoapodsInstallID      = "cocoapods-install"
 	cocoapodsInstallVersion = "1.5.7"
 
@@ -45,7 +45,7 @@ const (
 	xcodeTestID      = "xcode-test"
 	xcodeTestVersion = "1.17.1"
 
-	// Xamarin Step IDs
+	// Xamarin Steps
 	xamarinUserManagementID      = "xamarin-user-management"
 	xamarinUserManagementVersion = "1.0.3"
 
@@ -57,6 +57,13 @@ const (
 
 	xamarinArchiveID      = "xamarin-archive"
 	xamarinArchiveVersion = "1.1.1"
+
+	// macOS Setps
+	xcodeArchiveMacID      = "xcode-archive-mac"
+	xcodeArchiveMacVersion = "1.3.2"
+
+	xcodeTestMacID      = "xcode-test-mac"
+	xcodeTestMacVersion = "1.0.5"
 )
 
 // TemplateScriptStepTitiel ...
@@ -192,5 +199,21 @@ func XamarinComponentsRestoreStepListItem() bitrise.StepListItemModel {
 // XamarinArchiveStepListItem ...
 func XamarinArchiveStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(xamarinArchiveID, xamarinArchiveVersion)
+	return stepListItem(stepIDComposite, "", "", inputs)
+}
+
+//------------------------
+// macOS Step List Items
+//------------------------
+
+// XcodeArchiveMacStepListItem ...
+func XcodeArchiveMacStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(xcodeArchiveMacID, xcodeArchiveMacVersion)
+	return stepListItem(stepIDComposite, "", "", inputs)
+}
+
+// XcodeTestMacStepListItem ...
+func XcodeTestMacStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(xcodeTestMacID, xcodeTestMacVersion)
 	return stepListItem(stepIDComposite, "", "", inputs)
 }

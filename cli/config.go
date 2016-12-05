@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -18,9 +19,35 @@ const (
 	defaultScanResultDir = "_scan_result"
 )
 
-func initConfig(c *cli.Context) error {
-	PrintHeader(c)
+var configCommand = cli.Command{
+	Name:  "config",
+	Usage: "Generates a bitrise config files based on your project.",
+	Action: func(c *cli.Context) error {
+		if err := initConfig(c); err != nil {
+			log.Fatal(err)
+		}
+		return nil
+	},
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "dir",
+			Usage: "Directory to scan.",
+			Value: "./",
+		},
+		cli.StringFlag{
+			Name:  "output-dir",
+			Usage: "Directory to save scan results.",
+			Value: "./_scan_result",
+		},
+		cli.StringFlag{
+			Name:  "format",
+			Usage: "Output format, options [json, yaml].",
+			Value: "yaml",
+		},
+	},
+}
 
+func initConfig(c *cli.Context) error {
 	// Config
 	isCI := c.GlobalBool("ci")
 	searchDir := c.String("dir")
@@ -71,6 +98,15 @@ func initConfig(c *cli.Context) error {
 	scanResult, err := scanner.Config(searchDir)
 	if err != nil {
 		return err
+	}
+
+	platforms := []string{}
+	for platform := range scanResult.OptionsMap {
+		platforms = append(platforms, platform)
+	}
+
+	if len(platforms) == 0 {
+		return errors.New("No known platform detected")
 	}
 
 	// Write output to files

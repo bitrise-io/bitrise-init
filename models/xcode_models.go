@@ -1,4 +1,4 @@
-package ios
+package models
 
 // SchemeModel ...
 type SchemeModel struct {

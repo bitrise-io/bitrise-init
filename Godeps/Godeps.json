@@ -13,8 +13,8 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.4.5-2-g477a060",
-			"Rev": "477a060c05e47e87506a2e0898154e60ffb864dd"
+			"Comment": "1.4.5-8-gaa30a25",
+			"Rev": "aa30a25ec10eb517f7e03298ca5ba6dd27305427"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
@@ -55,12 +55,12 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/stepman/models",
-			"Comment": "0.9.25-2-gba2cb0d",
-			"Rev": "ba2cb0d731b271637317afff0caa0599b2c4b8cf"
+			"Comment": "0.9.25-2-g80f3ca5",
+			"Rev": "80f3ca5e2c2fe2f3604685a8ed6b974c3d2dd7cb"
 		},
 		{
-			"ImportPath": "github.com/bitrise-io/xcode-utils/xcodeproj",
-			"Rev": "cc85e3b9f8025a57ffcc54f1c23c371960ed939c"
+			"ImportPath": "github.com/bitrise-tools/go-xcode/xcodeproj",
+			"Rev": "1f80410d11b7724752f61d4e378c559baefc5908"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -79,13 +79,13 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.1.4-4-g976c720",
-			"Rev": "976c720a22c8eb4eb6a0b4348ad85ad12491a506"
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/require",
-			"Comment": "v1.1.4-4-g976c720",
-			"Rev": "976c720a22c8eb4eb6a0b4348ad85ad12491a506"
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",

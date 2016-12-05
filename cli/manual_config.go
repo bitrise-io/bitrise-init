@@ -18,9 +18,30 @@ const (
 	defaultOutputDir = "_defaults"
 )
 
-func initManualConfig(c *cli.Context) error {
-	PrintHeader(c)
+var manualConfigCommand = cli.Command{
+	Name:  "manual-config",
+	Usage: "Generates default bitrise config files.",
+	Action: func(c *cli.Context) error {
+		if err := initManualConfig(c); err != nil {
+			log.Fatal(err)
+		}
+		return nil
+	},
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "output-dir",
+			Usage: "Directory to save scan results.",
+			Value: "./_defaults",
+		},
+		cli.StringFlag{
+			Name:  "format",
+			Usage: "Output format, options [json, yaml].",
+			Value: "yaml",
+		},
+	},
+}
 
+func initManualConfig(c *cli.Context) error {
 	// Config
 	isCI := c.GlobalBool("ci")
 	outputDir := c.String("output-dir")

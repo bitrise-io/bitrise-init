@@ -10,6 +10,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -54,6 +55,7 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		new(xamarin.Scanner),
 		new(ios.Scanner),
 		new(fastlane.Scanner),
+		new(macos.Scanner),
 	}
 
 	projectTypeWarningMap := map[string]models.Warnings{}
