@@ -91,13 +91,14 @@ func isRelevantProject(pth string, isTest bool) (bool, error) {
 	return true, nil
 }
 
-// FilterRelevantXcodeprojectFiles ...
-func FilterRelevantXcodeprojectFiles(fileList []string, isTest bool) ([]string, error) {
+// FilterRelevantXcodeProjectFiles ...
+func FilterRelevantXcodeProjectFiles(fileList []string, isTest bool) ([]string, error) {
 	filteredFiles := FilterFilesWithExtensions(fileList, xcodeproj.XCodeProjExt, xcodeproj.XCWorkspaceExt)
 	relevantFiles := []string{}
 
 	for _, file := range filteredFiles {
-		if is, err := isRelevantProject(file, isTest); err != nil {
+		is, err := isRelevantProject(file, isTest)
+		if err != nil {
 			return []string{}, err
 		} else if !is {
 			continue

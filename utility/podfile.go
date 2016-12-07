@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/pathutil"
 )
 
 const getWorkspacePathGemfileContent = `source 'https://rubygems.org'
@@ -19,7 +18,8 @@ podfile = Pod::Podfile.from_file(podfile_path)
 puts podfile.workspace_path
 `
 
-func getWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
+// GetWorkspaceProjectMap ...
+func GetWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
 	// fix podfile quotation
 	podfileContent, err := fileutil.ReadStringFromFile(podfilePth)
 	if err != nil {
@@ -70,34 +70,4 @@ func getWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
 	return map[string]string{
 		workspace: project,
 	}, nil
-}
-
-// GetRelativeWorkspaceProjectPathMap ...
-func GetRelativeWorkspaceProjectPathMap(podfilePth, baseDir string) (map[string]string, error) {
-	absPodfilePth, err := pathutil.AbsPath(podfilePth)
-	if err != nil {
-		return map[string]string{}, err
-	}
-
-	workspaceMap, err := getWorkspaceProjectMap(absPodfilePth)
-	if err != nil {
-		return map[string]string{}, err
-	}
-
-	normalizedWorkspaceMap := map[string]string{}
-	for workspace, project := range workspaceMap {
-		relWorkspacePath, err := filepath.Rel(baseDir, workspace)
-		if err != nil {
-			return map[string]string{}, err
-		}
-
-		relProjectPath, err := filepath.Rel(baseDir, project)
-		if err != nil {
-			return map[string]string{}, err
-		}
-
-		normalizedWorkspaceMap[relWorkspacePath] = relProjectPath
-	}
-
-	return normalizedWorkspaceMap, nil
 }

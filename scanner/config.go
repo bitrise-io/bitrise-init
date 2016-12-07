@@ -51,11 +51,11 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 	//
 	// Scan
 	projectScanners := []scanners.ScannerInterface{
+		new(ios.Scanner),
+		new(macos.Scanner),
 		new(android.Scanner),
 		new(xamarin.Scanner),
-		new(ios.Scanner),
 		new(fastlane.Scanner),
-		new(macos.Scanner),
 	}
 
 	projectTypeWarningMap := map[string]models.Warnings{}
@@ -73,8 +73,7 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		log.Info("|                                                                              |")
 
 		detectorWarnings := []string{}
-		detector.Configure(searchDir)
-		detected, err := detector.DetectPlatform()
+		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
 			log.Errorf("Scanner failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())

@@ -13,8 +13,8 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.4.5-8-gaa30a25",
-			"Rev": "aa30a25ec10eb517f7e03298ca5ba6dd27305427"
+			"Comment": "1.4.5-11-g50e3241",
+			"Rev": "50e3241184ee39d5d473c73f4bcb6987f99507fd"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
@@ -60,12 +60,12 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-tools/go-xcode/xcodeproj",
-			"Rev": "1f80410d11b7724752f61d4e378c559baefc5908"
+			"Rev": "3f50256af6281dbf2b3b688abe153432a089d8d4"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Comment": "v1.0.0-3-g6d21280",
-			"Rev": "6d212800a42e8ab5c146b8ace3490ee17e5225f9"
+			"Comment": "v1.1.0",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",

@@ -12,9 +12,6 @@ const (
 	deployWorkflowID     = "deploy"
 )
 
-// OptionValueMap ...
-type OptionValueMap map[string]OptionModel
-
 // OptionModel ...
 type OptionModel struct {
 	Title  string `json:"title,omitempty"  yaml:"title,omitempty"`
@@ -23,6 +20,9 @@ type OptionModel struct {
 	ValueMap OptionValueMap `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
 	Config   string         `json:"config,omitempty"  yaml:"config,omitempty"`
 }
+
+// OptionValueMap ...
+type OptionValueMap map[string]OptionModel
 
 // BitriseConfigMap ...
 type BitriseConfigMap map[string]string
@@ -67,8 +67,8 @@ func (option OptionModel) GetValues() []string {
 	return values
 }
 
-// BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps ...
-func BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs []envmanModels.EnvironmentItemModel, steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
+// BitriseDataWithCIWorkflow ...
+func BitriseDataWithCIWorkflow(appEnvs []envmanModels.EnvironmentItemModel, steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
 	workflows := map[string]bitriseModels.WorkflowModel{
 		primaryWorkflowID: bitriseModels.WorkflowModel{
 			Steps: steps,
@@ -98,8 +98,8 @@ func BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs [
 	return bitriseData
 }
 
-// DefaultBitriseConfigForIos ...
-func DefaultBitriseConfigForIos(ciSteps, deploySteps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
+// BitriseDataWithCIAndCDWorkflow ...
+func BitriseDataWithCIAndCDWorkflow(appEnvs []envmanModels.EnvironmentItemModel, ciSteps, deploySteps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
 	workflows := map[string]bitriseModels.WorkflowModel{
 		primaryWorkflowID: bitriseModels.WorkflowModel{
 			Steps: ciSteps,
@@ -120,33 +120,8 @@ func DefaultBitriseConfigForIos(ciSteps, deploySteps []bitriseModels.StepListIte
 		},
 	}
 
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-	}
-
-	return bitriseData
-}
-
-// BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps ...
-func BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: steps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: primaryWorkflowID,
-		},
-		bitriseModels.TriggerMapItemModel{
-			PullRequestSourceBranch: "*",
-			WorkflowID:              primaryWorkflowID,
-		},
+	app := bitriseModels.AppModel{
+		Environments: appEnvs,
 	}
 
 	bitriseData := bitriseModels.BitriseDataModel{
@@ -154,6 +129,7 @@ func BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(steps []bitriseMode
 		DefaultStepLibSource: defaultSteplibSource,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,
+		App:                  app,
 	}
 
 	return bitriseData
