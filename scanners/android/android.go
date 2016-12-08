@@ -259,7 +259,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
+	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
 
 	// Script - Update unversioned main android packages
 	stepList = append(stepList, steps.ScriptSteplistItem(updateAndroidExtraPackagesScriptTite, envmanModels.EnvironmentItemModel{
@@ -302,7 +302,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
+	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
 
 	// Script - Update unversioned main android packages
 	stepList = append(stepList, steps.ScriptSteplistItem(updateAndroidExtraPackagesScriptTite, envmanModels.EnvironmentItemModel{

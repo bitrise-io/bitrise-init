@@ -479,7 +479,7 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
 
 	// Script
-	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
+	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
 
 	// CertificateAndProfileInstaller
 	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
@@ -502,8 +502,8 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
@@ -518,15 +518,15 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
 	}
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeArchiveMac
+	deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -577,7 +577,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
 
 	// Script
-	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
+	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
 
 	// CertificateAndProfileInstaller
 	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
@@ -595,8 +595,8 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// CI steps
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
-	ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeTestMac
+	ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -609,14 +609,14 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// Deploy steps
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
+	// XcodeTestMac
 	deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeArchiveMac
+	deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))

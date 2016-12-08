@@ -1,11 +1,14 @@
 package integration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -54,7 +57,7 @@ func TestAndroid(t *testing.T) {
 	}
 }
 
-const androidNonExecutableGradlewResultYML = `options:
+var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
     title: Path to the gradle file to use
     env_key: GRADLE_BUILD_FILE_PATH
@@ -84,7 +87,7 @@ const androidNonExecutableGradlewResultYML = `options:
 configs:
   android:
     android-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - workflow: primary
@@ -93,12 +96,12 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - script@1.1.3:
+          - script@%s:
               title: Update Android Extra packages
               inputs:
               - content: |
@@ -112,17 +115,18 @@ configs:
 
                   echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
-          - gradle-runner@1.5.2:
+          - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.ScriptVersion, steps.GradleRunnerVersion, steps.DeployToBitriseIoVersion)
 
-const sampleAppsAndroid22ResultYML = `options:
+var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: Path to the gradle file to use
     env_key: GRADLE_BUILD_FILE_PATH
@@ -152,7 +156,7 @@ const sampleAppsAndroid22ResultYML = `options:
 configs:
   android:
     android-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - workflow: primary
@@ -161,12 +165,12 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - script@1.1.3:
+          - script@%s:
               title: Update Android Extra packages
               inputs:
               - content: |
@@ -180,12 +184,13 @@ configs:
 
                   echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
-          - gradle-runner@1.5.2:
+          - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.ScriptVersion, steps.GradleRunnerVersion, steps.DeployToBitriseIoVersion)

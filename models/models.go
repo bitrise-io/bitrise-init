@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	formatVersion        = "1.3.1"
+	// FormatVersion ...
+	FormatVersion        = "1.3.1"
 	defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
 	primaryWorkflowID    = "primary"
 	deployWorkflowID     = "deploy"
@@ -88,7 +89,7 @@ func BitriseDataWithCIWorkflow(appEnvs []envmanModels.EnvironmentItemModel, step
 	}
 
 	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
+		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,
@@ -125,7 +126,7 @@ func BitriseDataWithCIAndCDWorkflow(appEnvs []envmanModels.EnvironmentItemModel,
 	}
 
 	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
+		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,

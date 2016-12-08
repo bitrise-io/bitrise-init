@@ -1,11 +1,14 @@
 package integration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -71,7 +74,7 @@ func TestXamarin(t *testing.T) {
 	}
 }
 
-const sampleAppsXamarinAndroidResultYML = `options:
+var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
@@ -95,7 +98,7 @@ const sampleAppsXamarinAndroidResultYML = `options:
 configs:
   xamarin:
     xamarin-nuget-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - workflow: primary
@@ -104,26 +107,27 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - xamarin-user-management@1.0.3:
+          - certificate-and-profile-installer@%s: {}
+          - xamarin-user-management@%s:
               run_if: .IsCI
-          - nuget-restore@1.0.1: {}
-          - xamarin-archive@1.1.1:
+          - nuget-restore@%s: {}
+          - xamarin-archive@%s:
               inputs:
               - xamarin_solution: $BITRISE_PROJECT_PATH
               - xamarin_configuration: $BITRISE_XAMARIN_CONFIGURATION
               - xamarin_platform: $BITRISE_XAMARIN_PLATFORM
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
 
-const sampleAppsXamarinIosResultYML = `options:
+var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
@@ -155,7 +159,7 @@ const sampleAppsXamarinIosResultYML = `options:
 configs:
   xamarin:
     xamarin-nuget-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - workflow: primary
@@ -164,26 +168,27 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - xamarin-user-management@1.0.3:
+          - certificate-and-profile-installer@%s: {}
+          - xamarin-user-management@%s:
               run_if: .IsCI
-          - nuget-restore@1.0.1: {}
-          - xamarin-archive@1.1.1:
+          - nuget-restore@%s: {}
+          - xamarin-archive@%s:
               inputs:
               - xamarin_solution: $BITRISE_PROJECT_PATH
               - xamarin_configuration: $BITRISE_XAMARIN_CONFIGURATION
               - xamarin_platform: $BITRISE_XAMARIN_PLATFORM
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
 
-const xamarinSampleAppResultYML = `options:
+var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
@@ -215,7 +220,7 @@ const xamarinSampleAppResultYML = `options:
 configs:
   xamarin:
     xamarin-nuget-components-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - workflow: primary
@@ -224,22 +229,23 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - xamarin-user-management@1.0.3:
+          - certificate-and-profile-installer@%s: {}
+          - xamarin-user-management@%s:
               run_if: .IsCI
-          - nuget-restore@1.0.1: {}
-          - xamarin-components-restore@0.9.0: {}
-          - xamarin-archive@1.1.1:
+          - nuget-restore@%s: {}
+          - xamarin-components-restore@%s: {}
+          - xamarin-archive@%s:
               inputs:
               - xamarin_solution: $BITRISE_PROJECT_PATH
               - xamarin_configuration: $BITRISE_XAMARIN_CONFIGURATION
               - xamarin_platform: $BITRISE_XAMARIN_PLATFORM
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinComponentsRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)

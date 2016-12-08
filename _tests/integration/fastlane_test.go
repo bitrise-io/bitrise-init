@@ -1,11 +1,14 @@
 package integration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -37,7 +40,7 @@ func TestFastlane(t *testing.T) {
 	}
 }
 
-const fastlaneResultYML = `options:
+var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Working directory
     env_key: FASTLANE_WORK_DIR
@@ -61,7 +64,7 @@ const fastlaneResultYML = `options:
 configs:
   fastlane:
     fastlane-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       app:
         envs:
@@ -73,20 +76,20 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - fastlane@2.2.0:
+          - certificate-and-profile-installer@%s: {}
+          - fastlane@%s:
               inputs:
               - lane: $FASTLANE_LANE
               - work_dir: $FASTLANE_WORK_DIR
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
   ios:
     ios-test-config: |
-      format_version: 1.3.1
+      format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
       - push_branch: '*'
@@ -96,35 +99,39 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - xcode-test@1.17.1:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - xcode-archive@1.10.1:
+          - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@3.1.1:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@3.4.1: {}
-          - script@1.1.3:
+          - git-clone@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1.8.1: {}
-          - xcode-test@1.17.1:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@1.2.5: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   fastlane: []
   ios: []
-`
+`, models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.FastlaneVersion, steps.DeployToBitriseIoVersion,
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)

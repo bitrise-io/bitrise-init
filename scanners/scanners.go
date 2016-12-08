@@ -67,7 +67,7 @@ func CustomConfig() (models.BitriseConfigMap, error) {
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
+	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
 
 	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
 	data, err := yaml.Marshal(bitriseData)
