@@ -4,8 +4,6 @@ import (
 	"errors"
 	"path"
 
-	"fmt"
-
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/errorutil"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -17,8 +15,6 @@ func runRubyScriptForOutput(scriptContent, gemfileContent, inDir string, withEnv
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Printf("tmp dir: %s\n", tmpDir)
 
 	// Write Gemfile to file and install
 	if gemfileContent != "" {

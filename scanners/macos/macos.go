@@ -1,11 +1,11 @@
-package ios
+package macos
 
 import (
 	"errors"
 	"fmt"
 	"path/filepath"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v1"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -19,9 +19,9 @@ var (
 	log = utility.NewLogger()
 )
 
-const scannerName = "ios"
+const scannerName = "macos"
 
-const defaultConfigName = "default-ios-config"
+const defaultConfigName = "default-macos-config"
 
 const (
 	projectPathKey    = "project_path"
@@ -41,7 +41,7 @@ type ConfigDescriptor struct {
 }
 
 func (descriptor ConfigDescriptor) String() string {
-	name := "ios-"
+	name := "macos-"
 	if descriptor.HasPodfile {
 		name = name + "pod-"
 	}
@@ -77,7 +77,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.fileList = fileList
 
 	// Search for xcodeproj and xcworkspace files
-	log.Info("Searching for iOS .xcodeproj & .xcworkspace files")
+	log.Info("Searching for macOS .xcodeproj & .xcworkspace files")
 
 	relevantXcodeProjectFiles, err := utility.FilterRelevantXcodeProjectFiles(fileList, false)
 	if err != nil {
@@ -102,7 +102,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	// Filter xcodeproj and xcworkspace files with iphoneos sdk
-	iphoneosXcodeProjectFileMap := map[string]bool{}
+	macosxXcodeProjectFileMap := map[string]bool{}
 
 	for _, project := range projects {
 		pbxprojPth := filepath.Join(project, "project.pbxproj")
@@ -111,8 +111,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			return false, err
 		}
 		for _, sdk := range sdks {
-			if sdk == "iphoneos" {
-				iphoneosXcodeProjectFileMap[project] = true
+			if sdk == "macosx" {
+				macosxXcodeProjectFileMap[project] = true
 			}
 		}
 	}
@@ -142,14 +142,14 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 				return false, err
 			}
 			for _, sdk := range sdks {
-				if sdk == "iphoneos" {
-					iphoneosXcodeProjectFileMap[project] = true
+				if sdk == "macosx" {
+					macosxXcodeProjectFileMap[project] = true
 				}
 			}
 		}
 	}
 
-	if len(iphoneosXcodeProjectFileMap) == 0 {
+	if len(macosxXcodeProjectFileMap) == 0 {
 		log.Details("platform not detected")
 		return false, nil
 	}
@@ -157,12 +157,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.Details("")
 	log.Done("Platform detected")
 
-	iphoneosXcodeProjectFiles := []string{}
-	for iphoneosXcodeProjectFile := range iphoneosXcodeProjectFileMap {
-		iphoneosXcodeProjectFiles = append(iphoneosXcodeProjectFiles, iphoneosXcodeProjectFile)
+	macosxXcodeProjectFiles := []string{}
+	for iphoneosXcodeProjectFile := range macosxXcodeProjectFileMap {
+		macosxXcodeProjectFiles = append(macosxXcodeProjectFiles, iphoneosXcodeProjectFile)
 	}
 
-	scanner.xcodeProjectAndWorkspaceFiles = iphoneosXcodeProjectFiles
+	scanner.xcodeProjectAndWorkspaceFiles = macosxXcodeProjectFiles
 
 	return true, nil
 }
@@ -502,8 +502,8 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
@@ -518,15 +518,15 @@ func generateConfig(hasPodfile, hasTest, missingSharedSchemes bool) bitriseModel
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	if hasTest {
-		// XcodeTest
-		deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+		// XcodeTestMac
+		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}))
 	}
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeArchiveMac
+	deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -595,8 +595,8 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// CI steps
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
-	ciSteps = append(ciSteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeTestMac
+	ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
@@ -609,14 +609,14 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// Deploy steps
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	// XcodeTest
+	// XcodeTestMac
 	deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
 
-	// XcodeArchive
-	deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem([]envmanModels.EnvironmentItemModel{
+	// XcodeArchiveMac
+	deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))

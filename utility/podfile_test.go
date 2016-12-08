@@ -26,7 +26,7 @@ pod 'Alamofire', '~> 3.4'
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -48,7 +48,7 @@ pod 'Alamofire', '~> 3.4'
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -85,7 +85,7 @@ pod 'Alamofire', '~> 3.4'
 		project2Pth := filepath.Join(tmpDir, "project2.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(project2Pth, project2))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -106,7 +106,7 @@ workspace 'MyWorkspace'
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -129,7 +129,7 @@ workspace 'MyWorkspace'
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -167,7 +167,7 @@ workspace 'MyWorkspace'
 		project2Pth := filepath.Join(tmpDir, "project2.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(project2Pth, project2))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -190,7 +190,7 @@ workspace ‘MyWorkspace’
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := getWorkspaceProjectMap(podfilePth)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 

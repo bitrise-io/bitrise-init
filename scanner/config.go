@@ -10,6 +10,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -50,9 +51,10 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 	//
 	// Scan
 	projectScanners := []scanners.ScannerInterface{
+		new(ios.Scanner),
+		new(macos.Scanner),
 		new(android.Scanner),
 		new(xamarin.Scanner),
-		new(ios.Scanner),
 		new(fastlane.Scanner),
 	}
 
@@ -71,8 +73,7 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		log.Info("|                                                                              |")
 
 		detectorWarnings := []string{}
-		detector.Configure(searchDir)
-		detected, err := detector.DetectPlatform()
+		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
 			log.Errorf("Scanner failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())
