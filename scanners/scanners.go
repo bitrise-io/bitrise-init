@@ -2,6 +2,10 @@ package scanners
 
 import (
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-core/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -49,6 +53,15 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform default BitriseConfigMap
 	DefaultConfigs() (models.BitriseConfigMap, error)
+}
+
+// ActiveScanners ...
+var ActiveScanners = []ScannerInterface{
+	new(ios.Scanner),
+	// new(macos.Scanner),
+	new(android.Scanner),
+	new(xamarin.Scanner),
+	new(fastlane.Scanner),
 }
 
 func customConfigName() string {
