@@ -49,11 +49,9 @@ set -ex
 
 echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
 
-echo y | android update sdk --no-ui --all --filter extra-android-support | grep 'package installed'
 echo y | android update sdk --no-ui --all --filter extra-android-m2repository | grep 'package installed'
-
-echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
 echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
+echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
 `
 
 	updateAndroidExtraPackagesScriptTite = "Update Android Extra packages"

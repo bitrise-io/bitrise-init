@@ -7,11 +7,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/macos"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -50,14 +45,7 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 
 	//
 	// Scan
-	projectScanners := []scanners.ScannerInterface{
-		new(ios.Scanner),
-		new(macos.Scanner),
-		new(android.Scanner),
-		new(xamarin.Scanner),
-		new(fastlane.Scanner),
-	}
-
+	projectScanners := scanners.ActiveScanners
 	projectTypeWarningMap := map[string]models.Warnings{}
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}

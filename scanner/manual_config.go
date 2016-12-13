@@ -5,21 +5,11 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 )
 
 // ManualConfig ...
 func ManualConfig() (models.ScanResultModel, error) {
-	projectScanners := []scanners.ScannerInterface{
-		new(android.Scanner),
-		new(xamarin.Scanner),
-		new(ios.Scanner),
-		new(fastlane.Scanner),
-	}
-
+	projectScanners := scanners.ActiveScanners
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
