@@ -2,7 +2,6 @@ package scanners
 
 import (
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
@@ -57,7 +56,7 @@ type ScannerInterface interface {
 }
 
 // ActiveScanners ...
-var ActiveScanners = []scanners.ScannerInterface{
+var ActiveScanners = []ScannerInterface{
 	new(ios.Scanner),
 	// new(macos.Scanner),
 	new(android.Scanner),

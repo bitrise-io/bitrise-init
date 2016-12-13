@@ -110,11 +110,9 @@ configs:
 
                   echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
 
-                  echo y | android update sdk --no-ui --all --filter extra-android-support | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-android-m2repository | grep 'package installed'
-
-                  echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
+                  echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
           - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
@@ -179,11 +177,9 @@ configs:
 
                   echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
 
-                  echo y | android update sdk --no-ui --all --filter extra-android-support | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-android-m2repository | grep 'package installed'
-
-                  echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
                   echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
+                  echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
           - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH

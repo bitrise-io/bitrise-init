@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -14,12 +15,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMacOS(t *testing.T) {
+func _TestMacOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__macos__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("sample-apps-osx-10-11")
 	{
