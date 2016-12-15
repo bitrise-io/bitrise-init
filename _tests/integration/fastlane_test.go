@@ -70,9 +70,10 @@ configs:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
       trigger_map:
-      - workflow: primary
-        pattern: '*'
-        is_pull_request_allowed: true
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
       workflows:
         primary:
           steps:

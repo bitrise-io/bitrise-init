@@ -101,9 +101,10 @@ configs:
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
-      - workflow: primary
-        pattern: '*'
-        is_pull_request_allowed: true
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
       workflows:
         primary:
           steps:
@@ -162,9 +163,10 @@ configs:
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
-      - workflow: primary
-        pattern: '*'
-        is_pull_request_allowed: true
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
       workflows:
         primary:
           steps:
@@ -223,9 +225,10 @@ configs:
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
-      - workflow: primary
-        pattern: '*'
-        is_pull_request_allowed: true
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
       workflows:
         primary:
           steps:
