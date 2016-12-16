@@ -4,8 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/bitrise-io/go-utils/pathutil"
 )
 
 // CaseInsensitiveEquals ...
@@ -78,77 +76,4 @@ func FilterFilesWithExtensions(fileList []string, extension ...string) []string 
 	}
 
 	return filteredFileList
-}
-
-// PathDept ...
-func PathDept(pth string) (int, error) {
-	abs, err := pathutil.AbsPath(pth)
-	if err != nil {
-		return 0, err
-	}
-	comp := strings.Split(abs, string(os.PathSeparator))
-
-	fixedComp := []string{}
-	for _, c := range comp {
-		if c != "" {
-			fixedComp = append(fixedComp, c)
-		}
-	}
-
-	return len(fixedComp), nil
-}
-
-// MapStringStringHasValue ...
-func MapStringStringHasValue(mapStringString map[string]string, value string) bool {
-	for _, v := range mapStringString {
-		if v == value {
-			return true
-		}
-	}
-	return false
-}
-
-//--------------------------------------------------
-// Sorting
-//--------------------------------------------------
-
-// ByComponents ..
-type ByComponents []string
-
-func (s ByComponents) Len() int {
-	return len(s)
-}
-func (s ByComponents) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s ByComponents) Less(i, j int) bool {
-	log := NewLogger()
-
-	path1 := s[i]
-	path2 := s[j]
-
-	d1, err := PathDept(path1)
-	if err != nil {
-		log.Warn("failed to calculate path depth (%s), error: %s", path1, err)
-		return false
-	}
-
-	d2, err := PathDept(path2)
-	if err != nil {
-		log.Warn("failed to calculate path depth (%s), error: %s", path1, err)
-		return false
-	}
-
-	if d1 < d2 {
-		return true
-	} else if d1 > d2 {
-		return false
-	}
-
-	// if same component size,
-	// do alphabetic sort based on the last component
-	base1 := filepath.Base(path1)
-	base2 := filepath.Base(path2)
-
-	return base1 < base2
 }

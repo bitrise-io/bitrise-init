@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/bitrise-tools/go-xcode/xcodeproj"
@@ -107,9 +106,7 @@ func FilterRelevantXcodeProjectFiles(fileList []string, isTest bool) ([]string, 
 		relevantFiles = append(relevantFiles, file)
 	}
 
-	sort.Sort(ByComponents(relevantFiles))
-
-	return relevantFiles, nil
+	return SortPathsByComponents(relevantFiles)
 }
 
 func isRelevantPodfile(pth string) bool {
@@ -134,7 +131,7 @@ func isRelevantPodfile(pth string) bool {
 }
 
 // FilterRelevantPodFiles ...
-func FilterRelevantPodFiles(fileList []string) []string {
+func FilterRelevantPodFiles(fileList []string) ([]string, error) {
 	podfiles := []string{}
 
 	for _, file := range fileList {
@@ -144,10 +141,8 @@ func FilterRelevantPodFiles(fileList []string) []string {
 	}
 
 	if len(podfiles) == 0 {
-		return []string{}
+		return []string{}, nil
 	}
 
-	sort.Sort(ByComponents(podfiles))
-
-	return podfiles
+	return SortPathsByComponents(podfiles)
 }

@@ -1,7 +1,6 @@
 package utility
 
 import (
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -179,48 +178,6 @@ func TestFilterFilesWithExtensions(t *testing.T) {
 	}
 }
 
-func TestPathDept(t *testing.T) {
-	t.Log("Simple path")
-	{
-		depth, err := PathDept("/a")
-		require.NoError(t, err)
-		require.Equal(t, 1, depth)
-
-		depth, err = PathDept("/a/b")
-		require.NoError(t, err)
-		require.Equal(t, 2, depth)
-
-		depth, err = PathDept("/a/b/c")
-		require.NoError(t, err)
-		require.Equal(t, 3, depth)
-	}
-
-	t.Log("Root path")
-	{
-		depth, err := PathDept("/")
-		require.NoError(t, err)
-		require.Equal(t, 0, depth)
-	}
-
-	t.Log("Rel path")
-	{
-		currentDepth, err := PathDept("./")
-		require.NoError(t, err)
-
-		depth, err := PathDept("./a")
-		require.NoError(t, err)
-		require.Equal(t, currentDepth+1, depth)
-
-		depth, err = PathDept("a")
-		require.NoError(t, err)
-		require.Equal(t, currentDepth+1, depth)
-
-		depth, err = PathDept("a/b")
-		require.NoError(t, err)
-		require.Equal(t, currentDepth+2, depth)
-	}
-}
-
 func TestByComponents(t *testing.T) {
 	t.Log("Simple sort")
 	{
@@ -230,7 +187,9 @@ func TestByComponents(t *testing.T) {
 			"path",
 		}
 
-		sort.Sort(ByComponents(fileList))
+		fileList, err := SortPathsByComponents(fileList)
+		require.NoError(t, err)
+
 		require.Equal(t, []string{"path", "path/to", "path/to/my"}, fileList)
 	}
 
@@ -243,7 +202,9 @@ func TestByComponents(t *testing.T) {
 			"path",
 		}
 
-		sort.Sort(ByComponents(fileList))
+		fileList, err := SortPathsByComponents(fileList)
+		require.NoError(t, err)
+
 		require.Equal(t, 4, len(fileList))
 		require.Equal(t, "path/to/my", fileList[3])
 		require.Equal(t, "path/to", fileList[2])
@@ -256,7 +217,9 @@ func TestByComponents(t *testing.T) {
 			"./path",
 		}
 
-		sort.Sort(ByComponents(fileList))
+		fileList, err := SortPathsByComponents(fileList)
+		require.NoError(t, err)
+
 		require.Equal(t, 2, len(fileList))
 		require.Equal(t, "./path", fileList[0])
 		require.Equal(t, "path/to", fileList[1])
@@ -270,30 +233,12 @@ func TestByComponents(t *testing.T) {
 			"b",
 		}
 
-		sort.Sort(ByComponents(fileList))
+		fileList, err := SortPathsByComponents(fileList)
+		require.NoError(t, err)
+
 		require.Equal(t, 3, len(fileList))
 		require.Equal(t, "./a", fileList[0])
 		require.Equal(t, "b", fileList[1])
 		require.Equal(t, "./c", fileList[2])
-	}
-}
-
-func TestMapStringStringHasValue(t *testing.T) {
-	mapStringString := map[string]string{
-		"key1": "value1",
-		"key2": "value2",
-		"key3": "value3",
-	}
-
-	t.Log("Found")
-	{
-		found := MapStringStringHasValue(mapStringString, "value1")
-		require.Equal(t, true, found)
-	}
-
-	t.Log("NOT Found")
-	{
-		found := MapStringStringHasValue(mapStringString, "value")
-		require.Equal(t, false, found)
 	}
 }

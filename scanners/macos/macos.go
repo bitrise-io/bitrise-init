@@ -241,7 +241,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// Create cocoapods project-workspace mapping
 	log.Info("Searching for Podfiles")
 
-	podFiles := utility.FilterRelevantPodFiles(scanner.fileList)
+	podFiles, err := utility.FilterRelevantPodFiles(scanner.fileList)
+	if err != nil {
+		return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to find Podfiles, error: %s", err)
+	}
 
 	log.Details("%d Podfile(s) detected", len(podFiles))
 	for _, file := range podFiles {

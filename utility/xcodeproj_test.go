@@ -351,7 +351,8 @@ func TestFilterRelevantPodFiles(t *testing.T) {
 			"path/to/my/Podfile.lock",
 		}
 
-		files := FilterRelevantPodFiles(fileList)
+		files, err := FilterRelevantPodFiles(fileList)
+		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 
 		// Also sorts "Podfile" files by path components length
@@ -366,7 +367,8 @@ func TestFilterRelevantPodFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files := FilterRelevantPodFiles(fileList)
+		files, err := FilterRelevantPodFiles(fileList)
+		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}
 }

@@ -35,7 +35,7 @@ type ScannerInterface interface {
 	// Each branch should define a complete and valid options to build the final bitrise config model.
 	// Every OptionModel branch's last options has to be the key of the workflow (in the BitriseConfigMap), which will fulfilled with the selected options.
 	// Returns:
-	// - an OptionModel
+	// - OptionModel
 	// - Warnings (if any)
 	// - error if (if any)
 	Options() (models.OptionModel, models.Warnings, error)

@@ -6,7 +6,6 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -119,7 +118,7 @@ func projectType(guids []string) string {
 	return ""
 }
 
-func filterSolutionFiles(fileList []string) []string {
+func filterSolutionFiles(fileList []string) ([]string, error) {
 	files := utility.FilterFilesWithExtensions(fileList, solutionExtension)
 
 	componentsProjectExp := regexp.MustCompile(`.*Components/.+.sln`)
@@ -136,8 +135,7 @@ func filterSolutionFiles(fileList []string) []string {
 		}
 	}
 
-	sort.Sort(utility.ByComponents(relevantFiles))
-	return relevantFiles
+	return utility.SortPathsByComponents(relevantFiles)
 }
 
 func getSolutionConfigs(solutionFile string) (map[string][]string, error) {
@@ -320,7 +318,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for solution file
 	log.Info("Searching for solution files")
 
-	solutionFiles := filterSolutionFiles(fileList)
+	solutionFiles, err := filterSolutionFiles(fileList)
+	if err != nil {
+		return false, fmt.Errorf("failed to search for solution files, error: %s", err)
+	}
+
 	scanner.SolutionFiles = solutionFiles
 
 	log.Details("%d solution file(s) detected", len(solutionFiles))

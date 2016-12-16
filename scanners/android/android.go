@@ -81,43 +81,49 @@ func fixedGradlewPath(gradlewPth string) string {
 
 func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
 	gradleFiles := utility.FilterFilesWithBasPaths(fileList, buildGradleBasePath)
-	sort.Sort(utility.ByComponents(gradleFiles))
 
 	if len(gradleFiles) == 0 {
 		return []string{}, nil
 	}
 
-	mindDepth, err := utility.PathDept(gradleFiles[0])
-	if err != nil {
-		return []string{}, err
-	}
-
-	rootGradleFiles := []string{}
-	for _, gradleFile := range gradleFiles {
-		depth, err := utility.PathDept(gradleFile)
+	sortableFiles := []utility.SortablePath{}
+	for _, pth := range gradleFiles {
+		sortable, err := utility.NewSortablePath(pth)
 		if err != nil {
 			return []string{}, err
 		}
+		sortableFiles = append(sortableFiles, sortable)
+	}
 
+	sort.Sort(utility.BySortablePathComponents(sortableFiles))
+
+	mindDepth := len(sortableFiles[0].Components)
+
+	rootGradleFiles := []string{}
+	for _, sortable := range sortableFiles {
+		depth := len(sortable.Components)
 		if depth == mindDepth {
-			rootGradleFiles = append(rootGradleFiles, gradleFile)
+			rootGradleFiles = append(rootGradleFiles, sortable.Pth)
 		}
 	}
 
 	return rootGradleFiles, nil
 }
 
-func filterGradlewFiles(fileList []string) []string {
+func filterGradlewFiles(fileList []string) ([]string, error) {
 	gradlewFiles := utility.FilterFilesWithBasPaths(fileList, gradlewBasePath)
-	sort.Sort(utility.ByComponents(gradlewFiles))
+	sortedGradlewFiles, err := utility.SortPathsByComponents(gradlewFiles)
+	if err != nil {
+		return []string{}, err
+	}
 
 	fixedGradlewFiles := []string{}
-	for _, gradlewFile := range gradlewFiles {
+	for _, gradlewFile := range sortedGradlewFiles {
 		fixed := fixedGradlewPath(gradlewFile)
 		fixedGradlewFiles = append(fixedGradlewFiles, fixed)
 	}
 
-	return fixedGradlewFiles
+	return fixedGradlewFiles, nil
 }
 
 func configName() string {
@@ -181,7 +187,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	log.Info("Searching for gradlew files")
 
 	warnings := models.Warnings{}
-	gradlewFiles := filterGradlewFiles(scanner.FileList)
+	gradlewFiles, err := filterGradlewFiles(scanner.FileList)
+	if err != nil {
+		return models.OptionModel{}, warnings, fmt.Errorf("Failed to list gradlew files, error: %s", err)
+	}
 
 	log.Details("%d gradlew file(s) detected", len(gradlewFiles))
 	for _, file := range gradlewFiles {

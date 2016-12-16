@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -46,11 +45,15 @@ const (
 // Utility
 //--------------------------------------------------
 
-func filterFastfiles(fileList []string) []string {
+func filterFastfiles(fileList []string) ([]string, error) {
 	fastfiles := utility.FilterFilesWithBasPaths(fileList, fastfileBasePath)
-	sort.Sort(utility.ByComponents(fastfiles))
 
-	return fastfiles
+	sortedFastfiles, err := utility.SortPathsByComponents(fastfiles)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return sortedFastfiles, nil
 }
 
 func inspectFastfileContent(content string) ([]string, error) {
@@ -124,7 +127,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for Fastfile
 	log.Info("Searching for Fastfiles")
 
-	fastfiles := filterFastfiles(fileList)
+	fastfiles, err := filterFastfiles(fileList)
+	if err != nil {
+		return false, fmt.Errorf("failed to search for Fastfile in (%s), error: %s", searchDir, err)
+	}
+
 	scanner.Fastfiles = fastfiles
 
 	log.Details("%d Fastfile(s) detected", len(fastfiles))
