@@ -190,7 +190,7 @@ func init() {
 
   hook, err := logrus_syslog.NewSyslogHook("udp", "localhost:514", syslog.LOG_INFO, "")
   if err != nil {
-    log.Errorft("Unable to connect to local syslog daemon")
+    log.Error("Unable to connect to local syslog daemon")
   } else {
     log.AddHook(hook)
   }
@@ -240,7 +240,7 @@ Logrus has six logging levels: Debug, Info, Warning, Error, Fatal and Panic.
 log.Debug("Useful debugging information.")
 log.Info("Something noteworthy happened!")
 log.Warn("You should probably take a look at this.")
-log.Errorft("Something failed but I'm not quitting.")
+log.Error("Something failed but I'm not quitting.")
 // Calls os.Exit(1) after logging
 log.Fatal("Bye.")
 // Calls panic() after logging
