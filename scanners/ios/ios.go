@@ -248,8 +248,15 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		log.Printft("- %s", file)
 	}
 
+	projectPths := []string{}
+	for _, projectOrWorkspace := range scanner.xcodeProjectAndWorkspaceFiles {
+		if xcodeproj.IsXCodeProj(projectOrWorkspace) {
+			projectPths = append(projectPths, projectOrWorkspace)
+		}
+	}
+
 	for _, podfile := range podFiles {
-		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile)
+		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile, projectPths)
 		if err != nil {
 			log.Warnft("Analyze Podfile (%s) failed, error: %s", podfile, err)
 			warnings = append(warnings, fmt.Sprintf("Failed to analyze Podfile: (%s), error: %s", podfile, err))

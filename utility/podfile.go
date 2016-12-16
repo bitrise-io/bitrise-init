@@ -99,8 +99,19 @@ func getUserDefinedWorkspaceRelativePath(podfilePth string) (string, error) {
 	return workspaceBase, nil
 }
 
+func filterXcodeProjectsInDirectory(projects []string, podDir string) []string {
+	filtered := []string{}
+	for _, project := range projects {
+		dir := filepath.Dir(project)
+		if dir == podDir {
+			filtered = append(filtered, project)
+		}
+	}
+	return filtered
+}
+
 // GetWorkspaceProjectMap ...
-func GetWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
+func GetWorkspaceProjectMap(podfilePth string, projects []string) (map[string]string, error) {
 	// fix podfile quotation
 	podfileContent, err := fileutil.ReadStringFromFile(podfilePth)
 	if err != nil {
@@ -125,11 +136,7 @@ func GetWorkspaceProjectMap(podfilePth string) (map[string]string, error) {
 	}
 
 	if projectRelPth == "" {
-		pattern := filepath.Join(podfileDir, "*.xcodeproj")
-		projects, err := filepath.Glob(pattern)
-		if err != nil {
-			return map[string]string{}, err
-		}
+		projects := filterXcodeProjectsInDirectory(projects, podfileDir)
 
 		if len(projects) == 0 {
 			return map[string]string{}, errors.New("failed to determin workspace - project mapping: no explicit project specified and no project found in the Podfile's directory")
