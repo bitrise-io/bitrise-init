@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
 	"github.com/bitrise-io/go-utils/colorstring"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -50,15 +50,15 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
-	log.Infof(colorstring.Blue("Running scanners:"))
+	log.Infoft(colorstring.Blue("Running scanners:"))
 	fmt.Println()
 
 	for _, detector := range projectScanners {
 		detectorName := detector.Name()
-		log.Infof("Scanner: %s", colorstring.Blue(detectorName))
+		log.Infoft("Scanner: %s", colorstring.Blue(detectorName))
 
-		log.Info("+------------------------------------------------------------------------------+")
-		log.Info("|                                                                              |")
+		log.Infoft("+------------------------------------------------------------------------------+")
+		log.Infoft("|                                                                              |")
 
 		detectorWarnings := []string{}
 		detected, err := detector.DetectPlatform(searchDir)
@@ -70,8 +70,8 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		}
 
 		if !detected {
-			log.Info("|                                                                              |")
-			log.Info("+------------------------------------------------------------------------------+")
+			log.Infoft("|                                                                              |")
+			log.Infoft("+------------------------------------------------------------------------------+")
 			fmt.Println()
 			continue
 		}
@@ -97,8 +97,8 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 
 		projectTypeConfigMap[detectorName] = configs
 
-		log.Info("|                                                                              |")
-		log.Info("+------------------------------------------------------------------------------+")
+		log.Infoft("|                                                                              |")
+		log.Infoft("+------------------------------------------------------------------------------+")
 		fmt.Println()
 	}
 	// ---

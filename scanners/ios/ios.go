@@ -12,11 +12,8 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-tools/go-xcode/xcodeproj"
-)
-
-var (
-	log = utility.NewLogger()
 )
 
 const scannerName = "ios"
@@ -77,7 +74,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.fileList = fileList
 
 	// Search for xcodeproj and xcworkspace files
-	log.Info("Searching for iOS .xcodeproj & .xcworkspace files")
+	log.Infoft("Searching for iOS .xcodeproj & .xcworkspace files")
 
 	relevantXcodeProjectFiles, err := utility.FilterRelevantXcodeProjectFiles(fileList, false)
 	if err != nil {
@@ -85,7 +82,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	if len(relevantXcodeProjectFiles) == 0 {
-		log.Details("platform not detected")
+		log.Printft("platform not detected")
 		return false, nil
 	}
 
@@ -150,12 +147,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	if len(iphoneosXcodeProjectFileMap) == 0 {
-		log.Details("platform not detected")
+		log.Printft("platform not detected")
 		return false, nil
 	}
 
-	log.Details("")
-	log.Done("Platform detected")
+	log.Printft("")
+	log.Doneft("Platform detected")
 
 	iphoneosXcodeProjectFiles := []string{}
 	for iphoneosXcodeProjectFile := range iphoneosXcodeProjectFileMap {
@@ -193,13 +190,13 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if len(workspaces) > 0 {
-		log.Details("%d workspace file(s) detected", len(workspaces))
+		log.Printft("%d workspace file(s) detected", len(workspaces))
 		for _, workspace := range workspaces {
 			projects := []string{}
 			for _, project := range workspace.Projects {
 				projects = append(projects, project.Name)
 			}
-			log.Details("- %s (projects: %v)", workspace.Name, projects)
+			log.Printft("- %s (projects: %v)", workspace.Name, projects)
 		}
 	}
 
@@ -231,38 +228,38 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if len(projects) > 0 {
-		log.Details("%d project file(s) detected", len(projects))
+		log.Printft("%d project file(s) detected", len(projects))
 		for _, project := range projects {
-			log.Details("- %s", project.Name)
+			log.Printft("- %s", project.Name)
 		}
 	}
 	// ---
 
 	// Create cocoapods project-workspace mapping
-	log.Info("Searching for Podfiles")
+	log.Infoft("Searching for Podfiles")
 
 	podFiles, err := utility.FilterRelevantPodFiles(scanner.fileList)
 	if err != nil {
 		return models.OptionModel{}, models.Warnings{}, fmt.Errorf("failed to list Podfiles, error: %s", err)
 	}
 
-	log.Details("%d Podfile(s) detected", len(podFiles))
+	log.Printft("%d Podfile(s) detected", len(podFiles))
 	for _, file := range podFiles {
-		log.Details("- %s", file)
+		log.Printft("- %s", file)
 	}
 
 	for _, podfile := range podFiles {
 		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile)
 		if err != nil {
-			log.Warn("Analyze Podfile (%s) failed, error: %s", podfile, err)
+			log.Warnft("Analyze Podfile (%s) failed, error: %s", podfile, err)
 			warnings = append(warnings, fmt.Sprintf("Failed to analyze Podfile: (%s), error: %s", podfile, err))
 			continue
 		}
 
-		log.Details("")
-		log.Details("cocoapods workspace-project mapping:")
+		log.Printft("")
+		log.Printft("cocoapods workspace-project mapping:")
 		for workspacePth, linkedProjectPth := range workspaceProjectMap {
-			log.Details("- %s -> %s", workspacePth, linkedProjectPth)
+			log.Printft("- %s -> %s", workspacePth, linkedProjectPth)
 
 			podWorkspace := xcodeproj.WorkspaceModel{}
 
@@ -304,19 +301,19 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	//
 	// Analyze projects and workspaces
 	for _, project := range projects {
-		log.Info("Inspecting standalone project file: %s", project.Pth)
+		log.Infoft("Inspecting standalone project file: %s", project.Pth)
 
-		log.Details("%d shared scheme(s) detected", len(project.SharedSchemes))
+		log.Printft("%d shared scheme(s) detected", len(project.SharedSchemes))
 		for _, scheme := range project.SharedSchemes {
-			log.Details("- %s", scheme.Name)
+			log.Printft("- %s", scheme.Name)
 		}
 
 		if len(project.SharedSchemes) == 0 {
-			log.Details("")
-			log.Error("No shared schemes found, adding recreate-user-schemes step...")
-			log.Error("The newly generated schemes may differ from the ones in your project.")
-			log.Error("Make sure to share your schemes, to have the expected behaviour.")
-			log.Details("")
+			log.Printft("")
+			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
+			log.Errorft("The newly generated schemes may differ from the ones in your project.")
+			log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			log.Printft("")
 
 			message := `No shared schemes found for project: ` + project.Pth + `.
 	Automatically generated schemes for this project.
@@ -325,28 +322,28 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 			warnings = append(warnings, fmt.Sprintf(message))
 
-			log.Warn("%d user scheme(s) will be generated", len(project.Targets))
+			log.Warnft("%d user scheme(s) will be generated", len(project.Targets))
 			for _, target := range project.Targets {
-				log.Warn("- %s", target.Name)
+				log.Warnft("- %s", target.Name)
 			}
 		}
 	}
 
 	for _, workspace := range workspaces {
-		log.Info("Inspecting workspace file: %s", workspace.Pth)
+		log.Infoft("Inspecting workspace file: %s", workspace.Pth)
 
 		sharedSchemes := workspace.GetSharedSchemes()
-		log.Details("%d shared scheme(s) detected", len(sharedSchemes))
+		log.Printft("%d shared scheme(s) detected", len(sharedSchemes))
 		for _, scheme := range sharedSchemes {
-			log.Details("- %s", scheme.Name)
+			log.Printft("- %s", scheme.Name)
 		}
 
 		if len(sharedSchemes) == 0 {
-			log.Details("")
-			log.Error("No shared schemes found, adding recreate-user-schemes step...")
-			log.Error("The newly generated schemes, may differs from the ones in your project.")
-			log.Error("Make sure to share your schemes, to have the expected behaviour.")
-			log.Details("")
+			log.Printft("")
+			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
+			log.Errorft("The newly generated schemes, may differs from the ones in your project.")
+			log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			log.Printft("")
 
 			message := `No shared schemes found for project: ` + workspace.Pth + `.
 	Automatically generated schemes for this project.
@@ -356,9 +353,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			warnings = append(warnings, fmt.Sprintf(message))
 
 			targets := workspace.GetTargets()
-			log.Warn("%d user scheme(s) will be generated", len(targets))
+			log.Warnft("%d user scheme(s) will be generated", len(targets))
 			for _, target := range targets {
-				log.Warn("- %s", target.Name)
+				log.Warnft("- %s", target.Name)
 			}
 		}
 	}
@@ -447,7 +444,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// -----
 
 	if len(configDescriptors) == 0 {
-		log.Error("No valid iOS config found")
+		log.Errorft("No valid iOS config found")
 		return models.OptionModel{}, warnings, errors.New("No valid config found")
 	}
 

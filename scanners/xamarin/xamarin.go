@@ -16,10 +16,7 @@ import (
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
-)
-
-var (
-	log = utility.NewLogger()
+	"github.com/bitrise-io/go-utils/log"
 )
 
 const (
@@ -316,7 +313,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.FileList = fileList
 
 	// Search for solution file
-	log.Info("Searching for solution files")
+	log.Infoft("Searching for solution files")
 
 	solutionFiles, err := filterSolutionFiles(fileList)
 	if err != nil {
@@ -325,24 +322,24 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	scanner.SolutionFiles = solutionFiles
 
-	log.Details("%d solution file(s) detected", len(solutionFiles))
+	log.Printft("%d solution file(s) detected", len(solutionFiles))
 	for _, file := range solutionFiles {
-		log.Details("- %s", file)
+		log.Printft("- %s", file)
 	}
 
 	if len(solutionFiles) == 0 {
-		log.Details("platform not detected")
+		log.Printft("platform not detected")
 		return false, nil
 	}
 
-	log.Done("Platform detected")
+	log.Doneft("Platform detected")
 
 	return true, nil
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	log.Info("Searching for NuGet packages & Xamarin Components")
+	log.Infoft("Searching for NuGet packages & Xamarin Components")
 
 	warnings := models.Warnings{}
 
@@ -372,44 +369,44 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if scanner.HasNugetPackages {
-		log.Details("Nuget packages found")
+		log.Printft("Nuget packages found")
 	} else {
-		log.Details("NO Nuget packages found")
+		log.Printft("NO Nuget packages found")
 	}
 
 	if scanner.HasXamarinComponents {
-		log.Details("Xamarin Components found")
+		log.Printft("Xamarin Components found")
 	} else {
-		log.Details("NO Xamarin Components found")
+		log.Printft("NO Xamarin Components found")
 	}
 
 	// Check for solution configs
 	validSolutionMap := map[string]map[string][]string{}
 	for _, solutionFile := range scanner.SolutionFiles {
-		log.Info("Inspecting solution file: %s", solutionFile)
+		log.Infoft("Inspecting solution file: %s", solutionFile)
 
 		configs, err := getSolutionConfigs(solutionFile)
 		if err != nil {
-			log.Warn("Failed to get solution configs, error: %s", err)
+			log.Warnft("Failed to get solution configs, error: %s", err)
 			warnings = append(warnings, fmt.Sprintf("Failed to get solution (%s) configs, error: %s", solutionFile, err))
 			continue
 		}
 
 		if len(configs) > 0 {
-			log.Details("%d configuration(s) found", len(configs))
+			log.Printft("%d configuration(s) found", len(configs))
 			for config, platforms := range configs {
-				log.Details("- %s with platform(s): %v", config, platforms)
+				log.Printft("- %s with platform(s): %v", config, platforms)
 			}
 
 			validSolutionMap[solutionFile] = configs
 		} else {
-			log.Warn("No config found for %s", solutionFile)
+			log.Warnft("No config found for %s", solutionFile)
 			warnings = append(warnings, fmt.Sprintf("No configs found for solution: %s", solutionFile))
 		}
 	}
 
 	if len(validSolutionMap) == 0 {
-		log.Error("No valid solution file found")
+		log.Errorft("No valid solution file found")
 		return models.OptionModel{}, warnings, errors.New("No valid solution file found")
 	}
 

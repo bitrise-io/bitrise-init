@@ -12,10 +12,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
-)
-
-var (
-	log = utility.NewLogger()
+	"github.com/bitrise-io/go-utils/log"
 )
 
 const (
@@ -158,7 +155,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.FileList = fileList
 
 	// Search for gradle file
-	log.Info("Searching for build.gradle files")
+	log.Infoft("Searching for build.gradle files")
 
 	gradleFiles, err := filterRootBuildGradleFiles(fileList)
 	if err != nil {
@@ -166,17 +163,17 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	scanner.GradleFiles = gradleFiles
 
-	log.Details("%d build.gradle file(s) detected", len(gradleFiles))
+	log.Printft("%d build.gradle file(s) detected", len(gradleFiles))
 	for _, file := range gradleFiles {
-		log.Details("- %s", file)
+		log.Printft("- %s", file)
 	}
 
 	if len(gradleFiles) == 0 {
-		log.Details("platform not detected")
+		log.Printft("platform not detected")
 		return false, nil
 	}
 
-	log.Done("Platform detected")
+	log.Doneft("Platform detected")
 
 	return true, nil
 }
@@ -184,7 +181,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// Search for gradlew_path input
-	log.Info("Searching for gradlew files")
+	log.Infoft("Searching for gradlew files")
 
 	warnings := models.Warnings{}
 	gradlewFiles, err := filterGradlewFiles(scanner.FileList)
@@ -192,17 +189,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		return models.OptionModel{}, warnings, fmt.Errorf("Failed to list gradlew files, error: %s", err)
 	}
 
-	log.Details("%d gradlew file(s) detected", len(gradlewFiles))
+	log.Printft("%d gradlew file(s) detected", len(gradlewFiles))
 	for _, file := range gradlewFiles {
-		log.Details("- %s", file)
+		log.Printft("- %s", file)
 	}
 
 	rootGradlewPath := ""
 	if len(gradlewFiles) > 0 {
 		rootGradlewPath = gradlewFiles[0]
-		log.Details("root gradlew path: %s", rootGradlewPath)
+		log.Printft("root gradlew path: %s", rootGradlewPath)
 	} else {
-		log.Error("No gradle wrapper (gradlew) found")
+		log.Errorft("No gradle wrapper (gradlew) found")
 		return models.OptionModel{}, warnings, fmt.Errorf(`<b>No Gradle Wrapper (gradlew) found.</b> 
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
@@ -212,13 +209,13 @@ that the right Gradle version is installed and used for the build. More info/gui
 	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
 
 	for _, gradleFile := range scanner.GradleFiles {
-		log.Info("Inspecting gradle file: %s", gradleFile)
+		log.Infoft("Inspecting gradle file: %s", gradleFile)
 
 		configs := defaultGradleTasks
 
-		log.Details("%d gradle task(s)", len(configs))
+		log.Printft("%d gradle task(s)", len(configs))
 		for _, config := range configs {
-			log.Details("- %s", config)
+			log.Printft("- %s", config)
 		}
 
 		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
