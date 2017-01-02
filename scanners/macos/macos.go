@@ -318,7 +318,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			message := `No shared schemes found for project: ` + project.Pth + `.
 	Automatically generated schemes for this project.
 	These schemes may differ from the ones in your project.
-	Make sure to <a href="https://developer.apple.com/library/ios/recipes/xcode_help-scheme_editor/Articles/SchemeManage.html">share your schemes</a> for the expected behaviour.`
+	Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
 			warnings = append(warnings, fmt.Sprintf(message))
 
@@ -348,7 +348,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			message := `No shared schemes found for project: ` + workspace.Pth + `.
 	Automatically generated schemes for this project.
 	These schemes may differ from the ones in your project.
-	Make sure to <a href="https://developer.apple.com/library/ios/recipes/xcode_help-scheme_editor/Articles/SchemeManage.html">share your schemes</a> for the expected behaviour.`
+	Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
 			warnings = append(warnings, fmt.Sprintf(message))
 
