@@ -2,7 +2,6 @@ package android
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -77,7 +76,11 @@ func fixedGradlewPath(gradlewPth string) string {
 }
 
 func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
-	gradleFiles := utility.FilterFilesWithBasPaths(fileList, buildGradleBasePath)
+	allowBuildGradleBaseFilter := utility.BaseFilter(buildGradleBasePath, true)
+	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter)
+	if err != nil {
+		return []string{}, err
+	}
 
 	if len(gradleFiles) == 0 {
 		return []string{}, nil
@@ -91,8 +94,6 @@ func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
 		}
 		sortableFiles = append(sortableFiles, sortable)
 	}
-
-	sort.Sort(utility.BySortablePathComponents(sortableFiles))
 
 	mindDepth := len(sortableFiles[0].Components)
 
@@ -108,14 +109,14 @@ func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
 }
 
 func filterGradlewFiles(fileList []string) ([]string, error) {
-	gradlewFiles := utility.FilterFilesWithBasPaths(fileList, gradlewBasePath)
-	sortedGradlewFiles, err := utility.SortPathsByComponents(gradlewFiles)
+	allowGradlewBaseFilter := utility.BaseFilter(gradlewBasePath, true)
+	gradlewFiles, err := utility.FilterPaths(fileList, allowGradlewBaseFilter)
 	if err != nil {
 		return []string{}, err
 	}
 
 	fixedGradlewFiles := []string{}
-	for _, gradlewFile := range sortedGradlewFiles {
+	for _, gradlewFile := range gradlewFiles {
 		fixed := fixedGradlewPath(gradlewFile)
 		fixedGradlewFiles = append(fixedGradlewFiles, fixed)
 	}
@@ -148,7 +149,7 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.FileList(searchDir)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -163,7 +164,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	scanner.GradleFiles = gradleFiles
 
-	log.Printft("%d build.gradle file(s) detected", len(gradleFiles))
+	log.Printft("%d build.gradle files detected", len(gradleFiles))
 	for _, file := range gradleFiles {
 		log.Printft("- %s", file)
 	}
@@ -189,7 +190,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		return models.OptionModel{}, warnings, fmt.Errorf("Failed to list gradlew files, error: %s", err)
 	}
 
-	log.Printft("%d gradlew file(s) detected", len(gradlewFiles))
+	log.Printft("%d gradlew files detected", len(gradlewFiles))
 	for _, file := range gradlewFiles {
 		log.Printft("- %s", file)
 	}
@@ -213,7 +214,7 @@ that the right Gradle version is installed and used for the build. More info/gui
 
 		configs := defaultGradleTasks
 
-		log.Printft("%d gradle task(s)", len(configs))
+		log.Printft("%d gradle tasks", len(configs))
 		for _, config := range configs {
 			log.Printft("- %s", config)
 		}

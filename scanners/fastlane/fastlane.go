@@ -43,14 +43,13 @@ const (
 //--------------------------------------------------
 
 func filterFastfiles(fileList []string) ([]string, error) {
-	fastfiles := utility.FilterFilesWithBasPaths(fileList, fastfileBasePath)
-
-	sortedFastfiles, err := utility.SortPathsByComponents(fastfiles)
+	allowFastfileBaseFilter := utility.BaseFilter(fastfileBasePath, true)
+	fastfiles, err := utility.FilterPaths(fileList, allowFastfileBaseFilter)
 	if err != nil {
 		return []string{}, err
 	}
 
-	return sortedFastfiles, nil
+	return fastfiles, nil
 }
 
 func inspectFastfileContent(content string) ([]string, error) {
@@ -116,7 +115,7 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.FileList(searchDir)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -131,7 +130,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	scanner.Fastfiles = fastfiles
 
-	log.Printft("%d Fastfile(s) detected", len(fastfiles))
+	log.Printft("%d Fastfiles detected", len(fastfiles))
 	for _, file := range fastfiles {
 		log.Printft("- %s", file)
 	}
@@ -164,7 +163,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			continue
 		}
 
-		log.Printft("%d lane(s) found", len(lanes))
+		log.Printft("%d lanes found", len(lanes))
 		for _, lane := range lanes {
 			log.Printft("- %s", lane)
 		}

@@ -1,16 +1,12 @@
 package utility
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
-
-// CaseInsensitiveEquals ...
-func CaseInsensitiveEquals(s1, s2 string) bool {
-	s1, s2 = strings.ToLower(s1), strings.ToLower(s2)
-	return s1 == s2
-}
 
 // CaseInsensitiveContains ...
 func CaseInsensitiveContains(s, substr string) bool {
@@ -18,8 +14,8 @@ func CaseInsensitiveContains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
 
-// FileList ...
-func FileList(searchDir string) ([]string, error) {
+// ListPathInDirSortedByComponents ...
+func ListPathInDirSortedByComponents(searchDir string) ([]string, error) {
 	searchDir, err := filepath.Abs(searchDir)
 	if err != nil {
 		return []string{}, err
@@ -39,41 +35,106 @@ func FileList(searchDir string) ([]string, error) {
 	}); err != nil {
 		return []string{}, err
 	}
-	return fileList, nil
+	return SortPathsByComponents(fileList)
 }
 
-// FilterFilesWithBasPaths ...
-func FilterFilesWithBasPaths(fileList []string, basePath ...string) []string {
-	filteredFileList := []string{}
+// FilterPaths ...
+func FilterPaths(fileList []string, filters ...FilterFunc) ([]string, error) {
+	filtered := []string{}
 
-	for _, file := range fileList {
-		base := filepath.Base(file)
-
-		for _, desiredBasePath := range basePath {
-			if strings.EqualFold(base, desiredBasePath) {
-				filteredFileList = append(filteredFileList, file)
+	for _, pth := range fileList {
+		allowed := true
+		for _, filter := range filters {
+			if allows, err := filter(pth); err != nil {
+				return []string{}, err
+			} else if !allows {
+				allowed = false
 				break
 			}
 		}
-	}
-
-	return filteredFileList
-}
-
-// FilterFilesWithExtensions ...
-func FilterFilesWithExtensions(fileList []string, extension ...string) []string {
-	filteredFileList := []string{}
-
-	for _, file := range fileList {
-		ext := filepath.Ext(file)
-
-		for _, desiredExt := range extension {
-			if ext == desiredExt {
-				filteredFileList = append(filteredFileList, file)
-				break
-			}
+		if allowed {
+			filtered = append(filtered, pth)
 		}
 	}
 
-	return filteredFileList
+	return filtered, nil
+}
+
+// FilterFunc ...
+type FilterFunc func(pth string) (bool, error)
+
+// BaseFilter ...
+func BaseFilter(base string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		b := filepath.Base(pth)
+		return (allowed == strings.EqualFold(base, b)), nil
+	}
+}
+
+// ExtensionFilter ...
+func ExtensionFilter(ext string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		e := filepath.Ext(pth)
+		return (allowed == strings.EqualFold(ext, e)), nil
+	}
+}
+
+// RegexpFilter ...
+func RegexpFilter(pattern string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		re := regexp.MustCompile(pattern)
+		found := re.FindString(pth) != ""
+		return (allowed == found), nil
+	}
+}
+
+// ComponentFilter ...
+func ComponentFilter(component string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		found := false
+		pathComponents := strings.Split(pth, string(filepath.Separator))
+		for _, c := range pathComponents {
+			if c == component {
+				found = true
+			}
+		}
+		return (allowed == found), nil
+	}
+}
+
+// ComponentWithExtensionFilter ...
+func ComponentWithExtensionFilter(ext string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		found := false
+		pathComponents := strings.Split(pth, string(filepath.Separator))
+		for _, c := range pathComponents {
+			e := filepath.Ext(c)
+			if e == ext {
+				found = true
+			}
+		}
+		return (allowed == found), nil
+	}
+}
+
+// IsDirectoryFilter ...
+func IsDirectoryFilter(allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		fileInf, err := os.Lstat(pth)
+		if err != nil {
+			return false, err
+		}
+		if fileInf == nil {
+			return false, errors.New("no file info available")
+		}
+		return (allowed == fileInf.IsDir()), nil
+	}
+}
+
+// InDirectoryFilter ...
+func InDirectoryFilter(dir string, allowed bool) FilterFunc {
+	return func(pth string) (bool, error) {
+		in := (filepath.Dir(pth) == dir)
+		return (allowed == in), nil
+	}
 }

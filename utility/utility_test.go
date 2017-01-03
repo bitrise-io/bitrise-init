@@ -1,8 +1,14 @@
 package utility
 
 import (
+	"os"
+	"strings"
 	"testing"
 
+	"path/filepath"
+
+	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,217 +34,225 @@ func TestCaseInsensitiveContains(t *testing.T) {
 	require.Equal(t, false, CaseInsensitiveContains(``, `a`))
 }
 
-func TestFileList(t *testing.T) {
-	files, err := FileList("./")
+func TestListPathInDirSortedByComponents(t *testing.T) {
+	files, err := ListPathInDirSortedByComponents("./")
 	require.NoError(t, err)
 	require.NotEqual(t, 0, len(files))
 }
 
-func TestFilterFilesWithBasPaths(t *testing.T) {
-	t.Log(`Contains "gradlew" basePath`)
+func TestFilterPaths(t *testing.T) {
+	t.Log("without any filter")
 	{
-		fileList := []string{
-			"gradlew",
-			"path/to/my/gradlew",
-			"path/to/my/gradlew/file",
-			"path/to/my",
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
 		}
-
-		files := FilterFilesWithBasPaths(fileList, "gradlew")
-		require.Equal(t, 2, len(files))
-		require.Equal(t, "gradlew", files[0])
-		require.Equal(t, "path/to/my/gradlew", files[1])
+		filtered, err := FilterPaths(paths)
+		require.NoError(t, err)
+		require.Equal(t, paths, filtered)
 	}
 
-	t.Log(`Contains "gradlew" & "my" basePath`)
+	t.Log("with filter")
 	{
-		fileList := []string{
-			"gradlew",
-			"path/to/my/gradlew",
-			"path/to/my/gradlew/file",
-			"path/to/my",
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
 		}
-
-		files := FilterFilesWithBasPaths(fileList, "gradlew", "my")
-		require.Equal(t, 3, len(files))
-		require.Contains(t, files, "gradlew", "path/to/my/gradlew", "path/to/my")
-		require.Equal(t, "gradlew", files[0])
-		require.Equal(t, "path/to/my/gradlew", files[1])
-		require.Equal(t, "path/to/my", files[2])
-	}
-
-	t.Log(`Does not contains "test" basePath`)
-	{
-		fileList := []string{
-			"gradlew",
-			"path/to/my/gradlew",
-			"path/to/my/gradlew/file",
-			"path/to/my",
+		filter := func(pth string) (bool, error) {
+			return strings.Contains(pth, "vagrant"), nil
 		}
-
-		files := FilterFilesWithBasPaths(fileList, "test")
-		require.Equal(t, 0, len(files))
-	}
-
-	t.Log(`Empty fileList`)
-	{
-		files := FilterFilesWithBasPaths([]string{}, "gradlew")
-		require.Equal(t, 0, len(files))
-	}
-
-	t.Log(`Empty basePath`)
-	{
-		fileList := []string{
-			"gradlew",
-			"path/to/my/gradlew",
-			"path/to/my/gradlew/file",
-			"path/to/my/",
-		}
-
-		files := FilterFilesWithBasPaths(fileList, "")
-		require.Equal(t, 0, len(files))
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
 	}
 }
 
-func TestFilterFilesWithExtensions(t *testing.T) {
-	t.Log(`Contains ".xcodeproj" extension`)
+func TestBaseFilter(t *testing.T) {
+	t.Log("allow")
 	{
-		fileList := []string{
-			"project.xcodeproj",
-			"path/to/my/project.xcodeproj",
-			"path/to/my/project.xcworkspace",
-			"path/to/my",
+		paths := []string{
+			"path/to/my/gradlew",
+			"path/to/my/gradlew/file",
 		}
-
-		files := FilterFilesWithExtensions(fileList, ".xcodeproj")
-		require.Equal(t, 2, len(files))
-		require.Equal(t, "project.xcodeproj", files[0])
-		require.Equal(t, "path/to/my/project.xcodeproj", files[1])
+		filter := BaseFilter("gradlew", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"path/to/my/gradlew"}, filtered)
 	}
 
-	t.Log(`Contains ".xcodeproj" & ".xcworkspace" extension`)
+	t.Log("forbid")
 	{
-		fileList := []string{
-			"project.xcodeproj",
-			"path/to/my/project.xcodeproj",
-			"path/to/my/project.xcworkspace",
-			"path/to/my",
+		paths := []string{
+			"path/to/my/gradlew",
+			"path/to/my/gradlew/file",
 		}
-
-		files := FilterFilesWithExtensions(fileList, ".xcodeproj", ".xcworkspace")
-		require.Equal(t, 3, len(files))
-		require.Equal(t, "project.xcodeproj", files[0])
-		require.Equal(t, "path/to/my/project.xcodeproj", files[1])
-		require.Equal(t, "path/to/my/project.xcworkspace", files[2])
-	}
-
-	t.Log(`Missing "." in extension`)
-	{
-		fileList := []string{
-			"project.xcodeproj",
-			"path/to/my/project.xcodeproj",
-			"path/to/my/project.xcworkspace",
-			"path/to/my",
-		}
-
-		files := FilterFilesWithBasPaths(fileList, "xcodeproj")
-		require.Equal(t, 0, len(files))
-	}
-
-	t.Log(`Does not contains ".test" extension`)
-	{
-		fileList := []string{
-			"project.xcodeproj",
-			"path/to/my/project.xcodeproj",
-			"path/to/my/project.xcworkspace",
-			"path/to/my",
-		}
-
-		files := FilterFilesWithBasPaths(fileList, ".test")
-		require.Equal(t, 0, len(files))
-	}
-
-	t.Log(`Empty fileList`)
-	{
-		files := FilterFilesWithBasPaths([]string{}, ".test")
-		require.Equal(t, 0, len(files))
-	}
-
-	t.Log(`Empty extension`)
-	{
-		fileList := []string{
-			"project.xcodeproj",
-			"path/to/my/project.xcodeproj",
-			"path/to/my/project.xcworkspace",
-			"path/to/my",
-		}
-
-		files := FilterFilesWithBasPaths(fileList, "")
-		require.Equal(t, 0, len(files))
+		filter := BaseFilter("gradlew", false)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"path/to/my/gradlew/file"}, filtered)
 	}
 }
 
-func TestByComponents(t *testing.T) {
-	t.Log("Simple sort")
+func TestExtensionFilter(t *testing.T) {
+	t.Log("allow")
 	{
-		fileList := []string{
-			"path/to",
-			"path/to/my",
-			"path",
+		paths := []string{
+			"path/to/my/project.xcodeproj",
+			"path/to/my/project.xcworkspace",
 		}
-
-		fileList, err := SortPathsByComponents(fileList)
+		filter := ExtensionFilter(".xcodeproj", true)
+		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
-
-		require.Equal(t, []string{"path", "path/to", "path/to/my"}, fileList)
+		require.Equal(t, []string{"path/to/my/project.xcodeproj"}, filtered)
 	}
 
-	t.Log("Path with equal components length")
+	t.Log("forbid")
 	{
-		fileList := []string{
-			"path1",
-			"path/to",
-			"path/to/my",
-			"path",
+		paths := []string{
+			"path/to/my/project.xcodeproj",
+			"path/to/my/project.xcworkspace",
 		}
-
-		fileList, err := SortPathsByComponents(fileList)
+		filter := ExtensionFilter(".xcodeproj", false)
+		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
+		require.Equal(t, []string{"path/to/my/project.xcworkspace"}, filtered)
+	}
+}
 
-		require.Equal(t, 4, len(fileList))
-		require.Equal(t, "path/to/my", fileList[3])
-		require.Equal(t, "path/to", fileList[2])
+func TestRegexpFilter(t *testing.T) {
+	t.Log("allow")
+	{
+		paths := []string{
+			"path/to/my/project.xcodeproj",
+			"path/to/my/project.xcworkspace",
+		}
+		filter := RegexpFilter(".*.xcodeproj", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"path/to/my/project.xcodeproj"}, filtered)
 	}
 
-	t.Log("Epxand path test")
+	t.Log("forbid")
 	{
-		fileList := []string{
-			"path/to",
-			"./path",
+		paths := []string{
+			"path/to/my/project.xcodeproj",
+			"path/to/my/project.xcworkspace",
 		}
-
-		fileList, err := SortPathsByComponents(fileList)
+		filter := RegexpFilter(".*.xcodeproj", false)
+		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
+		require.Equal(t, []string{"path/to/my/project.xcworkspace"}, filtered)
+	}
+}
 
-		require.Equal(t, 2, len(fileList))
-		require.Equal(t, "./path", fileList[0])
-		require.Equal(t, "path/to", fileList[1])
+func TestComponentFilter(t *testing.T) {
+	t.Log("without any filter")
+	{
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
+		}
+		filter := ComponentFilter("bitrise", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
 	}
 
-	t.Log("Same components length, alpahabetic sort test")
+	t.Log("with filter")
 	{
-		fileList := []string{
-			"./c",
-			"./a",
-			"b",
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
 		}
-
-		fileList, err := SortPathsByComponents(fileList)
+		filter := ComponentFilter("bitrise", false)
+		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
+	}
+}
 
-		require.Equal(t, 3, len(fileList))
-		require.Equal(t, "./a", fileList[0])
-		require.Equal(t, "b", fileList[1])
-		require.Equal(t, "./c", fileList[2])
+func TestComponentWithExtensionFilter(t *testing.T) {
+	t.Log("without any filter")
+	{
+		paths := []string{
+			"/Users/bitrise.framework/test",
+			"/Users/vagrant/test",
+		}
+		filter := ComponentWithExtensionFilter("framework", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/bitrise.framework/test"}, filtered)
+	}
+
+	t.Log("with filter")
+	{
+		paths := []string{
+			"/Users/bitrise.framework/test",
+			"/Users/vagrant/test",
+		}
+		filter := ComponentWithExtensionFilter("framework", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
+	}
+}
+
+func TestIsDirectoryFilter(t *testing.T) {
+	tmpDir, err := pathutil.NormalizedOSTempDirPath("__bitrise-init__")
+	require.NoError(t, err)
+	defer require.NoError(t, os.RemoveAll(tmpDir))
+
+	tmpFile := filepath.Join(tmpDir, "file.txt")
+	require.NoError(t, fileutil.WriteStringToFile(tmpFile, ""))
+
+	t.Log("without any filter")
+	{
+		paths := []string{
+			tmpDir,
+			tmpFile,
+		}
+		filter := IsDirectoryFilter(true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{tmpDir}, filtered)
+	}
+
+	t.Log("with filter")
+	{
+		paths := []string{
+			tmpDir,
+			tmpFile,
+		}
+		filter := IsDirectoryFilter(false)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{tmpFile}, filtered)
+	}
+}
+
+func TestInDirectoryFilter(t *testing.T) {
+
+	t.Log("without any filter")
+	{
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
+		}
+		filter := InDirectoryFilter("bitrise", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
+	}
+
+	t.Log("with filter")
+	{
+		paths := []string{
+			"/Users/bitrise/test",
+			"/Users/vagrant/test",
+		}
+		filter := InDirectoryFilter("bitrise", true)
+		filtered, err := FilterPaths(paths, filter)
+		require.NoError(t, err)
+		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
 	}
 }

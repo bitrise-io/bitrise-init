@@ -116,23 +116,16 @@ func projectType(guids []string) string {
 }
 
 func filterSolutionFiles(fileList []string) ([]string, error) {
-	files := utility.FilterFilesWithExtensions(fileList, solutionExtension)
-
-	componentsProjectExp := regexp.MustCompile(`.*Components/.+.sln`)
-
-	relevantFiles := []string{}
-	for _, file := range files {
-		isComponentsSolution := false
-		if componentsProjectExp.FindString(file) != "" {
-			isComponentsSolution = true
-		}
-
-		if !isComponentsSolution {
-			relevantFiles = append(relevantFiles, file)
-		}
+	allowSolutionExtensionFilter := utility.ExtensionFilter(solutionExtension, true)
+	forbidComponentsSolutionFilter := utility.RegexpFilter(`.*Components/.+.sln`, false)
+	files, err := utility.FilterPaths(fileList,
+		allowSolutionExtensionFilter,
+		forbidComponentsSolutionFilter)
+	if err != nil {
+		return []string{}, err
 	}
 
-	return utility.SortPathsByComponents(relevantFiles)
+	return files, nil
 }
 
 func getSolutionConfigs(solutionFile string) (map[string][]string, error) {
@@ -306,7 +299,7 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.FileList(searchDir)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -322,7 +315,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	scanner.SolutionFiles = solutionFiles
 
-	log.Printft("%d solution file(s) detected", len(solutionFiles))
+	log.Printft("%d solution files detected", len(solutionFiles))
 	for _, file := range solutionFiles {
 		log.Printft("- %s", file)
 	}
@@ -393,9 +386,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		if len(configs) > 0 {
-			log.Printft("%d configuration(s) found", len(configs))
+			log.Printft("%d configurations found", len(configs))
 			for config, platforms := range configs {
-				log.Printft("- %s with platform(s): %v", config, platforms)
+				log.Printft("- %s with platforms: %v", config, platforms)
 			}
 
 			validSolutionMap[solutionFile] = configs

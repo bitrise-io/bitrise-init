@@ -37,7 +37,7 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		}
 		defer func() {
 			if err := os.Chdir(currentDir); err != nil {
-				log.Warnf("Failed to change dir, to (%s), error: %s", searchDir, err)
+				log.Warnft("Failed to change dir, to (%s), error: %s", searchDir, err)
 			}
 		}()
 	}
@@ -57,21 +57,21 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		detectorName := detector.Name()
 		log.Infoft("Scanner: %s", colorstring.Blue(detectorName))
 
-		log.Infoft("+------------------------------------------------------------------------------+")
-		log.Infoft("|                                                                              |")
+		log.Printft("+------------------------------------------------------------------------------+")
+		log.Printft("|                                                                              |")
 
 		detectorWarnings := []string{}
 		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
-			log.Errorf("Scanner failed, error: %s", err)
+			log.Errorft("Scanner failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())
 			projectTypeWarningMap[detectorName] = detectorWarnings
 			detected = false
 		}
 
 		if !detected {
-			log.Infoft("|                                                                              |")
-			log.Infoft("+------------------------------------------------------------------------------+")
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
 			fmt.Println()
 			continue
 		}
@@ -80,9 +80,13 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		detectorWarnings = append(detectorWarnings, projectWarnings...)
 
 		if err != nil {
-			log.Errorf("Analyzer failed, error: %s", err)
+			log.Errorft("Analyzer failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())
 			projectTypeWarningMap[detectorName] = detectorWarnings
+
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
+			fmt.Println()
 			continue
 		}
 
@@ -97,8 +101,8 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 
 		projectTypeConfigMap[detectorName] = configs
 
-		log.Infoft("|                                                                              |")
-		log.Infoft("+------------------------------------------------------------------------------+")
+		log.Printft("|                                                                              |")
+		log.Printft("+------------------------------------------------------------------------------+")
 		fmt.Println()
 	}
 	// ---
