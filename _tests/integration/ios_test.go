@@ -295,7 +295,7 @@ warnings:
   ios:
   - "No shared schemes found for project: BitriseXcode7Sample.xcodeproj.\n\tAutomatically
     generated schemes for this project.\n\tThese schemes may differ from the ones
-    in your project.\n\tMake sure to <a href=\"https://developer.apple.com/library/ios/recipes/xcode_help-scheme_editor/Articles/SchemeManage.html\">share
+    in your project.\n\tMake sure to <a href=\"http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found\">share
     your schemes</a> for the expected behaviour."
 `, models.FormatVersion,
 	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.RecreateUserSchemesVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
