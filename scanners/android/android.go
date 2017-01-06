@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -95,6 +96,7 @@ func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
 		sortableFiles = append(sortableFiles, sortable)
 	}
 
+	sort.Sort(utility.BySortablePathComponents(sortableFiles))
 	mindDepth := len(sortableFiles[0].Components)
 
 	rootGradleFiles := []string{}

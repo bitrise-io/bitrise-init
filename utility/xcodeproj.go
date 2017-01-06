@@ -129,6 +129,19 @@ func RemoveProjectFromList(projectPth string, projects []xcodeproj.ProjectModel)
 	return newProjects
 }
 
+// ReplaceWorkspaceInList ...
+func ReplaceWorkspaceInList(workspaces []xcodeproj.WorkspaceModel, workspace xcodeproj.WorkspaceModel) []xcodeproj.WorkspaceModel {
+	updatedWorkspaces := []xcodeproj.WorkspaceModel{}
+	for _, w := range workspaces {
+		if w.Pth == workspace.Pth {
+			updatedWorkspaces = append(updatedWorkspaces, workspace)
+		} else {
+			updatedWorkspaces = append(updatedWorkspaces, w)
+		}
+	}
+	return updatedWorkspaces
+}
+
 // CreateStandaloneProjectsAndWorkspaces ...
 func CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string) ([]xcodeproj.ProjectModel, []xcodeproj.WorkspaceModel, error) {
 	workspaces := []xcodeproj.WorkspaceModel{}

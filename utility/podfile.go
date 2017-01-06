@@ -8,6 +8,7 @@ import (
 
 	"encoding/json"
 
+	"github.com/bitrise-io/depman/pathutil"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-tools/go-xcode/xcodeproj"
 )
@@ -54,18 +55,25 @@ end
 		return map[string]string{}, err
 	}
 
-	fmt.Printf("%v\n", out)
-
 	if out == "" {
 		return map[string]string{}, nil
 	}
 
-	var targetDefinitionProjectMap map[string]string
-	if err := json.Unmarshal([]byte(out), &targetDefinitionProjectMap); err != nil {
+	type targetDefinitionOutputModel struct {
+		Data  map[string]string
+		Error string
+	}
+
+	var targetDefinitionOutput targetDefinitionOutputModel
+	if err := json.Unmarshal([]byte(out), &targetDefinitionOutput); err != nil {
 		return map[string]string{}, err
 	}
 
-	return targetDefinitionProjectMap, nil
+	if targetDefinitionOutput.Error != "" {
+		return map[string]string{}, errors.New(targetDefinitionOutput.Error)
+	}
+
+	return targetDefinitionOutput.Data, nil
 }
 
 func getUserDefinedProjectRelavtivePath(podfilePth string) (string, error) {
@@ -85,25 +93,51 @@ func getUserDefinedProjectRelavtivePath(podfilePth string) (string, error) {
 func getUserDefinedWorkspaceRelativePath(podfilePth string) (string, error) {
 	getWorkspacePathGemfileContent := `source 'https://rubygems.org'
 gem 'cocoapods-core'
+gem 'json'
 `
 
 	// returns WORKSPACE_NAME.xcworkspace if user defined a workspace name
 	// returns empty struct {}, if no user defined workspace name exists in Podfile
 	getWorkspacePathRubyScriptContent := `require 'cocoapods-core'
-podfile_path = ENV['PODFILE_PATH']
-podfile = Pod::Podfile.from_file(podfile_path)
-puts podfile.workspace_path
+require 'json'
+
+begin
+	podfile_path = ENV['PODFILE_PATH']
+	podfile = Pod::Podfile.from_file(podfile_path)
+	pth = podfile.workspace_path
+	puts "#{{ :data => pth }.to_json}"
+rescue => e
+	puts "#{{ :error => e.to_s }.to_json}"
+end
 `
 
 	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", podfilePth)}
 	podfileDir := filepath.Dir(podfilePth)
 
-	workspaceBase, err := runRubyScriptForOutput(getWorkspacePathRubyScriptContent, getWorkspacePathGemfileContent, podfileDir, envs)
+	out, err := runRubyScriptForOutput(getWorkspacePathRubyScriptContent, getWorkspacePathGemfileContent, podfileDir, envs)
 	if err != nil {
 		return "", err
 	}
 
-	return workspaceBase, nil
+	if out == "" {
+		return "", nil
+	}
+
+	type workspacePathOutputModel struct {
+		Data  string
+		Error string
+	}
+
+	var workspacePathOutput workspacePathOutputModel
+	if err := json.Unmarshal([]byte(out), &workspacePathOutput); err != nil {
+		return "", err
+	}
+
+	if workspacePathOutput.Error != "" {
+		return "", errors.New(workspacePathOutput.Error)
+	}
+
+	return workspacePathOutput.Data, nil
 }
 
 // GetWorkspaceProjectMap ...
@@ -151,6 +185,12 @@ func GetWorkspaceProjectMap(podfilePth string, projects []string) (map[string]st
 	}
 	projectPth := filepath.Join(podfileDir, projectRelPth)
 
+	if exist, err := pathutil.IsPathExists(projectPth); err != nil {
+		return map[string]string{}, err
+	} else if !exist {
+		return map[string]string{}, fmt.Errorf("project not found at: %s", projectPth)
+	}
+
 	workspaceRelPth, err := getUserDefinedWorkspaceRelativePath(podfilePth)
 	if err != nil {
 		return map[string]string{}, err
@@ -170,8 +210,8 @@ func GetWorkspaceProjectMap(podfilePth string, projects []string) (map[string]st
 // MergePodWorkspaceProjectMap ...
 // Previously we separated standalone projects and workspaces.
 // But pod workspace-project map may define workspace which is not in the repository, but will be created by `pod install`.
-// This case the related project should be found in the standalone projects list.
-// We will create this workspace model, add the related project and remove this project from standlone projects.
+// Related project should be found in the standalone projects list.
+// We will create this workspace model, join the related project and remove this project from standlone projects.
 // If workspace is in the repository, both workspace and project should be find in the input lists.
 func MergePodWorkspaceProjectMap(podWorkspaceProjectMap map[string]string, standaloneProjects []xcodeproj.ProjectModel, workspaces []xcodeproj.WorkspaceModel) ([]xcodeproj.ProjectModel, []xcodeproj.WorkspaceModel, error) {
 	mergedStandaloneProjects := []xcodeproj.ProjectModel{}
@@ -181,26 +221,32 @@ func MergePodWorkspaceProjectMap(podWorkspaceProjectMap map[string]string, stand
 		podWorkspace, found := FindWorkspaceInList(podWorkspaceFile, workspaces)
 		if found {
 			// Workspace found, this means workspace is in the repository.
-			// This case the project is already attached to the workspace.
 			podWorkspace.IsPodWorkspace = true
 
+			// This case the project is already attached to the workspace.
 			_, found := FindProjectInList(podProjectFile, podWorkspace.Projects)
 			if !found {
 				return []xcodeproj.ProjectModel{}, []xcodeproj.WorkspaceModel{}, fmt.Errorf("pod workspace (%s) found, but assigned project (%s) project not", podWorkspaceFile, podProjectFile)
 			}
 
+			// And the project is not standalone.
+			_, found = FindProjectInList(podProjectFile, standaloneProjects)
+			if found {
+				return []xcodeproj.ProjectModel{}, []xcodeproj.WorkspaceModel{}, fmt.Errorf("pod workspace (%s) found, but assigned project (%s) marked as standalone", podWorkspaceFile, podProjectFile)
+			}
+
 			mergedStandaloneProjects = standaloneProjects
-			mergedWorkspaces = workspaces
+			mergedWorkspaces = ReplaceWorkspaceInList(workspaces, podWorkspace)
 		} else {
 			// Workspace not found, this means workspace is not in the repository,
 			// but it will created by `pod install`.
-			// This case the pod project was marked previously as standalone project.
 			podWorkspace = xcodeproj.WorkspaceModel{
 				Pth:            podWorkspaceFile,
 				Name:           strings.TrimSuffix(filepath.Base(podWorkspaceFile), filepath.Ext(podWorkspaceFile)),
 				IsPodWorkspace: true,
 			}
 
+			// This case the pod project was marked previously as standalone project.
 			podProject, found := FindProjectInList(podProjectFile, standaloneProjects)
 			if !found {
 				return []xcodeproj.ProjectModel{}, []xcodeproj.WorkspaceModel{}, fmt.Errorf("pod workspace (%s) will be generated by (%s) project, but it does not found", podWorkspaceFile, podProjectFile)

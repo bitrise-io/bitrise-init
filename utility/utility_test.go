@@ -63,7 +63,7 @@ func TestFilterPaths(t *testing.T) {
 		}
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
-		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
+		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
 	}
 }
 
@@ -146,7 +146,7 @@ func TestRegexpFilter(t *testing.T) {
 }
 
 func TestComponentFilter(t *testing.T) {
-	t.Log("without any filter")
+	t.Log("allow")
 	{
 		paths := []string{
 			"/Users/bitrise/test",
@@ -158,7 +158,7 @@ func TestComponentFilter(t *testing.T) {
 		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
 	}
 
-	t.Log("with filter")
+	t.Log("forbid")
 	{
 		paths := []string{
 			"/Users/bitrise/test",
@@ -172,25 +172,25 @@ func TestComponentFilter(t *testing.T) {
 }
 
 func TestComponentWithExtensionFilter(t *testing.T) {
-	t.Log("without any filter")
+	t.Log("allow")
 	{
 		paths := []string{
 			"/Users/bitrise.framework/test",
 			"/Users/vagrant/test",
 		}
-		filter := ComponentWithExtensionFilter("framework", true)
+		filter := ComponentWithExtensionFilter(".framework", true)
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
 		require.Equal(t, []string{"/Users/bitrise.framework/test"}, filtered)
 	}
 
-	t.Log("with filter")
+	t.Log("forbid")
 	{
 		paths := []string{
 			"/Users/bitrise.framework/test",
 			"/Users/vagrant/test",
 		}
-		filter := ComponentWithExtensionFilter("framework", true)
+		filter := ComponentWithExtensionFilter(".framework", false)
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
 		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
@@ -200,12 +200,14 @@ func TestComponentWithExtensionFilter(t *testing.T) {
 func TestIsDirectoryFilter(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__bitrise-init__")
 	require.NoError(t, err)
-	defer require.NoError(t, os.RemoveAll(tmpDir))
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	tmpFile := filepath.Join(tmpDir, "file.txt")
 	require.NoError(t, fileutil.WriteStringToFile(tmpFile, ""))
 
-	t.Log("without any filter")
+	t.Log("allow")
 	{
 		paths := []string{
 			tmpDir,
@@ -217,7 +219,7 @@ func TestIsDirectoryFilter(t *testing.T) {
 		require.Equal(t, []string{tmpDir}, filtered)
 	}
 
-	t.Log("with filter")
+	t.Log("forbid")
 	{
 		paths := []string{
 			tmpDir,
@@ -231,26 +233,25 @@ func TestIsDirectoryFilter(t *testing.T) {
 }
 
 func TestInDirectoryFilter(t *testing.T) {
-
-	t.Log("without any filter")
+	t.Log("allow")
 	{
 		paths := []string{
 			"/Users/bitrise/test",
 			"/Users/vagrant/test",
 		}
-		filter := InDirectoryFilter("bitrise", true)
+		filter := InDirectoryFilter("/Users/bitrise", true)
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
 		require.Equal(t, []string{"/Users/bitrise/test"}, filtered)
 	}
 
-	t.Log("with filter")
+	t.Log("forbid")
 	{
 		paths := []string{
 			"/Users/bitrise/test",
 			"/Users/vagrant/test",
 		}
-		filter := InDirectoryFilter("bitrise", true)
+		filter := InDirectoryFilter("/Users/bitrise", false)
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
 		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)

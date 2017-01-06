@@ -49,7 +49,7 @@ func filterFastfiles(fileList []string) ([]string, error) {
 		return []string{}, err
 	}
 
-	return fastfiles, nil
+	return utility.SortPathsByComponents(fastfiles)
 }
 
 func inspectFastfileContent(content string) ([]string, error) {

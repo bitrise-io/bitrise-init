@@ -13,13 +13,10 @@ gem 'json'
 
 	rubyScriptContent := `require 'json'
 
-hash = {
-    'test_key': 'test_value'
-}
-puts hash.to_json
+puts "#{{ :test_key => 'test_value' }.to_json}"
 `
 
-	expectedOut := ""
+	expectedOut := "{\"test_key\":\"test_value\"}"
 	actualOut, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, "", []string{})
 	require.NoError(t, err)
 	require.Equal(t, expectedOut, actualOut)

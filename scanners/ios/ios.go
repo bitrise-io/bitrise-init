@@ -346,43 +346,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		projectPathOption.ValueMap[workspace.Pth] = schemeOption
-
-		// Add Workspace's Project options
-		for _, project := range workspace.Projects {
-			schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
-
-			if len(project.SharedSchemes) == 0 {
-				for _, target := range project.Targets {
-					configDescriptor := ConfigDescriptor{
-						HasPodfile:           false,
-						HasTest:              target.HasXCTest,
-						MissingSharedSchemes: true,
-					}
-					configDescriptors = append(configDescriptors, configDescriptor)
-
-					configOption := models.NewEmptyOptionModel()
-					configOption.Config = configDescriptor.String()
-
-					schemeOption.ValueMap[target.Name] = configOption
-				}
-			} else {
-				for _, scheme := range project.SharedSchemes {
-					configDescriptor := ConfigDescriptor{
-						HasPodfile:           false,
-						HasTest:              scheme.HasXCTest,
-						MissingSharedSchemes: false,
-					}
-					configDescriptors = append(configDescriptors, configDescriptor)
-
-					configOption := models.NewEmptyOptionModel()
-					configOption.Config = configDescriptor.String()
-
-					schemeOption.ValueMap[scheme.Name] = configOption
-				}
-			}
-
-			projectPathOption.ValueMap[project.Pth] = schemeOption
-		}
 	}
 	// -----
 

@@ -16,12 +16,18 @@ func TestNewSortablePath(t *testing.T) {
 		require.NoError(t, err)
 
 		expectedComponents := strings.Split(expectedAbsPth, string(os.PathSeparator))
+		fixedExpectedComponents := []string{}
+		for _, c := range expectedComponents {
+			if c != "" {
+				fixedExpectedComponents = append(fixedExpectedComponents, c)
+			}
+		}
 
 		sortable, err := NewSortablePath("test")
 		require.NoError(t, err)
 		require.Equal(t, "test", sortable.Pth)
 		require.Equal(t, expectedAbsPth, sortable.AbsPth)
-		require.Equal(t, expectedComponents, sortable.Components)
+		require.Equal(t, fixedExpectedComponents, sortable.Components)
 	}
 
 	t.Log("rel path")
@@ -30,22 +36,28 @@ func TestNewSortablePath(t *testing.T) {
 		require.NoError(t, err)
 
 		expectedComponents := strings.Split(expectedAbsPth, string(os.PathSeparator))
+		fixedExpectedComponents := []string{}
+		for _, c := range expectedComponents {
+			if c != "" {
+				fixedExpectedComponents = append(fixedExpectedComponents, c)
+			}
+		}
 
 		sortable, err := NewSortablePath("./test")
 		require.NoError(t, err)
 		require.Equal(t, "./test", sortable.Pth)
 		require.Equal(t, expectedAbsPth, sortable.AbsPth)
-		require.Equal(t, expectedComponents, sortable.Components)
+		require.Equal(t, fixedExpectedComponents, sortable.Components)
 	}
 
 	t.Log("abs path")
 	{
-		expectedAbsPth := "Users/bitrise/test"
-		expectedComponents := strings.Split(expectedAbsPth, string(os.PathSeparator))
+		expectedAbsPth := "/Users/bitrise/test"
+		expectedComponents := []string{"Users", "bitrise", "test"}
 
-		sortable, err := NewSortablePath("Users/bitrise/test")
+		sortable, err := NewSortablePath("/Users/bitrise/test")
 		require.NoError(t, err)
-		require.Equal(t, "Users/bitrise/test", sortable.Pth)
+		require.Equal(t, "/Users/bitrise/test", sortable.Pth)
 		require.Equal(t, expectedAbsPth, sortable.AbsPth)
 		require.Equal(t, expectedComponents, sortable.Components)
 	}

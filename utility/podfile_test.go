@@ -9,6 +9,7 @@ import (
 
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-tools/go-xcode/xcodeproj"
 	"github.com/stretchr/testify/require"
 )
 
@@ -71,14 +72,14 @@ func TestGetTargetDefinitionProjectMap(t *testing.T) {
 		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
-xcodeproj 'MyXcodeProject'
+project 'MyXcodeProject'
 pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 
 		expectedTargetDefinition := map[string]string{
-			"Pods": "MyXcodeProject",
+			"Pods": "MyXcodeProject.xcodeproj",
 		}
 		actualTargetDefinition, err := getTargetDefinitionProjectMap(podfilePth)
 		require.NoError(t, err)
@@ -88,6 +89,7 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("xcodeproj NOT defined")
 	{
 		tmpDir = filepath.Join(tmpDir, "xcodeproj_not_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
@@ -112,15 +114,16 @@ func TestGetUserDefinedProjectRelavtivePath(t *testing.T) {
 	t.Log("xcodeproj defined")
 	{
 		tmpDir = filepath.Join(tmpDir, "xcodeproj_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
-xcodeproj 'MyXcodeProject'
+project 'MyXcodeProject'
 pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 
-		expectedProject := "MyXcodeProject"
+		expectedProject := "MyXcodeProject.xcodeproj"
 		actualProject, err := getUserDefinedProjectRelavtivePath(podfilePth)
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
@@ -129,6 +132,7 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("xcodeproj NOT defined")
 	{
 		tmpDir = filepath.Join(tmpDir, "xcodeproj_not_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
@@ -153,6 +157,7 @@ func TestGetUserDefinedWorkspaceRelativePath(t *testing.T) {
 	t.Log("workspace defined")
 	{
 		tmpDir = filepath.Join(tmpDir, "workspace_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
 workspace 'MyWorkspace'
@@ -170,6 +175,7 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("workspace NOT defined")
 	{
 		tmpDir = filepath.Join(tmpDir, "workspace_not_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
@@ -194,7 +200,7 @@ func TestGetWorkspaceProjectMap(t *testing.T) {
 	t.Log("0 project in Podfile's dir")
 	{
 		tmpDir = filepath.Join(tmpDir, "no_project")
-		require.NoError(t, err)
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
@@ -212,6 +218,8 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("1 project in Podfile's dir")
 	{
 		tmpDir = filepath.Join(tmpDir, "one_project")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
 `
@@ -243,6 +251,8 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("Multiple project in Podfile's dir")
 	{
 		tmpDir = filepath.Join(tmpDir, "multiple_project")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
 pod 'Alamofire', '~> 3.4'
 `
@@ -267,10 +277,10 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("0 project in Podfile's dir + project defined in Podfile")
 	{
 		tmpDir = filepath.Join(tmpDir, "no_project_project_defined")
-		require.NoError(t, err)
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
 
 		podfile := `platform :ios, '9.0'
-xcodeproj 'MyXcodeProject'
+project 'MyXcodeProject'
 pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
@@ -286,8 +296,10 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("1 project in Podfile's dir + project defined in Podfile")
 	{
 		tmpDir = filepath.Join(tmpDir, "one_project_project_defined")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
-xcodeproj 'project'
+project 'project'
 pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
@@ -318,8 +330,10 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("Multiple project in Podfile's dir + project defined in Podfile")
 	{
 		tmpDir = filepath.Join(tmpDir, "multiple_project")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
-xcodeproj 'project1'
+project 'project1'
 pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
@@ -354,6 +368,8 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("1 project in Podfile's dir + workspace defined in Podfile")
 	{
 		tmpDir = filepath.Join(tmpDir, "one_project")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
 workspace 'MyWorkspace'
 pod 'Alamofire', '~> 3.4'
@@ -386,8 +402,10 @@ pod 'Alamofire', '~> 3.4'
 	t.Log("Multiple project in Podfile's dir + workspace defined in Podfile")
 	{
 		tmpDir = filepath.Join(tmpDir, "multiple_project")
+		require.NoError(t, os.MkdirAll(tmpDir, 0777))
+
 		podfile := `platform :ios, '9.0'
-xcodeproj 'project1'
+project 'project1'
 workspace 'MyWorkspace'
 pod 'Alamofire', '~> 3.4'
 `
@@ -418,5 +436,141 @@ pod 'Alamofire', '~> 3.4'
 		}
 
 		require.NoError(t, os.RemoveAll(tmpDir))
+	}
+}
+
+func TestMergePodWorkspaceProjectMap(t *testing.T) {
+	t.Log("workspace is in the repository")
+	{
+		podWorkspaceMap := map[string]string{
+			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
+		}
+
+		standaloneProjects := []xcodeproj.ProjectModel{}
+		expectedStandaloneProjects := []xcodeproj.ProjectModel{}
+
+		workspaces := []xcodeproj.WorkspaceModel{
+			xcodeproj.WorkspaceModel{
+				Pth:  "MyWorkspace.xcworkspace",
+				Name: "MyWorkspace",
+				Projects: []xcodeproj.ProjectModel{
+					xcodeproj.ProjectModel{
+						Pth: "MyXcodeProject.xcodeproj",
+					},
+				},
+			},
+		}
+		expectedWorkspaces := []xcodeproj.WorkspaceModel{
+			xcodeproj.WorkspaceModel{
+				Pth:  "MyWorkspace.xcworkspace",
+				Name: "MyWorkspace",
+				Projects: []xcodeproj.ProjectModel{
+					xcodeproj.ProjectModel{
+						Pth: "MyXcodeProject.xcodeproj",
+					},
+				},
+				IsPodWorkspace: true,
+			},
+		}
+
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		require.NoError(t, err)
+		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
+		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
+	}
+
+	t.Log("workspace is in the repository, but project not attached - ERROR")
+	{
+		podWorkspaceMap := map[string]string{
+			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
+		}
+
+		standaloneProjects := []xcodeproj.ProjectModel{}
+
+		workspaces := []xcodeproj.WorkspaceModel{
+			xcodeproj.WorkspaceModel{
+				Pth:  "MyWorkspace.xcworkspace",
+				Name: "MyWorkspace",
+			},
+		}
+
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		require.Error(t, err)
+		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
+		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
+	}
+
+	t.Log("workspace is in the repository, but project is marged as standalon - ERROR")
+	{
+		podWorkspaceMap := map[string]string{
+			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
+		}
+
+		standaloneProjects := []xcodeproj.ProjectModel{
+			xcodeproj.ProjectModel{
+				Pth: "MyXcodeProject.xcodeproj",
+			},
+		}
+
+		workspaces := []xcodeproj.WorkspaceModel{
+			xcodeproj.WorkspaceModel{
+				Pth:  "MyWorkspace.xcworkspace",
+				Name: "MyWorkspace",
+			},
+		}
+
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		require.Error(t, err)
+		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
+		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
+	}
+
+	t.Log("workspace is gitignored")
+	{
+		podWorkspaceMap := map[string]string{
+			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
+		}
+
+		standaloneProjects := []xcodeproj.ProjectModel{
+			xcodeproj.ProjectModel{
+				Pth: "MyXcodeProject.xcodeproj",
+			},
+		}
+		expectedStandaloneProjects := []xcodeproj.ProjectModel{}
+
+		workspaces := []xcodeproj.WorkspaceModel{}
+		expectedWorkspaces := []xcodeproj.WorkspaceModel{
+			xcodeproj.WorkspaceModel{
+				Pth:  "MyWorkspace.xcworkspace",
+				Name: "MyWorkspace",
+				Projects: []xcodeproj.ProjectModel{
+					xcodeproj.ProjectModel{
+						Pth: "MyXcodeProject.xcodeproj",
+					},
+				},
+				IsPodWorkspace: true,
+			},
+		}
+
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		require.NoError(t, err)
+		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
+		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
+	}
+
+	t.Log("workspace is gitignored, but standalon project missing - ERROR")
+	{
+		podWorkspaceMap := map[string]string{
+			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
+		}
+
+		standaloneProjects := []xcodeproj.ProjectModel{}
+
+		workspaces := []xcodeproj.WorkspaceModel{}
+
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		require.Error(t, err)
+		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
+		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
 	}
 }
