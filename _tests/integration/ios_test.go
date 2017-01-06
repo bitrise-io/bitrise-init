@@ -180,15 +180,15 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
     value_map:
-      iOSMinimalCocoaPodsSample.xcodeproj:
+      iOSMinimalCocoaPodsSample.xcworkspace:
         title: Scheme name
         env_key: BITRISE_SCHEME
         value_map:
           iOSMinimalCocoaPodsSample:
-            config: ios-test-config
+            config: ios-pod-test-config
 configs:
   ios:
-    ios-test-config: |
+    ios-pod-test-config: |
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
@@ -205,6 +205,7 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
+          - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -222,6 +223,7 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
+          - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -230,8 +232,8 @@ configs:
 warnings:
   ios: []
 `, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.CocoapodsInstallVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.CocoapodsInstallVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)
 
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
   ios:
