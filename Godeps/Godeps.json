@@ -17,6 +17,10 @@
 			"Rev": "72de0cd30afcacecdeea5cdc89a8c6b1ecfca35e"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/depman/pathutil",
+			"Rev": "4c59bc31f02a2ae78ce5d8d96a006289cd3e6beb"
+		},
+		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
 			"Comment": "1.1.2-5-g0507a11",
 			"Rev": "0507a1109a151ca1b82afe2d1a6109522ddd8298"
