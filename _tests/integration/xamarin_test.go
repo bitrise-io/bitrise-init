@@ -74,6 +74,19 @@ func TestXamarin(t *testing.T) {
 	}
 }
 
+var xamarinSampleAppVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XamarinUserManagementVersion,
+	steps.NugetRestoreVersion,
+	steps.XamarinComponentsRestoreVersion,
+	steps.XamarinArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
 var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
@@ -134,8 +147,19 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinComponentsRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
+`, xamarinSampleAppVersions...)
+
+var sampleAppsXamarinIosVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XamarinUserManagementVersion,
+	steps.NugetRestoreVersion,
+	steps.XamarinArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
@@ -196,8 +220,19 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
+`, sampleAppsXamarinIosVersions...)
+
+var sampleAppsXamarinAndroidVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XamarinUserManagementVersion,
+	steps.NugetRestoreVersion,
+	steps.XamarinArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
@@ -250,5 +285,4 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
+`, sampleAppsXamarinAndroidVersions...)

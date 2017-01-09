@@ -515,7 +515,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	// XcodeTestMac
-	deploySteps = append(deploySteps, steps.XcodeTestStepListItem([]envmanModels.EnvironmentItemModel{
+	deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}))
