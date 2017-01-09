@@ -57,6 +57,16 @@ func TestAndroid(t *testing.T) {
 	}
 }
 
+var sampleAppsAndroid22Versions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.GradleRunnerVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: Path to the gradle file to use
@@ -122,8 +132,17 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.ScriptVersion, steps.GradleRunnerVersion, steps.DeployToBitriseIoVersion)
+`, sampleAppsAndroid22Versions...)
+
+var androidNonExecutableGradlewVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.GradleRunnerVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
@@ -190,5 +209,4 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.ScriptVersion, steps.GradleRunnerVersion, steps.DeployToBitriseIoVersion)
+`, androidNonExecutableGradlewVersions...)

@@ -75,6 +75,26 @@ func TestIOS(t *testing.T) {
 	}
 }
 
+var iosNoSharedSchemesVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.RecreateUserSchemesVersion,
+	steps.XcodeTestVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.RecreateUserSchemesVersion,
+	steps.XcodeTestVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
@@ -139,9 +159,27 @@ warnings:
     No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
     Automatically generated schemes may differ from the ones in your project.
     Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.RecreateUserSchemesVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.RecreateUserSchemesVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)
+`, iosNoSharedSchemesVersions...)
+
+var iosCocoapodsAtRootVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.CocoapodsInstallVersion,
+	steps.XcodeTestVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.CocoapodsInstallVersion,
+	steps.XcodeTestVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
   ios:
@@ -199,9 +237,39 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.CocoapodsInstallVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.CocoapodsInstallVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)
+`, iosCocoapodsAtRootVersions...)
+
+var sampleAppsIosWatchkitVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.DeployToBitriseIoVersion,
+
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeTestVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeTestVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
   ios:
@@ -296,9 +364,4 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
-`, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.DeployToBitriseIoVersion,
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.XcodeArchiveVersion, steps.DeployToBitriseIoVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XcodeTestVersion, steps.DeployToBitriseIoVersion)
+`, sampleAppsIosWatchkitVersions...)
