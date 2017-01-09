@@ -20,9 +20,9 @@ import (
 func TestManualConfig(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("manual-config")
 	{
@@ -50,12 +50,6 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
-
-	// custom
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
 
 	// fastlane
 	models.FormatVersion,
@@ -107,6 +101,12 @@ var customConfigVersions = []interface{}{
 	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestMacVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// other
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
 
 	// xamarin
 	models.FormatVersion,
@@ -216,23 +216,6 @@ configs:
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
-  custom:
-    custom-config: |
-      format_version: %s
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
-      workflows:
-        primary:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
   fastlane:
     default-fastlane-config: |
       format_version: %s
@@ -356,6 +339,23 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - deploy-to-bitrise-io@%s: {}
+  other:
+    other-config: |
+      format_version: %s
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
   xamarin:
     default-xamarin-config: |
       format_version: %s
