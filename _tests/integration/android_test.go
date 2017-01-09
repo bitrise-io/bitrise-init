@@ -57,7 +57,7 @@ func TestAndroid(t *testing.T) {
 	}
 }
 
-var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
+var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: Path to the gradle file to use
     env_key: GRADLE_BUILD_FILE_PATH
@@ -125,7 +125,7 @@ warnings:
 `, models.FormatVersion,
 	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.ScriptVersion, steps.GradleRunnerVersion, steps.DeployToBitriseIoVersion)
 
-var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
+var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
     title: Path to the gradle file to use
     env_key: GRADLE_BUILD_FILE_PATH

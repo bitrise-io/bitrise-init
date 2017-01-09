@@ -74,12 +74,12 @@ func TestXamarin(t *testing.T) {
 	}
 }
 
-var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
+var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
     value_map:
-      CreditCardValidator.Droid.sln:
+      XamarinSampleApp.sln:
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
         value_map:
@@ -88,16 +88,24 @@ var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
             env_key: BITRISE_XAMARIN_PLATFORM
             value_map:
               Any CPU:
-                config: xamarin-nuget-config
+                config: xamarin-nuget-components-config
+              iPhone:
+                config: xamarin-nuget-components-config
+              iPhoneSimulator:
+                config: xamarin-nuget-components-config
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
             value_map:
               Any CPU:
-                config: xamarin-nuget-config
+                config: xamarin-nuget-components-config
+              iPhone:
+                config: xamarin-nuget-components-config
+              iPhoneSimulator:
+                config: xamarin-nuget-components-config
 configs:
   xamarin:
-    xamarin-nuget-config: |
+    xamarin-nuget-components-config: |
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
@@ -117,6 +125,7 @@ configs:
           - xamarin-user-management@%s:
               run_if: .IsCI
           - nuget-restore@%s: {}
+          - xamarin-components-restore@%s: {}
           - xamarin-archive@%s:
               inputs:
               - xamarin_solution: $BITRISE_PROJECT_PATH
@@ -126,7 +135,7 @@ configs:
 warnings:
   xamarin: []
 `, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinComponentsRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
 
 var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
@@ -190,12 +199,12 @@ warnings:
 `, models.FormatVersion,
 	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
 
-var xamarinSampleAppResultYML = fmt.Sprintf(`options:
+var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
     value_map:
-      XamarinSampleApp.sln:
+      CreditCardValidator.Droid.sln:
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
         value_map:
@@ -204,24 +213,16 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
             env_key: BITRISE_XAMARIN_PLATFORM
             value_map:
               Any CPU:
-                config: xamarin-nuget-components-config
-              iPhone:
-                config: xamarin-nuget-components-config
-              iPhoneSimulator:
-                config: xamarin-nuget-components-config
+                config: xamarin-nuget-config
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
             value_map:
               Any CPU:
-                config: xamarin-nuget-components-config
-              iPhone:
-                config: xamarin-nuget-components-config
-              iPhoneSimulator:
-                config: xamarin-nuget-components-config
+                config: xamarin-nuget-config
 configs:
   xamarin:
-    xamarin-nuget-components-config: |
+    xamarin-nuget-config: |
       format_version: %s
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       trigger_map:
@@ -241,7 +242,6 @@ configs:
           - xamarin-user-management@%s:
               run_if: .IsCI
           - nuget-restore@%s: {}
-          - xamarin-components-restore@%s: {}
           - xamarin-archive@%s:
               inputs:
               - xamarin_solution: $BITRISE_PROJECT_PATH
@@ -251,4 +251,4 @@ configs:
 warnings:
   xamarin: []
 `, models.FormatVersion,
-	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinComponentsRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)
+	steps.ActivateSSHKeyVersion, steps.GitCloneVersion, steps.ScriptVersion, steps.CertificateAndProfileInstallerVersion, steps.XamarinUserManagementVersion, steps.NugetRestoreVersion, steps.XamarinArchiveVersion, steps.DeployToBitriseIoVersion)

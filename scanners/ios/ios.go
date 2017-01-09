@@ -6,6 +6,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"path/filepath"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -51,6 +53,7 @@ func (descriptor ConfigDescriptor) String() string {
 
 // Scanner ...
 type Scanner struct {
+	searchDir         string
 	fileList          []string
 	projectFiles      []string
 	configDescriptors []ConfigDescriptor
@@ -63,6 +66,8 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	scanner.searchDir = searchDir
+
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
@@ -177,6 +182,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	//
 	// Analyze projects and workspaces
+	defaultGitignorePth := filepath.Join(scanner.searchDir, ".gitignore")
+	isXcshareddataGitignored, err := utility.FileContains(defaultGitignorePth, "xcshareddata")
+	if err != nil {
+		log.Warnf("Failed to check if xcshareddata gitignored, error: %s", err)
+	}
+
 	for _, project := range standaloneProjects {
 		log.Infoft("Inspecting standalone project file: %s", project.Pth)
 
@@ -189,13 +200,22 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			log.Printft("")
 			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
 			log.Errorft("The newly generated schemes may differ from the ones in your project.")
-			log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			if isXcshareddataGitignored {
+				log.Errorft("Your gitignore file (%s) contains 'xcshareddata', maybe shared schemes are gitignored?", defaultGitignorePth)
+				log.Errorft("If not, make sure to share your schemes, to have the expected behaviour.")
+			} else {
+				log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			}
 			log.Printft("")
 
-			message := `No shared schemes found for project: ` + project.Pth + `.
-	Automatically generated schemes for this project.
-	These schemes may differ from the ones in your project.
-	Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
+			message := `No shared schemes found for project: ` + project.Pth + `.`
+			if isXcshareddataGitignored {
+				message += `
+Your gitignore file (` + defaultGitignorePth + `) contains 'xcshareddata', maybe shared schemes are gitignored?`
+			}
+			message += `
+Automatically generated schemes may differ from the ones in your project.
+Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
 			warnings = append(warnings, fmt.Sprintf(message))
 
@@ -218,14 +238,23 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		if len(sharedSchemes) == 0 {
 			log.Printft("")
 			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
-			log.Errorft("The newly generated schemes, may differs from the ones in your project.")
-			log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			log.Errorft("The newly generated schemes may differ from the ones in your project.")
+			if isXcshareddataGitignored {
+				log.Errorft("Your gitignore file (%s) contains 'xcshareddata', maybe shared schemes are gitignored?", defaultGitignorePth)
+				log.Errorft("If not, make sure to share your schemes, to have the expected behaviour.")
+			} else {
+				log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+			}
 			log.Printft("")
 
-			message := `No shared schemes found for project: ` + workspace.Pth + `.
-	Automatically generated schemes for this project.
-	These schemes may differ from the ones in your project.
-	Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
+			message := `No shared schemes found for project: ` + workspace.Pth + `.`
+			if isXcshareddataGitignored {
+				message += `
+Your gitignore file (` + defaultGitignorePth + `) (%s) contains 'xcshareddata', maybe shared schemes are gitignored?`
+			}
+			message += `
+Automatically generated schemes may differ from the ones in your project.
+Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
 			warnings = append(warnings, fmt.Sprintf(message))
 
@@ -233,35 +262,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			log.Warnft("%d user schemes will be generated", len(targets))
 			for _, target := range targets {
 				log.Warnft("- %s", target.Name)
-			}
-		}
-
-		for _, project := range workspace.Projects {
-			log.Infoft("Inspecting workspace project file: %s", project.Pth)
-
-			log.Printft("%d shared schemes detected", len(project.SharedSchemes))
-			for _, scheme := range project.SharedSchemes {
-				log.Printft("- %s", scheme.Name)
-			}
-
-			if len(project.SharedSchemes) == 0 {
-				log.Printft("")
-				log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
-				log.Errorft("The newly generated schemes may differ from the ones in your project.")
-				log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
-				log.Printft("")
-
-				message := `No shared schemes found for project: ` + project.Pth + `.
-	Automatically generated schemes for this project.
-	These schemes may differ from the ones in your project.
-	Make sure to <a href="https://developer.apple.com/library/ios/recipes/xcode_help-scheme_editor/Articles/SchemeManage.html">share your schemes</a> for the expected behaviour.`
-
-				warnings = append(warnings, fmt.Sprintf(message))
-
-				log.Warnft("%d user schemes will be generated", len(project.Targets))
-				for _, target := range project.Targets {
-					log.Warnft("- %s", target.Name)
-				}
 			}
 		}
 	}

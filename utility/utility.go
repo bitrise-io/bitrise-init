@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/bitrise-io/go-utils/fileutil"
 )
 
 // CaseInsensitiveContains ...
@@ -137,4 +139,14 @@ func InDirectoryFilter(dir string, allowed bool) FilterFunc {
 		in := (filepath.Dir(pth) == dir)
 		return (allowed == in), nil
 	}
+}
+
+// FileContains ...
+func FileContains(pth, str string) (bool, error) {
+	content, err := fileutil.ReadStringFromFile(pth)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.Contains(content, str), nil
 }
