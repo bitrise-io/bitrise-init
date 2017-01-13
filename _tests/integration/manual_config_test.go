@@ -8,13 +8,12 @@ import (
 
 	"os"
 
-	"github.com/bitrise-io/go-utils/cmdex"
+	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/steps"
+	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
-
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/steps"
 )
 
 func TestManualConfig(t *testing.T) {
@@ -29,7 +28,7 @@ func TestManualConfig(t *testing.T) {
 		manualConfigDir := filepath.Join(tmpDir, "manual-config")
 		require.NoError(t, os.MkdirAll(manualConfigDir, 0777))
 
-		cmd := cmdex.NewCommand(binPath(), "--ci", "manual-config", "--output-dir", manualConfigDir)
+		cmd := command.New(binPath(), "--ci", "manual-config", "--output-dir", manualConfigDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
 
