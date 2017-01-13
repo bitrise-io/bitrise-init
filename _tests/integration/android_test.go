@@ -26,7 +26,7 @@ func TestAndroid(t *testing.T) {
 	{
 		sampleAppDir := filepath.Join(tmpDir, "sample-apps-android-sdk22")
 		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-android-sdk22.git"
-		require.NoError(t, cmdex.GitClone(sampleAppURL, sampleAppDir))
+		require.NoError(t, command.GitClone(sampleAppURL, sampleAppDir))
 
 		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
@@ -43,7 +43,7 @@ func TestAndroid(t *testing.T) {
 	{
 		sampleAppDir := filepath.Join(tmpDir, "android-non-executable-gradlew")
 		sampleAppURL := "https://github.com/bitrise-samples/android-non-executable-gradlew.git"
-		require.NoError(t, cmdex.GitClone(sampleAppURL, sampleAppDir))
+		require.NoError(t, command.GitClone(sampleAppURL, sampleAppDir))
 
 		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
