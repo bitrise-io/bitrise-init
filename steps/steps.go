@@ -39,6 +39,11 @@ const (
 
 	// Android Steps
 
+	// InstallMissingAndroidToolsID ...
+	InstallMissingAndroidToolsID = "install-missing-android-tools"
+	// InstallMissingAndroidToolsVersion ...
+	InstallMissingAndroidToolsVersion = "0.9.0"
+
 	// GradleRunnerID ...
 	GradleRunnerID = "gradle-runner"
 	// GradleRunnerVersion ...
@@ -167,6 +172,12 @@ func ScriptSteplistItem(title string, inputs ...envman.EnvironmentItemModel) bit
 //------------------------
 // Android Step List Items
 //------------------------
+
+// InstallMissingAndroidToolsStepListItem ....
+func InstallMissingAndroidToolsStepListItem() bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(InstallMissingAndroidToolsID, InstallMissingAndroidToolsVersion)
+	return stepListItem(stepIDComposite, "", "", nil)
+}
 
 // GradleRunnerStepListItem ...
 func GradleRunnerStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
