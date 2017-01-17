@@ -46,7 +46,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.ScriptVersion,
+	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -197,18 +197,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - script@%s:
-              title: Update Android Extra packages
-              inputs:
-              - content: |
-                  #!/bin/bash
-                  set -ex
-
-                  echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
-
-                  echo y | android update sdk --no-ui --all --filter extra-android-m2repository | grep 'package installed'
-                  echo y | android update sdk --no-ui --all --filter extra-google-m2repository | grep 'package installed'
-                  echo y | android update sdk --no-ui --all --filter extra-google-google_play_services | grep 'package installed'
+          - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
