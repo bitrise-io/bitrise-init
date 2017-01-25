@@ -243,7 +243,7 @@ Your gitignore file (` + defaultGitignorePth + `) (%s) contains 'xcshareddata', 
 Automatically generated schemes may differ from the ones in your project.
 Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
-			warnings = append(warnings, fmt.Sprintf(message))
+			warnings = append(warnings, message)
 
 			log.Warnft("%d user schemes will be generated", len(project.Targets))
 			for _, target := range project.Targets {
@@ -282,7 +282,7 @@ Your gitignore file (` + defaultGitignorePth + `) contains 'xcshareddata', maybe
 Automatically generated schemes may differ from the ones in your project.
 Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
-			warnings = append(warnings, fmt.Sprintf(message))
+			warnings = append(warnings, message)
 
 			targets := workspace.GetTargets()
 			log.Warnft("%d user schemes will be generated", len(targets))
