@@ -28,7 +28,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.2.6"
+	DeployToBitriseIoVersion = "1.2.7"
 
 	// ScriptID ...
 	ScriptID = "script"
@@ -103,7 +103,7 @@ const (
 	// XamarinArchiveID ...
 	XamarinArchiveID = "xamarin-archive"
 	// XamarinArchiveVersion ...
-	XamarinArchiveVersion = "1.2.0"
+	XamarinArchiveVersion = "1.3.1"
 
 	// macOS Setps
 
