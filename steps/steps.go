@@ -63,6 +63,11 @@ const (
 	// CocoapodsInstallVersion ...
 	CocoapodsInstallVersion = "1.6.1"
 
+	// CarthageID ...
+	CarthageID = "carthage"
+	// CarthageVersion ...
+	CarthageVersion = "3.0.4"
+
 	// RecreateUserSchemesID ...
 	RecreateUserSchemesID = "recreate-user-schemes"
 	// RecreateUserSchemesVersion ...
@@ -203,6 +208,12 @@ func FastlaneStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepList
 func CocoapodsInstallStepListItem() bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(CocoapodsInstallID, CocoapodsInstallVersion)
 	return stepListItem(stepIDComposite, "", "", nil)
+}
+
+// CarthageStepListItem ...
+func CarthageStepListItem(inputs []envman.EnvironmentItemModel) bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(CarthageID, CarthageVersion)
+	return stepListItem(stepIDComposite, "", "", inputs)
 }
 
 // RecreateUserSchemesStepListItem ...
