@@ -1,6 +1,11 @@
-## Changelog (Current version: 1.1.1)
+## Changelog (Current version: 1.1.2)
 
 -----------------
+
+### 1.1.2 (2017 Feb 02)
+
+* [2310097] prepare for 1.1.2
+* [1fe7afe] step version updates (#73)
 
 ### 1.1.1 (2017 Feb 01)
 
@@ -204,4 +209,4 @@
 
 -----------------
 
-Updated: 2017 Feb 01
+Updated: 2017 Feb 02
