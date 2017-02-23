@@ -50,14 +50,9 @@ var configCommand = cli.Command{
 	},
 }
 
-func writeOutput(outputDir string, scanResult models.ScanResultModel, format output.Format) (string, error) {
+func writeScanResult(scanResult models.ScanResultModel, outputDir string, format output.Format) (string, error) {
 	pth := path.Join(outputDir, "result")
-	outputPth, err := output.WriteToFile(scanResult, format, pth)
-	if err != nil {
-		return "", fmt.Errorf("Failed to write result, error: %s", err)
-	}
-
-	return outputPth, nil
+	return output.WriteToFile(scanResult, format, pth)
 }
 
 func initConfig(c *cli.Context) error {
@@ -138,7 +133,7 @@ func initConfig(c *cli.Context) error {
 
 		log.Infoft("Saving outputs:")
 		scanResult.AddError("general", "No known platform detected")
-		outputPth, err := writeOutput(outputDir, scanResult, format)
+		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			log.Errorf("Failed to write output, error: %s", err)
 		} else {
@@ -152,7 +147,7 @@ func initConfig(c *cli.Context) error {
 	if isCI {
 		log.Infoft("Saving outputs:")
 
-		outputPth, err := writeOutput(outputDir, scanResult, format)
+		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 		}

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"encoding/json"
@@ -159,45 +158,6 @@ end
 	}
 
 	return workspacePathOutput.Data, nil
-}
-
-func cocoapodsVersionFromGemfileLockContent(content string) string {
-	relevantLines := []string{}
-	lines := strings.Split(content, "\n")
-
-	specsStart := false
-	for _, line := range lines {
-		if strings.Contains(line, "specs:") {
-			specsStart = true
-		}
-
-		trimmed := strings.Trim(line, " ")
-		if trimmed == "" {
-			break
-		}
-
-		if specsStart {
-			relevantLines = append(relevantLines, line)
-		}
-	}
-
-	exp := regexp.MustCompile(`cocoapods \((.+)\)`)
-	for _, line := range relevantLines {
-		match := exp.FindStringSubmatch(line)
-		if match != nil && len(match) == 2 {
-			return match[1]
-		}
-	}
-
-	return ""
-}
-
-func cocoapodsVersionFromGemfileLock(gemfileLockPth string) (string, error) {
-	content, err := fileutil.ReadStringFromFile(gemfileLockPth)
-	if err != nil {
-		return "", err
-	}
-	return cocoapodsVersionFromGemfileLockContent(content), nil
 }
 
 // GetWorkspaceProjectMap ...

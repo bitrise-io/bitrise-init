@@ -77,15 +77,13 @@ func BitriseDataWithCIWorkflow(appEnvs []envmanModels.EnvironmentItemModel, step
 		Environments: appEnvs,
 	}
 
-	bitriseData := bitriseModels.BitriseDataModel{
+	return bitriseModels.BitriseDataModel{
 		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,
 		App:                  app,
 	}
-
-	return bitriseData
 }
 
 // BitriseDataWithCIAndCDWorkflow ...
@@ -114,13 +112,11 @@ func BitriseDataWithCIAndCDWorkflow(appEnvs []envmanModels.EnvironmentItemModel,
 		Environments: appEnvs,
 	}
 
-	bitriseData := bitriseModels.BitriseDataModel{
+	return bitriseModels.BitriseDataModel{
 		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,
 		App:                  app,
 	}
-
-	return bitriseData
 }
