@@ -136,24 +136,34 @@ func initConfig(c *cli.Context) error {
 			}
 		}
 
-		scanResult.AddError("", "No known platform detected")
-		if _, err := writeOutput(outputDir, scanResult, format); err != nil {
+		log.Infoft("Saving outputs:")
+		scanResult.AddError("general", "No known platform detected")
+		outputPth, err := writeOutput(outputDir, scanResult, format)
+		if err != nil {
 			log.Errorf("Failed to write output, error: %s", err)
+		} else {
+			log.Printft("  scan result: %s", outputPth)
 		}
+
 		return errors.New("No known platform detected")
 	}
 
 	// Write output to files
 	if isCI {
-		if _, err := writeOutput(outputDir, scanResult, format); err != nil {
+		log.Infoft("Saving outputs:")
+
+		outputPth, err := writeOutput(outputDir, scanResult, format)
+		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 		}
+
+		log.Printft("  scan result: %s", outputPth)
 		return nil
 	}
 	// ---
 
 	// Select option
-	log.Infoft(colorstring.Blue("Collecting inputs:"))
+	log.Infoft("Collecting inputs:")
 
 	config, err := scanner.AskForConfig(scanResult)
 	if err != nil {
@@ -173,7 +183,7 @@ func initConfig(c *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Failed to print result, error: %s", err)
 	}
-	log.Infoft("  bitrise.yml template: %s", colorstring.Blue(outputPth))
+	log.Infoft("  bitrise.yml template: %s", outputPth)
 	fmt.Println()
 	// ---
 

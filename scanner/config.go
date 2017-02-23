@@ -19,7 +19,7 @@ func Config(searchDir string) models.ScanResultModel {
 	// Setup
 	currentDir, err := os.Getwd()
 	if err != nil {
-		result.AddError("", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
+		result.AddError("general", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
 		return result
 	}
 
@@ -28,7 +28,7 @@ func Config(searchDir string) models.ScanResultModel {
 	} else {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
-			result.AddError("", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
+			result.AddError("general", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
 			return result
 		}
 		searchDir = absScerach
@@ -36,7 +36,7 @@ func Config(searchDir string) models.ScanResultModel {
 
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
-			result.AddError("", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
+			result.AddError("general", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
 			return result
 		}
 		defer func() {
