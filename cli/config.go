@@ -7,6 +7,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/output"
 	"github.com/bitrise-core/bitrise-init/scanner"
 	"github.com/bitrise-io/go-utils/colorstring"
@@ -49,6 +50,24 @@ var configCommand = cli.Command{
 	},
 }
 
+func writeOutput(outputDir string, scanResult models.ScanResultModel, format output.Format) (string, error) {
+	if exist, err := pathutil.IsDirExists(outputDir); err != nil {
+		return "", fmt.Errorf("Failed to check if path (%s) exists, error: %s", outputDir, err)
+	} else if !exist {
+		if err := os.MkdirAll(outputDir, 0700); err != nil {
+			return "", fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
+		}
+	}
+
+	pth := path.Join(outputDir, "result")
+	outputPth, err := output.WriteToFile(scanResult, format, pth)
+	if err != nil {
+		return "", fmt.Errorf("Failed to write result, error: %s", err)
+	}
+
+	return outputPth, nil
+}
+
 func initConfig(c *cli.Context) error {
 	// Config
 	isCI := c.GlobalBool("ci")
@@ -84,6 +103,13 @@ func initConfig(c *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
 	}
+	if exist, err := pathutil.IsDirExists(outputDir); err != nil {
+		return err
+	} else if !exist {
+		if err := os.MkdirAll(outputDir, 0700); err != nil {
+			return fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
+		}
+	}
 
 	if formatStr == "" {
 		formatStr = output.YAMLFormat.String()
@@ -97,10 +123,7 @@ func initConfig(c *cli.Context) error {
 	}
 	// ---
 
-	scanResult, err := scanner.Config(searchDir)
-	if err != nil {
-		return err
-	}
+	scanResult := scanner.Config(searchDir)
 
 	platforms := []string{}
 	for platform := range scanResult.OptionsMap {
@@ -121,28 +144,18 @@ func initConfig(c *cli.Context) error {
 			}
 		}
 
+		scanResult.AddError("", "No known platform detected")
+		if _, err := writeOutput(outputDir, scanResult, format); err != nil {
+			log.Errorf("Failed to write output, error: %s", err)
+		}
 		return errors.New("No known platform detected")
 	}
 
 	// Write output to files
 	if isCI {
-		log.Infoft(colorstring.Blue("Saving outputs:"))
-
-		if exist, err := pathutil.IsDirExists(outputDir); err != nil {
-			return err
-		} else if !exist {
-			if err := os.MkdirAll(outputDir, 0700); err != nil {
-				return fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
-			}
+		if _, err := writeOutput(outputDir, scanResult, format); err != nil {
+			return fmt.Errorf("Failed to write output, error: %s", err)
 		}
-
-		pth := path.Join(outputDir, "result")
-		outputPth, err := output.WriteToFile(scanResult, format, pth)
-		if err != nil {
-			return fmt.Errorf("Failed to print result, error: %s", err)
-		}
-		log.Infoft("  scan result: %s", colorstring.Blue(outputPth))
-
 		return nil
 	}
 	// ---
