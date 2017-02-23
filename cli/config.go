@@ -51,14 +51,6 @@ var configCommand = cli.Command{
 }
 
 func writeOutput(outputDir string, scanResult models.ScanResultModel, format output.Format) (string, error) {
-	if exist, err := pathutil.IsDirExists(outputDir); err != nil {
-		return "", fmt.Errorf("Failed to check if path (%s) exists, error: %s", outputDir, err)
-	} else if !exist {
-		if err := os.MkdirAll(outputDir, 0700); err != nil {
-			return "", fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
-		}
-	}
-
 	pth := path.Join(outputDir, "result")
 	outputPth, err := output.WriteToFile(scanResult, format, pth)
 	if err != nil {
