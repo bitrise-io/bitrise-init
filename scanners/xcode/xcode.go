@@ -3,7 +3,7 @@ package xcode
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v2"
 
 	"path/filepath"
 
