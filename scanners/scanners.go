@@ -57,8 +57,8 @@ type ScannerInterface interface {
 
 // ActiveScanners ...
 var ActiveScanners = []ScannerInterface{
-	xcode.NewScanner(xcode.ProjectTypeiOS),
-	xcode.NewScanner(xcode.ProjectTypemacOS),
+	xcode.NewScanner(xcode.ProjectTypeIOS),
+	xcode.NewScanner(xcode.ProjectTypeMacOS),
 	new(android.Scanner),
 	new(xamarin.Scanner),
 	new(fastlane.Scanner),

@@ -35,10 +35,10 @@ const (
 type ProjectType string
 
 const (
-	// ProjectTypeiOS ...
-	ProjectTypeiOS ProjectType = "ios"
-	// ProjectTypemacOS ...
-	ProjectTypemacOS ProjectType = "macos"
+	// ProjectTypeIOS ...
+	ProjectTypeIOS ProjectType = "ios"
+	// ProjectTypeMacOS ...
+	ProjectTypeMacOS ProjectType = "macos"
 )
 
 // ConfigDescriptor ...
@@ -47,10 +47,11 @@ type ConfigDescriptor struct {
 	CarthageCommand      string
 	HasTest              bool
 	MissingSharedSchemes bool
+	ScannerName          string
 }
 
 func (descriptor ConfigDescriptor) String() string {
-	name := "-"
+	name := descriptor.ScannerName + "-"
 	if descriptor.HasPodfile {
 		name = name + "pod-"
 	}
@@ -127,12 +128,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	switch scanner.projectType {
-	case ProjectTypeiOS:
+	case ProjectTypeIOS:
 		filters = append(filters, utility.AllowIphoneosSDKFilter)
-		break
-	case ProjectTypemacOS:
+	case ProjectTypeMacOS:
 		filters = append(filters, utility.AllowMacosxSDKFilter)
-		break
 	}
 
 	xcodeprojectFiles, err = utility.FilterPaths(xcodeprojectFiles, filters...)
@@ -174,12 +173,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	switch scanner.projectType {
-	case ProjectTypeiOS:
+	case ProjectTypeIOS:
 		filters = append(filters, utility.AllowIphoneosSDKFilter)
-		break
-	case ProjectTypemacOS:
+	case ProjectTypeMacOS:
 		filters = append(filters, utility.AllowMacosxSDKFilter)
-		break
 	}
 
 	workspaceFiles, err := utility.FilterPaths(scanner.fileList, filters...)
@@ -370,11 +367,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              target.HasXCTest,
 					MissingSharedSchemes: true,
+					ScannerName:          scanner.Name(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
 				configOption := models.NewEmptyOptionModel()
-				configOption.Config = scanner.Name() + configDescriptor.String()
+				configOption.Config = configDescriptor.String()
 
 				schemeOption.ValueMap[target.Name] = configOption
 			}
@@ -385,11 +383,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              scheme.HasXCTest,
 					MissingSharedSchemes: false,
+					ScannerName:          scanner.Name(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
 				configOption := models.NewEmptyOptionModel()
-				configOption.Config = scanner.Name() + configDescriptor.String()
+				configOption.Config = configDescriptor.String()
 
 				schemeOption.ValueMap[scheme.Name] = configOption
 			}
@@ -426,11 +425,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              target.HasXCTest,
 					MissingSharedSchemes: true,
+					ScannerName:          scanner.Name(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
 				configOption := models.NewEmptyOptionModel()
-				configOption.Config = scanner.Name() + configDescriptor.String()
+				configOption.Config = configDescriptor.String()
 
 				schemeOption.ValueMap[target.Name] = configOption
 			}
@@ -441,11 +441,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              scheme.HasXCTest,
 					MissingSharedSchemes: false,
+					ScannerName:          scanner.Name(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
 				configOption := models.NewEmptyOptionModel()
-				configOption.Config = scanner.Name() + configDescriptor.String()
+				configOption.Config = configDescriptor.String()
 
 				schemeOption.ValueMap[scheme.Name] = configOption
 			}
@@ -479,7 +480,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	return projectPathOption
 }
 
-func generateConfig(scanner *Scanner, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) bitriseModels.BitriseDataModel {
+func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) bitriseModels.BitriseDataModel {
 	//
 	// Prepare steps
 	prepareSteps := []bitriseModels.StepListItemModel{}
@@ -516,7 +517,7 @@ func generateConfig(scanner *Scanner, hasPodfile, hasTest, missingSharedSchemes 
 	}
 	// ----------
 
-	envItemModels := []envmanModels.EnvironmentItemModel{
+	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}
@@ -528,12 +529,10 @@ func generateConfig(scanner *Scanner, hasPodfile, hasTest, missingSharedSchemes 
 	// XcodeTest
 	if hasTest {
 		switch scanner.projectType {
-		case ProjectTypeiOS:
-			ciSteps = append(ciSteps, steps.XcodeTestStepListItem(envItemModels))
-			break
-		case ProjectTypemacOS:
-			ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(envItemModels))
-			break
+		case ProjectTypeIOS:
+			ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+		case ProjectTypeMacOS:
+			ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
 
@@ -548,23 +547,19 @@ func generateConfig(scanner *Scanner, hasPodfile, hasTest, missingSharedSchemes 
 	// XcodeTest
 	if hasTest {
 		switch scanner.projectType {
-		case ProjectTypeiOS:
-			deploySteps = append(deploySteps, steps.XcodeTestStepListItem(envItemModels))
-			break
-		case ProjectTypemacOS:
-			deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(envItemModels))
-			break
+		case ProjectTypeIOS:
+			deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+		case ProjectTypeMacOS:
+			deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
 
 	// XcodeArchive
 	switch scanner.projectType {
-	case ProjectTypeiOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(envItemModels))
-		break
-	case ProjectTypemacOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(envItemModels))
-		break
+	case ProjectTypeIOS:
+		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
+	case ProjectTypeMacOS:
+		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
 	// DeployToBitriseIo
@@ -580,7 +575,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	descritorNameMap := map[string]bool{}
 
 	for _, descriptor := range scanner.configDescriptors {
-		_, exist := descritorNameMap[scanner.Name()+descriptor.String()]
+		_, exist := descritorNameMap[descriptor.String()]
 		if !exist {
 			descriptors = append(descriptors, descriptor)
 		}
@@ -588,8 +583,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range descriptors {
-		configName := scanner.Name() + descriptor.String()
-		bitriseData := generateConfig(scanner, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
+		configName := descriptor.String()
+		bitriseData := scanner.generateConfig(descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
 		data, err := yaml.Marshal(bitriseData)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
@@ -631,19 +626,17 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// CI steps
 	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
-	envItemModels := []envmanModels.EnvironmentItemModel{
+	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}
 
 	// XcodeTest
 	switch scanner.projectType {
-	case ProjectTypeiOS:
-		ciSteps = append(ciSteps, steps.XcodeTestStepListItem(envItemModels))
-		break
-	case ProjectTypemacOS:
-		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(envItemModels))
-		break
+	case ProjectTypeIOS:
+		ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+	case ProjectTypeMacOS:
+		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
 	// DeployToBitriseIo
@@ -656,22 +649,18 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	// XcodeTest
 	switch scanner.projectType {
-	case ProjectTypeiOS:
-		deploySteps = append(deploySteps, steps.XcodeTestStepListItem(envItemModels))
-		break
-	case ProjectTypemacOS:
-		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(envItemModels))
-		break
+	case ProjectTypeIOS:
+		deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+	case ProjectTypeMacOS:
+		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
 	// XcodeArchive
 	switch scanner.projectType {
-	case ProjectTypeiOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(envItemModels))
-		break
-	case ProjectTypemacOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(envItemModels))
-		break
+	case ProjectTypeIOS:
+		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
+	case ProjectTypeMacOS:
+		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
 	// DeployToBitriseIo
