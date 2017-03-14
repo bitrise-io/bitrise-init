@@ -7,34 +7,39 @@ import "github.com/bitrise-core/bitrise-init/scanners/xcode"
 const ScannerName = "macos"
 
 // Scanner ...
-type Scanner struct{}
+type Scanner struct {
+	xcode.Scanner
+}
 
-var wrapperScanner = *xcode.NewScanner(xcode.ProjectTypeMacOS)
+// NewScanner ...
+func NewScanner() *Scanner {
+	return &Scanner{xcode.Scanner{ProjectType: xcode.ProjectTypeMacOS}}
+}
 
 // Name ...
 func (scanner *Scanner) Name() string { return ScannerName }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	return wrapperScanner.DetectPlatform(searchDir)
+	return scanner.CommonDetectPlatform(searchDir)
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return wrapperScanner.Options()
+	return scanner.CommonOptions()
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	return wrapperScanner.DefaultOptions()
+	return scanner.CommonDefaultOptions()
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	return wrapperScanner.Configs()
+	return scanner.CommonConfigs()
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return wrapperScanner.DefaultConfigs()
+	return scanner.CommonDefaultConfigs()
 }

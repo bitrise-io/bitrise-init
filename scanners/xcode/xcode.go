@@ -76,18 +76,13 @@ type Scanner struct {
 	ProjectType       ProjectType
 }
 
-// NewScanner ...
-func NewScanner(projType ProjectType) *Scanner {
-	return &Scanner{ProjectType: projType}
-}
-
-// Name ...
-func (scanner Scanner) Name() string {
+// CommonName ...
+func (scanner Scanner) CommonName() string {
 	return string(scanner.ProjectType)
 }
 
-// DetectPlatform ...
-func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+// CommonDetectPlatform ...
+func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
@@ -137,7 +132,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
-	log.Printft("%d Xcode %s project files found", len(xcodeprojectFiles), scanner.Name())
+	log.Printft("%d Xcode %s project files found", len(xcodeprojectFiles), scanner.CommonName())
 	for _, xcodeprojectFile := range xcodeprojectFiles {
 		log.Printft("- %s", xcodeprojectFile)
 	}
@@ -154,8 +149,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	return true, nil
 }
 
-// Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+// CommonOptions ...
+func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	projectFiles := scanner.projectFiles
@@ -365,7 +360,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              target.HasXCTest,
 					MissingSharedSchemes: true,
-					ScannerName:          scanner.Name(),
+					ScannerName:          scanner.CommonName(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
@@ -381,7 +376,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              scheme.HasXCTest,
 					MissingSharedSchemes: false,
-					ScannerName:          scanner.Name(),
+					ScannerName:          scanner.CommonName(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
@@ -423,7 +418,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              target.HasXCTest,
 					MissingSharedSchemes: true,
-					ScannerName:          scanner.Name(),
+					ScannerName:          scanner.CommonName(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
@@ -439,7 +434,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 					CarthageCommand:      carthageCommand,
 					HasTest:              scheme.HasXCTest,
 					MissingSharedSchemes: false,
-					ScannerName:          scanner.Name(),
+					ScannerName:          scanner.CommonName(),
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
@@ -455,8 +450,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 	// -----
 
 	if len(configDescriptors) == 0 {
-		log.Errorft("No valid %s config found", scanner.Name())
-		return models.OptionModel{}, warnings, fmt.Errorf("No valid %s config found", scanner.Name())
+		log.Errorft("No valid %s config found", scanner.CommonName())
+		return models.OptionModel{}, warnings, fmt.Errorf("No valid %s config found", scanner.CommonName())
 	}
 
 	scanner.configDescriptors = configDescriptors
@@ -464,10 +459,10 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 	return projectPathOption, warnings, nil
 }
 
-// DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+// CommonDefaultOptions ...
+func (scanner *Scanner) CommonDefaultOptions() models.OptionModel {
 	configOption := models.NewEmptyOptionModel()
-	configOption.Config = fmt.Sprintf(defaultConfigNameFormat, scanner.Name())
+	configOption.Config = fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName())
 
 	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
 	schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
@@ -567,8 +562,8 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 	return models.BitriseDataWithCIAndCDWorkflow([]envmanModels.EnvironmentItemModel{}, ciSteps, deploySteps)
 }
 
-// Configs ...
-func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+// CommonConfigs ...
+func (scanner *Scanner) CommonConfigs() (models.BitriseConfigMap, error) {
 	descriptors := []ConfigDescriptor{}
 	descritorNameMap := map[string]bool{}
 
@@ -593,8 +588,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	return bitriseDataMap, nil
 }
 
-// DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+// CommonDefaultConfigs ...
+func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) {
 	//
 	// Prepare steps
 	prepareSteps := []bitriseModels.StepListItemModel{}
@@ -671,7 +666,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := fmt.Sprintf(defaultConfigNameFormat, scanner.Name())
+	configName := fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName())
 	bitriseDataMap := models.BitriseConfigMap{}
 	bitriseDataMap[configName] = string(data)
 
