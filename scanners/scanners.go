@@ -54,9 +54,6 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform default BitriseConfigMap
 	DefaultConfigs() (models.BitriseConfigMap, error)
-
-	// Returns a string slice including the ignorable scanners names
-	//IgnoreScanners() []string
 }
 
 // ActiveScanners ...

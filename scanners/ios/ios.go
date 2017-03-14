@@ -7,7 +7,9 @@ import "github.com/bitrise-core/bitrise-init/scanners/xcode"
 const ScannerName = "ios"
 
 // Scanner ...
-type Scanner struct{}
+type Scanner struct {
+	*xcode.Scanner
+}
 
 var wrapperScanner = *xcode.NewScanner(xcode.ProjectTypeIOS)
 

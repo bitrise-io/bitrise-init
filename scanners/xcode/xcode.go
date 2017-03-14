@@ -73,19 +73,17 @@ type Scanner struct {
 	fileList          []string
 	projectFiles      []string
 	configDescriptors []ConfigDescriptor
-	projectType       ProjectType
+	ProjectType       ProjectType
 }
 
 // NewScanner ...
-func NewScanner(projectType ProjectType) *Scanner {
-	scanner := new(Scanner)
-	scanner.projectType = projectType
-	return scanner
+func NewScanner(projType ProjectType) *Scanner {
+	return &Scanner{ProjectType: projType}
 }
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return string(scanner.projectType)
+	return string(scanner.ProjectType)
 }
 
 // DetectPlatform ...
@@ -127,7 +125,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		utility.ForbidFramworkComponentWithExtensionFilter,
 	}
 
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		filters = append(filters, utility.AllowIphoneosSDKFilter)
 	case ProjectTypeMacOS:
@@ -172,7 +170,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		utility.AllowXCWorkspaceExtFilter,
 	}
 
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		filters = append(filters, utility.AllowIphoneosSDKFilter)
 	case ProjectTypeMacOS:
@@ -528,7 +526,7 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 
 	// XcodeTest
 	if hasTest {
-		switch scanner.projectType {
+		switch scanner.ProjectType {
 		case ProjectTypeIOS:
 			ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 		case ProjectTypeMacOS:
@@ -546,7 +544,7 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 
 	// XcodeTest
 	if hasTest {
-		switch scanner.projectType {
+		switch scanner.ProjectType {
 		case ProjectTypeIOS:
 			deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 		case ProjectTypeMacOS:
@@ -555,7 +553,7 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 	}
 
 	// XcodeArchive
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
@@ -632,7 +630,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	// XcodeTest
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
@@ -648,7 +646,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
 
 	// XcodeTest
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
@@ -656,7 +654,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	// XcodeArchive
-	switch scanner.projectType {
+	switch scanner.ProjectType {
 	case ProjectTypeIOS:
 		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
