@@ -10,6 +10,24 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 )
 
+// SkipScanners ...
+var SkipScanners = []string{}
+
+// ShouldSkipScanner ...
+func ShouldSkipScanner(scannerName string) bool {
+	return IndexInStringSlice(scannerName, SkipScanners) == -1
+}
+
+// IndexInStringSlice ...
+func IndexInStringSlice(str string, list []string) int {
+	for i, v := range list {
+		if v == str {
+			return i
+		}
+	}
+	return -1
+}
+
 // CaseInsensitiveContains ...
 func CaseInsensitiveContains(s, substr string) bool {
 	s, substr = strings.ToUpper(s), strings.ToUpper(substr)

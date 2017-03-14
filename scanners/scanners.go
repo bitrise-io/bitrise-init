@@ -4,8 +4,9 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	"github.com/bitrise-core/bitrise-init/scanners/xcode"
 	"github.com/bitrise-core/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -53,12 +54,15 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform default BitriseConfigMap
 	DefaultConfigs() (models.BitriseConfigMap, error)
+
+	// Returns a string slice including the ignorable scanners names
+	//IgnoreScanners() []string
 }
 
 // ActiveScanners ...
 var ActiveScanners = []ScannerInterface{
-	xcode.NewScanner(xcode.ProjectTypeIOS),
-	xcode.NewScanner(xcode.ProjectTypeMacOS),
+	new(ios.Scanner),
+	new(macos.Scanner),
 	new(android.Scanner),
 	new(xamarin.Scanner),
 	new(fastlane.Scanner),
