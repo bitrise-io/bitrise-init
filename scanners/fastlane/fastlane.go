@@ -348,3 +348,8 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	return bitriseDataMap, nil
 }
+
+// IgnoreScanners ...
+func (scanner *Scanner) IgnoreScanners() []string {
+	return nil
+}

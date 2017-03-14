@@ -16,6 +16,16 @@ func CaseInsensitiveContains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
 
+// IgnoreScanner ...
+func IgnoreScanner(scannerName string, ignoreScanners []string) bool {
+	for _, ignoredScanner := range ignoreScanners {
+		if ignoredScanner == scannerName {
+			return true
+		}
+	}
+	return false
+}
+
 // ListPathInDirSortedByComponents ...
 func ListPathInDirSortedByComponents(searchDir string, relPath bool) ([]string, error) {
 	searchDir, err := filepath.Abs(searchDir)

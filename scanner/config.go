@@ -6,6 +6,7 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -50,6 +51,7 @@ func Config(searchDir string) models.ScanResultModel {
 	//
 	// Scan
 	projectScanners := scanners.ActiveScanners
+	ignoreScanners := []string{}
 
 	projectTypeErrorMap := map[string]models.Errors{}
 	projectTypeWarningMap := map[string]models.Warnings{}
@@ -68,6 +70,14 @@ func Config(searchDir string) models.ScanResultModel {
 		log.Printft("+------------------------------------------------------------------------------+")
 		log.Printft("|                                                                              |")
 
+		if utility.IgnoreScanner(detectorName, ignoreScanners) {
+			log.Warnft("%s scanner is marked to be ignored", detectorName)
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
+			fmt.Println()
+			continue
+		}
+
 		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
 			log.Errorft("Scanner failed, error: %s", err)
@@ -82,6 +92,8 @@ func Config(searchDir string) models.ScanResultModel {
 			fmt.Println()
 			continue
 		}
+
+		ignoreScanners = append(ignoreScanners, detector.IgnoreScanners()...)
 
 		options, projectWarnings, err := detector.Options()
 		detectorWarnings = append(detectorWarnings, projectWarnings...)
