@@ -280,7 +280,7 @@ func defaultConfigName() string {
 
 // Scanner ...
 type Scanner struct {
-	SearchDir     string
+	searchDir     string
 	FileList      []string
 	SolutionFiles []string
 
@@ -305,6 +305,8 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	scanner.searchDir = searchDir
+
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
@@ -427,7 +429,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			xamarinConfigurationOption.ValueMap[config] = xamarinPlatformOption
 		}
 
-		relSolutionFile, err := filepath.Rel(scanner.SearchDir, solutionFile)
+		relSolutionFile, err := filepath.Rel(scanner.searchDir, solutionFile)
 		if err != nil {
 			return models.OptionModel{}, models.Warnings{}, err
 		}
