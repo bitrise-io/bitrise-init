@@ -93,9 +93,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	scanner.fileList = fileList
 
-	// Search for xcodeproj
-	log.Infoft("Searching for React Native project files")
-
 	reactNativeProjectFiles := []string{}
 
 	// check android project JS and native android dir
@@ -146,6 +143,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		scanner.packageJSONFile = packagesJSONFiles[0]
 	}
 
+	log.Infoft("Searching for React Native project files")
 	log.Printft("%d React Native project files found", len(reactNativeProjectFiles))
 
 	for _, reactNativeProjectFile := range reactNativeProjectFiles {
@@ -157,7 +155,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	scanner.Print()
 	log.Doneft("Platform detected")
 	return true, nil
 }
