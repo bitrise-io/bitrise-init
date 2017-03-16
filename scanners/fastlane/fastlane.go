@@ -149,6 +149,7 @@ func defaultConfigName() string {
 // Scanner ...
 type Scanner struct {
 	Fastfiles []string
+	searchDir string
 }
 
 // NewScanner ...
@@ -163,6 +164,8 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	scanner.searchDir = searchDir
+
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
@@ -236,7 +239,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			laneOption.ValueMap[lane] = configOption
 		}
 
-		workDirOption.ValueMap[workDir] = laneOption
+		relWorkDir, err := filepath.Rel(scanner.searchDir, workDir)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, nil
+		}
+
+		workDirOption.ValueMap[relWorkDir] = laneOption
 	}
 
 	if !isValidFastfileFound {

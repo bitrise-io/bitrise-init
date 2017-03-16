@@ -228,6 +228,8 @@ that the right Gradle version is installed and used for the build. More info/gui
 				return models.OptionModel{}, models.Warnings{}, err
 			}
 
+			relRootGradlewPath = fixedGradlewPath(relRootGradlewPath)
+
 			gradlewPathOption.ValueMap[relRootGradlewPath] = configOption
 
 			gradleTaskOption.ValueMap[config] = gradlewPathOption
