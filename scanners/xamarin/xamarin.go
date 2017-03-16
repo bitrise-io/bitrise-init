@@ -427,7 +427,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			xamarinConfigurationOption.ValueMap[config] = xamarinPlatformOption
 		}
 
-		xamarinSolutionOption.ValueMap[solutionFile] = xamarinConfigurationOption
+		relSolutionFile, err := filepath.Rel(scanner.SearchDir, solutionFile)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
+		xamarinSolutionOption.ValueMap[relSolutionFile] = xamarinConfigurationOption
 	}
 
 	return xamarinSolutionOption, warnings, nil
