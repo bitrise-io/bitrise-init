@@ -63,11 +63,11 @@ func TestListPathInDirSortedByComponents(t *testing.T) {
 		}
 
 		expected := []string{
-			".",
-			"testdir",
-			"testdir/testdir",
-			"testdir/testfile",
-			"testdir/testdir/testfile",
+			filepath.Join(tmpDir, "."),
+			filepath.Join(tmpDir, "testdir"),
+			filepath.Join(tmpDir, "testdir/testdir"),
+			filepath.Join(tmpDir, "testdir/testfile"),
+			filepath.Join(tmpDir, "testdir/testdir/testfile"),
 		}
 
 		files, err := ListPathInDirSortedByComponents(tmpDir)
