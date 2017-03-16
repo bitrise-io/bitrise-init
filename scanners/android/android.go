@@ -15,8 +15,9 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+//ScannerName ...
 const (
-	scannerName = "android"
+	ScannerName = "android"
 )
 
 const (
@@ -135,7 +136,7 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return scannerName
+	return ScannerName
 }
 
 // DetectPlatform ...

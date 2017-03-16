@@ -6,6 +6,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/scanners/macos"
+	"github.com/bitrise-core/bitrise-init/scanners/reactnative"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-core/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -61,6 +62,7 @@ type ScannerInterface interface {
 
 // ActiveScanners ...
 var ActiveScanners = []ScannerInterface{
+	reactnative.NewScanner(),
 	ios.NewScanner(),
 	macos.NewScanner(),
 	android.NewScanner(),
