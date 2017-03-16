@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -15,8 +16,9 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+//ScannerName ...
 const (
-	scannerName = "android"
+	ScannerName = "android"
 )
 
 const (
@@ -126,6 +128,7 @@ func defaultConfigName() string {
 type Scanner struct {
 	FileList    []string
 	GradleFiles []string
+	searchDir   string
 }
 
 // NewScanner ...
@@ -135,12 +138,14 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return scannerName
+	return ScannerName
 }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	scanner.searchDir = searchDir
+
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -217,12 +222,24 @@ that the right Gradle version is installed and used for the build. More info/gui
 			configOption.Config = configName()
 
 			gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
-			gradlewPathOption.ValueMap[rootGradlewPath] = configOption
+
+			relRootGradlewPath, err := filepath.Rel(scanner.searchDir, rootGradlewPath)
+			if err != nil {
+				return models.OptionModel{}, models.Warnings{}, err
+			}
+
+			relRootGradlewPath = fixedGradlewPath(relRootGradlewPath)
+
+			gradlewPathOption.ValueMap[relRootGradlewPath] = configOption
 
 			gradleTaskOption.ValueMap[config] = gradlewPathOption
 		}
 
-		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
+		relGradleFilePth, err := filepath.Rel(scanner.searchDir, gradleFile)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+		gradleFileOption.ValueMap[relGradleFilePth] = gradleTaskOption
 	}
 
 	return gradleFileOption, warnings, nil
@@ -324,4 +341,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	return bitriseDataMap, nil
+}
+
+// IgnoreScanners ...
+func (scanner *Scanner) IgnoreScanners() []string {
+	return nil
 }

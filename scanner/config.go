@@ -2,54 +2,20 @@ package scanner
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/go-utils/pathutil"
 )
 
 // Config ...
 func Config(searchDir string) models.ScanResultModel {
-	result := models.ScanResultModel{}
-
-	//
-	// Setup
-	currentDir, err := os.Getwd()
-	if err != nil {
-		result.AddError("general", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
-		return result
-	}
-
-	if searchDir == "" {
-		searchDir = currentDir
-	} else {
-		absScerach, err := pathutil.AbsPath(searchDir)
-		if err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
-			return result
-		}
-		searchDir = absScerach
-	}
-
-	if searchDir != currentDir {
-		if err := os.Chdir(searchDir); err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
-			return result
-		}
-		defer func() {
-			if err := os.Chdir(currentDir); err != nil {
-				log.Warnft("Failed to change dir, to (%s), error: %s", searchDir, err)
-			}
-		}()
-	}
-	// ---
-
 	//
 	// Scan
 	projectScanners := scanners.ActiveScanners
+	ignoreScanners := []string{}
 
 	projectTypeErrorMap := map[string]models.Errors{}
 	projectTypeWarningMap := map[string]models.Warnings{}
@@ -68,6 +34,14 @@ func Config(searchDir string) models.ScanResultModel {
 		log.Printft("+------------------------------------------------------------------------------+")
 		log.Printft("|                                                                              |")
 
+		if utility.IgnoreScanner(detectorName, ignoreScanners) {
+			log.Warnft("%s scanner is marked to be ignored", detectorName)
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
+			fmt.Println()
+			continue
+		}
+
 		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
 			log.Errorft("Scanner failed, error: %s", err)
@@ -82,6 +56,8 @@ func Config(searchDir string) models.ScanResultModel {
 			fmt.Println()
 			continue
 		}
+
+		ignoreScanners = append(ignoreScanners, detector.IgnoreScanners()...)
 
 		options, projectWarnings, err := detector.Options()
 		detectorWarnings = append(detectorWarnings, projectWarnings...)

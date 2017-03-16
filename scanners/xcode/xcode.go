@@ -85,7 +85,7 @@ func (scanner Scanner) CommonName() string {
 func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -236,6 +236,7 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 
 	//
 	// Analyze projects and workspaces
+
 	isXcshareddataGitignored := false
 	defaultGitignorePth := filepath.Join(scanner.searchDir, ".gitignore")
 
@@ -252,6 +253,11 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 
 	for _, project := range standaloneProjects {
 		log.Infoft("Inspecting standalone project file: %s", project.Pth)
+
+		relProjectPath, err := filepath.Rel(scanner.searchDir, project.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
 
 		log.Printft("%d shared schemes detected", len(project.SharedSchemes))
 		for _, scheme := range project.SharedSchemes {
@@ -270,7 +276,7 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 			}
 			log.Printft("")
 
-			message := `No shared schemes found for project: ` + project.Pth + `.`
+			message := `No shared schemes found for project: ` + relProjectPath + `.`
 			if isXcshareddataGitignored {
 				message += `
 Your gitignore file (` + defaultGitignorePth + `) contains 'xcshareddata', maybe shared schemes are gitignored?`
@@ -291,6 +297,11 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 	for _, workspace := range workspaces {
 		log.Infoft("Inspecting workspace file: %s", workspace.Pth)
 
+		relWorkspacePath, err := filepath.Rel(scanner.searchDir, workspace.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
 		sharedSchemes := workspace.GetSharedSchemes()
 		log.Printft("%d shared schemes detected", len(sharedSchemes))
 		for _, scheme := range sharedSchemes {
@@ -309,7 +320,7 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 			}
 			log.Printft("")
 
-			message := `No shared schemes found for project: ` + workspace.Pth + `.`
+			message := `No shared schemes found for project: ` + relWorkspacePath + `.`
 			if isXcshareddataGitignored {
 				message += `
 Your gitignore file (` + defaultGitignorePth + `) (%s) contains 'xcshareddata', maybe shared schemes are gitignored?`
@@ -387,7 +398,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 			}
 		}
 
-		projectPathOption.ValueMap[project.Pth] = schemeOption
+		relProjectPath, err := filepath.Rel(scanner.searchDir, project.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
+		projectPathOption.ValueMap[relProjectPath] = schemeOption
 	}
 
 	// Add Workspace options
@@ -445,7 +461,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 			}
 		}
 
-		projectPathOption.ValueMap[workspace.Pth] = schemeOption
+		relWorkspacePath, err := filepath.Rel(scanner.searchDir, workspace.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
+		projectPathOption.ValueMap[relWorkspacePath] = schemeOption
 	}
 	// -----
 

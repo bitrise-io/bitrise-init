@@ -19,8 +19,9 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+// ScannerName ...
 const (
-	scannerName = "fastlane"
+	ScannerName = "fastlane"
 )
 
 const (
@@ -148,6 +149,7 @@ func defaultConfigName() string {
 // Scanner ...
 type Scanner struct {
 	Fastfiles []string
+	searchDir string
 }
 
 // NewScanner ...
@@ -157,12 +159,14 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return scannerName
+	return ScannerName
 }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	scanner.searchDir = searchDir
+
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -235,7 +239,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			laneOption.ValueMap[lane] = configOption
 		}
 
-		workDirOption.ValueMap[workDir] = laneOption
+		relWorkDir, err := filepath.Rel(scanner.searchDir, workDir)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, nil
+		}
+
+		workDirOption.ValueMap[relWorkDir] = laneOption
 	}
 
 	if !isValidFastfileFound {
@@ -347,4 +356,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil
+}
+
+// IgnoreScanners ...
+func (scanner *Scanner) IgnoreScanners() []string {
+	return nil
 }

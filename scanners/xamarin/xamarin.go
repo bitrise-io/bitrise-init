@@ -19,8 +19,9 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+// ScannerName ...
 const (
-	scannerName = "xamarin"
+	ScannerName = "xamarin"
 )
 
 const (
@@ -279,7 +280,7 @@ func defaultConfigName() string {
 
 // Scanner ...
 type Scanner struct {
-	SearchDir     string
+	searchDir     string
 	FileList      []string
 	SolutionFiles []string
 
@@ -299,12 +300,14 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return scannerName
+	return ScannerName
 }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	scanner.searchDir = searchDir
+
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -426,7 +429,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			xamarinConfigurationOption.ValueMap[config] = xamarinPlatformOption
 		}
 
-		xamarinSolutionOption.ValueMap[solutionFile] = xamarinConfigurationOption
+		relSolutionFile, err := filepath.Rel(scanner.searchDir, solutionFile)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
+		xamarinSolutionOption.ValueMap[relSolutionFile] = xamarinConfigurationOption
 	}
 
 	return xamarinSolutionOption, warnings, nil
@@ -564,4 +572,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	return bitriseDataMap, nil
+}
+
+// IgnoreScanners ...
+func (scanner *Scanner) IgnoreScanners() []string {
+	return nil
 }
