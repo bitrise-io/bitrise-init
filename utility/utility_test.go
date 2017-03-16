@@ -37,7 +37,7 @@ func TestCaseInsensitiveContains(t *testing.T) {
 func TestListPathInDirSortedByComponents(t *testing.T) {
 	t.Log()
 	{
-		files, err := ListPathInDirSortedByComponents("./", true)
+		files, err := ListPathInDirSortedByComponents("./")
 		require.NoError(t, err)
 		require.NotEqual(t, 0, len(files))
 	}
@@ -70,7 +70,7 @@ func TestListPathInDirSortedByComponents(t *testing.T) {
 			"testdir/testdir/testfile",
 		}
 
-		files, err := ListPathInDirSortedByComponents(tmpDir, true)
+		files, err := ListPathInDirSortedByComponents(tmpDir)
 		require.NoError(t, err)
 		require.Equal(t, expected, files)
 	}
@@ -103,7 +103,7 @@ func TestListPathInDirSortedByComponents(t *testing.T) {
 			filepath.Join(tmpDir, "testdir/testdir/testfile"),
 		}
 
-		files, err := ListPathInDirSortedByComponents(tmpDir, false)
+		files, err := ListPathInDirSortedByComponents(tmpDir)
 		require.NoError(t, err)
 		require.Equal(t, expected, files)
 	}

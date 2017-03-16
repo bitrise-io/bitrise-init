@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -127,6 +128,7 @@ func defaultConfigName() string {
 type Scanner struct {
 	FileList    []string
 	GradleFiles []string
+	searchDir   string
 }
 
 // NewScanner ...
@@ -141,7 +143,9 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	scanner.searchDir = searchDir
+
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -218,12 +222,22 @@ that the right Gradle version is installed and used for the build. More info/gui
 			configOption.Config = configName()
 
 			gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
-			gradlewPathOption.ValueMap[rootGradlewPath] = configOption
+
+			relRootGradlewPath, err := filepath.Rel(scanner.searchDir, rootGradlewPath)
+			if err != nil {
+				return models.OptionModel{}, models.Warnings{}, err
+			}
+
+			gradlewPathOption.ValueMap[relRootGradlewPath] = configOption
 
 			gradleTaskOption.ValueMap[config] = gradlewPathOption
 		}
 
-		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
+		relGradleFilePth, err := filepath.Rel(scanner.searchDir, gradleFile)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+		gradleFileOption.ValueMap[relGradleFilePth] = gradleTaskOption
 	}
 
 	return gradleFileOption, warnings, nil

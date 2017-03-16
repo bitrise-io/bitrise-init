@@ -70,6 +70,7 @@ func initConfig(c *cli.Context) error {
 	log.Infoft(colorstring.Yellowf("output format: %s", formatStr))
 	fmt.Println()
 
+	// normalize working dir path
 	currentDir, err := pathutil.AbsPath("./")
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
@@ -83,6 +84,7 @@ func initConfig(c *cli.Context) error {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
 	}
 
+	// normalize output path
 	if outputDir == "" {
 		outputDir = filepath.Join(currentDir, defaultScanResultDir)
 	}
@@ -90,6 +92,7 @@ func initConfig(c *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
 	}
+
 	if exist, err := pathutil.IsDirExists(outputDir); err != nil {
 		return err
 	} else if !exist {
@@ -109,7 +112,6 @@ func initConfig(c *cli.Context) error {
 		return fmt.Errorf("Not allowed output format (%s), options: [%s, %s]", format.String(), output.YAMLFormat.String(), output.JSONFormat.String())
 	}
 	// ---
-
 	scanResult := scanner.Config(searchDir)
 
 	platforms := []string{}

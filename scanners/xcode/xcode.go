@@ -85,7 +85,7 @@ func (scanner Scanner) CommonName() string {
 func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -387,7 +387,12 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 			}
 		}
 
-		projectPathOption.ValueMap[project.Pth] = schemeOption
+		relProjectPath, err := filepath.Rel(scanner.searchDir, project.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+
+		projectPathOption.ValueMap[relProjectPath] = schemeOption
 	}
 
 	// Add Workspace options
@@ -445,7 +450,11 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 			}
 		}
 
-		projectPathOption.ValueMap[workspace.Pth] = schemeOption
+		relWorkspacePath, err := filepath.Rel(scanner.searchDir, workspace.Pth)
+		if err != nil {
+			return models.OptionModel{}, models.Warnings{}, err
+		}
+		projectPathOption.ValueMap[relWorkspacePath] = schemeOption
 	}
 	// -----
 

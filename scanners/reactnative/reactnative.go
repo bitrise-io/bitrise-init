@@ -5,8 +5,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"path/filepath"
-
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
@@ -89,7 +87,7 @@ func (scanner Scanner) Print() {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
@@ -130,8 +128,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	if len(iosProjectFiles) > 0 {
 		if iOSProjDir := utility.GetReactNativeiOSProjectDirInDirectoryOf(iosProjectFiles[0]); iOSProjDir != "" {
-			log.Warnft(filepath.Join(scanner.searchDir, iOSProjDir))
-			if detected, err := scanner.iosScanner.DetectPlatform(filepath.Join(scanner.searchDir, iOSProjDir)); err != nil {
+			if detected, err := scanner.iosScanner.DetectPlatform(iOSProjDir); err != nil {
 				return false, err
 			} else if detected {
 				scanner.iOSProjectDir = iOSProjDir
