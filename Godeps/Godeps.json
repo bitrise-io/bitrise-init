@@ -30,6 +30,10 @@
 			"Rev": "40ba319d280b9baa6d5ac6dd56694e16c79e0cb8"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/go-utils/command/git",
+			"Rev": "40ba319d280b9baa6d5ac6dd56694e16c79e0cb8"
+		},
+		{
 			"ImportPath": "github.com/bitrise-io/go-utils/errorutil",
 			"Rev": "40ba319d280b9baa6d5ac6dd56694e16c79e0cb8"
 		},
