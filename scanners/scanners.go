@@ -63,6 +63,7 @@ var ActiveScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
+	// cordova.NewScanner(),
 }
 
 func customConfigName() string {

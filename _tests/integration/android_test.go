@@ -105,26 +105,18 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
         env_key: PROJECT_ROOT
         value_map:
           $BITRISE_SOURCE_DIR:
-            title: Gradle task to run
-            env_key: GRADLE_TASK
+            title: Gradlew file path
+            env_key: GRADLEW_PATH
             value_map:
-              assemble:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
+              ./gradlew:
+                title: Gradle task to run
+                env_key: GRADLE_TASK
                 value_map:
-                  ./gradlew:
+                  assemble:
                     config: android-config
-              assembleDebug:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
+                  assembleDebug:
                     config: android-config
-              assembleRelease:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
+                  assembleRelease:
                     config: android-config
 configs:
   android:
@@ -180,26 +172,18 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
         env_key: PROJECT_ROOT
         value_map:
           $BITRISE_SOURCE_DIR:
-            title: Gradle task to run
-            env_key: GRADLE_TASK
+            title: Gradlew file path
+            env_key: GRADLEW_PATH
             value_map:
-              assemble:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
+              ./gradlew:
+                title: Gradle task to run
+                env_key: GRADLE_TASK
                 value_map:
-                  ./gradlew:
+                  assemble:
                     config: android-config
-              assembleDebug:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
+                  assembleDebug:
                     config: android-config
-              assembleRelease:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
+                  assembleRelease:
                     config: android-config
 configs:
   android:

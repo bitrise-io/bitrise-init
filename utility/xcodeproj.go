@@ -12,9 +12,10 @@ import (
 const (
 	embeddedWorkspacePathPattern = `.+\.xcodeproj/.+\.xcworkspace`
 
-	gitDirName      = ".git"
-	podsDirName     = "Pods"
-	carthageDirName = "Carthage"
+	gitDirName        = ".git"
+	podsDirName       = "Pods"
+	carthageDirName   = "Carthage"
+	cordovaLibDirName = "CordovaLib"
 
 	frameworkExt = ".framework"
 )
@@ -39,6 +40,9 @@ var ForbidPodsDirComponentFilter = ComponentFilter(podsDirName, false)
 
 // ForbidCarthageDirComponentFilter ...
 var ForbidCarthageDirComponentFilter = ComponentFilter(carthageDirName, false)
+
+// ForbidCordovaLibDirComponentFilter ...
+var ForbidCordovaLibDirComponentFilter = ComponentFilter(cordovaLibDirName, false)
 
 // ForbidFramworkComponentWithExtensionFilter ...
 var ForbidFramworkComponentWithExtensionFilter = ComponentWithExtensionFilter(frameworkExt, false)

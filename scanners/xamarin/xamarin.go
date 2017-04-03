@@ -409,43 +409,40 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	// Check for solution projects
-	xamarinSolutionOption := models.NewOptionModel(xamarinSolutionTitle, xamarinSolutionEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionTitle, xamarinSolutionEnvKey)
 
 	for solutionFile, configMap := range validSolutionMap {
-		xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+		xamarinConfigurationOption := models.NewOption(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+		xamarinSolutionOption.AddOption(solutionFile, xamarinConfigurationOption)
 
 		for config, platforms := range configMap {
-			xamarinPlatformOption := models.NewOptionModel(xamarinPlatformTitle, xamarinPlatformEnvKey)
+			xamarinPlatformOption := models.NewOption(xamarinPlatformTitle, xamarinPlatformEnvKey)
+			xamarinConfigurationOption.AddOption(config, xamarinPlatformOption)
+
 			for _, platform := range platforms {
-				configOption := models.NewEmptyOptionModel()
-				configOption.Config = configName(scanner.HasNugetPackages, scanner.HasXamarinComponents)
-
-				xamarinPlatformOption.ValueMap[platform] = configOption
+				configOption := models.NewConfigOption(configName(scanner.HasNugetPackages, scanner.HasXamarinComponents))
+				xamarinPlatformOption.AddConfig(platform, configOption)
 			}
-
-			xamarinConfigurationOption.ValueMap[config] = xamarinPlatformOption
 		}
-
-		xamarinSolutionOption.ValueMap[solutionFile] = xamarinConfigurationOption
 	}
 
-	return xamarinSolutionOption, warnings, nil
+	return *xamarinSolutionOption, warnings, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	configOption := models.NewEmptyOptionModel()
-	configOption.Config = defaultConfigName()
+	xamarinSolutionOption := models.NewOption(xamarinSolutionTitle, xamarinSolutionEnvKey)
 
-	xamarinSolutionOption := models.NewOptionModel(xamarinSolutionTitle, xamarinSolutionEnvKey)
-	xamarinConfigurationOption := models.NewOptionModel(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
-	xamarinPlatformOption := models.NewOptionModel(xamarinPlatformTitle, xamarinPlatformEnvKey)
+	xamarinConfigurationOption := models.NewOption(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+	xamarinSolutionOption.AddOption("_", xamarinConfigurationOption)
 
-	xamarinPlatformOption.ValueMap["_"] = configOption
-	xamarinConfigurationOption.ValueMap["_"] = xamarinPlatformOption
-	xamarinSolutionOption.ValueMap["_"] = xamarinConfigurationOption
+	xamarinPlatformOption := models.NewOption(xamarinPlatformTitle, xamarinPlatformEnvKey)
+	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
 
-	return xamarinSolutionOption
+	configOption := models.NewConfigOption(defaultConfigName())
+	xamarinPlatformOption.AddConfig("_", configOption)
+
+	return *xamarinSolutionOption
 }
 
 // Configs ...

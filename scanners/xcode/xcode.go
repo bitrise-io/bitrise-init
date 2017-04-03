@@ -117,6 +117,7 @@ func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
 		utility.ForbidGitDirComponentFilter,
 		utility.ForbidPodsDirComponentFilter,
 		utility.ForbidCarthageDirComponentFilter,
+		utility.ForbidCordovaLibDirComponentFilter,
 		utility.ForbidFramworkComponentWithExtensionFilter,
 	}
 
@@ -161,6 +162,7 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 		utility.ForbidGitDirComponentFilter,
 		utility.ForbidPodsDirComponentFilter,
 		utility.ForbidCarthageDirComponentFilter,
+		utility.ForbidCordovaLibDirComponentFilter,
 		utility.ForbidFramworkComponentWithExtensionFilter,
 		utility.AllowXCWorkspaceExtFilter,
 	}
@@ -191,6 +193,7 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 		utility.ForbidGitDirComponentFilter,
 		utility.ForbidPodsDirComponentFilter,
 		utility.ForbidCarthageDirComponentFilter,
+		utility.ForbidCordovaLibDirComponentFilter,
 		utility.ForbidFramworkComponentWithExtensionFilter)
 	if err != nil {
 		return models.OptionModel{}, models.Warnings{}, err
@@ -216,19 +219,20 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 
 	//
 	// Carthage
-	log.Infof("Searching for Cartfile")
+	log.Infoft("Searching for Cartfile")
 
 	cartfiles, err := utility.FilterPaths(scanner.fileList,
 		utility.AllowCartfileBaseFilter,
 		utility.ForbidGitDirComponentFilter,
 		utility.ForbidPodsDirComponentFilter,
 		utility.ForbidCarthageDirComponentFilter,
+		utility.ForbidCordovaLibDirComponentFilter,
 		utility.ForbidFramworkComponentWithExtensionFilter)
 	if err != nil {
 		return models.OptionModel{}, models.Warnings{}, err
 	}
 
-	log.Printf("%d Cartfiles detected", len(cartfiles))
+	log.Printft("%d Cartfiles detected", len(cartfiles))
 	for _, file := range cartfiles {
 		log.Printft("- %s", file)
 	}
@@ -240,11 +244,11 @@ func (scanner *Scanner) CommonOptions() (models.OptionModel, models.Warnings, er
 	defaultGitignorePth := filepath.Join(scanner.searchDir, ".gitignore")
 
 	if exist, err := pathutil.IsPathExists(defaultGitignorePth); err != nil {
-		log.Warnf("Failed to check if .gitignore file exists at: %s, error: %s", defaultGitignorePth, err)
+		log.Warnft("Failed to check if .gitignore file exists at: %s, error: %s", defaultGitignorePth, err)
 	} else if exist {
 		isGitignored, err := utility.FileContains(defaultGitignorePth, "xcshareddata")
 		if err != nil {
-			log.Warnf("Failed to check if xcshareddata gitignored, error: %s", err)
+			log.Warnft("Failed to check if xcshareddata gitignored, error: %s", err)
 		} else {
 			isXcshareddataGitignored = isGitignored
 		}
@@ -285,6 +289,7 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 			for _, target := range project.Targets {
 				log.Warnft("- %s", target.Name)
 			}
+			log.Printft("")
 		}
 	}
 
@@ -332,11 +337,13 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 	//
 	// Create config descriptors
 	configDescriptors := []ConfigDescriptor{}
-	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
+
+	projectPathOption := models.NewOption(projectPathTitle, projectPathEnvKey)
 
 	// Add Standalon Project options
 	for _, project := range standaloneProjects {
-		schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
+		schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
+		projectPathOption.AddOption(project.Pth, schemeOption)
 
 		carthageCommand := ""
 		if utility.HasCartfileInDirectoryOf(project.Pth) {
@@ -364,10 +371,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewEmptyOptionModel()
-				configOption.Config = configDescriptor.String()
-
-				schemeOption.ValueMap[target.Name] = configOption
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range project.SharedSchemes {
@@ -380,19 +385,16 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewEmptyOptionModel()
-				configOption.Config = configDescriptor.String()
-
-				schemeOption.ValueMap[scheme.Name] = configOption
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
-
-		projectPathOption.ValueMap[project.Pth] = schemeOption
 	}
 
 	// Add Workspace options
 	for _, workspace := range workspaces {
-		schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
+		schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
+		projectPathOption.AddOption(workspace.Pth, schemeOption)
 
 		carthageCommand := ""
 		if utility.HasCartfileInDirectoryOf(workspace.Pth) {
@@ -422,10 +424,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewEmptyOptionModel()
-				configOption.Config = configDescriptor.String()
-
-				schemeOption.ValueMap[target.Name] = configOption
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range sharedSchemes {
@@ -438,14 +438,10 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewEmptyOptionModel()
-				configOption.Config = configDescriptor.String()
-
-				schemeOption.ValueMap[scheme.Name] = configOption
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
-
-		projectPathOption.ValueMap[workspace.Pth] = schemeOption
 	}
 	// -----
 
@@ -456,21 +452,20 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 
 	scanner.configDescriptors = configDescriptors
 
-	return projectPathOption, warnings, nil
+	return *projectPathOption, warnings, nil
 }
 
 // CommonDefaultOptions ...
 func (scanner *Scanner) CommonDefaultOptions() models.OptionModel {
-	configOption := models.NewEmptyOptionModel()
-	configOption.Config = fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName())
+	projectPathOption := models.NewOption(projectPathTitle, projectPathEnvKey)
 
-	projectPathOption := models.NewOptionModel(projectPathTitle, projectPathEnvKey)
-	schemeOption := models.NewOptionModel(schemeTitle, schemeEnvKey)
+	schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
+	projectPathOption.AddOption("_", schemeOption)
 
-	schemeOption.ValueMap["_"] = configOption
-	projectPathOption.ValueMap["_"] = schemeOption
+	configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName()))
+	schemeOption.AddConfig("_", configOption)
 
-	return projectPathOption
+	return *projectPathOption
 }
 
 func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) bitriseModels.BitriseDataModel {

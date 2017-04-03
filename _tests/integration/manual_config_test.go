@@ -19,14 +19,15 @@ import (
 func TestManualConfig(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
+	// defer func() {
+	// 	require.NoError(t, os.RemoveAll(tmpDir))
+	// }()
 
 	t.Log("manual-config")
 	{
 		manualConfigDir := filepath.Join(tmpDir, "manual-config")
 		require.NoError(t, os.MkdirAll(manualConfigDir, 0777))
+		fmt.Printf("manualConfigDir: %s\n", manualConfigDir)
 
 		cmd := command.New(binPath(), "--ci", "manual-config", "--output-dir", manualConfigDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
@@ -127,15 +128,19 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       _:
-        title: Gradle task to run
-        env_key: GRADLE_TASK
+        title: Path to the Android project root
+        env_key: PROJECT_ROOT
         value_map:
           _:
             title: Gradlew file path
             env_key: GRADLEW_PATH
             value_map:
               _:
-                config: default-android-config
+                title: Gradle task to run
+                env_key: GRADLE_TASK
+                value_map:
+                  _:
+                    config: default-android-config
   fastlane:
     title: Working directory
     env_key: FASTLANE_WORK_DIR

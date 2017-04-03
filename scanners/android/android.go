@@ -176,8 +176,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	return true, nil
 }
 
-// Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+// GenerateOption ...
+func (scanner *Scanner) GenerateOption(generateGradlewIfMissing bool) (models.OptionModel, models.Warnings, error) {
 	// Search for gradlew_path input
 	log.Infoft("Searching for gradlew files")
 
@@ -193,65 +193,91 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	rootGradlewPath := ""
-	if len(gradlewFiles) > 0 {
-		rootGradlewPath = gradlewFiles[0]
-		log.Printft("root gradlew path: %s", rootGradlewPath)
-	} else {
-		log.Errorft("No gradle wrapper (gradlew) found")
-		return models.OptionModel{}, warnings, fmt.Errorf(`<b>No Gradle Wrapper (gradlew) found.</b> 
+	gradlewFilesCount := len(gradlewFiles)
+	switch {
+	case gradlewFilesCount == 0:
+		if generateGradlewIfMissing {
+			log.Warnft("No gradle wrapper (gradlew) found")
+			log.Warnft(`<b>No Gradle Wrapper (gradlew) found.</b> 
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
+		} else {
+			log.Errorft("No gradle wrapper (gradlew) found")
+			return models.OptionModel{}, warnings, fmt.Errorf(`<b>No Gradle Wrapper (gradlew) found.</b> 
+Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
+that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
+		}
+	case gradlewFilesCount == 1:
+		rootGradlewPath = gradlewFiles[0]
+	case gradlewFilesCount > 1:
+		rootGradlewPath = gradlewFiles[0]
+		log.Warnft("Multiple gradlew file, detected:")
+		for _, gradlewPth := range gradlewFiles {
+			log.Warnft("- %s", gradlewPth)
+		}
+		log.Warnft("Using: %s", rootGradlewPath)
 	}
 
 	// Inspect Gradle files
-	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
+
+	gradleFileOption := models.NewOption(gradleFileTitle, gradleFileEnvKey)
 
 	for _, gradleFile := range scanner.GradleFiles {
 		log.Infoft("Inspecting gradle file: %s", gradleFile)
 
-		configs := defaultGradleTasks
-
-		log.Printft("%d gradle tasks", len(configs))
-		for _, config := range configs {
-			log.Printft("- %s", config)
+		// generate-gradle-wrapper step will generate the wrapper
+		if rootGradlewPath == "" && generateGradlewIfMissing {
+			gradleFileDir := filepath.Dir(gradleFile)
+			rootGradlewPath = filepath.Join(gradleFileDir, "gradlew")
 		}
+		// ---
 
-		projectRootOption := models.NewOptionModel(projectDirTitle, projectDirEnvKey)
-		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
+		projectRootOption := models.NewOption(projectDirTitle, projectDirEnvKey)
+		gradleFileOption.AddOption(gradleFile, projectRootOption)
 
-		for _, config := range configs {
-			configOption := models.NewEmptyOptionModel()
-			configOption.Config = configName()
+		absProjectRootPth := filepath.Join("$BITRISE_SOURCE_DIR", filepath.Dir(gradleFile))
 
-			gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
-			gradlewPathOption.ValueMap[rootGradlewPath] = configOption
+		gradlewPthOption := models.NewOption(gradlewPathTitle, gradlewPathEnvKey)
+		projectRootOption.AddOption(absProjectRootPth, gradlewPthOption)
 
-			gradleTaskOption.ValueMap[config] = gradlewPathOption
+		gradleTaskOption := models.NewOption(gradleTaskTitle, gradleTaskEnvKey)
+		gradlewPthOption.AddOption(rootGradlewPath, gradleTaskOption)
 
-			absProjectRootPth := filepath.Join("$BITRISE_SOURCE_DIR", filepath.Dir(gradleFile))
-			projectRootOption.ValueMap[absProjectRootPth] = gradleTaskOption
+		log.Printft("%d gradle tasks", len(defaultGradleTasks))
+
+		for _, gradleTask := range defaultGradleTasks {
+			log.Printft("- %s", gradleTask)
+
+			configOption := models.NewConfigOption(configName())
+			gradleTaskOption.AddConfig(gradleTask, configOption)
 		}
-
-		gradleFileOption.ValueMap[gradleFile] = projectRootOption
 	}
 
-	return gradleFileOption, warnings, nil
+	return *gradleFileOption, warnings, nil
+}
+
+// Options ...
+func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+	return scanner.GenerateOption(false)
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	configOption := models.NewEmptyOptionModel()
-	configOption.Config = defaultConfigName()
+	gradleFileOption := models.NewOption(gradleFileTitle, gradleFileEnvKey)
 
-	gradleFileOption := models.NewOptionModel(gradleFileTitle, gradleFileEnvKey)
-	gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
-	gradlewPathOption := models.NewOptionModel(gradlewPathTitle, gradlewPathEnvKey)
+	projectRootOption := models.NewOption(projectDirTitle, projectDirEnvKey)
+	gradleFileOption.AddOption("_", projectRootOption)
 
-	gradlewPathOption.ValueMap["_"] = configOption
-	gradleTaskOption.ValueMap["_"] = gradlewPathOption
-	gradleFileOption.ValueMap["_"] = gradleTaskOption
+	gradlewPthOption := models.NewOption(gradlewPathTitle, gradlewPathEnvKey)
+	projectRootOption.AddOption("_", gradlewPthOption)
 
-	return gradleFileOption
+	gradleTaskOption := models.NewOption(gradleTaskTitle, gradleTaskEnvKey)
+	gradlewPthOption.AddOption("_", gradleTaskOption)
+
+	configOption := models.NewConfigOption(defaultConfigName())
+	gradleTaskOption.AddConfig("_", configOption)
+
+	return *gradleFileOption
 }
 
 // Configs ...

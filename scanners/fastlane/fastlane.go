@@ -194,14 +194,19 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 	warnings := models.Warnings{}
 
 	isValidFastfileFound := false
 
 	// Inspect Fastfiles
+
+	workDirOption := models.NewOption(workDirTitle, workDirEnvKey)
+
 	for _, fastfile := range scanner.Fastfiles {
 		log.Infoft("Inspecting Fastfile: %s", fastfile)
+
+		workDir := fastlaneWorkDir(fastfile)
+		log.Printft("fastlane work dir: %s", workDir)
 
 		lanes, err := inspectFastfile(fastfile)
 		if err != nil {
@@ -211,9 +216,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		log.Printft("%d lanes found", len(lanes))
-		for _, lane := range lanes {
-			log.Printft("- %s", lane)
-		}
 
 		if len(lanes) == 0 {
 			log.Warnft("No lanes found")
@@ -223,19 +225,15 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		isValidFastfileFound = true
 
-		workDir := fastlaneWorkDir(fastfile)
+		laneOption := models.NewOption(laneTitle, laneEnvKey)
+		workDirOption.AddOption(workDir, laneOption)
 
-		log.Printft("fastlane work dir: %s", workDir)
-
-		configOption := models.NewEmptyOptionModel()
-		configOption.Config = configName()
-
-		laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 		for _, lane := range lanes {
-			laneOption.ValueMap[lane] = configOption
-		}
+			log.Printft("- %s", lane)
 
-		workDirOption.ValueMap[workDir] = laneOption
+			configOption := models.NewConfigOption(configName())
+			laneOption.AddConfig(lane, configOption)
+		}
 	}
 
 	if !isValidFastfileFound {
@@ -244,21 +242,20 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		return models.OptionModel{}, warnings, nil
 	}
 
-	return workDirOption, warnings, nil
+	return *workDirOption, warnings, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	configOption := models.NewEmptyOptionModel()
-	configOption.Config = defaultConfigName()
+	workDirOption := models.NewOption(workDirTitle, workDirEnvKey)
 
-	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
-	laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
+	laneOption := models.NewOption(laneTitle, laneEnvKey)
+	workDirOption.AddOption("_", laneOption)
 
-	laneOption.ValueMap["_"] = configOption
-	workDirOption.ValueMap["_"] = laneOption
+	configOption := models.NewConfigOption(defaultConfigName())
+	laneOption.AddConfig("_", configOption)
 
-	return workDirOption
+	return *workDirOption
 }
 
 // Configs ...

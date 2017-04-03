@@ -52,12 +52,12 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 			})
 		}
 
-		nestedOptions, found := option.ValueMap[selectedValue]
+		nestedOptions, found := option.ChildOptionMap[selectedValue]
 		if !found {
 			return nil
 		}
 
-		return walkDepth(nestedOptions)
+		return walkDepth(*nestedOptions)
 	}
 
 	if err := walkDepth(options); err != nil {
@@ -73,7 +73,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	//
 	// Select platform
 	platforms := []string{}
-	for platform := range scanResult.OptionsMap {
+	for platform := range scanResult.PlatformOptionMap {
 		platforms = append(platforms, platform)
 	}
 
@@ -93,7 +93,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 
 	//
 	// Select config
-	options, ok := scanResult.OptionsMap[platform]
+	options, ok := scanResult.PlatformOptionMap[platform]
 	if !ok {
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("invalid platform selected: %s", platform)
 	}
@@ -106,7 +106,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 
 	//
 	// Build config
-	configMap := scanResult.ConfigsMap[platform]
+	configMap := scanResult.PlatformConfigMapMap[platform]
 	configStr := configMap[configPth]
 
 	var config bitriseModels.BitriseDataModel

@@ -118,8 +118,9 @@ func Config(searchDir string) models.ScanResultModel {
 	// ---
 
 	return models.ScanResultModel{
-		OptionsMap:  projectTypeOptionMap,
-		ConfigsMap:  projectTypeConfigMap,
-		WarningsMap: projectTypeWarningMap,
+		PlatformOptionMap:    projectTypeOptionMap,
+		PlatformConfigMapMap: projectTypeConfigMap,
+		PlatformWarningsMap:  projectTypeWarningMap,
+		PlatformErrorsMap:    projectTypeErrorMap,
 	}
 }

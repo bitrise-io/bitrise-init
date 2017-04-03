@@ -13,45 +13,101 @@ const (
 	deployWorkflowID     = "deploy"
 )
 
-// AddError ...
-func (result *ScanResultModel) AddError(platform string, errorMessage string) {
-	if result.ErrorsMap == nil {
-		result.ErrorsMap = map[string]Errors{}
-	}
-	if result.ErrorsMap[platform] == nil {
-		result.ErrorsMap[platform] = Errors{}
-	}
-	result.ErrorsMap[platform] = append(result.ErrorsMap[platform], errorMessage)
-}
+// ---
+// OptionModel
 
-// NewOptionModel ...
-func NewOptionModel(title, envKey string) OptionModel {
-	return OptionModel{
-		Title:  title,
-		EnvKey: envKey,
-
-		ValueMap: OptionValueMap{},
+// NewOption ...
+func NewOption(title, envKey string) *OptionModel {
+	return &OptionModel{
+		Title:          title,
+		EnvKey:         envKey,
+		ChildOptionMap: map[string]*OptionModel{},
 	}
 }
 
-// NewEmptyOptionModel ...
-func NewEmptyOptionModel() OptionModel {
-	return OptionModel{
-		ValueMap: OptionValueMap{},
+// NewConfigOption ...
+func NewConfigOption(name string) *OptionModel {
+	return &OptionModel{
+		ChildOptionMap: map[string]*OptionModel{},
+		Config:         name,
 	}
+}
+
+// AddOption ...
+func (option *OptionModel) AddOption(forValue string, newOption *OptionModel) {
+	option.ChildOptionMap[forValue] = newOption
+}
+
+// AddConfig ...
+func (option *OptionModel) AddConfig(forValue string, newConfigOption *OptionModel) {
+	option.ChildOptionMap[forValue] = newConfigOption
+}
+
+// Child ...
+func (option *OptionModel) Child(components ...string) (*OptionModel, bool) {
+	currentOption := option
+	for _, component := range components {
+		childOption := currentOption.ChildOptionMap[component]
+		if childOption == nil {
+			return nil, false
+		}
+		currentOption = childOption
+	}
+	return currentOption, true
+}
+
+// LastOptions ...
+func (option *OptionModel) LastOptions() []*OptionModel {
+	lastOptions := []*OptionModel{}
+
+	var walkDepth func(option *OptionModel)
+
+	walkDepth = func(option *OptionModel) {
+		if len(option.ChildOptionMap) == 0 {
+			// no more child, this is the last option in this branch
+			lastOptions = append(lastOptions, option)
+			return
+		}
+		for _, childOption := range option.ChildOptionMap {
+			if childOption == nil {
+				// values are set to this option, but has value without child
+				lastOptions = append(lastOptions, option)
+				return
+			}
+
+			walkDepth(childOption)
+		}
+	}
+
+	walkDepth(option)
+
+	return lastOptions
 }
 
 // GetValues ...
-func (option OptionModel) GetValues() []string {
+func (option *OptionModel) GetValues() []string {
 	if option.Config != "" {
 		return []string{option.Config}
 	}
 
 	values := []string{}
-	for value := range option.ValueMap {
+	for value := range option.ChildOptionMap {
 		values = append(values, value)
 	}
 	return values
+}
+
+// ---
+
+// AddError ...
+func (result *ScanResultModel) AddError(platform string, errorMessage string) {
+	if result.PlatformErrorsMap == nil {
+		result.PlatformErrorsMap = map[string]Errors{}
+	}
+	if result.PlatformErrorsMap[platform] == nil {
+		result.PlatformErrorsMap[platform] = []string{}
+	}
+	result.PlatformErrorsMap[platform] = append(result.PlatformErrorsMap[platform], errorMessage)
 }
 
 // BitriseDataWithCIWorkflow ...
