@@ -60,7 +60,8 @@ func fixedGradlewPath(gradlewPth string) string {
 	return gradlewPth
 }
 
-func filterRootBuildGradleFiles(fileList []string) ([]string, error) {
+// FilterRootBuildGradleFiles ...
+func FilterRootBuildGradleFiles(fileList []string) ([]string, error) {
 	allowBuildGradleBaseFilter := utility.BaseFilter(buildGradleBasePath, true)
 	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter)
 	if err != nil {
@@ -149,7 +150,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for gradle file
 	log.Infoft("Searching for build.gradle files")
 
-	gradleFiles, err := filterRootBuildGradleFiles(fileList)
+	gradleFiles, err := FilterRootBuildGradleFiles(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}

@@ -22,7 +22,7 @@ func TestFilterRootBuildGradleFiles(t *testing.T) {
 			"path/to/my",
 		}
 
-		files, err := filterRootBuildGradleFiles(fileList)
+		files, err := FilterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(files))
 
@@ -37,7 +37,7 @@ func TestFilterRootBuildGradleFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files, err := filterRootBuildGradleFiles(fileList)
+		files, err := FilterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}
@@ -50,7 +50,7 @@ func TestFilterRootBuildGradleFiles(t *testing.T) {
 			"path/to/my/file",
 		}
 
-		files, err := filterRootBuildGradleFiles(fileList)
+		files, err := FilterRootBuildGradleFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 	}
