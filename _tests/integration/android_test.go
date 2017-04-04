@@ -88,6 +88,7 @@ var sampleAppsAndroid22Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
@@ -100,27 +101,31 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       build.gradle:
-        title: Gradle task to run
-        env_key: GRADLE_TASK
+        title: Path to the Android project root
+        env_key: PROJECT_ROOT
         value_map:
-          assemble:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
+          $BITRISE_SOURCE_DIR:
+            title: Gradle task to run
+            env_key: GRADLE_TASK
             value_map:
-              ./gradlew:
-                config: android-config
-          assembleDebug:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
-            value_map:
-              ./gradlew:
-                config: android-config
-          assembleRelease:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
-            value_map:
-              ./gradlew:
-                config: android-config
+              assemble:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
+              assembleDebug:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
+              assembleRelease:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
 configs:
   android:
     android-config: |
@@ -137,6 +142,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - change-workdir@%s:
+              inputs:
+              - path: $PROJECT_ROOT
+              - is_create_path: "false"
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}
@@ -154,6 +163,7 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
@@ -166,27 +176,31 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       build.gradle:
-        title: Gradle task to run
-        env_key: GRADLE_TASK
+        title: Path to the Android project root
+        env_key: PROJECT_ROOT
         value_map:
-          assemble:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
+          $BITRISE_SOURCE_DIR:
+            title: Gradle task to run
+            env_key: GRADLE_TASK
             value_map:
-              ./gradlew:
-                config: android-config
-          assembleDebug:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
-            value_map:
-              ./gradlew:
-                config: android-config
-          assembleRelease:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
-            value_map:
-              ./gradlew:
-                config: android-config
+              assemble:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
+              assembleDebug:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
+              assembleRelease:
+                title: Gradlew file path
+                env_key: GRADLEW_PATH
+                value_map:
+                  ./gradlew:
+                    config: android-config
 configs:
   android:
     android-config: |
@@ -203,6 +217,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - change-workdir@%s:
+              inputs:
+              - path: $PROJECT_ROOT
+              - is_create_path: "false"
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}
