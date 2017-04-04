@@ -15,6 +15,11 @@ const (
 	// ActivateSSHKeyVersion ...
 	ActivateSSHKeyVersion = "3.1.1"
 
+	// ChangeWorkDirID ...
+	ChangeWorkDirID = "change-workdir"
+	// ChangeWorkDirVersion ...
+	ChangeWorkDirVersion = "1.0.1"
+
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
@@ -148,6 +153,12 @@ func ActivateSSHKeyStepListItem() bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(ActivateSSHKeyID, ActivateSSHKeyVersion)
 	runIf := `{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`
 	return stepListItem(stepIDComposite, "", runIf, nil)
+}
+
+// ChangeWorkDirStepListItem ...
+func ChangeWorkDirStepListItem(inputs ...envman.EnvironmentItemModel) bitrise.StepListItemModel {
+	stepIDComposite := stepIDComposite(ChangeWorkDirID, ChangeWorkDirVersion)
+	return stepListItem(stepIDComposite, "", "", inputs)
 }
 
 // GitCloneStepListItem ...

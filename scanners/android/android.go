@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -28,6 +29,10 @@ const (
 	gradleFileKey    = "gradle_file"
 	gradleFileTitle  = "Path to the gradle file to use"
 	gradleFileEnvKey = "GRADLE_BUILD_FILE_PATH"
+
+	projectDirKey    = "path"
+	projectDirTitle  = "Path to the Android project root"
+	projectDirEnvKey = "PROJECT_ROOT"
 
 	gradleTaskKey    = "gradle_task"
 	gradleTaskTitle  = "Gradle task to run"
@@ -211,6 +216,7 @@ that the right Gradle version is installed and used for the build. More info/gui
 			log.Printft("- %s", config)
 		}
 
+		projectRootOption := models.NewOptionModel(projectDirTitle, projectDirEnvKey)
 		gradleTaskOption := models.NewOptionModel(gradleTaskTitle, gradleTaskEnvKey)
 
 		for _, config := range configs {
@@ -221,9 +227,12 @@ that the right Gradle version is installed and used for the build. More info/gui
 			gradlewPathOption.ValueMap[rootGradlewPath] = configOption
 
 			gradleTaskOption.ValueMap[config] = gradlewPathOption
+
+			absProjectRootPth := filepath.Join("$BITRISE_SOURCE_DIR", filepath.Dir(gradleFile))
+			projectRootOption.ValueMap[absProjectRootPth] = gradleTaskOption
 		}
 
-		gradleFileOption.ValueMap[gradleFile] = gradleTaskOption
+		gradleFileOption.ValueMap[gradleFile] = projectRootOption
 	}
 
 	return gradleFileOption, warnings, nil
@@ -254,6 +263,13 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
+
+	// ChangeWorkdir
+	cwdInputs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{"path": "$" + projectDirEnvKey},
+		envmanModels.EnvironmentItemModel{"is_create_path": "false"},
+	}
+	stepList = append(stepList, steps.ChangeWorkDirStepListItem(cwdInputs...))
 
 	// Script
 	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
@@ -295,6 +311,13 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	// GitClone
 	stepList = append(stepList, steps.GitCloneStepListItem())
+
+	// ChangeWorkdir
+	cwdInputs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{"path": "$" + projectDirEnvKey},
+		envmanModels.EnvironmentItemModel{"is_create_path": "false"},
+	}
+	stepList = append(stepList, steps.ChangeWorkDirStepListItem(cwdInputs...))
 
 	// Script
 	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
