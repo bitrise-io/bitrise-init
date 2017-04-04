@@ -265,11 +265,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// ChangeWorkdir
-	cwdInputs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{"path": "$" + projectDirEnvKey},
-		envmanModels.EnvironmentItemModel{"is_create_path": "false"},
-	}
-	stepList = append(stepList, steps.ChangeWorkDirStepListItem(cwdInputs...))
+	stepList = append(stepList, steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
 
 	// Script
 	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
@@ -313,11 +309,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	stepList = append(stepList, steps.GitCloneStepListItem())
 
 	// ChangeWorkdir
-	cwdInputs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{"path": "$" + projectDirEnvKey},
-		envmanModels.EnvironmentItemModel{"is_create_path": "false"},
-	}
-	stepList = append(stepList, steps.ChangeWorkDirStepListItem(cwdInputs...))
+	stepList = append(stepList, steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
 
 	// Script
 	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))

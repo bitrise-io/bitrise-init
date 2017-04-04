@@ -158,6 +158,7 @@ func ActivateSSHKeyStepListItem() bitrise.StepListItemModel {
 // ChangeWorkDirStepListItem ...
 func ChangeWorkDirStepListItem(inputs ...envman.EnvironmentItemModel) bitrise.StepListItemModel {
 	stepIDComposite := stepIDComposite(ChangeWorkDirID, ChangeWorkDirVersion)
+	inputs = append(inputs, envman.EnvironmentItemModel{"is_create_path": "false"})
 	return stepListItem(stepIDComposite, "", "", inputs)
 }
 
