@@ -45,6 +45,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
@@ -195,6 +196,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - change-workdir@%s:
+              inputs:
+              - path: $PROJECT_ROOT
+              - is_create_path: "false"
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}
