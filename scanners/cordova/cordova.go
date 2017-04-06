@@ -73,6 +73,10 @@ func filterRootConfigXMLFile(fileList []string) (string, error) {
 	return configXMLs[0], nil
 }
 
+func configName(projectType string) string {
+	return fmt.Sprintf("cordova-%s", projectType)
+}
+
 // Scanner ...
 type Scanner struct {
 	fileList     []string
@@ -305,8 +309,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	if hasIosProject && hasAndroidProject {
-		iosOptionsCopy := new(models.OptionModel)
-		iosOptionsCopy = iosOptions
+		iosOptionsCopy := iosOptions.Copy()
 
 		lastOptions := iosOptionsCopy.LastOptions()
 		for _, lastOption := range lastOptions {

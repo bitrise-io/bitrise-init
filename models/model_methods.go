@@ -1,6 +1,10 @@
 package models
 
 import (
+	"fmt"
+
+	"encoding/json"
+
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 )
@@ -31,6 +35,21 @@ func NewConfigOption(name string) *OptionModel {
 		ChildOptionMap: map[string]*OptionModel{},
 		Config:         name,
 	}
+}
+
+func (option *OptionModel) String() string {
+	if option.Config != "" {
+		return fmt.Sprintf(`Config Option:
+  config: %s
+`, option.Config)
+	}
+
+	values := option.GetValues()
+	return fmt.Sprintf(`Option:
+  title: %s
+  env_key: %s
+  values: %v
+`, option.Title, option.EnvKey, values)
 }
 
 // AddOption ...
@@ -82,6 +101,21 @@ func (option *OptionModel) LastOptions() []*OptionModel {
 	walkDepth(option)
 
 	return lastOptions
+}
+
+// Copy ...
+func (option *OptionModel) Copy() *OptionModel {
+	bytes, err := json.Marshal(*option)
+	if err != nil {
+		return nil
+	}
+
+	var optionCopy OptionModel
+	if err := json.Unmarshal(bytes, &optionCopy); err != nil {
+		return nil
+	}
+
+	return &optionCopy
 }
 
 // GetValues ...

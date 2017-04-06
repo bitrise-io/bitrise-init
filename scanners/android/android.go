@@ -248,8 +248,12 @@ that the right Gradle version is installed and used for the build. More info/gui
 		for _, gradleTask := range defaultGradleTasks {
 			log.Printft("- %s", gradleTask)
 
-			configOption := models.NewConfigOption(configName())
-			gradleTaskOption.AddConfig(gradleTask, configOption)
+			if addConfigOption {
+				configOption := models.NewConfigOption(configName())
+				gradleTaskOption.AddConfig(gradleTask, configOption)
+			} else {
+				gradleTaskOption.AddConfig(gradleTask, nil)
+			}
 		}
 	}
 
