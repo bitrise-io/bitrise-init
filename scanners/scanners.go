@@ -3,6 +3,7 @@ package scanners
 import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/scanners/macos"
@@ -63,7 +64,7 @@ var ActiveScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
-	// cordova.NewScanner(),
+	cordova.NewScanner(),
 }
 
 func customConfigName() string {

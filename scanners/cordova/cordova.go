@@ -6,9 +6,11 @@ import (
 
 	"path/filepath"
 
+	"encoding/json"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/xcode"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -208,8 +210,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	// ---
 
-	var iosOpt *models.OptionModel
-	iosOptions := models.OptionModel{}
+	iosOptions := new(models.OptionModel)
 	if hasIosProject {
 		platformDir := filepath.Join(platformsDir, "ios")
 
@@ -217,9 +218,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		if changeDirForFunctionErr := pathutil.ChangeDirForFunction(platformDir, func() {
 			log.Printft("")
 
-			iosScanner := ios.NewScanner()
+			iosScanner := &xcode.Scanner{ProjectType: xcode.ProjectTypeIOS}
 
-			detected, err := iosScanner.DetectPlatform("./")
+			detected, err := iosScanner.CommonDetectPlatform("./")
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to detect ios platform, error: %s", err)
 				return
@@ -229,7 +230,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return
 			}
 
-			options, warnings, err := iosScanner.Options()
+			options, warnings, err := iosScanner.GenerateOptions(false)
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to create ios project options, error: %s", err)
 				return
@@ -238,7 +239,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				log.Warnft(warning)
 			}
 
-			iosOptions = options
+			iosOptions = &options
 		}); changeDirForFunctionErr != nil {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to change dir to: %s, error: %s", platformsDir, err)
 		}
@@ -247,13 +248,16 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
 		}
 
-		projectTypeOption.AddOption("ios", iosOpt)
+		projectTypeOption.AddOption("ios", iosOptions)
+
+		bytes, err := json.MarshalIndent(iosOptions, "", "  ")
+		if err != nil {
+			log.Errorft("Failed to marshal, error: %s", err)
+		}
+		log.Doneft("\niosOptions: %s\n", string(bytes))
 	}
 
-	fmt.Printf("iosOptions: %v", iosOptions)
-
-	var androidOpt *models.OptionModel
-	androidOptions := models.OptionModel{}
+	androidOptions := new(models.OptionModel)
 	if hasAndroidProject {
 		platformDir := filepath.Join(platformsDir, "android")
 
@@ -273,7 +277,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return
 			}
 
-			options, warnings, err := androidScanner.GenerateOption(true)
+			options, warnings, err := androidScanner.GenerateOption(false, true)
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to create android project options, error: %s", err)
 				return
@@ -282,7 +286,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				log.Warnft(warning)
 			}
 
-			androidOptions = options
+			androidOptions = &options
 		}); changeDirForFunctionErr != nil {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to change dir to: %s, error: %s", platformsDir, err)
 		}
@@ -291,22 +295,38 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
 		}
 
-		projectTypeOption.AddOption("android", androidOpt)
-	}
+		projectTypeOption.AddOption("android", androidOptions)
 
-	fmt.Printf("androidOptions: %v", androidOptions)
+		bytes, err := json.MarshalIndent(androidOptions, "", "  ")
+		if err != nil {
+			log.Errorft("Failed to marshal, error: %s", err)
+		}
+		log.Doneft("\nandroidOptions: %s\n", string(bytes))
+	}
 
 	if hasIosProject && hasAndroidProject {
-		// lastOptions := iosOpt.LastOptions()
-		// for _, lastOption := range lastOptions {
-		// 	for value, childOption := range lastOption.ChildOptionMap {
+		iosOptionsCopy := new(models.OptionModel)
+		iosOptionsCopy = iosOptions
 
-		// 	}
-		// }
-
+		lastOptions := iosOptionsCopy.LastOptions()
+		for _, lastOption := range lastOptions {
+			for value, childOption := range lastOption.ChildOptionMap {
+				if childOption != nil {
+					log.Errorft("Child should be nil")
+				}
+				lastOption.AddOption(value, androidOptions)
+			}
+		}
+		projectTypeOption.AddOption("ios+android", iosOptionsCopy)
 	}
 
-	return iosOptions, warnings, nil
+	bytes, err := json.MarshalIndent(projectTypeOption, "", "  ")
+	if err != nil {
+		log.Errorft("Failed to marshal, error: %s", err)
+	}
+	log.Doneft("\nprojectTypeOption: %s\n", string(bytes))
+
+	return *projectTypeOption, warnings, nil
 }
 
 // DefaultOptions ...

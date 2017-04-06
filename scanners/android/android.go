@@ -177,7 +177,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 }
 
 // GenerateOption ...
-func (scanner *Scanner) GenerateOption(generateGradlewIfMissing bool) (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) GenerateOption(addConfigOption, generateGradlewIfMissing bool) (models.OptionModel, models.Warnings, error) {
 	// Search for gradlew_path input
 	log.Infoft("Searching for gradlew files")
 
@@ -258,7 +258,7 @@ that the right Gradle version is installed and used for the build. More info/gui
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return scanner.GenerateOption(false)
+	return scanner.GenerateOption(true, false)
 }
 
 // DefaultOptions ...
