@@ -26,7 +26,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return scanner.GenerateOptions(true)
+	return scanner.GenerateOptions()
 }
 
 // DefaultOptions ...

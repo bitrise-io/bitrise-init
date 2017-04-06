@@ -1,9 +1,8 @@
 package models
 
 import (
-	"fmt"
-
 	"encoding/json"
+	"fmt"
 
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -26,6 +25,7 @@ func NewOption(title, envKey string) *OptionModel {
 		Title:          title,
 		EnvKey:         envKey,
 		ChildOptionMap: map[string]*OptionModel{},
+		Components:     []string{},
 	}
 }
 
@@ -34,6 +34,7 @@ func NewConfigOption(name string) *OptionModel {
 	return &OptionModel{
 		ChildOptionMap: map[string]*OptionModel{},
 		Config:         name,
+		Components:     []string{},
 	}
 }
 
@@ -55,11 +56,47 @@ func (option *OptionModel) String() string {
 // AddOption ...
 func (option *OptionModel) AddOption(forValue string, newOption *OptionModel) {
 	option.ChildOptionMap[forValue] = newOption
+
+	if newOption != nil {
+		newOption.Components = append(option.Components, forValue)
+
+		if option.Head == nil {
+			// first option's head is nil
+			newOption.Head = option
+		} else {
+			newOption.Head = option.Head
+		}
+	}
 }
 
 // AddConfig ...
 func (option *OptionModel) AddConfig(forValue string, newConfigOption *OptionModel) {
 	option.ChildOptionMap[forValue] = newConfigOption
+	if newConfigOption != nil {
+		newConfigOption.Components = append(option.Components, forValue)
+
+		if option.Head == nil {
+			// first option's head is nil
+			newConfigOption.Head = option
+		} else {
+			newConfigOption.Head = option.Head
+		}
+	}
+}
+
+// Parent ...
+func (option *OptionModel) Parent() (*OptionModel, string, bool) {
+	if option.Head == nil {
+		return nil, "", false
+	}
+
+	parentComponents := option.Components[:len(option.Components)-1]
+	parentOption, ok := option.Head.Child(parentComponents...)
+	if !ok {
+		return nil, "", false
+	}
+	underKey := option.Components[len(option.Components)-1:][0]
+	return parentOption, underKey, true
 }
 
 // Child ...
@@ -75,18 +112,18 @@ func (option *OptionModel) Child(components ...string) (*OptionModel, bool) {
 	return currentOption, true
 }
 
-// LastOptions ...
-func (option *OptionModel) LastOptions() []*OptionModel {
+// LastChilds ...
+func (option *OptionModel) LastChilds() []*OptionModel {
 	lastOptions := []*OptionModel{}
 
-	var walkDepth func(option *OptionModel)
-
-	walkDepth = func(option *OptionModel) {
+	var walk func(option *OptionModel)
+	walk = func(option *OptionModel) {
 		if len(option.ChildOptionMap) == 0 {
 			// no more child, this is the last option in this branch
 			lastOptions = append(lastOptions, option)
 			return
 		}
+
 		for _, childOption := range option.ChildOptionMap {
 			if childOption == nil {
 				// values are set to this option, but has value without child
@@ -94,11 +131,11 @@ func (option *OptionModel) LastOptions() []*OptionModel {
 				return
 			}
 
-			walkDepth(childOption)
+			walk(childOption)
 		}
 	}
 
-	walkDepth(option)
+	walk(option)
 
 	return lastOptions
 }

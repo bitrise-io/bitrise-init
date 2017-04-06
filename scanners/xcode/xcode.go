@@ -151,7 +151,7 @@ func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
 }
 
 // GenerateOptions ...
-func (scanner *Scanner) GenerateOptions(addConfigOption bool) (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) GenerateOptions() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	projectFiles := scanner.projectFiles
@@ -371,12 +371,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				if addConfigOption {
-					configOption := models.NewConfigOption(configDescriptor.String())
-					schemeOption.AddConfig(target.Name, configOption)
-				} else {
-					schemeOption.AddConfig(target.Name, nil)
-				}
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range project.SharedSchemes {
@@ -389,12 +385,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				if addConfigOption {
-					configOption := models.NewConfigOption(configDescriptor.String())
-					schemeOption.AddConfig(scheme.Name, configOption)
-				} else {
-					schemeOption.AddConfig(scheme.Name, nil)
-				}
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
 	}
@@ -432,12 +424,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				if addConfigOption {
-					configOption := models.NewConfigOption(configDescriptor.String())
-					schemeOption.AddConfig(target.Name, configOption)
-				} else {
-					schemeOption.AddConfig(target.Name, nil)
-				}
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range sharedSchemes {
@@ -450,12 +438,8 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 				}
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				if addConfigOption {
-					configOption := models.NewConfigOption(configDescriptor.String())
-					schemeOption.AddConfig(scheme.Name, configOption)
-				} else {
-					schemeOption.AddConfig(scheme.Name, nil)
-				}
+				configOption := models.NewConfigOption(configDescriptor.String())
+				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
 	}

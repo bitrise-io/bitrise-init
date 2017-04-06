@@ -7,6 +7,9 @@ type OptionModel struct {
 
 	ChildOptionMap map[string]*OptionModel `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
 	Config         string                  `json:"config,omitempty"  yaml:"config,omitempty"`
+
+	Components []string     `json:"-"`
+	Head       *OptionModel `json:"-"`
 }
 
 // BitriseConfigMap ...

@@ -8,6 +8,8 @@ import (
 
 	"encoding/json"
 
+	"strings"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/xcode"
@@ -234,7 +236,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return
 			}
 
-			options, warnings, err := iosScanner.GenerateOptions(false)
+			options, warnings, err := iosScanner.GenerateOptions()
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to create ios project options, error: %s", err)
 				return
@@ -252,13 +254,19 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
 		}
 
-		projectTypeOption.AddOption("ios", iosOptions)
+		iosOptionsCopy := iosOptions.Copy()
+		iosConfigOptions := iosOptionsCopy.LastChilds()
+		for _, iosConfigOption := range iosConfigOptions {
+			iosConfigOption.Config = fmt.Sprintf("cordova-%s", iosConfigOption.Config)
+		}
 
-		bytes, err := json.MarshalIndent(iosOptions, "", "  ")
+		projectTypeOption.AddOption("ios", iosOptionsCopy)
+
+		bytes, err := json.MarshalIndent(iosOptionsCopy, "", "  ")
 		if err != nil {
 			log.Errorft("Failed to marshal, error: %s", err)
 		}
-		log.Doneft("\niosOptions: %s\n", string(bytes))
+		log.Doneft("\niosOptionsCopy: %s\n", string(bytes))
 	}
 
 	androidOptions := new(models.OptionModel)
@@ -281,7 +289,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return
 			}
 
-			options, warnings, err := androidScanner.GenerateOption(false, true)
+			options, warnings, err := androidScanner.GenerateOption(true)
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to create android project options, error: %s", err)
 				return
@@ -299,27 +307,46 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
 		}
 
-		projectTypeOption.AddOption("android", androidOptions)
+		androidOptionsCopy := androidOptions.Copy()
+		androidConfigOptions := androidOptionsCopy.LastChilds()
+		for _, androidConfigOption := range androidConfigOptions {
+			androidConfigOption.Config = fmt.Sprintf("cordova-%s", androidConfigOption.Config)
+		}
 
-		bytes, err := json.MarshalIndent(androidOptions, "", "  ")
+		projectTypeOption.AddOption("android", androidOptionsCopy)
+
+		bytes, err := json.MarshalIndent(androidOptionsCopy, "", "  ")
 		if err != nil {
 			log.Errorft("Failed to marshal, error: %s", err)
 		}
-		log.Doneft("\nandroidOptions: %s\n", string(bytes))
+		log.Doneft("\nandroidOptionsCopy: %s\n", string(bytes))
 	}
 
 	if hasIosProject && hasAndroidProject {
 		iosOptionsCopy := iosOptions.Copy()
+		androidOptionsCopy := androidOptions.Copy()
 
-		lastOptions := iosOptionsCopy.LastOptions()
-		for _, lastOption := range lastOptions {
-			for value, childOption := range lastOption.ChildOptionMap {
-				if childOption != nil {
-					log.Errorft("Child should be nil")
-				}
-				lastOption.AddOption(value, androidOptions)
+		iosConfigOptions := iosOptions.LastChilds()
+		for _, iosConfigOption := range iosConfigOptions {
+			iosConfigName := strings.TrimSuffix(iosConfigOption.Config, "-config")
+
+			iosLastOption, underKey, ok := iosConfigOption.Parent()
+			if !ok {
+				return models.OptionModel{}, warnings, fmt.Errorf("invalid config: %s", iosConfigOption)
+			}
+
+			iosLastOptionCopy, ok := iosOptionsCopy.Child(iosLastOption.Components...)
+			if !ok {
+				return models.OptionModel{}, warnings, fmt.Errorf("invalid config: %s", iosOptionsCopy)
+			}
+			iosLastOptionCopy.AddOption(underKey, androidOptionsCopy)
+
+			androidConfigOptions := androidOptionsCopy.LastChilds()
+			for _, androidConfigOption := range androidConfigOptions {
+				androidConfigOption.Config = fmt.Sprintf("cordova-%s-%s", iosConfigName, androidConfigOption.Config)
 			}
 		}
+
 		projectTypeOption.AddOption("ios+android", iosOptionsCopy)
 	}
 
