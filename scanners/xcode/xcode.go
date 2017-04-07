@@ -468,93 +468,80 @@ func (scanner *Scanner) CommonDefaultOptions() models.OptionModel {
 	return *projectPathOption
 }
 
-func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) bitriseModels.BitriseDataModel {
-	//
-	// Prepare steps
-	prepareSteps := []bitriseModels.StepListItemModel{}
+func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) (bitriseModels.BitriseDataModel, error) {
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	prepareSteps = append(prepareSteps, steps.ActivateSSHKeyStepListItem())
+	// CI
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
-	// GitClone
-	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
-
-	// Script
-	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// CertificateAndProfileInstaller
-	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
-
-	// CocoapodsInstall
-	if hasPodfile {
-		prepareSteps = append(prepareSteps, steps.CocoapodsInstallStepListItem())
-	}
-
-	// Carthage
-	if carthageCommand != "" {
-		prepareSteps = append(prepareSteps, steps.CarthageStepListItem([]envmanModels.EnvironmentItemModel{
-			envmanModels.EnvironmentItemModel{carthageCommandKey: carthageCommand},
-		}))
-	}
-
-	// RecreateUserSchemes
 	if missingSharedSchemes {
-		prepareSteps = append(prepareSteps, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+		configBuilder.AppendPreparStepList(steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		}))
 	}
-	// ----------
+
+	if hasPodfile {
+		configBuilder.AppendDependencyStepList(steps.CocoapodsInstallStepListItem())
+	}
+
+	if carthageCommand != "" {
+		configBuilder.AppendDependencyStepList(steps.CarthageStepListItem([]envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{carthageCommandKey: carthageCommand},
+		}))
+	}
 
 	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}
 
-	//
-	// CI steps
-	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
-
-	// XcodeTest
 	if hasTest {
 		switch scanner.ProjectType {
 		case ProjectTypeIOS:
-			ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+			configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 		case ProjectTypeMacOS:
-			ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
+			configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
 
-	// DeployToBitriseIo
-	ciSteps = append(ciSteps, steps.DeployToBitriseIoStepListItem())
-	// ----------
+	// CD
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
 
-	//
-	// Deploy steps
-	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	// XcodeTest
+	if missingSharedSchemes {
+		configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+		}))
+	}
+
+	if hasPodfile {
+		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+	}
+
+	if carthageCommand != "" {
+		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.CarthageStepListItem([]envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{carthageCommandKey: carthageCommand},
+		}))
+	}
+
 	if hasTest {
 		switch scanner.ProjectType {
 		case ProjectTypeIOS:
-			deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 		case ProjectTypeMacOS:
-			deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
 
-	// XcodeArchive
 	switch scanner.ProjectType {
 	case ProjectTypeIOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
-	// DeployToBitriseIo
-	deploySteps = append(deploySteps, steps.DeployToBitriseIoStepListItem())
-	// ----------
-
-	return models.BitriseDataWithCIAndCDWorkflow([]envmanModels.EnvironmentItemModel{}, ciSteps, deploySteps)
+	return configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 }
 
 // CommonConfigs ...
@@ -571,13 +558,15 @@ func (scanner *Scanner) CommonConfigs() (models.BitriseConfigMap, error) {
 
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range descriptors {
-		configName := descriptor.String()
-		bitriseData := scanner.generateConfig(descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
-		data, err := yaml.Marshal(bitriseData)
+		config, err := scanner.generateConfig(descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
+		if err != nil {
+
+		}
+		data, err := yaml.Marshal(config)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
-		bitriseDataMap[configName] = string(data)
+		bitriseDataMap[descriptor.String()] = string(data)
 	}
 
 	return bitriseDataMap, nil
@@ -585,85 +574,58 @@ func (scanner *Scanner) CommonConfigs() (models.BitriseConfigMap, error) {
 
 // CommonDefaultConfigs ...
 func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) {
-	//
-	// Prepare steps
-	prepareSteps := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	prepareSteps = append(prepareSteps, steps.ActivateSSHKeyStepListItem())
-
-	// GitClone
-	prepareSteps = append(prepareSteps, steps.GitCloneStepListItem())
-
-	// Script
-	prepareSteps = append(prepareSteps, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// CertificateAndProfileInstaller
-	prepareSteps = append(prepareSteps, steps.CertificateAndProfileInstallerStepListItem())
-
-	// CocoapodsInstall
-	prepareSteps = append(prepareSteps, steps.CocoapodsInstallStepListItem())
-
-	// RecreateUserSchemes
-	prepareSteps = append(prepareSteps, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+	// CI
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendPreparStepList(steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 	}))
-	// ----------
 
-	//
-	// CI steps
-	ciSteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+	configBuilder.AppendDependencyStepList(steps.CocoapodsInstallStepListItem())
 
 	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}
 
-	// XcodeTest
 	switch scanner.ProjectType {
 	case ProjectTypeIOS:
-		ciSteps = append(ciSteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
-		ciSteps = append(ciSteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
-	// DeployToBitriseIo
-	ciSteps = append(ciSteps, steps.DeployToBitriseIoStepListItem())
-	// ----------
+	// CD
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
 
-	//
-	// Deploy steps
-	deploySteps := append([]bitriseModels.StepListItemModel{}, prepareSteps...)
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem([]envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+	}))
 
-	// XcodeTest
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+
 	switch scanner.ProjectType {
 	case ProjectTypeIOS:
-		deploySteps = append(deploySteps, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
 	case ProjectTypeMacOS:
-		deploySteps = append(deploySteps, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
-	// XcodeArchive
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
-	case ProjectTypeMacOS:
-		deploySteps = append(deploySteps, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+	if err != nil {
+		return models.BitriseConfigMap{}, err
 	}
 
-	// DeployToBitriseIo
-	deploySteps = append(deploySteps, steps.DeployToBitriseIoStepListItem())
-	// ----------
-
-	config := models.BitriseDataWithCIAndCDWorkflow([]envmanModels.EnvironmentItemModel{}, ciSteps, deploySteps)
 	data, err := yaml.Marshal(config)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName())
-	bitriseDataMap := models.BitriseConfigMap{}
-	bitriseDataMap[configName] = string(data)
-
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName()): string(data),
+	}, nil
 }

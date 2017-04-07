@@ -13,7 +13,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
@@ -447,118 +446,85 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
-
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
-
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
 	// XamarinUserManagement
-	inputs := []envmanModels.EnvironmentItemModel{}
-	if scanner.HasIosProject {
-		inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinIosLicenceKey: "yes"})
-	}
-	if scanner.HasAndroidProject {
-		inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinAndroidLicenceKey: "yes"})
-	}
-	if scanner.HasMacProject {
-		inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinMacLicenseKey: "yes"})
-	}
+	if scanner.HasXamarinComponents {
+		inputs := []envmanModels.EnvironmentItemModel{}
+		if scanner.HasIosProject {
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinIosLicenceKey: "yes"})
+		}
+		if scanner.HasAndroidProject {
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinAndroidLicenceKey: "yes"})
+		}
+		if scanner.HasMacProject {
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinMacLicenseKey: "yes"})
+		}
 
-	stepList = append(stepList, steps.XamarinUserManagementStepListItem(inputs))
+		configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem(inputs))
+	}
 
 	// NugetRestore
 	if scanner.HasNugetPackages {
-		stepList = append(stepList, steps.NugetRestoreStepListItem())
+		configBuilder.AppendDependencyStepList(steps.NugetRestoreStepListItem())
 	}
 
 	// XamarinComponentsRestore
 	if scanner.HasXamarinComponents {
-		stepList = append(stepList, steps.XamarinComponentsRestoreStepListItem())
+		configBuilder.AppendDependencyStepList(steps.XamarinComponentsRestoreStepListItem())
 	}
 
 	// XamarinArchive
-	inputs = []envmanModels.EnvironmentItemModel{
+	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{xamarinSolutionKey: "$" + xamarinSolutionEnvKey},
 		envmanModels.EnvironmentItemModel{xamarinConfigurationKey: "$" + xamarinConfigurationEnvKey},
 		envmanModels.EnvironmentItemModel{xamarinPlatformKey: "$" + xamarinPlatformEnvKey},
-	}
+	}))
 
-	stepList = append(stepList, steps.XamarinArchiveStepListItem(inputs))
-
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := configName(scanner.HasNugetPackages, scanner.HasXamarinComponents)
-	bitriseDataMap := models.BitriseConfigMap{
-		configName: string(data),
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
 	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		configName(scanner.HasNugetPackages, scanner.HasXamarinComponents): string(data),
+	}, nil
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem([]envmanModels.EnvironmentItemModel{}))
 
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
+	configBuilder.AppendDependencyStepList(steps.NugetRestoreStepListItem())
+	configBuilder.AppendDependencyStepList(steps.XamarinComponentsRestoreStepListItem())
 
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
-
-	// XamarinUserManagement
-	inputs := []envmanModels.EnvironmentItemModel{}
-	stepList = append(stepList, steps.XamarinUserManagementStepListItem(inputs))
-
-	// NugetRestore
-	stepList = append(stepList, steps.NugetRestoreStepListItem())
-
-	// XamarinComponentsRestore
-	stepList = append(stepList, steps.XamarinComponentsRestoreStepListItem())
-
-	// XamarinArchive
-	inputs = []envmanModels.EnvironmentItemModel{
+	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{xamarinSolutionKey: "$" + xamarinSolutionEnvKey},
 		envmanModels.EnvironmentItemModel{xamarinConfigurationKey: "$" + xamarinConfigurationEnvKey},
 		envmanModels.EnvironmentItemModel{xamarinPlatformKey: "$" + xamarinPlatformEnvKey},
-	}
+	}))
 
-	stepList = append(stepList, steps.XamarinArchiveStepListItem(inputs))
-
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := defaultConfigName()
-	bitriseDataMap := models.BitriseConfigMap{
-		configName: string(data),
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
 	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		defaultConfigName(): string(data),
+	}, nil
 }

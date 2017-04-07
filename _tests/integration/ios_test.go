@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -20,9 +19,9 @@ import (
 func TestIOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ios__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
+	// defer func() {
+	// 	require.NoError(t, os.RemoveAll(tmpDir))
+	// }()
 
 	t.Log("ios-no-shared-schemes")
 	{

@@ -11,7 +11,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -282,88 +281,56 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
+	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
 
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
-
-	// ChangeWorkdir
-	stepList = append(stepList, steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
-
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// Install missing Android tools
-	stepList = append(stepList, steps.InstallMissingAndroidToolsStepListItem())
-
-	// GradleRunner
-	inputs := []envmanModels.EnvironmentItemModel{
+	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{gradleFileKey: "$" + gradleFileEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskKey: "$" + gradleTaskEnvKey},
 		envmanModels.EnvironmentItemModel{gradlewPathKey: "$" + gradlewPathEnvKey},
-	}
-	stepList = append(stepList, steps.GradleRunnerStepListItem(inputs))
+	}))
 
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := configName()
-	bitriseDataMap := models.BitriseConfigMap{
-		configName: string(data),
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
 	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		configName(): string(data),
+	}, nil
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
+	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
 
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
-
-	// ChangeWorkdir
-	stepList = append(stepList, steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
-
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	// Install missing Android tools
-	stepList = append(stepList, steps.InstallMissingAndroidToolsStepListItem())
-
-	// GradleRunner
-	inputs := []envmanModels.EnvironmentItemModel{
+	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem([]envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{gradleFileKey: "$" + gradleFileEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskKey: "$" + gradleTaskEnvKey},
 		envmanModels.EnvironmentItemModel{gradlewPathKey: "$" + gradlewPathEnvKey},
-	}
-	stepList = append(stepList, steps.GradleRunnerStepListItem(inputs))
+	}))
 
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := defaultConfigName()
-	bitriseDataMap := models.BitriseConfigMap{
-		configName: string(data),
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
 	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		defaultConfigName(): string(data),
+	}, nil
 }

@@ -155,7 +155,6 @@ var sampleAppsXamarinIosVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.XamarinUserManagementVersion,
 	steps.NugetRestoreVersion,
 	steps.XamarinArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -209,8 +208,6 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - xamarin-user-management@%s:
-              run_if: .IsCI
           - nuget-restore@%s: {}
           - xamarin-archive@%s:
               inputs:
@@ -228,7 +225,6 @@ var sampleAppsXamarinAndroidVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.XamarinUserManagementVersion,
 	steps.NugetRestoreVersion,
 	steps.XamarinArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -274,8 +270,6 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - xamarin-user-management@%s:
-              run_if: .IsCI
           - nuget-restore@%s: {}
           - xamarin-archive@%s:
               inputs:

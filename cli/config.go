@@ -6,6 +6,8 @@ import (
 	"path"
 	"path/filepath"
 
+	"encoding/json"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/output"
 	"github.com/bitrise-core/bitrise-init/scanner"
@@ -116,8 +118,6 @@ func initConfig(c *cli.Context) error {
 		platforms = append(platforms, platform)
 	}
 
-	fmt.Printf("platforms: %v\n", platforms)
-
 	if len(platforms) == 0 {
 		cmd := command.New("which", "tree")
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
@@ -132,7 +132,7 @@ func initConfig(c *cli.Context) error {
 			}
 		}
 
-		log.Infoft("Saving outputs:")
+		log.Infoft("missing platform - Saving outputs:")
 		scanResult.AddError("general", "No known platform detected")
 
 		outputPth, err := writeScanResult(scanResult, outputDir, format)
@@ -146,8 +146,15 @@ func initConfig(c *cli.Context) error {
 
 	// Write output to files
 	if isCI {
-		log.Infoft("Saving outputs:")
+		log.Infoft("ci - Saving outputs:")
 
+		bytes, err := json.MarshalIndent(scanResult, "", "\t")
+		if err != nil {
+			return fmt.Errorf("Failed to marshal output, error: %s", err)
+		}
+		fmt.Printf("scanResult:\n%s\n", string(bytes))
+
+		fmt.Printf("start write\n")
 		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)

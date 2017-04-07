@@ -1,15 +1,17 @@
 package models
 
+import bitriseModels "github.com/bitrise-io/bitrise/models"
+
 // OptionModel ...
 type OptionModel struct {
-	Title  string `json:"title,omitempty"  yaml:"title,omitempty"`
-	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
+	Title  string `json:"title,omitempty" yaml:"title,omitempty"`
+	EnvKey string `json:"env_key,omitempty" yaml:"env_key,omitempty"`
 
-	ChildOptionMap map[string]*OptionModel `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
-	Config         string                  `json:"config,omitempty"  yaml:"config,omitempty"`
+	ChildOptionMap map[string]*OptionModel `json:"value_map,omitempty" yaml:"value_map,omitempty"`
+	Config         string                  `json:"config,omitempty" yaml:"config,omitempty"`
 
-	Components []string     `json:"-"`
-	Head       *OptionModel `json:"-"`
+	Components []string     `json:"-" yaml:"-"`
+	Head       *OptionModel `json:"-" yaml:"-"`
 }
 
 // BitriseConfigMap ...
@@ -27,4 +29,26 @@ type ScanResultModel struct {
 	PlatformConfigMapMap map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
 	PlatformWarningsMap  map[string]Warnings         `json:"warnings,omitempty" yaml:"warnings,omitempty"`
 	PlatformErrorsMap    map[string]Errors           `json:"errors,omitempty" yaml:"errors,omitempty"`
+}
+
+type workflowBuilderModel struct {
+	prepareSteps    []bitriseModels.StepListItemModel
+	dependencySteps []bitriseModels.StepListItemModel
+	mainSteps       []bitriseModels.StepListItemModel
+	deploySteps     []bitriseModels.StepListItemModel
+}
+
+// WorkflowID ...
+type WorkflowID string
+
+const (
+	// PrimaryWorkflowID ...
+	PrimaryWorkflowID WorkflowID = "primary"
+	// DeployWorkflowID ...
+	DeployWorkflowID WorkflowID = "deploy"
+)
+
+// ConfigBuilderModel ...
+type ConfigBuilderModel struct {
+	workflowBuilderMap map[WorkflowID]*workflowBuilderModel
 }

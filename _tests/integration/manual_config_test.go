@@ -46,8 +46,8 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
+	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -67,8 +67,8 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.CocoapodsInstallVersion,
 	steps.RecreateUserSchemesVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -77,8 +77,8 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.CocoapodsInstallVersion,
 	steps.RecreateUserSchemesVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -88,8 +88,8 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.CocoapodsInstallVersion,
 	steps.RecreateUserSchemesVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
 	steps.DeployToBitriseIoVersion,
@@ -98,8 +98,8 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.CocoapodsInstallVersion,
 	steps.RecreateUserSchemesVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -108,6 +108,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
+	steps.DeployToBitriseIoVersion,
 
 	// xamarin
 	models.FormatVersion,
@@ -201,12 +202,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
           - change-workdir@%s:
               inputs:
               - path: $PROJECT_ROOT
               - is_create_path: "false"
-          - script@%s:
-              title: Do anything with Script step
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -258,10 +259,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - cocoapods-install@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
+          - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -279,10 +280,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - cocoapods-install@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
+          - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -306,10 +307,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - cocoapods-install@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
+          - cocoapods-install@%s: {}
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -327,10 +328,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - cocoapods-install@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
+          - cocoapods-install@%s: {}
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -353,6 +354,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
+          - deploy-to-bitrise-io@%s: {}
   xamarin:
     default-xamarin-config: |
       format_version: %s

@@ -54,6 +54,8 @@ func (format Format) String() string {
 
 // WriteToFile ...
 func WriteToFile(a interface{}, format Format, pth string) (string, error) {
+	fmt.Printf("start WriteToFile\n")
+
 	str := ""
 	ext := ""
 
@@ -62,6 +64,7 @@ func WriteToFile(a interface{}, format Format, pth string) (string, error) {
 		str = fmt.Sprint(a)
 		ext = ".txt"
 	case JSONFormat:
+		fmt.Printf("json.MarshalIndent\n")
 		bytes, err := json.MarshalIndent(a, "", "\t")
 		if err != nil {
 			return "", err
@@ -69,6 +72,7 @@ func WriteToFile(a interface{}, format Format, pth string) (string, error) {
 		str = string(bytes)
 		ext = ".json"
 	case YAMLFormat:
+		fmt.Printf("yaml.Marshal\n")
 		bytes, err := yaml.Marshal(a)
 		if err != nil {
 			return "", err
@@ -84,6 +88,8 @@ func WriteToFile(a interface{}, format Format, pth string) (string, error) {
 		pth = strings.TrimSuffix(pth, fileExt)
 	}
 	pth = pth + ext
+
+	fmt.Printf("start write, pth\n")
 
 	if err := fileutil.WriteStringToFile(pth, str); err != nil {
 		return "", err

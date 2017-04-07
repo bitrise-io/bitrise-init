@@ -6,8 +6,6 @@ import (
 
 	"path/filepath"
 
-	"encoding/json"
-
 	"strings"
 
 	"github.com/bitrise-core/bitrise-init/models"
@@ -261,12 +259,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		projectTypeOption.AddOption("ios", iosOptionsCopy)
-
-		bytes, err := json.MarshalIndent(iosOptionsCopy, "", "  ")
-		if err != nil {
-			log.Errorft("Failed to marshal, error: %s", err)
-		}
-		log.Doneft("\niosOptionsCopy: %s\n", string(bytes))
 	}
 
 	androidOptions := new(models.OptionModel)
@@ -314,12 +306,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		projectTypeOption.AddOption("android", androidOptionsCopy)
-
-		bytes, err := json.MarshalIndent(androidOptionsCopy, "", "  ")
-		if err != nil {
-			log.Errorft("Failed to marshal, error: %s", err)
-		}
-		log.Doneft("\nandroidOptionsCopy: %s\n", string(bytes))
 	}
 
 	if hasIosProject && hasAndroidProject {
@@ -349,12 +335,6 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		projectTypeOption.AddOption("ios+android", iosOptionsCopy)
 	}
-
-	bytes, err := json.MarshalIndent(projectTypeOption, "", "  ")
-	if err != nil {
-		log.Errorft("Failed to marshal, error: %s", err)
-	}
-	log.Doneft("\nprojectTypeOption: %s\n", string(bytes))
 
 	return *projectTypeOption, warnings, nil
 }

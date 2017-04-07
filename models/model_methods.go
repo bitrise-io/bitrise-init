@@ -2,8 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
+	"github.com/bitrise-core/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 )
@@ -12,8 +14,6 @@ const (
 	// FormatVersion ...
 	FormatVersion        = "1.3.1"
 	defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
-	primaryWorkflowID    = "primary"
-	deployWorkflowID     = "deploy"
 )
 
 // ---
@@ -170,6 +170,182 @@ func (option *OptionModel) GetValues() []string {
 
 // ---
 
+// ---
+// Config Builder
+
+func newDefaultWorkflowBuilder() *workflowBuilderModel {
+	return &workflowBuilderModel{
+		prepareSteps:    steps.DefaultPrepareStepList(),
+		dependencySteps: []bitriseModels.StepListItemModel{},
+		mainSteps:       []bitriseModels.StepListItemModel{},
+		deploySteps:     steps.DefaultDeployStepList(),
+	}
+}
+
+func (builder *workflowBuilderModel) appendPreparStepList(items ...bitriseModels.StepListItemModel) {
+	builder.prepareSteps = append(builder.prepareSteps, items...)
+}
+
+func (builder *workflowBuilderModel) appendDependencyStepList(items ...bitriseModels.StepListItemModel) {
+	builder.dependencySteps = append(builder.dependencySteps, items...)
+}
+
+func (builder *workflowBuilderModel) appendMainStepList(items ...bitriseModels.StepListItemModel) {
+	builder.mainSteps = append(builder.mainSteps, items...)
+}
+
+func (builder *workflowBuilderModel) appendDeployStepList(items ...bitriseModels.StepListItemModel) {
+	builder.deploySteps = append(builder.deploySteps, items...)
+}
+
+func (builder *workflowBuilderModel) stepList() []bitriseModels.StepListItemModel {
+	stepList := []bitriseModels.StepListItemModel{}
+	stepList = append(stepList, builder.prepareSteps...)
+	stepList = append(stepList, builder.dependencySteps...)
+	stepList = append(stepList, builder.mainSteps...)
+	stepList = append(stepList, builder.deploySteps...)
+	return stepList
+}
+
+func (builder *workflowBuilderModel) generate() bitriseModels.WorkflowModel {
+	return bitriseModels.WorkflowModel{
+		Steps: builder.stepList(),
+	}
+}
+
+// NewDefaultConfigBuilder ...
+func NewDefaultConfigBuilder() *ConfigBuilderModel {
+	return &ConfigBuilderModel{
+		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
+			PrimaryWorkflowID: newDefaultWorkflowBuilder(),
+		},
+	}
+}
+
+// AddDefaultWorkflowBuilder ...
+func (builder *ConfigBuilderModel) AddDefaultWorkflowBuilder(workflow WorkflowID) {
+	builder.workflowBuilderMap[workflow] = newDefaultWorkflowBuilder()
+}
+
+// AppendPreparStepListTo ...
+func (builder *ConfigBuilderModel) AppendPreparStepListTo(workflow WorkflowID, items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[workflow]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[workflow] = workflowBuilder
+	}
+	workflowBuilder.appendPreparStepList(items...)
+}
+
+// AppendDependencyStepListTo ...
+func (builder *ConfigBuilderModel) AppendDependencyStepListTo(workflow WorkflowID, items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[workflow]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[workflow] = workflowBuilder
+	}
+	workflowBuilder.appendDependencyStepList(items...)
+}
+
+// AppendMainStepListTo ...
+func (builder *ConfigBuilderModel) AppendMainStepListTo(workflow WorkflowID, items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[workflow]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[workflow] = workflowBuilder
+	}
+	workflowBuilder.appendMainStepList(items...)
+}
+
+// AppendDeployStepListTo ...
+func (builder *ConfigBuilderModel) AppendDeployStepListTo(workflow WorkflowID, items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[workflow]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[workflow] = workflowBuilder
+	}
+	workflowBuilder.appendDeployStepList(items...)
+}
+
+// AppendPreparStepList ...
+func (builder *ConfigBuilderModel) AppendPreparStepList(items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
+	}
+	workflowBuilder.appendPreparStepList(items...)
+}
+
+// AppendDependencyStepList ...
+func (builder *ConfigBuilderModel) AppendDependencyStepList(items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
+	}
+	workflowBuilder.appendDependencyStepList(items...)
+}
+
+// AppendMainStepList ...
+func (builder *ConfigBuilderModel) AppendMainStepList(items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
+	}
+	workflowBuilder.appendMainStepList(items...)
+
+}
+
+// AppendDeployStepList ...
+func (builder *ConfigBuilderModel) AppendDeployStepList(items ...bitriseModels.StepListItemModel) {
+	workflowBuilder := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if workflowBuilder == nil {
+		workflowBuilder = &workflowBuilderModel{}
+		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
+	}
+	workflowBuilder.appendDeployStepList(items...)
+}
+
+// Generate ...
+func (builder *ConfigBuilderModel) Generate(appEnvs []envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
+	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if !ok || primaryWorkflowBuilder == nil || len(primaryWorkflowBuilder.stepList()) == 0 {
+		return bitriseModels.BitriseDataModel{}, errors.New("primary workflow not defined")
+	}
+
+	workflows := map[string]bitriseModels.WorkflowModel{}
+	for workflowID, workflowBuilder := range builder.workflowBuilderMap {
+		workflows[string(workflowID)] = workflowBuilder.generate()
+	}
+
+	triggerMap := []bitriseModels.TriggerMapItemModel{
+		bitriseModels.TriggerMapItemModel{
+			PushBranch: "*",
+			WorkflowID: string(PrimaryWorkflowID),
+		},
+		bitriseModels.TriggerMapItemModel{
+			PullRequestSourceBranch: "*",
+			WorkflowID:              string(PrimaryWorkflowID),
+		},
+	}
+
+	app := bitriseModels.AppModel{
+		Environments: appEnvs,
+	}
+
+	return bitriseModels.BitriseDataModel{
+		FormatVersion:        FormatVersion,
+		DefaultStepLibSource: defaultSteplibSource,
+		TriggerMap:           triggerMap,
+		Workflows:            workflows,
+		App:                  app,
+	}, nil
+}
+
+// ---
+
 // AddError ...
 func (result *ScanResultModel) AddError(platform string, errorMessage string) {
 	if result.PlatformErrorsMap == nil {
@@ -179,71 +355,4 @@ func (result *ScanResultModel) AddError(platform string, errorMessage string) {
 		result.PlatformErrorsMap[platform] = []string{}
 	}
 	result.PlatformErrorsMap[platform] = append(result.PlatformErrorsMap[platform], errorMessage)
-}
-
-// BitriseDataWithCIWorkflow ...
-func BitriseDataWithCIWorkflow(appEnvs []envmanModels.EnvironmentItemModel, steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: steps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: primaryWorkflowID,
-		},
-		bitriseModels.TriggerMapItemModel{
-			PullRequestSourceBranch: "*",
-			WorkflowID:              primaryWorkflowID,
-		},
-	}
-
-	app := bitriseModels.AppModel{
-		Environments: appEnvs,
-	}
-
-	return bitriseModels.BitriseDataModel{
-		FormatVersion:        FormatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-		App:                  app,
-	}
-}
-
-// BitriseDataWithCIAndCDWorkflow ...
-func BitriseDataWithCIAndCDWorkflow(appEnvs []envmanModels.EnvironmentItemModel, ciSteps, deploySteps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: ciSteps,
-		},
-		deployWorkflowID: bitriseModels.WorkflowModel{
-			Steps: deploySteps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: primaryWorkflowID,
-		},
-		bitriseModels.TriggerMapItemModel{
-			PullRequestSourceBranch: "*",
-			WorkflowID:              primaryWorkflowID,
-		},
-	}
-
-	app := bitriseModels.AppModel{
-		Environments: appEnvs,
-	}
-
-	return bitriseModels.BitriseDataModel{
-		FormatVersion:        FormatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-		App:                  app,
-	}
 }

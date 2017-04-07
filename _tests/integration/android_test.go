@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,9 +18,9 @@ import (
 func TestAndroid(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
+	// defer func() {
+	// 	require.NoError(t, os.RemoveAll(tmpDir))
+	// }()
 
 	t.Log("sample-apps-android-sdk22")
 	{
@@ -88,8 +87,8 @@ var sampleAppsAndroid22Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
+	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -134,12 +133,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
           - change-workdir@%s:
               inputs:
               - path: $PROJECT_ROOT
               - is_create_path: "false"
-          - script@%s:
-              title: Do anything with Script step
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -155,8 +154,8 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
+	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -201,12 +200,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
           - change-workdir@%s:
               inputs:
               - path: $PROJECT_ROOT
               - is_create_path: "false"
-          - script@%s:
-              title: Do anything with Script step
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:

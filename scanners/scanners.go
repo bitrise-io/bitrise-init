@@ -3,13 +3,10 @@ package scanners
 import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	"github.com/bitrise-core/bitrise-init/steps"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"gopkg.in/yaml.v2"
 )
@@ -64,7 +61,7 @@ var ActiveScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
-	cordova.NewScanner(),
+	// cordova.NewScanner(),
 }
 
 func customConfigName() string {
@@ -73,26 +70,19 @@ func customConfigName() string {
 
 // CustomConfig ...
 func CustomConfig() (models.BitriseConfigMap, error) {
-	bitriseDataMap := models.BitriseConfigMap{}
-	stepList := []bitriseModels.StepListItemModel{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
-
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
-
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.ScriptDefaultTitle))
-
-	bitriseData := models.BitriseDataWithCIWorkflow([]envmanModels.EnvironmentItemModel{}, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {
-		return map[string]string{}, err
+		return models.BitriseConfigMap{}, err
 	}
 
-	configName := customConfigName()
-	bitriseDataMap[configName] = string(data)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		customConfigName(): string(data),
+	}, nil
 }
