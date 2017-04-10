@@ -10,13 +10,16 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-tools/go-xcode/xcodeproj"
 )
 
-const defaultConfigNameFormat = "default-%s-config"
+const (
+	defaultConfigNameFormat = "default-%s-config"
+	configNameFormat        = "%s-%s-config"
+)
 
 const (
 	projectPathKey    = "project_path"
@@ -31,218 +34,73 @@ const (
 	carthageCommandTitle = "Carthage command to run"
 )
 
-// ProjectType ...
-type ProjectType string
-
-const (
-	// ProjectTypeIOS ...
-	ProjectTypeIOS ProjectType = "ios"
-	// ProjectTypeMacOS ...
-	ProjectTypeMacOS ProjectType = "macos"
-)
-
 // ConfigDescriptor ...
 type ConfigDescriptor struct {
 	HasPodfile           bool
 	CarthageCommand      string
 	HasTest              bool
 	MissingSharedSchemes bool
-	ScannerName          string
 }
 
-func (descriptor ConfigDescriptor) String() string {
-	name := descriptor.ScannerName + "-"
+// NewConfigDescriptor ...
+func NewConfigDescriptor(hasPodfile bool, carthageCommand string, hasXCTest bool, missingSharedSchemes bool) ConfigDescriptor {
+	return ConfigDescriptor{
+		HasPodfile:           hasPodfile,
+		CarthageCommand:      carthageCommand,
+		HasTest:              hasXCTest,
+		MissingSharedSchemes: missingSharedSchemes,
+	}
+}
+
+// ConfigName ...
+func (descriptor ConfigDescriptor) ConfigName(projectType utility.XcodeProjectType) string {
+	qualifiers := ""
 	if descriptor.HasPodfile {
-		name = name + "pod-"
+		qualifiers += "-pod"
 	}
 	if descriptor.CarthageCommand != "" {
-		name = name + "carthage-"
+		qualifiers += "-carthage"
 	}
 	if descriptor.HasTest {
-		name = name + "test-"
+		qualifiers += "-test"
 	}
 	if descriptor.MissingSharedSchemes {
-		name = name + "missing-shared-schemes-"
+		qualifiers += "-missing-shared-schemes"
 	}
-	return name + "config"
+	return fmt.Sprintf("%s%s-config", string(projectType), qualifiers)
 }
 
-// Scanner ...
-type Scanner struct {
-	searchDir         string
-	fileList          []string
-	projectFiles      []string
-	configDescriptors []ConfigDescriptor
-	ProjectType       ProjectType
-}
-
-// CommonName ...
-func (scanner Scanner) CommonName() string {
-	return string(scanner.ProjectType)
-}
-
-// CommonDetectPlatform ...
-func (scanner *Scanner) CommonDetectPlatform(searchDir string) (bool, error) {
-	scanner.searchDir = searchDir
-
+// Detect ...
+func Detect(projectType utility.XcodeProjectType, searchDir string) (bool, error) {
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
-	}
-	scanner.fileList = fileList
-
-	// Search for xcodeproj
-	log.Infoft("Searching for Xcode project files")
-
-	xcodeprojectFiles, err := utility.FilterPaths(fileList, utility.AllowXcodeProjExtFilter)
-	if err != nil {
 		return false, err
-	}
-
-	log.Printft("%d Xcode project files found", len(xcodeprojectFiles))
-	for _, xcodeprojectFile := range xcodeprojectFiles {
-		log.Printft("- %s", xcodeprojectFile)
-	}
-
-	if len(xcodeprojectFiles) == 0 {
-		log.Printft("platform not detected")
-		return false, nil
 	}
 
 	log.Infoft("Filter relevant Xcode project files")
 
-	filters := []utility.FilterFunc{
-		utility.AllowIsDirectoryFilter,
-		utility.ForbidEmbeddedWorkspaceRegexpFilter,
-		utility.ForbidGitDirComponentFilter,
-		utility.ForbidPodsDirComponentFilter,
-		utility.ForbidCarthageDirComponentFilter,
-		utility.ForbidCordovaLibDirComponentFilter,
-		utility.ForbidFramworkComponentWithExtensionFilter,
-	}
-
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
-		filters = append(filters, utility.AllowIphoneosSDKFilter)
-	case ProjectTypeMacOS:
-		filters = append(filters, utility.AllowMacosxSDKFilter)
-	}
-
-	xcodeprojectFiles, err = utility.FilterPaths(xcodeprojectFiles, filters...)
+	relevantXcodeprojectFiles, err := utility.FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
 		return false, err
 	}
 
-	log.Printft("%d Xcode %s project files found", len(xcodeprojectFiles), scanner.CommonName())
-	for _, xcodeprojectFile := range xcodeprojectFiles {
+	log.Printft("%d Xcode %s project files found", len(relevantXcodeprojectFiles), string(projectType))
+	for _, xcodeprojectFile := range relevantXcodeprojectFiles {
 		log.Printft("- %s", xcodeprojectFile)
 	}
 
-	if len(xcodeprojectFiles) == 0 {
+	if len(relevantXcodeprojectFiles) == 0 {
 		log.Printft("platform not detected")
 		return false, nil
 	}
-
-	scanner.projectFiles = xcodeprojectFiles
 
 	log.Doneft("Platform detected")
 
 	return true, nil
 }
 
-// GenerateOptions ...
-func (scanner *Scanner) GenerateOptions() (models.OptionModel, models.Warnings, error) {
-	warnings := models.Warnings{}
-
-	projectFiles := scanner.projectFiles
-
-	filters := []utility.FilterFunc{
-		utility.AllowIsDirectoryFilter,
-		utility.ForbidEmbeddedWorkspaceRegexpFilter,
-		utility.ForbidGitDirComponentFilter,
-		utility.ForbidPodsDirComponentFilter,
-		utility.ForbidCarthageDirComponentFilter,
-		utility.ForbidCordovaLibDirComponentFilter,
-		utility.ForbidFramworkComponentWithExtensionFilter,
-		utility.AllowXCWorkspaceExtFilter,
-	}
-
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
-		filters = append(filters, utility.AllowIphoneosSDKFilter)
-	case ProjectTypeMacOS:
-		filters = append(filters, utility.AllowMacosxSDKFilter)
-	}
-
-	workspaceFiles, err := utility.FilterPaths(scanner.fileList, filters...)
-	if err != nil {
-		return models.OptionModel{}, models.Warnings{}, err
-	}
-
-	standaloneProjects, workspaces, err := utility.CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
-	if err != nil {
-		return models.OptionModel{}, models.Warnings{}, err
-	}
-
-	//
-	// Create cocoapods workspace-project mapping
-	log.Infoft("Searching for Podfiles")
-
-	podfiles, err := utility.FilterPaths(scanner.fileList,
-		utility.AllowPodfileBaseFilter,
-		utility.ForbidGitDirComponentFilter,
-		utility.ForbidPodsDirComponentFilter,
-		utility.ForbidCarthageDirComponentFilter,
-		utility.ForbidCordovaLibDirComponentFilter,
-		utility.ForbidFramworkComponentWithExtensionFilter)
-	if err != nil {
-		return models.OptionModel{}, models.Warnings{}, err
-	}
-
-	log.Printft("%d Podfiles detected", len(podfiles))
-	for _, file := range podfiles {
-		log.Printft("- %s", file)
-	}
-
-	for _, podfile := range podfiles {
-		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile, projectFiles)
-		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, err
-		}
-
-		standaloneProjects, workspaces, err = utility.MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
-		if err != nil {
-			return models.OptionModel{}, models.Warnings{}, err
-		}
-	}
-	// ---
-
-	//
-	// Carthage
-	log.Infoft("Searching for Cartfile")
-
-	cartfiles, err := utility.FilterPaths(scanner.fileList,
-		utility.AllowCartfileBaseFilter,
-		utility.ForbidGitDirComponentFilter,
-		utility.ForbidPodsDirComponentFilter,
-		utility.ForbidCarthageDirComponentFilter,
-		utility.ForbidCordovaLibDirComponentFilter,
-		utility.ForbidFramworkComponentWithExtensionFilter)
-	if err != nil {
-		return models.OptionModel{}, models.Warnings{}, err
-	}
-
-	log.Printft("%d Cartfiles detected", len(cartfiles))
-	for _, file := range cartfiles {
-		log.Printft("- %s", file)
-	}
-	// ----
-
-	//
-	// Analyze projects and workspaces
+func printMissingSharedSchemesAndGenerateWarning(projectPth, defaultGitignorePth string, targets []xcodeproj.TargetModel) string {
 	isXcshareddataGitignored := false
-	defaultGitignorePth := filepath.Join(scanner.searchDir, ".gitignore")
-
 	if exist, err := pathutil.IsPathExists(defaultGitignorePth); err != nil {
 		log.Warnft("Failed to check if .gitignore file exists at: %s, error: %s", defaultGitignorePth, err)
 	} else if exist {
@@ -254,221 +112,232 @@ func (scanner *Scanner) GenerateOptions() (models.OptionModel, models.Warnings, 
 		}
 	}
 
-	for _, project := range standaloneProjects {
-		log.Infoft("Inspecting standalone project file: %s", project.Pth)
+	log.Printft("")
+	log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
+	log.Errorft("The newly generated schemes may differ from the ones in your project.")
 
-		log.Printft("%d shared schemes detected", len(project.SharedSchemes))
-		for _, scheme := range project.SharedSchemes {
-			log.Printft("- %s", scheme.Name)
-		}
+	message := `No shared schemes found for project: ` + projectPth + `.` + "\n"
 
-		if len(project.SharedSchemes) == 0 {
-			log.Printft("")
-			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
-			log.Errorft("The newly generated schemes may differ from the ones in your project.")
-			if isXcshareddataGitignored {
-				log.Errorft("Your gitignore file (%s) contains 'xcshareddata', maybe shared schemes are gitignored?", defaultGitignorePth)
-				log.Errorft("If not, make sure to share your schemes, to have the expected behaviour.")
-			} else {
-				log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
-			}
-			log.Printft("")
+	if isXcshareddataGitignored {
+		log.Errorft("Your gitignore file (%s) contains 'xcshareddata', maybe shared schemes are gitignored?", defaultGitignorePth)
+		log.Errorft("If not, make sure to share your schemes, to have the expected behaviour.")
 
-			message := `No shared schemes found for project: ` + project.Pth + `.`
-			if isXcshareddataGitignored {
-				message += `
-Your gitignore file (` + defaultGitignorePth + `) contains 'xcshareddata', maybe shared schemes are gitignored?`
-			}
-			message += `
-Automatically generated schemes may differ from the ones in your project.
+		message += `Your gitignore file (` + defaultGitignorePth + `) contains 'xcshareddata', maybe shared schemes are gitignored?` + "\n"
+	} else {
+		log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
+	}
+
+	message += `Automatically generated schemes may differ from the ones in your project.
 Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
 
-			warnings = append(warnings, message)
+	log.Printft("")
 
-			log.Warnft("%d user schemes will be generated", len(project.Targets))
-			for _, target := range project.Targets {
-				log.Warnft("- %s", target.Name)
-			}
-			log.Printft("")
+	log.Warnft("%d user schemes will be generated", len(targets))
+	for _, target := range targets {
+		log.Warnft("- %s", target.Name)
+	}
+
+	log.Printft("")
+
+	return message
+}
+
+func detectCarthageCommand(projectPth string) (string, string) {
+	carthageCommand := ""
+	warning := ""
+
+	if utility.HasCartfileInDirectoryOf(projectPth) {
+		if utility.HasCartfileResolvedInDirectoryOf(projectPth) {
+			carthageCommand = "bootstrap"
+		} else {
+			dir := filepath.Dir(projectPth)
+			cartfilePth := filepath.Join(dir, "Cartfile")
+
+			warning = fmt.Sprintf(`Cartfile found at (%s), but no Cartfile.resolved exists in the same directory.
+It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfileresolved">strongly recommended to commit this file to your repository</a>`, cartfilePth)
+
+			carthageCommand = "update"
 		}
 	}
 
-	for _, workspace := range workspaces {
-		log.Infoft("Inspecting workspace file: %s", workspace.Pth)
+	return carthageCommand, warning
+}
 
-		sharedSchemes := workspace.GetSharedSchemes()
-		log.Printft("%d shared schemes detected", len(sharedSchemes))
-		for _, scheme := range sharedSchemes {
-			log.Printft("- %s", scheme.Name)
+// GenerateOptions ...
+func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (models.OptionModel, []ConfigDescriptor, models.Warnings, error) {
+	warnings := models.Warnings{}
+
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	// Separate workspaces and standalon projects
+	projectFiles, err := utility.FilterRelevantProjectFiles(fileList, projectType)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	workspaceFiles, err := utility.FilterRelevantWorkspaceFiles(fileList, projectType)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	standaloneProjects, workspaces, err := utility.CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	// Create cocoapods workspace-project mapping
+	log.Infoft("Searching for Podfile")
+
+	podfiles, err := utility.FilterRelevantPodfiles(fileList)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	log.Printft("%d Podfiles detected", len(podfiles))
+
+	for _, podfile := range podfiles {
+		log.Printft("- %s", podfile)
+
+		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile, projectFiles)
+		if err != nil {
+			return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 		}
 
-		if len(sharedSchemes) == 0 {
-			log.Printft("")
-			log.Errorft("No shared schemes found, adding recreate-user-schemes step...")
-			log.Errorft("The newly generated schemes may differ from the ones in your project.")
-			if isXcshareddataGitignored {
-				log.Errorft("Your gitignore file (%s) contains 'xcshareddata', maybe shared schemes are gitignored?", defaultGitignorePth)
-				log.Errorft("If not, make sure to share your schemes, to have the expected behaviour.")
-			} else {
-				log.Errorft("Make sure to share your schemes, to have the expected behaviour.")
-			}
-			log.Printft("")
-
-			message := `No shared schemes found for project: ` + workspace.Pth + `.`
-			if isXcshareddataGitignored {
-				message += `
-Your gitignore file (` + defaultGitignorePth + `) (%s) contains 'xcshareddata', maybe shared schemes are gitignored?`
-			}
-			message += `
-Automatically generated schemes may differ from the ones in your project.
-Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
-
-			warnings = append(warnings, message)
-
-			targets := workspace.GetTargets()
-			log.Warnft("%d user schemes will be generated", len(targets))
-			for _, target := range targets {
-				log.Warnft("- %s", target.Name)
-			}
+		standaloneProjects, workspaces, err = utility.MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
+		if err != nil {
+			return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 		}
 	}
-	// -----
 
-	//
-	// Create config descriptors
+	// Carthage
+	log.Infoft("Searching for Cartfile")
+
+	cartfiles, err := utility.FilterRelevantCartFile(fileList)
+	if err != nil {
+		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+	}
+
+	log.Printft("%d Cartfiles detected", len(cartfiles))
+	for _, file := range cartfiles {
+		log.Printft("- %s", file)
+	}
+
+	// Create config descriptors & options
 	configDescriptors := []ConfigDescriptor{}
+
+	defaultGitignorePth := filepath.Join(searchDir, ".gitignore")
 
 	projectPathOption := models.NewOption(projectPathTitle, projectPathEnvKey)
 
-	// Add Standalon Project options
+	// Standalon Projects
 	for _, project := range standaloneProjects {
+		log.Infoft("Inspecting standalone project file: %s", project.Pth)
+
 		schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
 		projectPathOption.AddOption(project.Pth, schemeOption)
 
-		carthageCommand := ""
-		if utility.HasCartfileInDirectoryOf(project.Pth) {
-			if utility.HasCartfileResolvedInDirectoryOf(project.Pth) {
-				carthageCommand = "bootstrap"
-			} else {
-				dir := filepath.Dir(project.Pth)
-				cartfilePth := filepath.Join(dir, "Cartfile")
-
-				warnings = append(warnings, fmt.Sprintf(`Cartfile found at (%s), but no Cartfile.resolved exists in the same directory.
-It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfileresolved">strongly recommended to commit this file to your repository</a>`, cartfilePth))
-
-				carthageCommand = "update"
-			}
+		carthageCommand, warning := detectCarthageCommand(project.Pth)
+		if warning != "" {
+			warnings = append(warnings, warning)
 		}
 
+		log.Printft("%d shared schemes detected", len(project.SharedSchemes))
+
 		if len(project.SharedSchemes) == 0 {
+			message := printMissingSharedSchemesAndGenerateWarning(project.Pth, defaultGitignorePth, project.Targets)
+			if message != "" {
+				warnings = append(warnings, message)
+			}
+
 			for _, target := range project.Targets {
-				configDescriptor := ConfigDescriptor{
-					HasPodfile:           false,
-					CarthageCommand:      carthageCommand,
-					HasTest:              target.HasXCTest,
-					MissingSharedSchemes: true,
-					ScannerName:          scanner.CommonName(),
-				}
+				configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewConfigOption(configDescriptor.String())
+				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range project.SharedSchemes {
-				configDescriptor := ConfigDescriptor{
-					HasPodfile:           false,
-					CarthageCommand:      carthageCommand,
-					HasTest:              scheme.HasXCTest,
-					MissingSharedSchemes: false,
-					ScannerName:          scanner.CommonName(),
-				}
+				log.Printft("- %s", scheme.Name)
+
+				configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, false)
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewConfigOption(configDescriptor.String())
+				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
 	}
 
-	// Add Workspace options
+	// Workspaces
 	for _, workspace := range workspaces {
+		log.Infoft("Inspecting workspace file: %s", workspace.Pth)
+
 		schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
 		projectPathOption.AddOption(workspace.Pth, schemeOption)
 
-		carthageCommand := ""
-		if utility.HasCartfileInDirectoryOf(workspace.Pth) {
-			if utility.HasCartfileResolvedInDirectoryOf(workspace.Pth) {
-				carthageCommand = "bootstrap"
-			} else {
-				dir := filepath.Dir(workspace.Pth)
-				cartfilePth := filepath.Join(dir, "Cartfile")
-
-				warnings = append(warnings, fmt.Sprintf(`Cartfile found at (%s), but no Cartfile.resolved exists in the same directory.
-It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfileresolved">strongly recommended to commit this file to your repository</a>`, cartfilePth))
-
-				carthageCommand = "update"
-			}
+		carthageCommand, warning := detectCarthageCommand(workspace.Pth)
+		if warning != "" {
+			warnings = append(warnings, warning)
 		}
 
 		sharedSchemes := workspace.GetSharedSchemes()
+		log.Printft("%d shared schemes detected", len(sharedSchemes))
+
 		if len(sharedSchemes) == 0 {
 			targets := workspace.GetTargets()
+
+			message := printMissingSharedSchemesAndGenerateWarning(workspace.Pth, defaultGitignorePth, targets)
+			if message != "" {
+				warnings = append(warnings, message)
+			}
+
 			for _, target := range targets {
-				configDescriptor := ConfigDescriptor{
-					HasPodfile:           workspace.IsPodWorkspace,
-					CarthageCommand:      carthageCommand,
-					HasTest:              target.HasXCTest,
-					MissingSharedSchemes: true,
-					ScannerName:          scanner.CommonName(),
-				}
+				configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewConfigOption(configDescriptor.String())
+				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 				schemeOption.AddConfig(target.Name, configOption)
 			}
 		} else {
 			for _, scheme := range sharedSchemes {
-				configDescriptor := ConfigDescriptor{
-					HasPodfile:           workspace.IsPodWorkspace,
-					CarthageCommand:      carthageCommand,
-					HasTest:              scheme.HasXCTest,
-					MissingSharedSchemes: false,
-					ScannerName:          scanner.CommonName(),
-				}
+				log.Printft("- %s", scheme.Name)
+
+				configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
 				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewConfigOption(configDescriptor.String())
+				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 				schemeOption.AddConfig(scheme.Name, configOption)
 			}
 		}
 	}
-	// -----
 
 	if len(configDescriptors) == 0 {
-		log.Errorft("No valid %s config found", scanner.CommonName())
-		return models.OptionModel{}, warnings, fmt.Errorf("No valid %s config found", scanner.CommonName())
+		log.Errorft("No valid %s config found", string(projectType))
+		return models.OptionModel{}, []ConfigDescriptor{}, warnings, fmt.Errorf("No valid %s config found", string(projectType))
 	}
 
-	scanner.configDescriptors = configDescriptors
-
-	return *projectPathOption, warnings, nil
+	return *projectPathOption, configDescriptors, warnings, nil
 }
 
-// CommonDefaultOptions ...
-func (scanner *Scanner) CommonDefaultOptions() models.OptionModel {
+// GenerateDefaultOptions ...
+func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionModel {
 	projectPathOption := models.NewOption(projectPathTitle, projectPathEnvKey)
 
 	schemeOption := models.NewOption(schemeTitle, schemeEnvKey)
 	projectPathOption.AddOption("_", schemeOption)
 
-	configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName()))
+	configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)))
 	schemeOption.AddConfig("_", configOption)
 
 	return *projectPathOption
 }
 
-func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) (bitriseModels.BitriseDataModel, error) {
+// GenerateConfigBuilder ...
+func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	// CI
@@ -496,10 +365,10 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 	}
 
 	if hasTest {
-		switch scanner.ProjectType {
-		case ProjectTypeIOS:
+		switch projectType {
+		case utility.XcodeProjectTypeIOS:
 			configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
-		case ProjectTypeMacOS:
+		case utility.XcodeProjectTypeMacOS:
 			configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
@@ -526,31 +395,30 @@ func (scanner *Scanner) generateConfig(hasPodfile, hasTest, missingSharedSchemes
 	}
 
 	if hasTest {
-		switch scanner.ProjectType {
-		case ProjectTypeIOS:
+		switch projectType {
+		case utility.XcodeProjectTypeIOS:
 			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
-		case ProjectTypeMacOS:
+		case utility.XcodeProjectTypeMacOS:
 			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		}
 	}
 
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
+	switch projectType {
+	case utility.XcodeProjectTypeIOS:
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
-	case ProjectTypeMacOS:
+	case utility.XcodeProjectTypeMacOS:
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
-	return configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+	return *configBuilder
 }
 
-// CommonConfigs ...
-func (scanner *Scanner) CommonConfigs() (models.BitriseConfigMap, error) {
+// GenerateConfig ...
+func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []ConfigDescriptor) (models.BitriseConfigMap, error) {
 	descriptors := []ConfigDescriptor{}
 	descritorNameMap := map[string]bool{}
-
-	for _, descriptor := range scanner.configDescriptors {
-		_, exist := descritorNameMap[descriptor.String()]
+	for _, descriptor := range configDescriptors {
+		_, exist := descritorNameMap[descriptor.ConfigName(projectType)]
 		if !exist {
 			descriptors = append(descriptors, descriptor)
 		}
@@ -558,22 +426,26 @@ func (scanner *Scanner) CommonConfigs() (models.BitriseConfigMap, error) {
 
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range descriptors {
-		config, err := scanner.generateConfig(descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
-		if err != nil {
+		configBuilder := GenerateConfigBuilder(projectType, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
 
+		config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+		if err != nil {
+			return models.BitriseConfigMap{}, err
 		}
+
 		data, err := yaml.Marshal(config)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
-		bitriseDataMap[descriptor.String()] = string(data)
+
+		bitriseDataMap[descriptor.ConfigName(projectType)] = string(data)
 	}
 
 	return bitriseDataMap, nil
 }
 
-// CommonDefaultConfigs ...
-func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) {
+// GenerateDefaultConfig ...
+func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	// CI
@@ -589,10 +461,10 @@ func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) 
 		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 	}
 
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
+	switch projectType {
+	case utility.XcodeProjectTypeIOS:
 		configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
-	case ProjectTypeMacOS:
+	case utility.XcodeProjectTypeMacOS:
 		configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
 
@@ -606,11 +478,11 @@ func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) 
 
 	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
 
-	switch scanner.ProjectType {
-	case ProjectTypeIOS:
+	switch projectType {
+	case utility.XcodeProjectTypeIOS:
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels))
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels))
-	case ProjectTypeMacOS:
+	case utility.XcodeProjectTypeMacOS:
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels))
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels))
 	}
@@ -626,6 +498,6 @@ func (scanner *Scanner) CommonDefaultConfigs() (models.BitriseConfigMap, error) 
 	}
 
 	return models.BitriseConfigMap{
-		fmt.Sprintf(defaultConfigNameFormat, scanner.CommonName()): string(data),
+		fmt.Sprintf(defaultConfigNameFormat, string(projectType)): string(data),
 	}, nil
 }

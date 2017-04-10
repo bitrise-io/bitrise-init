@@ -279,8 +279,8 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	return *gradleFileOption
 }
 
-// Configs ...
-func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+// GenerateConfigBuilder ...
+func GenerateConfigBuilder() models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{projectDirKey: "$" + projectDirEnvKey}))
@@ -291,6 +291,13 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{gradleTaskKey: "$" + gradleTaskEnvKey},
 		envmanModels.EnvironmentItemModel{gradlewPathKey: "$" + gradlewPathEnvKey},
 	}))
+
+	return *configBuilder
+}
+
+// Configs ...
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+	configBuilder := GenerateConfigBuilder()
 
 	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
 	if err != nil {

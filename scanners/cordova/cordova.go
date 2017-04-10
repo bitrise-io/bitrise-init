@@ -79,9 +79,9 @@ func configName(projectType string) string {
 
 // Scanner ...
 type Scanner struct {
-	fileList     []string
-	configXMLPth string
-	widget       WidgetModel
+	iosConfigDescriptors []xcode.ConfigDescriptor
+	configXMLPth         string
+	widget               WidgetModel
 }
 
 // NewScanner ...
@@ -131,7 +131,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	log.Doneft("Platform detected")
 
-	scanner.fileList = fileList
 	scanner.configXMLPth = configXMLPth
 	scanner.widget = widget
 
@@ -215,6 +214,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	// ---
 
 	iosOptions := new(models.OptionModel)
+	iosConfigDescriptors := []xcode.ConfigDescriptor{}
 	if hasIosProject {
 		platformDir := filepath.Join(platformsDir, "ios")
 
@@ -222,19 +222,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		if changeDirForFunctionErr := pathutil.ChangeDirForFunction(platformDir, func() {
 			log.Printft("")
 
-			iosScanner := &xcode.Scanner{ProjectType: xcode.ProjectTypeIOS}
-
-			detected, err := iosScanner.CommonDetectPlatform("./")
+			detected, err := xcode.Detect(utility.XcodeProjectTypeIOS, "./")
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to detect ios platform, error: %s", err)
 				return
 			}
 			if !detected {
-				detectorErr = fmt.Errorf("config.xml contains ios project, but ios scannern does not detect platform")
+				detectorErr = fmt.Errorf("config.xml contains ios project, but ios scanner does not detect platform")
 				return
 			}
 
-			options, warnings, err := iosScanner.GenerateOptions()
+			options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeIOS, "./")
 			if err != nil {
 				detectorErr = fmt.Errorf("failed to create ios project options, error: %s", err)
 				return
@@ -244,6 +242,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 
 			iosOptions = &options
+			iosConfigDescriptors = configDescriptors
 		}); changeDirForFunctionErr != nil {
 			return models.OptionModel{}, warnings, fmt.Errorf("failed to change dir to: %s, error: %s", platformsDir, err)
 		}
@@ -277,7 +276,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return
 			}
 			if !detected {
-				detectorErr = fmt.Errorf("config.xml contains android project, but android scannern does not detect platform")
+				detectorErr = fmt.Errorf("config.xml contains android project, but android scanner does not detect platform")
 				return
 			}
 
@@ -336,6 +335,8 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		projectTypeOption.AddOption("ios+android", iosOptionsCopy)
 	}
 
+	scanner.iosConfigDescriptors = iosConfigDescriptors
+
 	return *projectTypeOption, warnings, nil
 }
 
@@ -346,6 +347,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+
 	return models.BitriseConfigMap{}, nil
 }
 
