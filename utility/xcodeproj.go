@@ -200,6 +200,7 @@ func FilterRelevantProjectFiles(fileList []string, projectTypes ...XcodeProjectT
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
+		ForbidCordovaLibDirComponentFilter,
 	}
 
 	for _, projectType := range projectTypes {
@@ -224,6 +225,7 @@ func FilterRelevantWorkspaceFiles(fileList []string, projectTypes ...XcodeProjec
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
+		ForbidCordovaLibDirComponentFilter,
 	}
 
 	for _, projectType := range projectTypes {
@@ -245,7 +247,8 @@ func FilterRelevantPodfiles(fileList []string) ([]string, error) {
 		ForbidGitDirComponentFilter,
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
-		ForbidFramworkComponentWithExtensionFilter)
+		ForbidFramworkComponentWithExtensionFilter,
+		ForbidCordovaLibDirComponentFilter)
 }
 
 // FilterRelevantCartFile ...
@@ -255,5 +258,6 @@ func FilterRelevantCartFile(fileList []string) ([]string, error) {
 		ForbidGitDirComponentFilter,
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
-		ForbidFramworkComponentWithExtensionFilter)
+		ForbidFramworkComponentWithExtensionFilter,
+		ForbidCordovaLibDirComponentFilter)
 }

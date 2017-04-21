@@ -87,7 +87,3 @@ func TestFilterGradlewFiles(t *testing.T) {
 		require.Equal(t, 0, len(files))
 	}
 }
-
-func TestAndroidConfigName(t *testing.T) {
-	require.Equal(t, "android-config", configName())
-}

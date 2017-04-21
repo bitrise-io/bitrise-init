@@ -175,35 +175,45 @@ func (option *OptionModel) GetValues() []string {
 
 func newDefaultWorkflowBuilder() *workflowBuilderModel {
 	return &workflowBuilderModel{
-		prepareSteps:    steps.DefaultPrepareStepList(),
-		dependencySteps: []bitriseModels.StepListItemModel{},
-		mainSteps:       []bitriseModels.StepListItemModel{},
-		deploySteps:     steps.DefaultDeployStepList(),
+		PrepareSteps:    steps.DefaultPrepareStepList(),
+		DependencySteps: []bitriseModels.StepListItemModel{},
+		MainSteps:       []bitriseModels.StepListItemModel{},
+		DeploySteps:     steps.DefaultDeployStepList(),
+	}
+}
+
+func newWorkflowBuilder(items ...bitriseModels.StepListItemModel) *workflowBuilderModel {
+	return &workflowBuilderModel{
+		steps: items,
 	}
 }
 
 func (builder *workflowBuilderModel) appendPreparStepList(items ...bitriseModels.StepListItemModel) {
-	builder.prepareSteps = append(builder.prepareSteps, items...)
+	builder.PrepareSteps = append(builder.PrepareSteps, items...)
 }
 
 func (builder *workflowBuilderModel) appendDependencyStepList(items ...bitriseModels.StepListItemModel) {
-	builder.dependencySteps = append(builder.dependencySteps, items...)
+	builder.DependencySteps = append(builder.DependencySteps, items...)
 }
 
 func (builder *workflowBuilderModel) appendMainStepList(items ...bitriseModels.StepListItemModel) {
-	builder.mainSteps = append(builder.mainSteps, items...)
+	builder.MainSteps = append(builder.MainSteps, items...)
 }
 
 func (builder *workflowBuilderModel) appendDeployStepList(items ...bitriseModels.StepListItemModel) {
-	builder.deploySteps = append(builder.deploySteps, items...)
+	builder.DeploySteps = append(builder.DeploySteps, items...)
 }
 
 func (builder *workflowBuilderModel) stepList() []bitriseModels.StepListItemModel {
+	if len(builder.steps) > 0 {
+		return builder.steps
+	}
+
 	stepList := []bitriseModels.StepListItemModel{}
-	stepList = append(stepList, builder.prepareSteps...)
-	stepList = append(stepList, builder.dependencySteps...)
-	stepList = append(stepList, builder.mainSteps...)
-	stepList = append(stepList, builder.deploySteps...)
+	stepList = append(stepList, builder.PrepareSteps...)
+	stepList = append(stepList, builder.DependencySteps...)
+	stepList = append(stepList, builder.MainSteps...)
+	stepList = append(stepList, builder.DeploySteps...)
 	return stepList
 }
 
@@ -218,6 +228,15 @@ func NewDefaultConfigBuilder() *ConfigBuilderModel {
 	return &ConfigBuilderModel{
 		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
 			PrimaryWorkflowID: newDefaultWorkflowBuilder(),
+		},
+	}
+}
+
+// NewConfigBuilder ...
+func NewConfigBuilder(primarySteps []bitriseModels.StepListItemModel) *ConfigBuilderModel {
+	return &ConfigBuilderModel{
+		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
+			PrimaryWorkflowID: newWorkflowBuilder(primarySteps...),
 		},
 	}
 }
@@ -309,7 +328,7 @@ func (builder *ConfigBuilderModel) AppendDeployStepList(items ...bitriseModels.S
 }
 
 // Generate ...
-func (builder *ConfigBuilderModel) Generate(appEnvs []envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
+func (builder *ConfigBuilderModel) Generate(appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
 	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
 	if !ok || primaryWorkflowBuilder == nil || len(primaryWorkflowBuilder.stepList()) == 0 {
 		return bitriseModels.BitriseDataModel{}, errors.New("primary workflow not defined")

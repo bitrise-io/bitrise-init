@@ -18,9 +18,7 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-const (
-	scannerName = "xamarin"
-)
+const scannerName = "xamarin"
 
 const (
 	solutionExtension          = ".sln"
@@ -46,26 +44,32 @@ const (
 )
 
 const (
-	xamarinSolutionKey    = "xamarin_solution"
-	xamarinSolutionTitle  = "Path to the Xamarin Solution file"
-	xamarinSolutionEnvKey = "BITRISE_PROJECT_PATH"
+	xamarinSolutionInputKey    = "xamarin_solution"
+	xamarinSolutionInputEnvKey = "BITRISE_PROJECT_PATH"
+	xamarinSolutionInputTitle  = "Path to the Xamarin Solution file"
+)
 
-	xamarinConfigurationKey    = "xamarin_configuration"
-	xamarinConfigurationTitle  = "Xamarin solution configuration"
-	xamarinConfigurationEnvKey = "BITRISE_XAMARIN_CONFIGURATION"
+const (
+	xamarinConfigurationInputKey    = "xamarin_configuration"
+	xamarinConfigurationInputEnvKey = "BITRISE_XAMARIN_CONFIGURATION"
+	xamarinConfigurationInputTitle  = "Xamarin solution configuration"
+)
 
-	xamarinPlatformKey    = "xamarin_platform"
-	xamarinPlatformTitle  = "Xamarin solution platform"
-	xamarinPlatformEnvKey = "BITRISE_XAMARIN_PLATFORM"
+const (
+	xamarinPlatformInputKey    = "xamarin_platform"
+	xamarinPlatformInputEnvKey = "BITRISE_XAMARIN_PLATFORM"
+	xamarinPlatformInputTitle  = "Xamarin solution platform"
+)
 
-	xamarinIosLicenceKey   = "xamarin_ios_license"
-	xamarinIosLicenceTitle = "Xamarin.iOS License"
+const (
+	xamarinIosLicenceInputKey   = "xamarin_ios_license"
+	xamarinIosLicenceInputTitle = "Xamarin.iOS License"
 
-	xamarinAndroidLicenceKey   = "xamarin_android_license"
-	xamarinAndroidLicenceTitle = "Xamarin.Android License"
+	xamarinAndroidLicenceInputKey   = "xamarin_android_license"
+	xamarinAndroidLicenceInputTitle = "Xamarin.Android License"
 
-	xamarinMacLicenseKey   = "xamarin_mac_license"
-	xamarinMacLicenseTitle = "Xamarin.Mac License"
+	xamarinMacLicenseInputKey   = "xamarin_mac_license"
+	xamarinMacLicenseInputTitle = "Xamarin.Mac License"
 )
 
 var (
@@ -408,14 +412,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	}
 
 	// Check for solution projects
-	xamarinSolutionOption := models.NewOption(xamarinSolutionTitle, xamarinSolutionEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
 
 	for solutionFile, configMap := range validSolutionMap {
-		xamarinConfigurationOption := models.NewOption(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+		xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
 		xamarinSolutionOption.AddOption(solutionFile, xamarinConfigurationOption)
 
 		for config, platforms := range configMap {
-			xamarinPlatformOption := models.NewOption(xamarinPlatformTitle, xamarinPlatformEnvKey)
+			xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
 			xamarinConfigurationOption.AddOption(config, xamarinPlatformOption)
 
 			for _, platform := range platforms {
@@ -430,12 +434,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	xamarinSolutionOption := models.NewOption(xamarinSolutionTitle, xamarinSolutionEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
 
-	xamarinConfigurationOption := models.NewOption(xamarinConfigurationTitle, xamarinConfigurationEnvKey)
+	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
 	xamarinSolutionOption.AddOption("_", xamarinConfigurationOption)
 
-	xamarinPlatformOption := models.NewOption(xamarinPlatformTitle, xamarinPlatformEnvKey)
+	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
 	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
 
 	configOption := models.NewConfigOption(defaultConfigName())
@@ -454,16 +458,16 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	if scanner.HasXamarinComponents {
 		inputs := []envmanModels.EnvironmentItemModel{}
 		if scanner.HasIosProject {
-			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinIosLicenceKey: "yes"})
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinIosLicenceInputKey: "yes"})
 		}
 		if scanner.HasAndroidProject {
-			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinAndroidLicenceKey: "yes"})
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinAndroidLicenceInputKey: "yes"})
 		}
 		if scanner.HasMacProject {
-			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinMacLicenseKey: "yes"})
+			inputs = append(inputs, envmanModels.EnvironmentItemModel{xamarinMacLicenseInputKey: "yes"})
 		}
 
-		configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem(inputs))
+		configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem(inputs...))
 	}
 
 	// NugetRestore
@@ -477,13 +481,13 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	}
 
 	// XamarinArchive
-	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{xamarinSolutionKey: "$" + xamarinSolutionEnvKey},
-		envmanModels.EnvironmentItemModel{xamarinConfigurationKey: "$" + xamarinConfigurationEnvKey},
-		envmanModels.EnvironmentItemModel{xamarinPlatformKey: "$" + xamarinPlatformEnvKey},
-	}))
+	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem(
+		envmanModels.EnvironmentItemModel{xamarinSolutionInputKey: "$" + xamarinSolutionInputEnvKey},
+		envmanModels.EnvironmentItemModel{xamarinConfigurationInputKey: "$" + xamarinConfigurationInputEnvKey},
+		envmanModels.EnvironmentItemModel{xamarinPlatformInputKey: "$" + xamarinPlatformInputEnvKey},
+	))
 
-	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+	config, err := configBuilder.Generate()
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -503,18 +507,18 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem([]envmanModels.EnvironmentItemModel{}))
+	configBuilder.AppendPreparStepList(steps.XamarinUserManagementStepListItem())
 
 	configBuilder.AppendDependencyStepList(steps.NugetRestoreStepListItem())
 	configBuilder.AppendDependencyStepList(steps.XamarinComponentsRestoreStepListItem())
 
-	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{xamarinSolutionKey: "$" + xamarinSolutionEnvKey},
-		envmanModels.EnvironmentItemModel{xamarinConfigurationKey: "$" + xamarinConfigurationEnvKey},
-		envmanModels.EnvironmentItemModel{xamarinPlatformKey: "$" + xamarinPlatformEnvKey},
-	}))
+	configBuilder.AppendMainStepList(steps.XamarinArchiveStepListItem(
+		envmanModels.EnvironmentItemModel{xamarinSolutionInputKey: "$" + xamarinSolutionInputEnvKey},
+		envmanModels.EnvironmentItemModel{xamarinConfigurationInputKey: "$" + xamarinConfigurationInputEnvKey},
+		envmanModels.EnvironmentItemModel{xamarinPlatformInputKey: "$" + xamarinPlatformInputEnvKey},
+	))
 
-	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+	config, err := configBuilder.Generate()
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

@@ -100,8 +100,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       build.gradle:
-        title: Path to the Android project root
-        env_key: PROJECT_ROOT
+        title: Path to the Android project root directory
+        env_key: PROJECT_ROOT_DIR
         value_map:
           $BITRISE_SOURCE_DIR:
             title: Gradlew file path
@@ -137,7 +137,7 @@ configs:
               title: Do anything with Script step
           - change-workdir@%s:
               inputs:
-              - path: $PROJECT_ROOT
+              - path: $PROJECT_ROOT_DIR
               - is_create_path: "false"
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
@@ -167,8 +167,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       build.gradle:
-        title: Path to the Android project root
-        env_key: PROJECT_ROOT
+        title: Path to the Android project root directory
+        env_key: PROJECT_ROOT_DIR
         value_map:
           $BITRISE_SOURCE_DIR:
             title: Gradlew file path
@@ -204,7 +204,7 @@ configs:
               title: Do anything with Script step
           - change-workdir@%s:
               inputs:
-              - path: $PROJECT_ROOT
+              - path: $PROJECT_ROOT_DIR
               - is_create_path: "false"
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:

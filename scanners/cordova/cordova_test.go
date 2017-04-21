@@ -23,6 +23,28 @@ func TestParseConfigXMLContent(t *testing.T) {
 	})
 }
 
+func TestConfigName(t *testing.T) {
+	{
+		name := ConfigName("", "")
+		require.Equal(t, "cordova-config", name)
+	}
+
+	{
+		name := ConfigName("ios-pod-carthage-test-missing-shared-schemes-config", "")
+		require.Equal(t, "cordova-ios-pod-carthage-test-missing-shared-schemes-config", name)
+	}
+
+	{
+		name := ConfigName("", "android-config")
+		require.Equal(t, "cordova-android-config", name)
+	}
+
+	{
+		name := ConfigName("ios-pod-carthage-test-missing-shared-schemes-config", "android-config")
+		require.Equal(t, "cordova-ios-pod-carthage-test-missing-shared-schemes-android-config", name)
+	}
+}
+
 const testConfigXMLContent = `<?xml version='1.0' encoding='utf-8'?>
 <widget id="com.bitrise.cordovasample" version="0.9.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>CordovaOnBitrise</name>

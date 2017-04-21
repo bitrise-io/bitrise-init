@@ -3,11 +3,11 @@ package scanners
 import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"gopkg.in/yaml.v2"
 )
 
@@ -61,7 +61,7 @@ var ActiveScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
-	// cordova.NewScanner(),
+	cordova.NewScanner(),
 }
 
 func customConfigName() string {
@@ -72,7 +72,7 @@ func customConfigName() string {
 func CustomConfig() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{})
+	config, err := configBuilder.Generate()
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

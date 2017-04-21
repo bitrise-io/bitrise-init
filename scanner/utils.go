@@ -46,7 +46,7 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 
 		if optionEnvKey == "" {
 			configPth = selectedValue
-		} else {
+		} else if optionEnvKey != "_" {
 			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
 				optionEnvKey: selectedValue,
 			})

@@ -32,10 +32,12 @@ type ScanResultModel struct {
 }
 
 type workflowBuilderModel struct {
-	prepareSteps    []bitriseModels.StepListItemModel
-	dependencySteps []bitriseModels.StepListItemModel
-	mainSteps       []bitriseModels.StepListItemModel
-	deploySteps     []bitriseModels.StepListItemModel
+	PrepareSteps    []bitriseModels.StepListItemModel
+	DependencySteps []bitriseModels.StepListItemModel
+	MainSteps       []bitriseModels.StepListItemModel
+	DeploySteps     []bitriseModels.StepListItemModel
+
+	steps []bitriseModels.StepListItemModel
 }
 
 // WorkflowID ...

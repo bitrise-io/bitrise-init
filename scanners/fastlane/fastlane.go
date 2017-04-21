@@ -18,23 +18,25 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-const (
-	scannerName = "fastlane"
-)
+const scannerName = "fastlane"
 
 const (
 	fastfileBasePath = "Fastfile"
 )
 
 const (
-	laneKey    = "lane"
-	laneTitle  = "Fastlane lane"
-	laneEnvKey = "FASTLANE_LANE"
+	laneInputKey    = "lane"
+	laneInputTitle  = "Fastlane lane"
+	laneInputEnvKey = "FASTLANE_LANE"
+)
 
-	workDirKey    = "work_dir"
-	workDirTitle  = "Working directory"
-	workDirEnvKey = "FASTLANE_WORK_DIR"
+const (
+	workDirInputKey    = "work_dir"
+	workDirInputTitle  = "Working directory"
+	workDirInputEnvKey = "FASTLANE_WORK_DIR"
+)
 
+const (
 	fastlaneXcodeListTimeoutEnvKey   = "FASTLANE_XCODE_LIST_TIMEOUT"
 	fastlaneXcodeListTimeoutEnvValue = "120"
 )
@@ -199,7 +201,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	// Inspect Fastfiles
 
-	workDirOption := models.NewOption(workDirTitle, workDirEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
 	for _, fastfile := range scanner.Fastfiles {
 		log.Infoft("Inspecting Fastfile: %s", fastfile)
@@ -224,7 +226,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		isValidFastfileFound = true
 
-		laneOption := models.NewOption(laneTitle, laneEnvKey)
+		laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
 		workDirOption.AddOption(workDir, laneOption)
 
 		for _, lane := range lanes {
@@ -246,9 +248,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	workDirOption := models.NewOption(workDirTitle, workDirEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
-	laneOption := models.NewOption(laneTitle, laneEnvKey)
+	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
 	workDirOption.AddOption("_", laneOption)
 
 	configOption := models.NewConfigOption(defaultConfigName())
@@ -263,14 +265,12 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendMainStepList(steps.FastlaneStepListItem([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
-		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
-	}))
+	configBuilder.AppendMainStepList(steps.FastlaneStepListItem(
+		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+	))
 
-	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
-	})
+	config, err := configBuilder.Generate(envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -291,14 +291,12 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendMainStepList(steps.FastlaneStepListItem([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
-		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
-	}))
+	configBuilder.AppendMainStepList(steps.FastlaneStepListItem(
+		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+	))
 
-	config, err := configBuilder.Generate([]envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
-	})
+	config, err := configBuilder.Generate(envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
