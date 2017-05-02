@@ -52,6 +52,15 @@ var customConfigVersions = []interface{}{
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// cordova
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.GenerateCordovaBuildConfigVersion,
+	steps.CordovaArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
 	// fastlane
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -142,6 +151,20 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 value_map:
                   _:
                     config: default-android-config
+  cordova:
+    title: Directory of Cordova Config.xml
+    env_key: CORDOVA_WORK_DIR
+    value_map:
+      _:
+        title: Platform to use in cordova-cli commands
+        env_key: CORDOVA_PLATFORM
+        value_map:
+          android:
+            config: default-cordova-config
+          ios:
+            config: default-cordova-config
+          ios,android:
+            config: default-cordova-config
   fastlane:
     title: Working directory
     env_key: FASTLANE_WORK_DIR
@@ -214,6 +237,33 @@ configs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
+          - deploy-to-bitrise-io@%s: {}
+  cordova:
+    default-cordova-config: |
+      format_version: %s
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      app:
+        envs:
+        - CORDOVA_TARGET: emulator
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - generate-cordova-build-configuration@%s: {}
+          - cordova-archive@%s:
+              inputs:
+              - workdir: $CORDOVA_WORK_DIR
+              - platform: $CORDOVA_PLATFORM
+              - target: $CORDOVA_TARGET
           - deploy-to-bitrise-io@%s: {}
   fastlane:
     default-fastlane-config: |

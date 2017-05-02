@@ -6,16 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-/*
-// WidgetModel ...
-type WidgetModel struct {
-	ID       string `xml:"id,attr"`
-	Version  string `xml:"version,attr"`
-	XMLNS    string `xml:"xmlns,attr"`
-	XMLNSCDV string `xml:"xmlns:cdv,attr"`
-}
-
-*/
 func TestParseConfigXMLContent(t *testing.T) {
 	widget, err := parseConfigXMLContent(testConfigXMLContent)
 	require.NoError(t, err)
@@ -23,28 +13,6 @@ func TestParseConfigXMLContent(t *testing.T) {
 	require.Equal(t, "0.9.0", widget.Version)
 	require.Equal(t, "http://www.w3.org/ns/widgets", widget.XMLNS)
 	require.Equal(t, "http://cordova.apache.org/ns/1.0", widget.XMLNSCDV)
-}
-
-func TestConfigName(t *testing.T) {
-	{
-		name := ConfigName(false, false)
-		require.Equal(t, "cordova-config", name)
-	}
-
-	{
-		name := ConfigName(true, false)
-		require.Equal(t, "cordova-ios-config", name)
-	}
-
-	{
-		name := ConfigName(false, true)
-		require.Equal(t, "cordova-android-config", name)
-	}
-
-	{
-		name := ConfigName(true, true)
-		require.Equal(t, "cordova-ios-android-config", name)
-	}
 }
 
 const testConfigXMLContent = `<?xml version='1.0' encoding='utf-8'?>

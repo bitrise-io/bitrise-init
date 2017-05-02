@@ -28,14 +28,22 @@ const (
 )
 
 const (
-	projectTypeInputTitle  = "Project type"
-	projectTypeInputEnvKey = "_"
+	workDirInputKey    = "workdir"
+	workDirInputTitle  = "Directory of Cordova Config.xml"
+	workDirInputEnvKey = "CORDOVA_WORK_DIR"
 )
 
 const (
-	workDirInputKey    = "work_dir"
-	workDirInputTitle  = "Working directory"
-	workDirInputEnvKey = "CORDOVA_WORK_DIR"
+	platformInputKey    = "platform"
+	platformInputTitle  = "Platform to use in cordova-cli commands"
+	platformInputEnvKey = "CORDOVA_PLATFORM"
+)
+
+const (
+	targetInputKey    = "target"
+	targetInputTitle  = "Build command target"
+	targetInputEnvKey = "CORDOVA_TARGET"
+	targetEmulator    = "emulator"
 )
 
 // ConfigDescriptor ...
@@ -99,15 +107,12 @@ func filterRootConfigXMLFile(fileList []string) (string, error) {
 }
 
 // ConfigName ...
-func ConfigName(hasIosProject, hasAndroidProject bool) string {
-	configName := "cordova"
-	if hasIosProject {
-		configName += "-ios"
-	}
-	if hasAndroidProject {
-		configName += "-android"
-	}
-	return configName + "-config"
+func ConfigName() string {
+	return "cordova-config"
+}
+
+func defaultConfigName() string {
+	return "default-cordova-config"
 }
 
 // Scanner ...
@@ -353,37 +358,67 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		scanner.hasJasmineTest = jasminTestDetected
 	}
 
-	projectTypeOption := models.NewOption(projectTypeInputTitle, projectTypeInputEnvKey)
+	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
 
-	iosConfigOption := models.NewConfigOption(ConfigName(true, false))
+	iosConfigOption := models.NewConfigOption(ConfigName())
 	projectTypeOption.AddConfig("ios", iosConfigOption)
 
-	androidConfigOption := models.NewConfigOption(ConfigName(true, true))
+	androidConfigOption := models.NewConfigOption(ConfigName())
 	projectTypeOption.AddConfig("android", androidConfigOption)
 
-	iosAndroidConfigOption := models.NewConfigOption(ConfigName(true, true))
-	projectTypeOption.AddConfig("ios+android", iosAndroidConfigOption)
+	iosAndroidConfigOption := models.NewConfigOption(ConfigName())
+	projectTypeOption.AddConfig("ios,android", iosAndroidConfigOption)
 
 	return *projectTypeOption, warnings, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	return models.OptionModel{}
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+
+	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
+	workDirOption.AddOption("_", projectTypeOption)
+
+	platforms := []string{
+		"ios",
+		"android",
+		"ios,android",
+	}
+	for _, platform := range platforms {
+		configOption := models.NewConfigOption(defaultConfigName())
+		projectTypeOption.AddConfig(platform, configOption)
+	}
+
+	return *workDirOption
 }
 
 func relCordovaWorkDir(baseDir, cordovaConfigPth string) (string, error) {
+	fmt.Printf("baseDir: %s <-> cordovaConfigPth: %s\n", baseDir, cordovaConfigPth)
+
 	absBaseDir, err := pathutil.AbsPath(baseDir)
 	if err != nil {
 		return "", err
 	}
+
+	if strings.HasPrefix(absBaseDir, "/private/var") {
+		absBaseDir = strings.TrimPrefix(absBaseDir, "/private")
+	}
+
+	fmt.Printf("absBaseDir: %s\n", absBaseDir)
 
 	absCordovaConfigPth, err := pathutil.AbsPath(cordovaConfigPth)
 	if err != nil {
 		return "", err
 	}
 
+	if strings.HasPrefix(absCordovaConfigPth, "/private/var") {
+		absCordovaConfigPth = strings.TrimPrefix(absCordovaConfigPth, "/private")
+	}
+
+	fmt.Printf("absCordovaConfigPth: %s\n", absCordovaConfigPth)
+
 	absCordovaWorkDir := filepath.Dir(absCordovaConfigPth)
+	fmt.Printf("absBaseDir: %s <-> absCordovaWorkDir: %s\n", absBaseDir, absCordovaWorkDir)
 	if absBaseDir == absCordovaWorkDir {
 		return "", nil
 	}
@@ -403,98 +438,89 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		return models.BitriseConfigMap{}, fmt.Errorf("Failed to check if search dir is the work dir, error: %s", err)
 	}
 
-	platforms := []string{
-		"ios",
-		"android",
-		"ios,android",
+	bitriseDataMap := models.BitriseConfigMap{}
+
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	workdirEnvList := []envmanModels.EnvironmentItemModel{}
+	if workdir != "" {
+		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 
-	bitriseDataMap := models.BitriseConfigMap{}
-	for _, platform := range platforms {
-		iosProject := strings.Contains(platform, "ios")
-		androidProject := strings.Contains(platform, "android")
+	if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
+		// CI
+		if scanner.hasKarmaJasmineTest {
+			configBuilder.AppendMainStepList(steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
+		} else if scanner.hasJasmineTest {
+			configBuilder.AppendMainStepList(steps.JasmineTestRunnerStepListItem(workdirEnvList...))
+		}
 
-		configBuilder := models.NewDefaultConfigBuilder()
+		// CD
+		configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
 
-		workdirEnvList := []envmanModels.EnvironmentItemModel{}
+		if scanner.hasKarmaJasmineTest {
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
+		} else if scanner.hasJasmineTest {
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.JasmineTestRunnerStepListItem(workdirEnvList...))
+		}
+
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
+
+		cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
+			envmanModels.EnvironmentItemModel{targetInputKey: "$" + targetInputEnvKey},
+		}
 		if workdir != "" {
-			workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{"workdir": "$" + workDirInputEnvKey})
+			cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
+		}
+		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+
+		appEnvs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator},
+		}
+		if workdir != "" {
+			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
+		}
+		config, err := configBuilder.Generate(appEnvs...)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
 		}
 
-		if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
-			// CI
-			if scanner.hasKarmaJasmineTest {
-				configBuilder.AppendMainStepList(steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
-			} else if scanner.hasJasmineTest {
-				configBuilder.AppendMainStepList(steps.JasmineTestRunnerStepListItem(workdirEnvList...))
-			}
-
-			// CD
-			configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
-
-			if scanner.hasKarmaJasmineTest {
-				configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
-			} else if scanner.hasJasmineTest {
-				configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.JasmineTestRunnerStepListItem(workdirEnvList...))
-			}
-
-			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
-
-			cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
-				envmanModels.EnvironmentItemModel{"platform": platform},
-				envmanModels.EnvironmentItemModel{"target": "emulator"},
-			}
-			if workdir != "" {
-				cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{"workdir": "$" + workDirInputEnvKey})
-			}
-			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
-
-			appEnvs := []envmanModels.EnvironmentItemModel{}
-			if workdir != "" {
-				appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
-			}
-			config, err := configBuilder.Generate(appEnvs...)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			data, err := yaml.Marshal(config)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			bitriseDataMap[ConfigName(iosProject, androidProject)] = string(data)
-		} else {
-			configBuilder.AppendMainStepList(steps.GenerateCordovaBuildConfigStepListItem())
-
-			cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
-				envmanModels.EnvironmentItemModel{"platform": platform},
-				envmanModels.EnvironmentItemModel{"target": "emulator"},
-			}
-			if workdir != "" {
-				cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{"workdir": "$" + workDirInputEnvKey})
-			}
-			configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(
-				envmanModels.EnvironmentItemModel{"platform": platform},
-				envmanModels.EnvironmentItemModel{"target": "emulator"},
-			))
-
-			appEnvs := []envmanModels.EnvironmentItemModel{}
-			if workdir != "" {
-				appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
-			}
-			config, err := configBuilder.Generate(appEnvs...)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			data, err := yaml.Marshal(config)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			bitriseDataMap[ConfigName(iosProject, androidProject)] = string(data)
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
 		}
+
+		bitriseDataMap[ConfigName()] = string(data)
+	} else {
+		configBuilder.AppendMainStepList(steps.GenerateCordovaBuildConfigStepListItem())
+
+		cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
+			envmanModels.EnvironmentItemModel{targetInputKey: "$" + targetInputEnvKey},
+		}
+		if workdir != "" {
+			cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
+		}
+		configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+
+		appEnvs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator},
+		}
+		if workdir != "" {
+			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
+		}
+		config, err := configBuilder.Generate(appEnvs...)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap[ConfigName()] = string(data)
 	}
 
 	return bitriseDataMap, nil
@@ -502,5 +528,30 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return models.BitriseConfigMap{}, nil
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	configBuilder.AppendMainStepList(steps.GenerateCordovaBuildConfigStepListItem())
+	cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
+		envmanModels.EnvironmentItemModel{targetInputKey: "$" + targetInputEnvKey},
+	}
+	configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+
+	appEnvs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator},
+	}
+	config, err := configBuilder.Generate(appEnvs...)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	return models.BitriseConfigMap{
+		defaultConfigName(): string(data),
+	}, nil
 }
