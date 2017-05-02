@@ -19,9 +19,9 @@ import (
 func TestManualConfig(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("manual-config")
 	{
@@ -212,8 +212,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
 configs:
   android:
     default-android-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -240,8 +241,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   cordova:
     default-cordova-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: cordova
       app:
         envs:
         - CORDOVA_TARGET: emulator
@@ -267,8 +269,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   fastlane:
     default-fastlane-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: fastlane
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
@@ -293,8 +296,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   ios:
     default-ios-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -341,8 +345,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: macos
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -389,8 +394,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   other:
     other-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: other
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -407,8 +413,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   xamarin:
     default-xamarin-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: xamarin
       trigger_map:
       - push_branch: '*'
         workflow: primary

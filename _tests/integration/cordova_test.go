@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -18,9 +19,9 @@ import (
 func TestCordova(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__cordova__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("sample-apps-cordova-with-jasmine")
 	{
@@ -88,8 +89,9 @@ var sampleAppsCordovaWithJasmineResultYML = fmt.Sprintf(`options:
 configs:
   cordova:
     cordova-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: cordova
       app:
         envs:
         - CORDOVA_TARGET: emulator
@@ -157,8 +159,9 @@ var sampleAppsCordovaWithKarmaJasmineResultYML = fmt.Sprintf(`options:
 configs:
   cordova:
     cordova-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: cordova
       app:
         envs:
         - CORDOVA_TARGET: emulator

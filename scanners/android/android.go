@@ -295,7 +295,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	for _, descriptor := range scanner.configDescriptors {
 		configBuilder := GenerateConfigBuilder(descriptor.MissingGradlew)
 
-		config, err := configBuilder.Generate()
+		config, err := configBuilder.Generate(ScannerName)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -324,7 +324,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
 	))
 
-	config, err := configBuilder.Generate()
+	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

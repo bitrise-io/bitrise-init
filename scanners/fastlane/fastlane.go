@@ -21,6 +21,12 @@ import (
 const scannerName = "fastlane"
 
 const (
+	configName = "fastlane-config"
+
+	defaultConfigName = "default-fastlane-config"
+)
+
+const (
 	fastfileBasePath = "Fastfile"
 )
 
@@ -134,14 +140,6 @@ func fastlaneWorkDir(fastfilePth string) string {
 	return dirPth
 }
 
-func configName() string {
-	return "fastlane-config"
-}
-
-func defaultConfigName() string {
-	return "default-fastlane-config"
-}
-
 //--------------------------------------------------
 // Scanner
 //--------------------------------------------------
@@ -237,7 +235,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		for _, lane := range lanes {
 			log.Printft("- %s", lane)
 
-			configOption := models.NewConfigOption(configName())
+			configOption := models.NewConfigOption(configName)
 			laneOption.AddConfig(lane, configOption)
 		}
 	}
@@ -258,7 +256,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
 	workDirOption.AddOption("_", laneOption)
 
-	configOption := models.NewConfigOption(defaultConfigName())
+	configOption := models.NewConfigOption(defaultConfigName)
 	laneOption.AddConfig("_", configOption)
 
 	return *workDirOption
@@ -275,7 +273,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
 
-	config, err := configBuilder.Generate(envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -286,7 +284,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	}
 
 	return models.BitriseConfigMap{
-		configName(): string(data),
+		configName: string(data),
 	}, nil
 }
 
@@ -301,7 +299,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
 
-	config, err := configBuilder.Generate(envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -312,6 +310,6 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	return models.BitriseConfigMap{
-		defaultConfigName(): string(data),
+		defaultConfigName: string(data),
 	}, nil
 }

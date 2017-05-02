@@ -12,7 +12,8 @@ import (
 
 const (
 	// FormatVersion ...
-	FormatVersion        = "1.3.1"
+	FormatVersion = bitriseModels.Version
+
 	defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
 )
 
@@ -328,7 +329,7 @@ func (builder *ConfigBuilderModel) AppendDeployStepList(items ...bitriseModels.S
 }
 
 // Generate ...
-func (builder *ConfigBuilderModel) Generate(appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
+func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
 	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
 	if !ok || primaryWorkflowBuilder == nil || len(primaryWorkflowBuilder.stepList()) == 0 {
 		return bitriseModels.BitriseDataModel{}, errors.New("primary workflow not defined")
@@ -355,8 +356,9 @@ func (builder *ConfigBuilderModel) Generate(appEnvs ...envmanModels.EnvironmentI
 	}
 
 	return bitriseModels.BitriseDataModel{
-		FormatVersion:        FormatVersion,
+		FormatVersion:        bitriseModels.Version,
 		DefaultStepLibSource: defaultSteplibSource,
+		ProjectType:          projectType,
 		TriggerMap:           triggerMap,
 		Workflows:            workflows,
 		App:                  app,

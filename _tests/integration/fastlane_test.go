@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -18,9 +19,9 @@ import (
 func TestFastlane(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("fastlane")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("fastlane")
 	{
@@ -92,8 +93,9 @@ var fastlaneResultYML = fmt.Sprintf(`options:
 configs:
   fastlane:
     fastlane-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: fastlane
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
@@ -118,8 +120,9 @@ configs:
           - deploy-to-bitrise-io@%s: {}
   ios:
     ios-test-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary

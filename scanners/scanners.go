@@ -75,7 +75,7 @@ func customConfigName() string {
 func CustomConfig() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	config, err := configBuilder.Generate()
+	config, err := configBuilder.Generate("other")
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

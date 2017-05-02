@@ -21,6 +21,10 @@ import (
 const scannerName = "xamarin"
 
 const (
+	defaultConfigName = "default-xamarin-config"
+)
+
+const (
 	solutionExtension          = ".sln"
 	solutionConfigurationStart = "GlobalSection(SolutionConfigurationPlatforms) = preSolution"
 	solutionConfigurationEnd   = "EndGlobalSection"
@@ -272,10 +276,6 @@ func configName(hasNugetPackages, hasXamarinComponents bool) string {
 	return name + "config"
 }
 
-func defaultConfigName() string {
-	return "default-xamarin-config"
-}
-
 //--------------------------------------------------
 // Scanner
 //--------------------------------------------------
@@ -447,7 +447,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
 	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
 
-	configOption := models.NewConfigOption(defaultConfigName())
+	configOption := models.NewConfigOption(defaultConfigName)
 	xamarinPlatformOption.AddConfig("_", configOption)
 
 	return *xamarinSolutionOption
@@ -492,7 +492,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{xamarinPlatformInputKey: "$" + xamarinPlatformInputEnvKey},
 	))
 
-	config, err := configBuilder.Generate()
+	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -523,7 +523,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{xamarinPlatformInputKey: "$" + xamarinPlatformInputEnvKey},
 	))
 
-	config, err := configBuilder.Generate()
+	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -534,6 +534,6 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	return models.BitriseConfigMap{
-		defaultConfigName(): string(data),
+		defaultConfigName: string(data),
 	}, nil
 }

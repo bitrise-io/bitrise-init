@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -19,9 +20,9 @@ import (
 func TestIOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ios__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("ios-no-shared-schemes")
 	{
@@ -127,8 +128,9 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
 configs:
   ios:
     ios-test-missing-shared-schemes-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -213,8 +215,9 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
 configs:
   ios:
     ios-pod-test-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -311,8 +314,9 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
 configs:
   ios:
     ios-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -342,8 +346,9 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - deploy-to-bitrise-io@%s: {}
     ios-test-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -418,8 +423,9 @@ var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
 configs:
   ios:
     ios-carthage-test-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       trigger_map:
       - push_branch: '*'
         workflow: primary

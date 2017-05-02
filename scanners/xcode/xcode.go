@@ -445,7 +445,7 @@ func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []Co
 	for _, descriptor := range configDescriptors {
 		configBuilder := GenerateConfigBuilder(projectType, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
 
-		config, err := configBuilder.Generate()
+		config, err := configBuilder.Generate(string(projectType))
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -504,7 +504,7 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.Bitrise
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
 
-	config, err := configBuilder.Generate()
+	config, err := configBuilder.Generate(string(projectType))
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

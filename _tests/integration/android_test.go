@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -18,9 +19,9 @@ import (
 func TestAndroid(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
 	require.NoError(t, err)
-	// defer func() {
-	// 	require.NoError(t, os.RemoveAll(tmpDir))
-	// }()
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
 
 	t.Log("sample-apps-android-sdk22")
 	{
@@ -120,8 +121,9 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
 configs:
   android:
     android-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -187,8 +189,9 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
 configs:
   android:
     android-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
       trigger_map:
       - push_branch: '*'
         workflow: primary
