@@ -10,14 +10,14 @@ import (
 
 	"strings"
 
+	"encoding/json"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/xcode"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -63,18 +63,18 @@ func (descriptor ConfigDescriptor) ConfigName() string {
 	return ""
 }
 
-// EngineModel ...
-type EngineModel struct {
-	Name string `xml:"name,attr"`
-	Spec string `xml:"spec,attr"`
-}
-
 // WidgetModel ...
 type WidgetModel struct {
-	ID      string        `xml:"id,attr"`
-	Version string        `xml:"version,attr"`
-	Name    string        `xml:"name"`
-	Engines []EngineModel `xml:"engine"`
+	ID       string `xml:"id,attr"`
+	Version  string `xml:"version,attr"`
+	XMLNS    string `xml:"xmlns,attr"`
+	XMLNSCDV string `xml:"xmlns cdv,attr"`
+}
+
+// ProjectConfigModel ...
+type ProjectConfigModel struct {
+	pth    string
+	widget WidgetModel
 }
 
 func parseConfigXMLContent(content string) (WidgetModel, error) {
@@ -108,24 +108,23 @@ func filterRootConfigXMLFile(fileList []string) (string, error) {
 }
 
 // ConfigName ...
-func ConfigName(iosConfigName, androidConfigName string) string {
+func ConfigName(hasIosProject, hasAndroidProject bool) string {
 	configName := "cordova"
-	if iosConfigName != "" {
-		configName += ("-" + strings.TrimSuffix(iosConfigName, "-config"))
+	if hasIosProject {
+		configName += "-ios"
 	}
-	if androidConfigName != "" {
-		configName += ("-" + strings.TrimSuffix(androidConfigName, "-config"))
+	if hasAndroidProject {
+		configName += "-android"
 	}
 	return configName + "-config"
 }
 
 // Scanner ...
 type Scanner struct {
-	configXMLPth string
-	widget       WidgetModel
-	platformsDir string
-
-	configDescriptor ConfigDescriptor
+	projectConfig       ProjectConfigModel
+	searchDir           string
+	hasKarmaJasmineTest bool
+	hasJasmineTest      bool
 }
 
 // NewScanner ...
@@ -136,6 +135,20 @@ func NewScanner() *Scanner {
 // Name ...
 func (scanner Scanner) Name() string {
 	return scannerName
+}
+
+func pathsEquals(pth1, pth2 string) (bool, error) {
+	absPth1, err := pathutil.AbsPath(pth1)
+	if err != nil {
+		return false, err
+	}
+
+	absPth2, err := pathutil.AbsPath(pth2)
+	if err != nil {
+		return false, err
+	}
+
+	return (absPth1 == absPth2), nil
 }
 
 // DetectPlatform ...
@@ -153,12 +166,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, fmt.Errorf("failed to search for config.xml file, error: %s", err)
 	}
 
+	log.Printft("config.xml: %s", configXMLPth)
+
 	if configXMLPth == "" {
 		log.Printft("platform not detected")
 		return false, nil
 	}
-
-	log.Printft("config.xml: %s", configXMLPth)
 
 	widget, err := parseConfigXML(configXMLPth)
 	if err != nil {
@@ -167,263 +180,189 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	if len(widget.Engines) == 0 {
-		log.Printft("no engines found in config.xml")
+	// ensure it is a cordova widget
+	if !strings.Contains(widget.XMLNSCDV, "cordova.apache.org") {
+		log.Printft("config.xml propert: xmlns:cdv does not contain cordova.apache.org")
 		log.Printft("platform not detected")
+		return false, nil
+	}
+
+	// ensure it is not an ionic project
+	projectBaseDir := filepath.Dir(configXMLPth)
+
+	if exist, err := pathutil.IsPathExists(filepath.Join(projectBaseDir, "ionic.project")); err != nil {
+		return false, fmt.Errorf("failed to check if project is an ionic project, error: %s", err)
+	} else if exist {
+		log.Printft("ionic.project file found seems to be an ionic project")
+		return false, nil
+	}
+
+	if exist, err := pathutil.IsPathExists(filepath.Join(projectBaseDir, "ionic.config.json")); err != nil {
+		return false, fmt.Errorf("failed to check if project is an ionic project, error: %s", err)
+	} else if exist {
+		log.Printft("ionic.config.json file found seems to be an ionic project")
 		return false, nil
 	}
 
 	log.Doneft("Platform detected")
 
-	scanner.configXMLPth = configXMLPth
-	scanner.widget = widget
+	scanner.projectConfig = ProjectConfigModel{
+		pth:    configXMLPth,
+		widget: widget,
+	}
+
+	scanner.searchDir = searchDir
 
 	return true, nil
+}
+
+func detectPlatforms(platformsDir string) ([]string, error) {
+	platformsJSONPth := filepath.Join(platformsDir, "platforms.json")
+	if exist, err := pathutil.IsPathExists(platformsJSONPth); err != nil {
+		return []string{}, err
+	} else if !exist {
+		return []string{}, nil
+	}
+
+	bytes, err := fileutil.ReadBytesFromFile(platformsJSONPth)
+	if err != nil {
+		return []string{}, err
+	}
+
+	type PlatformsModel struct {
+		IOS     string `json:"ios"`
+		Android string `json:"android"`
+	}
+
+	var platformsModel PlatformsModel
+	if err := json.Unmarshal(bytes, &platformsModel); err != nil {
+		return []string{}, err
+	}
+
+	platforms := []string{}
+	if platformsModel.IOS != "" {
+		platforms = append(platforms, "ios")
+	}
+	if platformsModel.Android != "" {
+		platforms = append(platforms, "android")
+	}
+
+	return platforms, nil
+}
+
+// PackagesModel ...
+type PackagesModel struct {
+	Platforms       []string          `json:"cordovaPlatforms"`
+	Dependencies    map[string]string `json:"dependencies"`
+	DevDependencies map[string]string `json:"devDependencies"`
+}
+
+func parsePackagesJSONContent(content string) (PackagesModel, error) {
+	var packages PackagesModel
+	if err := json.Unmarshal([]byte(content), &packages); err != nil {
+		return PackagesModel{}, err
+	}
+	return packages, nil
+}
+
+func parsePackagesJSON(packagesJSONPth string) (PackagesModel, error) {
+	content, err := fileutil.ReadStringFromFile(packagesJSONPth)
+	if err != nil {
+		return PackagesModel{}, err
+	}
+	return parsePackagesJSONContent(content)
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
-	projectRoot := filepath.Dir(scanner.configXMLPth)
+	projectRootDir := filepath.Dir(scanner.projectConfig.pth)
 
-	projectTypes := []string{}
-	hasIosProject := false
-	hasAndroidProject := false
-
-	log.Printft("available project types:")
-
-	for _, engine := range scanner.widget.Engines {
-		log.Printft("- %s", engine.Name)
-
-		projectTypes = append(projectTypes, engine.Name)
-
-		if engine.Name == "ios" {
-			hasIosProject = true
-		}
-
-		if engine.Name == "android" {
-			hasAndroidProject = true
-		}
-	}
-	if hasIosProject && hasAndroidProject {
-		projectTypes = append(projectTypes, "ios+android")
-	}
-
-	log.Infoft("Checking for platforms directory")
-
-	isPrepareRequired := false
-	platformsDir := filepath.Join(projectRoot, platformsDirName)
-	platformsDirExist, err := pathutil.IsPathExists(platformsDir)
+	packagesJSONPth := filepath.Join(projectRootDir, "package.json")
+	packages, err := parsePackagesJSON(packagesJSONPth)
 	if err != nil {
-		return models.OptionModel{}, warnings, fmt.Errorf("failed to check if path (%s) exists, error: %s", platformsDir, err)
+		return models.OptionModel{}, warnings, err
 	}
 
-	log.Printft("platforms directory exists: %v", platformsDirExist)
+	// Search for karma/jasmine tests
+	log.Printft("Searching for karma/jasmine test")
 
-	if platformsDirExist {
-		for _, engine := range scanner.widget.Engines {
-			if engine.Name == "ios" {
-				iosPlatformDir := filepath.Join(platformsDir, "ios")
-				iosPlatformDirExist, err := pathutil.IsPathExists(iosPlatformDir)
-				if err != nil {
-					return models.OptionModel{}, warnings, fmt.Errorf("failed to check if path (%s) exists, error: %s", iosPlatformDir, err)
-				}
+	karmaTestDetected := false
 
-				log.Printft("platforms/ios directory exists: %v", iosPlatformDirExist)
-
-				if !iosPlatformDirExist {
-					log.Printft("platforms directory exists: %v", platformsDirExist)
-					isPrepareRequired = true
-				}
-			}
-
-			if engine.Name == "android" {
-				androidPlatformDir := filepath.Join(platformsDir, "android")
-				androidPlatformDirExist, err := pathutil.IsPathExists(androidPlatformDir)
-				if err != nil {
-					return models.OptionModel{}, warnings, fmt.Errorf("failed to check if path (%s) exists, error: %s", androidPlatformDir, err)
-				}
-
-				log.Printft("platforms/android directory exists: %v", androidPlatformDirExist)
-
-				if !androidPlatformDirExist {
-					isPrepareRequired = true
-				}
-			}
+	karmaJasmineDependencyFound := false
+	for dependency := range packages.Dependencies {
+		if strings.Contains(dependency, "karma-jasmine") {
+			karmaJasmineDependencyFound = true
 		}
-	} else {
-		isPrepareRequired = true
 	}
-
-	scanner.platformsDir = platformsDir
-
-	if isPrepareRequired {
-		log.Infoft("Prepareing project")
-
-		whichCordovaCmd := command.New("which", "cordova")
-		out, err := whichCordovaCmd.RunAndReturnTrimmedCombinedOutput()
-		if err != nil || out == "" {
-			log.Printft("cordova not installed, installing...")
-
-			installCordovaCmd := command.New("npm", "install", "-g", "cordova")
-			if err := installCordovaCmd.Run(); err != nil {
-				return models.OptionModel{}, warnings, err
+	if !karmaJasmineDependencyFound {
+		for dependency := range packages.DevDependencies {
+			if strings.Contains(dependency, "karma-jasmine") {
+				karmaJasmineDependencyFound = true
 			}
-		} else {
-			log.Printft("cordova installed")
 		}
+	}
+	log.Printft("karma-jasmine dependency found: %v", karmaJasmineDependencyFound)
 
-		prepareCmd := command.NewWithStandardOuts("cordova", "prepare")
-
-		log.Printft("$ %s", prepareCmd.PrintableCommandArgs())
-
-		if err := prepareCmd.Run(); err != nil {
+	if karmaJasmineDependencyFound {
+		karmaConfigJSONPth := filepath.Join(projectRootDir, "karma.conf.js")
+		if exist, err := pathutil.IsPathExists(karmaConfigJSONPth); err != nil {
 			return models.OptionModel{}, warnings, err
-		}
-
-		exist, err := pathutil.IsPathExists(platformsDir)
-		if err != nil {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to check if path (%s) exists, error: %s", platformsDir, err)
-		} else if !exist {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to generate platforms")
+		} else if exist {
+			karmaTestDetected = true
 		}
 	}
+	log.Printft("karma.conf.js found: %v", karmaTestDetected)
 
-	// ---
+	scanner.hasKarmaJasmineTest = karmaTestDetected
+
+	// Search for jasmine tests
+	jasminTestDetected := false
+
+	if !karmaTestDetected {
+		log.Printft("Searching for jasmine test")
+
+		jasmineDependencyFound := false
+		for dependency := range packages.Dependencies {
+			if strings.Contains(dependency, "jasmine") {
+				jasmineDependencyFound = true
+				break
+			}
+		}
+		if !jasmineDependencyFound {
+			for dependency := range packages.DevDependencies {
+				if strings.Contains(dependency, "jasmine") {
+					jasmineDependencyFound = true
+					break
+				}
+			}
+		}
+		log.Printft("jasmine dependency found: %v", jasmineDependencyFound)
+
+		if jasmineDependencyFound {
+			jasmineConfigJSONPth := filepath.Join(projectRootDir, "spec", "support", "jasmine.json")
+			if exist, err := pathutil.IsPathExists(jasmineConfigJSONPth); err != nil {
+				return models.OptionModel{}, warnings, err
+			} else if exist {
+				jasminTestDetected = true
+			}
+		}
+
+		log.Printft("jasmine.json found: %v", jasminTestDetected)
+
+		scanner.hasJasmineTest = jasminTestDetected
+	}
 
 	projectTypeOption := models.NewOption(projectTypeInputTitle, projectTypeInputEnvKey)
 
-	// ---
+	iosConfigOption := models.NewConfigOption(ConfigName(true, false))
+	projectTypeOption.AddConfig("ios", iosConfigOption)
 
-	configDescrptor := NewConfigDescriptor()
+	androidConfigOption := models.NewConfigOption(ConfigName(true, true))
+	projectTypeOption.AddConfig("android", androidConfigOption)
 
-	iosOptions := new(models.OptionModel)
-	iosConfigDescriptors := []xcode.ConfigDescriptor{}
-	if hasIosProject {
-		platformDir := filepath.Join(platformsDir, "ios")
-
-		var detectorErr error
-		if changeDirForFunctionErr := pathutil.ChangeDirForFunction(platformDir, func() {
-			log.Printft("")
-
-			detected, err := xcode.Detect(utility.XcodeProjectTypeIOS, "./")
-			if err != nil {
-				detectorErr = fmt.Errorf("failed to detect ios platform, error: %s", err)
-				return
-			}
-			if !detected {
-				detectorErr = fmt.Errorf("config.xml contains ios project, but ios scanner does not detect platform")
-				return
-			}
-
-			options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeIOS, "./")
-			if err != nil {
-				detectorErr = fmt.Errorf("failed to create ios project options, error: %s", err)
-				return
-			}
-			for _, warning := range warnings {
-				log.Warnft(warning)
-			}
-
-			iosOptions = &options
-			iosConfigDescriptors = configDescriptors
-		}); changeDirForFunctionErr != nil {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to change dir to: %s, error: %s", platformsDir, changeDirForFunctionErr)
-		}
-
-		if detectorErr != nil {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
-		}
-
-		iosOptionsCopy := iosOptions.Copy()
-		iosConfigOptions := iosOptionsCopy.LastChilds()
-		for _, iosConfigOption := range iosConfigOptions {
-			iosConfigOption.Config = ConfigName(iosConfigOption.Config, "")
-		}
-
-		projectTypeOption.AddOption("ios", iosOptionsCopy)
-
-		configDescrptor.iosConfigDescriptors = iosConfigDescriptors
-	}
-
-	androidOptions := new(models.OptionModel)
-	androidConfigDescriptors := []android.ConfigDescriptor{}
-	if hasAndroidProject {
-		platformDir := filepath.Join(platformsDir, "android")
-
-		var detectorErr error
-		if changeDirForFunctionErr := pathutil.ChangeDirForFunction(platformDir, func() {
-			log.Printft("")
-
-			androidScanner := android.NewScanner()
-
-			detected, err := androidScanner.DetectPlatform(".")
-			if err != nil {
-				detectorErr = fmt.Errorf("failed to detect android platform, error: %s", err)
-				return
-			}
-			if !detected {
-				detectorErr = fmt.Errorf("config.xml contains android project, but android scanner does not detect platform")
-				return
-			}
-
-			options, configDescriptors, warnings, err := androidScanner.GenerateOption(true, false)
-			if err != nil {
-				detectorErr = fmt.Errorf("failed to create android project options, error: %s", err)
-				return
-			}
-			for _, warning := range warnings {
-				log.Warnft(warning)
-			}
-
-			androidOptions = &options
-			androidConfigDescriptors = configDescriptors
-		}); changeDirForFunctionErr != nil {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to change dir to: %s, error: %s", platformsDir, changeDirForFunctionErr)
-		}
-
-		if detectorErr != nil {
-			return models.OptionModel{}, warnings, fmt.Errorf("failed to create options, error: %s", detectorErr)
-		}
-
-		androidOptionsCopy := androidOptions.Copy()
-		androidConfigOptions := androidOptionsCopy.LastChilds()
-		for _, androidConfigOption := range androidConfigOptions {
-			androidConfigOption.Config = ConfigName("", androidConfigOption.Config)
-		}
-
-		projectTypeOption.AddOption("android", androidOptionsCopy)
-
-		configDescrptor.androidConfigDescriptors = androidConfigDescriptors
-	}
-
-	if hasIosProject && hasAndroidProject {
-		iosOptionsCopy := iosOptions.Copy()
-		androidOptionsCopy := androidOptions.Copy()
-
-		iosConfigOptions := iosOptions.LastChilds()
-		for _, iosConfigOption := range iosConfigOptions {
-			androidConfigOptions := androidOptionsCopy.LastChilds()
-			for _, androidConfigOption := range androidConfigOptions {
-				androidConfigOption.Config = ConfigName(iosConfigOption.Config, androidConfigOption.Config)
-			}
-
-			iosLastOption, underKey, ok := iosConfigOption.Parent()
-			if !ok {
-				return models.OptionModel{}, warnings, fmt.Errorf("invalid config: %s", iosConfigOption)
-			}
-
-			iosLastOptionCopy, ok := iosOptionsCopy.Child(iosLastOption.Components...)
-			if !ok {
-				return models.OptionModel{}, warnings, fmt.Errorf("invalid config: %s", iosOptionsCopy)
-			}
-			iosLastOptionCopy.AddOption(underKey, androidOptionsCopy)
-		}
-
-		projectTypeOption.AddOption("ios+android", iosOptionsCopy)
-	}
-
-	scanner.configDescriptor = configDescrptor
+	iosAndroidConfigOption := models.NewConfigOption(ConfigName(true, true))
+	projectTypeOption.AddConfig("ios+android", iosAndroidConfigOption)
 
 	return *projectTypeOption, warnings, nil
 }
@@ -433,143 +372,106 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	return models.OptionModel{}
 }
 
-func cordovaIosStepList(iosPlatformDir string, missingSharedSchemes bool, hasPodfile bool, carthageCommand string, hasTest bool) []bitriseModels.StepListItemModel {
-	iosStepList := []bitriseModels.StepListItemModel{}
-	iosStepList = append(iosStepList, steps.ChangeWorkDirStepListItem(
-		envmanModels.EnvironmentItemModel{steps.ChangeWorkDirInputPathKey: iosPlatformDir}),
-	)
-	iosStepList = append(iosStepList, steps.CertificateAndProfileInstallerStepListItem())
-
-	if missingSharedSchemes {
-		iosStepList = append(iosStepList, steps.RecreateUserSchemesStepListItem(
-			envmanModels.EnvironmentItemModel{xcode.ProjectPathInputKey: "$" + xcode.ProjectPathInputEnvKey},
-		))
-	}
-
-	if hasPodfile {
-		iosStepList = append(iosStepList, steps.CocoapodsInstallStepListItem())
-	}
-
-	if carthageCommand != "" {
-		iosStepList = append(iosStepList, steps.CarthageStepListItem(
-			envmanModels.EnvironmentItemModel{xcode.CarthageCommandInputKey: carthageCommand},
-		))
-	}
-
-	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{forceTeamIDInputKey: "72SA8V3WYL"},
-		envmanModels.EnvironmentItemModel{forceCodeSignIdentityInputKey: "iPhone Developer"},
-		envmanModels.EnvironmentItemModel{forceProvisioningProfileInputKey: "BitriseBot-Wildcard"},
-		envmanModels.EnvironmentItemModel{xcode.ProjectPathInputKey: "$" + xcode.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{xcode.SchemeInputKey: "$" + xcode.SchemeInputEnvKey},
-	}
-
-	if hasTest {
-		iosStepList = append(iosStepList, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
-	}
-
-	iosStepList = append(iosStepList, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
-
-	return iosStepList
-}
-
-func cordovaAndroidStepList(androidPlatformDir string, missingGraldew bool) []bitriseModels.StepListItemModel {
-	androidStepList := []bitriseModels.StepListItemModel{}
-	androidStepList = append(androidStepList, steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{pathInputKey: androidPlatformDir}))
-	if missingGraldew {
-		androidStepList = append(androidStepList, steps.GenerateGradleWrapperStepListItem())
-	}
-	androidStepList = append(androidStepList, steps.InstallMissingAndroidToolsStepListItem())
-	androidStepList = append(androidStepList, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "$" + android.GradleTaskInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
-	))
-	return androidStepList
-}
-
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	configMap := models.BitriseConfigMap{}
+	workDir := ""
+	projectBaseDir := filepath.Dir(scanner.projectConfig.pth)
+	if equals, err := pathsEquals(scanner.searchDir, projectBaseDir); err != nil {
+		return models.BitriseConfigMap{}, fmt.Errorf("Failed to check if search dir is the work dir, error: %s", err)
+	} else if !equals {
+		workDir = projectBaseDir
+	}
 
-	// common steps
-	commonStepList := steps.DefaultPrepareStepList()
+	platforms := []string{
+		"ios",
+		"android",
+		"ios,android",
+	}
 
-	if len(scanner.configDescriptor.iosConfigDescriptors) > 0 {
-		for _, descriptor := range scanner.configDescriptor.iosConfigDescriptors {
-			// ios
-			iosStepList := cordovaIosStepList(filepath.Join("$PROJECT_ROOT_DIR", scanner.platformsDir, "ios"), descriptor.MissingSharedSchemes, descriptor.HasPodfile, descriptor.CarthageCommand, descriptor.HasTest)
+	bitriseDataMap := models.BitriseConfigMap{}
+	for _, platform := range platforms {
+		iosProject := strings.Contains(platform, "ios")
+		androidProject := strings.Contains(platform, "android")
 
-			iosConfig, err := models.NewConfigBuilder(append(commonStepList, iosStepList...)).Generate(envmanModels.EnvironmentItemModel{"PROJECT_ROOT_DIR": "$BITRISE_SOURCE_DIR"})
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
+		configBuilder := models.NewDefaultConfigBuilder()
 
-			iosConfigData, err := yaml.Marshal(iosConfig)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			iosConfigName := descriptor.ConfigName(utility.XcodeProjectTypeIOS)
-			cordovaIosConfigName := ConfigName(iosConfigName, "")
-			configMap[cordovaIosConfigName] = string(iosConfigData)
-
-			for _, descriptor := range scanner.configDescriptor.androidConfigDescriptors {
-				// android
-				androidStepList := cordovaAndroidStepList(filepath.Join("$PROJECT_ROOT_DIR", scanner.platformsDir, "android"), descriptor.MissingGradlew)
-
-				androidConfig, err := models.NewConfigBuilder(append(commonStepList, androidStepList...)).Generate(envmanModels.EnvironmentItemModel{"PROJECT_ROOT_DIR": "$BITRISE_SOURCE_DIR"})
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				androidConfigData, err := yaml.Marshal(androidConfig)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				androidConfigName := android.ConfigName
-				cordovaAndroidConfigName := ConfigName("", androidConfigName)
-				configMap[cordovaAndroidConfigName] = string(androidConfigData)
-
-				// ios + android
-				iosAndroidSteplist := append(iosStepList, androidStepList...)
-
-				iosAndroidConfig, err := models.NewConfigBuilder(append(commonStepList, iosAndroidSteplist...)).Generate(envmanModels.EnvironmentItemModel{"PROJECT_ROOT_DIR": "$BITRISE_SOURCE_DIR"})
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				iosAndroidConfigData, err := yaml.Marshal(iosAndroidConfig)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				cordovaIosAndroidConfigName := ConfigName(iosConfigName, androidConfigName)
-				configMap[cordovaIosAndroidConfigName] = string(iosAndroidConfigData)
-			}
+		workdirEnvList := []envmanModels.EnvironmentItemModel{}
+		if workDir != "" {
+			workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{
+				"workdir": workDir,
+			})
 		}
-	} else if len(scanner.configDescriptor.androidConfigDescriptors) > 0 {
-		for _, descriptor := range scanner.configDescriptor.androidConfigDescriptors {
-			androidStepList := cordovaAndroidStepList(filepath.Join("$PROJECT_ROOT_DIR", scanner.platformsDir, "android"), descriptor.MissingGradlew)
 
-			androidConfig, err := models.NewConfigBuilder(append(commonStepList, androidStepList...)).Generate(envmanModels.EnvironmentItemModel{"PROJECT_ROOT_DIR": "$BITRISE_SOURCE_DIR"})
+		if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
+			// CI
+			if scanner.hasKarmaJasmineTest {
+				configBuilder.AppendMainStepList(steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
+			} else if scanner.hasJasmineTest {
+				configBuilder.AppendMainStepList(steps.JasmineTestRunnerStepListItem(workdirEnvList...))
+			}
+
+			// CD
+			configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
+
+			if scanner.hasKarmaJasmineTest {
+				configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
+			} else if scanner.hasJasmineTest {
+				configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.JasmineTestRunnerStepListItem(workdirEnvList...))
+			}
+
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
+
+			cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+				envmanModels.EnvironmentItemModel{"platform": platform},
+				envmanModels.EnvironmentItemModel{"target": "emulator"},
+			}
+			if workDir != "" {
+				cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{"workdir": workDir})
+			}
+			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+
+			config, err := configBuilder.Generate()
 			if err != nil {
 				return models.BitriseConfigMap{}, err
 			}
 
-			androidConfigData, err := yaml.Marshal(androidConfig)
+			data, err := yaml.Marshal(config)
 			if err != nil {
 				return models.BitriseConfigMap{}, err
 			}
 
-			androidConfigName := android.ConfigName
-			cordovaAndroidConfigName := ConfigName("", androidConfigName)
-			configMap[cordovaAndroidConfigName] = string(androidConfigData)
+			bitriseDataMap[ConfigName(iosProject, androidProject)] = string(data)
+		} else {
+			configBuilder.AppendMainStepList(steps.GenerateCordovaBuildConfigStepListItem())
+
+			cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+				envmanModels.EnvironmentItemModel{"platform": platform},
+				envmanModels.EnvironmentItemModel{"target": "emulator"},
+			}
+			if workDir != "" {
+				cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{"workdir": workDir})
+			}
+
+			configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(
+				envmanModels.EnvironmentItemModel{"platform": platform},
+				envmanModels.EnvironmentItemModel{"target": "emulator"},
+			))
+
+			config, err := configBuilder.Generate()
+			if err != nil {
+				return models.BitriseConfigMap{}, err
+			}
+
+			data, err := yaml.Marshal(config)
+			if err != nil {
+				return models.BitriseConfigMap{}, err
+			}
+
+			bitriseDataMap[ConfigName(iosProject, androidProject)] = string(data)
 		}
 	}
 
-	return configMap, nil
+	return bitriseDataMap, nil
 }
 
 // DefaultConfigs ...

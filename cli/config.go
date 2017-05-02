@@ -6,8 +6,6 @@ import (
 	"path"
 	"path/filepath"
 
-	"encoding/json"
-
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/output"
 	"github.com/bitrise-core/bitrise-init/scanner"
@@ -148,13 +146,6 @@ func initConfig(c *cli.Context) error {
 	if isCI {
 		log.Infoft("ci - Saving outputs:")
 
-		bytes, err := json.MarshalIndent(scanResult, "", "\t")
-		if err != nil {
-			return fmt.Errorf("Failed to marshal output, error: %s", err)
-		}
-		fmt.Printf("scanResult:\n%s\n", string(bytes))
-
-		fmt.Printf("start write\n")
 		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)

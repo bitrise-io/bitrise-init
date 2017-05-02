@@ -1,4 +1,4 @@
-package android
+package utility
 
 import (
 	"testing"
@@ -7,9 +7,9 @@ import (
 )
 
 func TestFixedGradlewPath(t *testing.T) {
-	require.Equal(t, "./gradlew", fixedGradlewPath("gradlew"))
-	require.Equal(t, "./gradlew", fixedGradlewPath("./gradlew"))
-	require.Equal(t, "test/gradlew", fixedGradlewPath("test/gradlew"))
+	require.Equal(t, "./gradlew", FixedGradlewPath("gradlew"))
+	require.Equal(t, "./gradlew", FixedGradlewPath("./gradlew"))
+	require.Equal(t, "test/gradlew", FixedGradlewPath("test/gradlew"))
 }
 
 func TestFilterRootBuildGradleFiles(t *testing.T) {
@@ -66,7 +66,7 @@ func TestFilterGradlewFiles(t *testing.T) {
 			"path/to/my",
 		}
 
-		files, err := filterGradlewFiles(fileList)
+		files, err := FilterGradlewFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 
@@ -82,7 +82,7 @@ func TestFilterGradlewFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files, err := filterGradlewFiles(fileList)
+		files, err := FilterGradlewFiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}

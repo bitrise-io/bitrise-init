@@ -6,42 +6,44 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+/*
+// WidgetModel ...
+type WidgetModel struct {
+	ID       string `xml:"id,attr"`
+	Version  string `xml:"version,attr"`
+	XMLNS    string `xml:"xmlns,attr"`
+	XMLNSCDV string `xml:"xmlns:cdv,attr"`
+}
+
+*/
 func TestParseConfigXMLContent(t *testing.T) {
 	widget, err := parseConfigXMLContent(testConfigXMLContent)
 	require.NoError(t, err)
 	require.Equal(t, "com.bitrise.cordovasample", widget.ID)
 	require.Equal(t, "0.9.0", widget.Version)
-	require.Equal(t, "CordovaOnBitrise", widget.Name)
-	require.Equal(t, 2, len(widget.Engines))
-	require.Contains(t, widget.Engines, EngineModel{
-		Name: "ios",
-		Spec: "~4.3.1",
-	})
-	require.Contains(t, widget.Engines, EngineModel{
-		Name: "android",
-		Spec: "~6.1.2",
-	})
+	require.Equal(t, "http://www.w3.org/ns/widgets", widget.XMLNS)
+	require.Equal(t, "http://cordova.apache.org/ns/1.0", widget.XMLNSCDV)
 }
 
 func TestConfigName(t *testing.T) {
 	{
-		name := ConfigName("", "")
+		name := ConfigName(false, false)
 		require.Equal(t, "cordova-config", name)
 	}
 
 	{
-		name := ConfigName("ios-pod-carthage-test-missing-shared-schemes-config", "")
-		require.Equal(t, "cordova-ios-pod-carthage-test-missing-shared-schemes-config", name)
+		name := ConfigName(true, false)
+		require.Equal(t, "cordova-ios-config", name)
 	}
 
 	{
-		name := ConfigName("", "android-config")
+		name := ConfigName(false, true)
 		require.Equal(t, "cordova-android-config", name)
 	}
 
 	{
-		name := ConfigName("ios-pod-carthage-test-missing-shared-schemes-config", "android-config")
-		require.Equal(t, "cordova-ios-pod-carthage-test-missing-shared-schemes-android-config", name)
+		name := ConfigName(true, true)
+		require.Equal(t, "cordova-ios-android-config", name)
 	}
 }
 
