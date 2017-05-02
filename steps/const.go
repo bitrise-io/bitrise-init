@@ -21,14 +21,14 @@ const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
-	GitCloneVersion = "3.4.2"
+	GitCloneVersion = "3.4.3"
 )
 
 const (
 	// CertificateAndProfileInstallerID ...
 	CertificateAndProfileInstallerID = "certificate-and-profile-installer"
 	// CertificateAndProfileInstallerVersion ...
-	CertificateAndProfileInstallerVersion = "1.8.4"
+	CertificateAndProfileInstallerVersion = "1.8.5"
 )
 
 const (
@@ -51,7 +51,7 @@ const (
 	// InstallMissingAndroidToolsID ...
 	InstallMissingAndroidToolsID = "install-missing-android-tools"
 	// InstallMissingAndroidToolsVersion ...
-	InstallMissingAndroidToolsVersion = "0.9.2"
+	InstallMissingAndroidToolsVersion = "1.0.2"
 )
 
 const (
@@ -65,7 +65,7 @@ const (
 	// FastlaneID ...
 	FastlaneID = "fastlane"
 	// FastlaneVersion ...
-	FastlaneVersion = "2.3.7"
+	FastlaneVersion = "2.3.9"
 )
 
 const (
@@ -100,7 +100,7 @@ const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "1.18.1"
+	XcodeTestVersion = "1.18.3"
 )
 
 const (
@@ -128,7 +128,7 @@ const (
 	// XamarinArchiveID ...
 	XamarinArchiveID = "xamarin-archive"
 	// XamarinArchiveVersion ...
-	XamarinArchiveVersion = "1.3.2"
+	XamarinArchiveVersion = "1.3.3"
 )
 
 const (
@@ -156,14 +156,14 @@ const (
 	// CordovaArchiveID ...
 	CordovaArchiveID = "cordova-archive"
 	// CordovaArchiveVersion ...
-	CordovaArchiveVersion = "0.9.0"
+	CordovaArchiveVersion = "0.9.1"
 )
 
 const (
 	// GenerateCordovaBuildConfigID ...
 	GenerateCordovaBuildConfigID = "generate-cordova-build-configuration"
 	// GenerateCordovaBuildConfigVersion ...
-	GenerateCordovaBuildConfigVersion = "0.9.0"
+	GenerateCordovaBuildConfigVersion = "0.9.2"
 )
 
 const (
@@ -177,5 +177,5 @@ const (
 	// KarmaJasmineTestRunnerID ...
 	KarmaJasmineTestRunnerID = "karma-jasmine-runner"
 	// KarmaJasmineTestRunnerVersion ...
-	KarmaJasmineTestRunnerVersion = "0.9.0"
+	KarmaJasmineTestRunnerVersion = "0.9.1"
 )
