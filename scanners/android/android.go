@@ -13,7 +13,8 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-const scannerName = "android"
+// ScannerName ...
+const ScannerName = "android"
 
 const (
 	// GradleFileInputKey ...
@@ -98,7 +99,7 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner Scanner) Name() string {
-	return scannerName
+	return ScannerName
 }
 
 // DetectPlatform ...
@@ -131,6 +132,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.Doneft("Platform detected")
 
 	return true, nil
+}
+
+// ExcludedScannerNames ...
+func (scanner *Scanner) ExcludedScannerNames() []string {
+	return []string{}
 }
 
 // GenerateOption ...

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v1"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"

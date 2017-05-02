@@ -338,6 +338,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	return true, nil
 }
 
+// ExcludedScannerNames ...
+func (scanner *Scanner) ExcludedScannerNames() []string {
+	return []string{}
+}
+
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	log.Infoft("Searching for NuGet packages & Xamarin Components")

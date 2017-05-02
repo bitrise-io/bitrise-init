@@ -56,6 +56,8 @@ func Config(searchDir string) models.ScanResultModel {
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
+	excludedScannerNames := []string{}
+
 	log.Infoft(colorstring.Blue("Running scanners:"))
 	fmt.Println()
 
@@ -65,6 +67,21 @@ func Config(searchDir string) models.ScanResultModel {
 		detectorErrors := []string{}
 
 		log.Infoft("Scanner: %s", colorstring.Blue(detectorName))
+
+		isExcluded := false
+		for _, excludedScanner := range excludedScannerNames {
+			if excludedScanner == detectorName {
+				isExcluded = true
+				break
+			}
+		}
+
+		if isExcluded {
+			log.Warnft("scanner is marked as excluded, skipping...")
+			fmt.Println()
+			continue
+		}
+
 		log.Printft("+------------------------------------------------------------------------------+")
 		log.Printft("|                                                                              |")
 
@@ -113,6 +130,13 @@ func Config(searchDir string) models.ScanResultModel {
 
 		log.Printft("|                                                                              |")
 		log.Printft("+------------------------------------------------------------------------------+")
+
+		exludedScanners := detector.ExcludedScannerNames()
+		if len(exludedScanners) > 0 {
+			log.Warnft("Scanner: %s will exclude scanners: %v", detector.Name(), exludedScanners)
+			excludedScannerNames = append(excludedScannerNames, exludedScanners...)
+		}
+
 		fmt.Println()
 	}
 	// ---

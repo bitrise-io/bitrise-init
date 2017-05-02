@@ -34,6 +34,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	return detected, nil
 }
 
+// ExcludedScannerNames ...
+func (scanner *Scanner) ExcludedScannerNames() []string {
+	return []string{}
+}
+
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeMacOS, scanner.searchDir)

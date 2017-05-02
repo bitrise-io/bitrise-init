@@ -29,6 +29,9 @@ type ScannerInterface interface {
 	// - error if (if any)
 	DetectPlatform(searchDir string) (bool, error)
 
+	// ExcludedScannerNames is used to mark, which scanners should be excluded, if the current scanner detects platform.
+	ExcludedScannerNames() []string
+
 	// OptionModel is the model, used to store the available configuration combintaions.
 	// It defines option branches which leads different bitrise configurations.
 	// Each branch should define a complete and valid options to build the final bitrise config model.
@@ -56,12 +59,12 @@ type ScannerInterface interface {
 
 // ActiveScanners ...
 var ActiveScanners = []ScannerInterface{
+	cordova.NewScanner(),
 	ios.NewScanner(),
 	macos.NewScanner(),
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
-	cordova.NewScanner(),
 }
 
 func customConfigName() string {
