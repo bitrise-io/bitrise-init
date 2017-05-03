@@ -58,6 +58,10 @@
 			"Rev": "c8163959178ae89a3829ce02e485eef6b2befd22"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/go-utils/sliceutil",
+			"Rev": "c8163959178ae89a3829ce02e485eef6b2befd22"
+		},
+		{
 			"ImportPath": "github.com/bitrise-io/goinp/goinp",
 			"Rev": "a602d207503f909271ecd91a17abd9ac919e273c"
 		},
