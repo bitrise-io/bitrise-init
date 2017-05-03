@@ -17,8 +17,21 @@ func askForOptionValue(option models.OptionModel) (string, string, error) {
 
 	selectedValue := ""
 	if len(optionValues) == 1 {
-		selectedValue = optionValues[0]
+		if optionValues[0] == "_" {
+			// provide option value
+			question := fmt.Sprintf("Provide: %s", option.Title)
+			answer, err := goinp.AskForString(question)
+			if err != nil {
+				return "", "", err
+			}
+
+			selectedValue = answer
+		} else {
+			// auto select the only one value
+			selectedValue = optionValues[0]
+		}
 	} else {
+		// select from values
 		question := fmt.Sprintf("Select: %s", option.Title)
 		answer, err := goinp.SelectFromStrings(question, optionValues)
 		if err != nil {
@@ -45,16 +58,30 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 		}
 
 		if optionEnvKey == "" {
+			// last option selected, config got
 			configPth = selectedValue
+			return nil
 		} else if optionEnvKey != "_" {
+			// env's value selected
 			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
 				optionEnvKey: selectedValue,
 			})
 		}
 
-		nestedOptions, found := option.ChildOptionMap[selectedValue]
-		if !found {
-			return nil
+		var nestedOptions *models.OptionModel
+		if len(option.ChildOptionMap) == 1 {
+			// auto select the next option
+			for _, childOption := range option.ChildOptionMap {
+				nestedOptions = childOption
+				break
+			}
+		} else {
+			// go to the next option, based on the selected value
+			childOptions, found := option.ChildOptionMap[selectedValue]
+			if !found {
+				return nil
+			}
+			nestedOptions = childOptions
 		}
 
 		return walkDepth(*nestedOptions)
@@ -62,6 +89,10 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 
 	if err := walkDepth(options); err != nil {
 		return "", []envmanModels.EnvironmentItemModel{}, err
+	}
+
+	if configPth == "" {
+		return "", nil, errors.New("no config selected")
 	}
 
 	return configPth, appEnvs, nil
