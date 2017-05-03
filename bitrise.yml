@@ -58,7 +58,6 @@ workflows:
         inputs:
         - content: |-
             #!/bin/bash
-            set -e
             unused_out=$(for pkg in $(go list ./... | grep -v vendor); do unused "$pkg"; done)
             if [[ "${unused_out}" != "" ]] ; then
               echo "=> Unused output:"
@@ -70,7 +69,6 @@ workflows:
         inputs:
         - content: |-
             #!/bin/bash
-            set -e
             gosimple_out=$(for pkg in $(go list ./... | grep -v vendor); do gosimple "$pkg"; done)
             if [[ "${gosimple_out}" != "" ]] ; then
               echo "=> gosimple output:"
