@@ -38,7 +38,6 @@ const (
 
 const (
 	targetInputKey    = "target"
-	targetInputTitle  = "Build command target"
 	targetInputEnvKey = "CORDOVA_TARGET"
 	targetEmulator    = "emulator"
 )

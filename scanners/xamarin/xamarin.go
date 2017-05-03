@@ -40,14 +40,9 @@ const (
 )
 
 const (
-	xamarinIosLicenceInputKey   = "xamarin_ios_license"
-	xamarinIosLicenceInputTitle = "Xamarin.iOS License"
-
-	xamarinAndroidLicenceInputKey   = "xamarin_android_license"
-	xamarinAndroidLicenceInputTitle = "Xamarin.Android License"
-
-	xamarinMacLicenseInputKey   = "xamarin_mac_license"
-	xamarinMacLicenseInputTitle = "Xamarin.Mac License"
+	xamarinIosLicenceInputKey     = "xamarin_ios_license"
+	xamarinAndroidLicenceInputKey = "xamarin_android_license"
+	xamarinMacLicenseInputKey     = "xamarin_mac_license"
 )
 
 func configName(hasNugetPackages, hasXamarinComponents bool) string {
@@ -136,7 +131,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	for _, file := range scanner.FileList {
 		// Search for nuget packages
-		if scanner.HasNugetPackages == false {
+		if !scanner.HasNugetPackages {
 			baseName := filepath.Base(file)
 			if baseName == "packages.config" {
 				scanner.HasNugetPackages = true
@@ -147,7 +142,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		// /Components/[COMPONENT_NAME]/ dir added
 		// ItemGroup/XamarinComponentReference added to the project
 		// packages.config added to the project's folder
-		if scanner.HasXamarinComponents == false {
+		if !scanner.HasXamarinComponents {
 			componentsExp := regexp.MustCompile(".*Components/.+")
 			if result := componentsExp.FindString(file); result != "" {
 				scanner.HasXamarinComponents = true

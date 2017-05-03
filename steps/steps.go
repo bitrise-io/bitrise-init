@@ -22,7 +22,7 @@ func stepListItem(stepIDComposite, title, runIf string, inputs ...envmanModels.E
 	if runIf != "" {
 		step.RunIf = pointers.NewStringPtr(runIf)
 	}
-	if inputs != nil && len(inputs) > 0 {
+	if len(inputs) > 0 {
 		step.Inputs = inputs
 	}
 
