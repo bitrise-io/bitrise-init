@@ -2,9 +2,10 @@ package android
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"gopkg.in/yaml.v2"
+
+	"path/filepath"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -58,8 +59,10 @@ var defaultGradleTasks = []string{
 
 // Scanner ...
 type Scanner struct {
-	FileList    []string
-	GradleFiles []string
+	FileList         []string
+	BuildGradleFiles []string
+	SearchDir        string
+	RelGradlewDir    string
 }
 
 // NewScanner ...
@@ -74,6 +77,8 @@ func (scanner Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	scanner.SearchDir = searchDir
+
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
@@ -87,7 +92,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
-	scanner.GradleFiles = gradleFiles
+	scanner.BuildGradleFiles = gradleFiles
 
 	log.Printft("%d build.gradle files detected", len(gradleFiles))
 	for _, file := range gradleFiles {
@@ -111,7 +116,7 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	// Search for gradlew_path input
+	// Search for gradle wrapper
 	log.Infoft("Searching for gradlew files")
 
 	warnings := models.Warnings{}
@@ -143,27 +148,40 @@ that the right Gradle version is installed and used for the build. More info/gui
 		}
 		log.Warnft("Using: %s", rootGradlewPath)
 	}
+	// ---
 
-	// Inspect Gradle files
+	// Get relative gradle wrapper dir
+	gradlewDir := filepath.Dir(rootGradlewPath)
+	relGradlewDir, err := utility.RelPath(scanner.SearchDir, gradlewDir)
+	if err != nil {
+		return models.OptionModel{}, warnings, fmt.Errorf("Failed to get relative gradle wrapper dir path, error: %s", err)
+	}
+	if relGradlewDir == "." {
+		// gradlew placed in the search dir, no need to change-dir in the workflows
+		relGradlewDir = ""
+	}
+	scanner.RelGradlewDir = relGradlewDir
+	// ---
+
+	// Options
+	gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
+
 	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
 
-	for _, gradleFile := range scanner.GradleFiles {
+	if relGradlewDir != "" {
+		gradlewDirOption := models.NewOption(gradlewDirInputTitle, gradlewDirInputEnvKey)
+		gradlewPthOption.AddOption(rootGradlewPath, gradlewDirOption)
+
+		gradlewDirOption.AddOption(relGradlewDir, gradleFileOption)
+	} else {
+		gradlewPthOption.AddOption(rootGradlewPath, gradleFileOption)
+	}
+
+	for _, gradleFile := range scanner.BuildGradleFiles {
 		log.Infoft("Inspecting gradle file: %s", gradleFile)
 
-		// generate-gradle-wrapper step will generate the wrapper
-		gradleFileDir := filepath.Dir(gradleFile)
-		rootGradlewPath = filepath.Join(gradleFileDir, "gradlew")
-		// ---
-
-		gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
-
-		projectRootDirOption := models.NewOption(gradlewDirInputTitle, gradlewDirInputEnvKey)
-		gradleFileOption.AddOption(gradleFile, projectRootDirOption)
-
-		projectRootDirOption.AddOption(filepath.Join("$BITRISE_SOURCE_DIR", filepath.Dir(gradleFile)), gradlewPthOption)
-
 		gradleTaskOption := models.NewOption(gradleTaskInputTitle, gradleTaskInputEnvKey)
-		gradlewPthOption.AddOption(rootGradlewPath, gradleTaskOption)
+		gradleFileOption.AddOption(gradleFile, gradleTaskOption)
 
 		log.Printft("%d gradle tasks", len(defaultGradleTasks))
 
@@ -174,35 +192,40 @@ that the right Gradle version is installed and used for the build. More info/gui
 			gradleTaskOption.AddConfig(gradleTask, configOption)
 		}
 	}
+	// ---
 
-	return *gradleFileOption, warnings, nil
+	return *gradlewPthOption, warnings, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
-
-	projectRootOption := models.NewOption(gradlewDirInputTitle, gradlewDirInputEnvKey)
-	gradleFileOption.AddOption("_", projectRootOption)
-
 	gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
-	projectRootOption.AddOption("_", gradlewPthOption)
+
+	gradlewDirOption := models.NewOption(gradlewDirInputTitle, gradlewDirInputEnvKey)
+	gradlewPthOption.AddOption("_", gradlewDirOption)
+
+	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
+	gradlewDirOption.AddOption("_", gradleFileOption)
 
 	gradleTaskOption := models.NewOption(gradleTaskInputTitle, gradleTaskInputEnvKey)
-	gradlewPthOption.AddOption("_", gradleTaskOption)
+	gradleFileOption.AddOption("_", gradleTaskOption)
 
 	configOption := models.NewConfigOption(defaultConfigName)
 	gradleTaskOption.AddConfig("_", configOption)
 
-	return *gradleFileOption
+	return *gradlewPthOption
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{pathInputKey: "$" + gradlewDirInputEnvKey}))
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
+
+	if scanner.RelGradlewDir != "" {
+		configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{pathInputKey: "$" + gradlewDirInputEnvKey}))
+	}
+
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
@@ -228,9 +251,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{pathInputKey: "$" + gradlewDirInputEnvKey}))
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
-
+	configBuilder.AppendPreparStepList(steps.ChangeWorkDirStepListItem(envmanModels.EnvironmentItemModel{pathInputKey: "$" + gradlewDirInputEnvKey}))
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},

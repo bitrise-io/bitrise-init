@@ -2,11 +2,10 @@ package integration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"os"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -19,9 +18,6 @@ import (
 func TestManualConfig(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
 
 	t.Log("manual-config")
 	{
@@ -47,8 +43,8 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
+	steps.ChangeWorkDirVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -134,16 +130,16 @@ var customConfigVersions = []interface{}{
 
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: Gradlew file path
+    env_key: GRADLEW_PATH
     value_map:
       _:
-        title: Path to the Android project root directory
-        env_key: PROJECT_ROOT_DIR
+        title: Directory of gradle wrapper
+        env_key: GRADLEW_DIR_PATH
         value_map:
           _:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
+            title: Path to the gradle file to use
+            env_key: GRADLE_BUILD_FILE_PATH
             value_map:
               _:
                 title: Gradle task to run
@@ -228,11 +224,11 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
+          - install-missing-android-tools@%s: {}
           - change-workdir@%s:
               inputs:
-              - path: $PROJECT_ROOT_DIR
+              - path: $GRADLEW_DIR_PATH
               - is_create_path: "false"
-          - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH

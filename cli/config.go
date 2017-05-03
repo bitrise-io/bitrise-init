@@ -130,7 +130,7 @@ func initConfig(c *cli.Context) error {
 			}
 		}
 
-		log.Infoft("missing platform - Saving outputs:")
+		log.Infoft("Saving outputs:")
 		scanResult.AddError("general", "No known platform detected")
 
 		outputPth, err := writeScanResult(scanResult, outputDir, format)
@@ -144,7 +144,7 @@ func initConfig(c *cli.Context) error {
 
 	// Write output to files
 	if isCI {
-		log.Infoft("ci - Saving outputs:")
+		log.Infoft("Saving outputs:")
 
 		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {

@@ -73,6 +73,7 @@ func (option *OptionModel) AddOption(forValue string, newOption *OptionModel) {
 // AddConfig ...
 func (option *OptionModel) AddConfig(forValue string, newConfigOption *OptionModel) {
 	option.ChildOptionMap[forValue] = newConfigOption
+
 	if newConfigOption != nil {
 		newConfigOption.Components = append(option.Components, forValue)
 
@@ -356,7 +357,7 @@ func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envma
 	}
 
 	return bitriseModels.BitriseDataModel{
-		FormatVersion:        bitriseModels.Version,
+		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		ProjectType:          projectType,
 		TriggerMap:           triggerMap,

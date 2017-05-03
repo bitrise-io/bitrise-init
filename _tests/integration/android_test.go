@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,9 +18,6 @@ import (
 func TestAndroid(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
 
 	t.Log("sample-apps-android-sdk22")
 	{
@@ -89,7 +85,6 @@ var sampleAppsAndroid22Versions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -97,27 +92,23 @@ var sampleAppsAndroid22Versions = []interface{}{
 
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: Gradlew file path
+    env_key: GRADLEW_PATH
     value_map:
-      build.gradle:
-        title: Path to the Android project root directory
-        env_key: PROJECT_ROOT_DIR
+      ./gradlew:
+        title: Path to the gradle file to use
+        env_key: GRADLE_BUILD_FILE_PATH
         value_map:
-          $BITRISE_SOURCE_DIR:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
+          build.gradle:
+            title: Gradle task to run
+            env_key: GRADLE_TASK
             value_map:
-              ./gradlew:
-                title: Gradle task to run
-                env_key: GRADLE_TASK
-                value_map:
-                  assemble:
-                    config: android-config
-                  assembleDebug:
-                    config: android-config
-                  assembleRelease:
-                    config: android-config
+              assemble:
+                config: android-config
+              assembleDebug:
+                config: android-config
+              assembleRelease:
+                config: android-config
 configs:
   android:
     android-config: |
@@ -137,10 +128,6 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - change-workdir@%s:
-              inputs:
-              - path: $PROJECT_ROOT_DIR
-              - is_create_path: "false"
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -157,7 +144,6 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.ChangeWorkDirVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -165,27 +151,23 @@ var androidNonExecutableGradlewVersions = []interface{}{
 
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: Gradlew file path
+    env_key: GRADLEW_PATH
     value_map:
-      build.gradle:
-        title: Path to the Android project root directory
-        env_key: PROJECT_ROOT_DIR
+      ./gradlew:
+        title: Path to the gradle file to use
+        env_key: GRADLE_BUILD_FILE_PATH
         value_map:
-          $BITRISE_SOURCE_DIR:
-            title: Gradlew file path
-            env_key: GRADLEW_PATH
+          build.gradle:
+            title: Gradle task to run
+            env_key: GRADLE_TASK
             value_map:
-              ./gradlew:
-                title: Gradle task to run
-                env_key: GRADLE_TASK
-                value_map:
-                  assemble:
-                    config: android-config
-                  assembleDebug:
-                    config: android-config
-                  assembleRelease:
-                    config: android-config
+              assemble:
+                config: android-config
+              assembleDebug:
+                config: android-config
+              assembleRelease:
+                config: android-config
 configs:
   android:
     android-config: |
@@ -205,10 +187,6 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - change-workdir@%s:
-              inputs:
-              - path: $PROJECT_ROOT_DIR
-              - is_create_path: "false"
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:

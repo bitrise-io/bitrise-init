@@ -50,6 +50,7 @@ const (
 // Scanner ...
 type Scanner struct {
 	cordovaConfigPth    string
+	relCordovaConfigDir string
 	searchDir           string
 	hasKarmaJasmineTest bool
 	hasJasmineTest      bool
@@ -177,6 +178,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	log.Printft("karma.conf.js found: %v", karmaTestDetected)
 
 	scanner.hasKarmaJasmineTest = karmaTestDetected
+	// ---
 
 	// Search for jasmine tests
 	jasminTestDetected := false
@@ -214,19 +216,47 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		scanner.hasJasmineTest = jasminTestDetected
 	}
+	// ---
 
-	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
+	// Get relative config.xml dir
+	cordovaConfigDir := filepath.Dir(scanner.cordovaConfigPth)
+	relCordovaConfigDir, err := utility.RelPath(scanner.searchDir, cordovaConfigDir)
+	if err != nil {
+		return models.OptionModel{}, warnings, fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
+	}
+	if relCordovaConfigDir == "." {
+		// config.xml placed in the search dir, no need to change-dir in the workflows
+		relCordovaConfigDir = ""
+	}
+	scanner.relCordovaConfigDir = relCordovaConfigDir
+	// ---
 
-	iosConfigOption := models.NewConfigOption(configName)
-	projectTypeOption.AddConfig("ios", iosConfigOption)
+	// Options
+	var rootOption *models.OptionModel
 
-	androidConfigOption := models.NewConfigOption(configName)
-	projectTypeOption.AddConfig("android", androidConfigOption)
+	platforms := []string{"ios", "android", "ios,android"}
 
-	iosAndroidConfigOption := models.NewConfigOption(configName)
-	projectTypeOption.AddConfig("ios,android", iosAndroidConfigOption)
+	if relCordovaConfigDir != "" {
+		rootOption = models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
-	return *projectTypeOption, warnings, nil
+		projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
+		rootOption.AddOption(relCordovaConfigDir, projectTypeOption)
+
+		for _, platform := range platforms {
+			configOption := models.NewConfigOption(configName)
+			projectTypeOption.AddConfig(platform, configOption)
+		}
+	} else {
+		rootOption = models.NewOption(platformInputTitle, platformInputEnvKey)
+
+		for _, platform := range platforms {
+			configOption := models.NewConfigOption(configName)
+			rootOption.AddConfig(platform, configOption)
+		}
+	}
+	// ---
+
+	return *rootOption, warnings, nil
 }
 
 // DefaultOptions ...
@@ -251,15 +281,10 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	workdir, err := utility.RelCordovaWorkDir(scanner.searchDir, scanner.cordovaConfigPth)
-	if err != nil {
-		return models.BitriseConfigMap{}, fmt.Errorf("Failed to check if search dir is the work dir, error: %s", err)
-	}
-
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
-	if workdir != "" {
+	if scanner.relCordovaConfigDir != "" {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 
@@ -286,18 +311,12 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
 			envmanModels.EnvironmentItemModel{targetInputKey: "$" + targetInputEnvKey},
 		}
-		if workdir != "" {
+		if scanner.relCordovaConfigDir != "" {
 			cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 		}
 		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
 
-		appEnvs := []envmanModels.EnvironmentItemModel{
-			envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator},
-		}
-		if workdir != "" {
-			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
-		}
-		config, err := configBuilder.Generate(scannerName, appEnvs...)
+		config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator})
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -318,18 +337,12 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
 		envmanModels.EnvironmentItemModel{targetInputKey: "$" + targetInputEnvKey},
 	}
-	if workdir != "" {
+	if scanner.relCordovaConfigDir != "" {
 		cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 	configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
 
-	appEnvs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator},
-	}
-	if workdir != "" {
-		appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{workDirInputEnvKey: workdir})
-	}
-	config, err := configBuilder.Generate(scannerName, appEnvs...)
+	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{targetInputEnvKey: targetEmulator})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

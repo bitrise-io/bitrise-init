@@ -9,6 +9,7 @@ import (
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
 // Config ...
@@ -68,15 +69,7 @@ func Config(searchDir string) models.ScanResultModel {
 
 		log.Infoft("Scanner: %s", colorstring.Blue(detectorName))
 
-		isExcluded := false
-		for _, excludedScanner := range excludedScannerNames {
-			if excludedScanner == detectorName {
-				isExcluded = true
-				break
-			}
-		}
-
-		if isExcluded {
+		if sliceutil.IsStringInSlice(detectorName, excludedScannerNames) {
 			log.Warnft("scanner is marked as excluded, skipping...")
 			fmt.Println()
 			continue
@@ -133,7 +126,7 @@ func Config(searchDir string) models.ScanResultModel {
 
 		exludedScanners := detector.ExcludedScannerNames()
 		if len(exludedScanners) > 0 {
-			log.Warnft("Scanner: %s will exclude scanners: %v", detector.Name(), exludedScanners)
+			log.Warnft("Scanner will exclude scanners: %v", exludedScanners)
 			excludedScannerNames = append(excludedScannerNames, exludedScanners...)
 		}
 
