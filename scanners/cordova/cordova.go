@@ -1,8 +1,6 @@
 package cordova
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -11,11 +9,9 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/xcode"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -23,16 +19,11 @@ import (
 const scannerName = "cordova"
 
 const (
-	configName = "cordova-config"
-
+	configName        = "cordova-config"
 	defaultConfigName = "default-cordova-config"
 )
 
-const (
-	configXMLBasePath = "config.xml"
-	platformsDirName  = "platforms"
-)
-
+// Step Inputs
 const (
 	workDirInputKey    = "workdir"
 	workDirInputTitle  = "Directory of Cordova Config.xml"
@@ -52,69 +43,13 @@ const (
 	targetEmulator    = "emulator"
 )
 
-// ConfigDescriptor ...
-type ConfigDescriptor struct {
-	iosConfigDescriptors     []xcode.ConfigDescriptor
-	androidConfigDescriptors []android.ConfigDescriptor
-}
-
-// NewConfigDescriptor ...
-func NewConfigDescriptor() ConfigDescriptor {
-	return ConfigDescriptor{}
-}
-
-// ConfigName ...
-func (descriptor ConfigDescriptor) ConfigName() string {
-	return ""
-}
-
-// WidgetModel ...
-type WidgetModel struct {
-	ID       string `xml:"id,attr"`
-	Version  string `xml:"version,attr"`
-	XMLNS    string `xml:"xmlns,attr"`
-	XMLNSCDV string `xml:"xmlns cdv,attr"`
-}
-
-// ProjectConfigModel ...
-type ProjectConfigModel struct {
-	pth    string
-	widget WidgetModel
-}
-
-func parseConfigXMLContent(content string) (WidgetModel, error) {
-	widget := WidgetModel{}
-	if err := xml.Unmarshal([]byte(content), &widget); err != nil {
-		return WidgetModel{}, err
-	}
-	return widget, nil
-}
-
-func parseConfigXML(pth string) (WidgetModel, error) {
-	content, err := fileutil.ReadStringFromFile(pth)
-	if err != nil {
-		return WidgetModel{}, err
-	}
-	return parseConfigXMLContent(content)
-}
-
-func filterRootConfigXMLFile(fileList []string) (string, error) {
-	allowConfigXMLBaseFilter := utility.BaseFilter(configXMLBasePath, true)
-	configXMLs, err := utility.FilterPaths(fileList, allowConfigXMLBaseFilter)
-	if err != nil {
-		return "", err
-	}
-
-	if len(configXMLs) == 0 {
-		return "", nil
-	}
-
-	return configXMLs[0], nil
-}
+//------------------
+// ScannerInterface
+//------------------
 
 // Scanner ...
 type Scanner struct {
-	projectConfig       ProjectConfigModel
+	cordovaConfigPth    string
 	searchDir           string
 	hasKarmaJasmineTest bool
 	hasJasmineTest      bool
@@ -130,20 +65,6 @@ func (scanner Scanner) Name() string {
 	return scannerName
 }
 
-func pathsEquals(pth1, pth2 string) (bool, error) {
-	absPth1, err := pathutil.AbsPath(pth1)
-	if err != nil {
-		return false, err
-	}
-
-	absPth2, err := pathutil.AbsPath(pth2)
-	if err != nil {
-		return false, err
-	}
-
-	return (absPth1 == absPth2), nil
-}
-
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
@@ -154,7 +75,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for config.xml file
 	log.Infoft("Searching for config.xml file")
 
-	configXMLPth, err := filterRootConfigXMLFile(fileList)
+	configXMLPth, err := utility.FilterRootConfigXMLFile(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for config.xml file, error: %s", err)
 	}
@@ -166,7 +87,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	widget, err := parseConfigXML(configXMLPth)
+	widget, err := utility.ParseConfigXML(configXMLPth)
 	if err != nil {
 		log.Printft("can not parse config.xml as a Cordova widget, error: %s", err)
 		log.Printft("platform not detected")
@@ -199,11 +120,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	log.Doneft("Platform detected")
 
-	scanner.projectConfig = ProjectConfigModel{
-		pth:    configXMLPth,
-		widget: widget,
-	}
-
+	scanner.cordovaConfigPth = configXMLPth
 	scanner.searchDir = searchDir
 
 	return true, nil
@@ -218,70 +135,13 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 	}
 }
 
-func detectPlatforms(platformsDir string) ([]string, error) {
-	platformsJSONPth := filepath.Join(platformsDir, "platforms.json")
-	if exist, err := pathutil.IsPathExists(platformsJSONPth); err != nil {
-		return []string{}, err
-	} else if !exist {
-		return []string{}, nil
-	}
-
-	bytes, err := fileutil.ReadBytesFromFile(platformsJSONPth)
-	if err != nil {
-		return []string{}, err
-	}
-
-	type PlatformsModel struct {
-		IOS     string `json:"ios"`
-		Android string `json:"android"`
-	}
-
-	var platformsModel PlatformsModel
-	if err := json.Unmarshal(bytes, &platformsModel); err != nil {
-		return []string{}, err
-	}
-
-	platforms := []string{}
-	if platformsModel.IOS != "" {
-		platforms = append(platforms, "ios")
-	}
-	if platformsModel.Android != "" {
-		platforms = append(platforms, "android")
-	}
-
-	return platforms, nil
-}
-
-// PackagesModel ...
-type PackagesModel struct {
-	Platforms       []string          `json:"cordovaPlatforms"`
-	Dependencies    map[string]string `json:"dependencies"`
-	DevDependencies map[string]string `json:"devDependencies"`
-}
-
-func parsePackagesJSONContent(content string) (PackagesModel, error) {
-	var packages PackagesModel
-	if err := json.Unmarshal([]byte(content), &packages); err != nil {
-		return PackagesModel{}, err
-	}
-	return packages, nil
-}
-
-func parsePackagesJSON(packagesJSONPth string) (PackagesModel, error) {
-	content, err := fileutil.ReadStringFromFile(packagesJSONPth)
-	if err != nil {
-		return PackagesModel{}, err
-	}
-	return parsePackagesJSONContent(content)
-}
-
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
-	projectRootDir := filepath.Dir(scanner.projectConfig.pth)
+	projectRootDir := filepath.Dir(scanner.cordovaConfigPth)
 
 	packagesJSONPth := filepath.Join(projectRootDir, "package.json")
-	packages, err := parsePackagesJSON(packagesJSONPth)
+	packages, err := utility.ParsePackagesJSON(packagesJSONPth)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}
@@ -389,48 +249,9 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	return *workDirOption
 }
 
-func relCordovaWorkDir(baseDir, cordovaConfigPth string) (string, error) {
-	fmt.Printf("baseDir: %s <-> cordovaConfigPth: %s\n", baseDir, cordovaConfigPth)
-
-	absBaseDir, err := pathutil.AbsPath(baseDir)
-	if err != nil {
-		return "", err
-	}
-
-	if strings.HasPrefix(absBaseDir, "/private/var") {
-		absBaseDir = strings.TrimPrefix(absBaseDir, "/private")
-	}
-
-	fmt.Printf("absBaseDir: %s\n", absBaseDir)
-
-	absCordovaConfigPth, err := pathutil.AbsPath(cordovaConfigPth)
-	if err != nil {
-		return "", err
-	}
-
-	if strings.HasPrefix(absCordovaConfigPth, "/private/var") {
-		absCordovaConfigPth = strings.TrimPrefix(absCordovaConfigPth, "/private")
-	}
-
-	fmt.Printf("absCordovaConfigPth: %s\n", absCordovaConfigPth)
-
-	absCordovaWorkDir := filepath.Dir(absCordovaConfigPth)
-	fmt.Printf("absBaseDir: %s <-> absCordovaWorkDir: %s\n", absBaseDir, absCordovaWorkDir)
-	if absBaseDir == absCordovaWorkDir {
-		return "", nil
-	}
-
-	cordovaWorkdir, err := filepath.Rel(absBaseDir, absCordovaWorkDir)
-	if err != nil {
-		return "", err
-	}
-
-	return cordovaWorkdir, nil
-}
-
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	workdir, err := relCordovaWorkDir(scanner.searchDir, scanner.projectConfig.pth)
+	workdir, err := utility.RelCordovaWorkDir(scanner.searchDir, scanner.cordovaConfigPth)
 	if err != nil {
 		return models.BitriseConfigMap{}, fmt.Errorf("Failed to check if search dir is the work dir, error: %s", err)
 	}

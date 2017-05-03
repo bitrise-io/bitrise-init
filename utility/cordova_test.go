@@ -1,4 +1,4 @@
-package cordova
+package utility
 
 import (
 	"testing"
@@ -9,9 +9,6 @@ import (
 func TestParseConfigXMLContent(t *testing.T) {
 	widget, err := parseConfigXMLContent(testConfigXMLContent)
 	require.NoError(t, err)
-	require.Equal(t, "com.bitrise.cordovasample", widget.ID)
-	require.Equal(t, "0.9.0", widget.Version)
-	require.Equal(t, "http://www.w3.org/ns/widgets", widget.XMLNS)
 	require.Equal(t, "http://cordova.apache.org/ns/1.0", widget.XMLNSCDV)
 }
 

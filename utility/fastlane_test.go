@@ -1,4 +1,4 @@
-package fastlane
+package utility
 
 import (
 	"strings"
@@ -18,7 +18,7 @@ func TestFilterFastFiles(t *testing.T) {
 			"path/to/my",
 		}
 
-		files, err := filterFastfiles(fileList)
+		files, err := FilterFastfiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(files))
 
@@ -34,7 +34,7 @@ func TestFilterFastFiles(t *testing.T) {
 			"path/to/my/gradle",
 		}
 
-		files, err := filterFastfiles(fileList)
+		files, err := FilterFastfiles(fileList)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(files))
 	}
@@ -108,42 +108,42 @@ func TestFastlaneWorkDir(t *testing.T) {
 	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
 	{
 		expected := "."
-		actual := fastlaneWorkDir("Fastfile")
+		actual := FastlaneWorkDir("Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
 	{
 		expected := "."
-		actual := fastlaneWorkDir("fastlane/Fastfile")
+		actual := FastlaneWorkDir("fastlane/Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
 	{
 		expected := "test"
-		actual := fastlaneWorkDir("test/Fastfile")
+		actual := FastlaneWorkDir("test/Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
 	{
 		expected := "test"
-		actual := fastlaneWorkDir("test/fastlane/Fastfile")
+		actual := FastlaneWorkDir("test/fastlane/Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("Fastfile's dir, if Fastfile is NOT in fastlane dir")
 	{
 		expected := "my/app/test"
-		actual := fastlaneWorkDir("my/app/test/Fastfile")
+		actual := FastlaneWorkDir("my/app/test/Fastfile")
 		require.Equal(t, expected, actual)
 	}
 
 	t.Log("fastlane dir's parent, if Fastfile is in fastlane dir")
 	{
 		expected := "my/app/test"
-		actual := fastlaneWorkDir("my/app/test/fastlane/Fastfile")
+		actual := FastlaneWorkDir("my/app/test/fastlane/Fastfile")
 		require.Equal(t, expected, actual)
 	}
 }

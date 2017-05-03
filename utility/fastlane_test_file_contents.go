@@ -1,4 +1,4 @@
-package fastlane
+package utility
 
 const iosTesFastfileContent = `fastlane_version "1.49.0"
 

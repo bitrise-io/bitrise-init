@@ -6,6 +6,10 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 )
 
+//------------------
+// ScannerInterface
+//------------------
+
 // Scanner ...
 type Scanner struct {
 	searchDir         string

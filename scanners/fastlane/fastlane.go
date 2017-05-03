@@ -2,34 +2,24 @@ package fastlane
 
 import (
 	"fmt"
-	"path/filepath"
-	"regexp"
-	"strings"
 
 	"gopkg.in/yaml.v2"
-
-	"bufio"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 )
 
 const scannerName = "fastlane"
 
 const (
-	configName = "fastlane-config"
-
+	configName        = "fastlane-config"
 	defaultConfigName = "default-fastlane-config"
 )
 
-const (
-	fastfileBasePath = "Fastfile"
-)
-
+// Step Inputs
 const (
 	laneInputKey    = "lane"
 	laneInputTitle  = "Fastlane lane"
@@ -47,102 +37,9 @@ const (
 	fastlaneXcodeListTimeoutEnvValue = "120"
 )
 
-//--------------------------------------------------
-// Utility
-//--------------------------------------------------
-
-func filterFastfiles(fileList []string) ([]string, error) {
-	allowFastfileBaseFilter := utility.BaseFilter(fastfileBasePath, true)
-	fastfiles, err := utility.FilterPaths(fileList, allowFastfileBaseFilter)
-	if err != nil {
-		return []string{}, err
-	}
-
-	return utility.SortPathsByComponents(fastfiles)
-}
-
-func inspectFastfileContent(content string) ([]string, error) {
-	commonLanes := []string{}
-	laneMap := map[string][]string{}
-
-	// platform :ios do ...
-	platformSectionStartRegexp := regexp.MustCompile(`platform\s+:(?P<platform>.*)\s+do`)
-	platformSectionEndPattern := "end"
-	platform := ""
-
-	// lane :test_and_snapshot do
-	laneRegexp := regexp.MustCompile(`^[\s]*lane\s+:(?P<lane>.*)\s+do`)
-
-	reader := strings.NewReader(content)
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		line := strings.TrimRight(scanner.Text(), " ")
-
-		if platform != "" && line == platformSectionEndPattern {
-			platform = ""
-			continue
-		}
-
-		if platform == "" {
-			if match := platformSectionStartRegexp.FindStringSubmatch(line); len(match) == 2 {
-				platform = match[1]
-				continue
-			}
-		}
-
-		if match := laneRegexp.FindStringSubmatch(line); len(match) == 2 {
-			lane := match[1]
-
-			if platform != "" {
-				lanes, found := laneMap[platform]
-				if !found {
-					lanes = []string{}
-				}
-				lanes = append(lanes, lane)
-				laneMap[platform] = lanes
-			} else {
-				commonLanes = append(commonLanes, lane)
-			}
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return []string{}, err
-	}
-
-	lanes := commonLanes
-	for platform, platformLanes := range laneMap {
-		for _, lane := range platformLanes {
-			lanes = append(lanes, platform+" "+lane)
-		}
-	}
-
-	return lanes, nil
-}
-
-func inspectFastfile(fastFile string) ([]string, error) {
-	content, err := fileutil.ReadStringFromFile(fastFile)
-	if err != nil {
-		return []string{}, err
-	}
-
-	return inspectFastfileContent(content)
-}
-
-// Returns:
-//  - fastlane dir's parent, if Fastfile is in fastlane dir (test/fastlane/Fastfile)
-//  - Fastfile's dir, if Fastfile is NOT in fastlane dir (test/Fastfile)
-func fastlaneWorkDir(fastfilePth string) string {
-	dirPth := filepath.Dir(fastfilePth)
-	dirName := filepath.Base(dirPth)
-	if dirName == "fastlane" {
-		return filepath.Dir(dirPth)
-	}
-	return dirPth
-}
-
-//--------------------------------------------------
-// Scanner
-//--------------------------------------------------
+//------------------
+// ScannerInterface
+//------------------
 
 // Scanner ...
 type Scanner struct {
@@ -169,7 +66,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for Fastfile
 	log.Infoft("Searching for Fastfiles")
 
-	fastfiles, err := filterFastfiles(fileList)
+	fastfiles, err := utility.FilterFastfiles(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for Fastfile in (%s), error: %s", searchDir, err)
 	}
@@ -209,10 +106,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	for _, fastfile := range scanner.Fastfiles {
 		log.Infoft("Inspecting Fastfile: %s", fastfile)
 
-		workDir := fastlaneWorkDir(fastfile)
+		workDir := utility.FastlaneWorkDir(fastfile)
 		log.Printft("fastlane work dir: %s", workDir)
 
-		lanes, err := inspectFastfile(fastfile)
+		lanes, err := utility.InspectFastfile(fastfile)
 		if err != nil {
 			log.Warnft("Failed to inspect Fastfile, error: %s", err)
 			warnings = append(warnings, fmt.Sprintf("Failed to inspect Fastfile (%s), error: %s", fastfile, err))
