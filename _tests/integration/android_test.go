@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,9 +18,6 @@ import (
 func TestAndroid(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
 
 	t.Log("sample-apps-android-sdk22")
 	{
@@ -88,7 +84,6 @@ var sampleAppsAndroid22Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
@@ -97,40 +92,29 @@ var sampleAppsAndroid22Versions = []interface{}{
 
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: Gradlew file path
+    env_key: GRADLEW_PATH
     value_map:
-      build.gradle:
-        title: Path to the Android project root
-        env_key: PROJECT_ROOT
+      ./gradlew:
+        title: Path to the gradle file to use
+        env_key: GRADLE_BUILD_FILE_PATH
         value_map:
-          $BITRISE_SOURCE_DIR:
+          build.gradle:
             title: Gradle task to run
             env_key: GRADLE_TASK
             value_map:
               assemble:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
               assembleDebug:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
               assembleRelease:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
 configs:
   android:
     android-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -142,10 +126,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - change-workdir@%s:
-              inputs:
-              - path: $PROJECT_ROOT
-              - is_create_path: "false"
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}
@@ -163,7 +143,6 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ChangeWorkDirVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
@@ -172,40 +151,29 @@ var androidNonExecutableGradlewVersions = []interface{}{
 
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: Gradlew file path
+    env_key: GRADLEW_PATH
     value_map:
-      build.gradle:
-        title: Path to the Android project root
-        env_key: PROJECT_ROOT
+      ./gradlew:
+        title: Path to the gradle file to use
+        env_key: GRADLE_BUILD_FILE_PATH
         value_map:
-          $BITRISE_SOURCE_DIR:
+          build.gradle:
             title: Gradle task to run
             env_key: GRADLE_TASK
             value_map:
               assemble:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
               assembleDebug:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
               assembleRelease:
-                title: Gradlew file path
-                env_key: GRADLEW_PATH
-                value_map:
-                  ./gradlew:
-                    config: android-config
+                config: android-config
 configs:
   android:
     android-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -217,10 +185,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - change-workdir@%s:
-              inputs:
-              - path: $PROJECT_ROOT
-              - is_create_path: "false"
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}

@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,9 +18,6 @@ import (
 func TestXamarin(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__xamarin__")
 	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
 
 	t.Log("xamarin-sample-app")
 	{
@@ -120,8 +116,9 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
 configs:
   xamarin:
     xamarin-nuget-components-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: xamarin
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -156,7 +153,6 @@ var sampleAppsXamarinIosVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.XamarinUserManagementVersion,
 	steps.NugetRestoreVersion,
 	steps.XamarinArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -194,8 +190,9 @@ var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
 configs:
   xamarin:
     xamarin-nuget-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: xamarin
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -210,8 +207,6 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - xamarin-user-management@%s:
-              run_if: .IsCI
           - nuget-restore@%s: {}
           - xamarin-archive@%s:
               inputs:
@@ -229,7 +224,6 @@ var sampleAppsXamarinAndroidVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.XamarinUserManagementVersion,
 	steps.NugetRestoreVersion,
 	steps.XamarinArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -259,8 +253,9 @@ var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
 configs:
   xamarin:
     xamarin-nuget-config: |
-      format_version: %s
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: xamarin
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -275,8 +270,6 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - xamarin-user-management@%s:
-              run_if: .IsCI
           - nuget-restore@%s: {}
           - xamarin-archive@%s:
               inputs:
