@@ -104,7 +104,7 @@ workflows:
             set -ex
 
             export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BITRISE_INIT"
-            go test ./_tests/integration/...
+            go test -v ./_tests/integration/...
 
   # ----------------------------------------------------------------
   # --- workflows for Utility
