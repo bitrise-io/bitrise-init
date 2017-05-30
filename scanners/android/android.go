@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -75,6 +76,13 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
 	scanner.FileList = fileList
+
+	// Search for local.properties file
+	for _, fileName := range fileList {
+		if strings.Contains(fileName, "local.properties") {
+			return false, fmt.Errorf("the local.properties file should not be committed into the repository")
+		}
+	}
 
 	// Search for gradle file
 	log.Infoft("Searching for build.gradle files")
