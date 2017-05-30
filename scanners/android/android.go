@@ -78,9 +78,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.FileList = fileList
 
 	// Search for local.properties file
-	for _, fileName := range fileList {
-		if strings.Contains(fileName, "local.properties") {
-			return false, fmt.Errorf("the local.properties file should not be committed into the repository")
+	for _, filePath := range fileList {
+		if strings.Contains(filePath, "local.properties") {
+			return false, fmt.Errorf(`the local.properties file should not be committed into the repository. The location of the file is:
+%s`, filePath)
 		}
 	}
 
