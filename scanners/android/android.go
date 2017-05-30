@@ -187,6 +187,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
+	configBuilder.AppendPreparStepList(steps.CachePullStepListItem())
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
 
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
@@ -194,6 +195,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 	))
+
+	configBuilder.AppendDeployStepList(steps.CachePushStepListItem())
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
@@ -214,12 +217,16 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
+	configBuilder.AppendPreparStepList(steps.CachePullStepListItem())
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
+
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 	))
+
+	configBuilder.AppendDeployStepList(steps.CachePushStepListItem())
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

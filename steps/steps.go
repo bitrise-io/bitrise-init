@@ -67,6 +67,18 @@ func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	return stepListItem(stepIDComposite, "", "")
 }
 
+// CachePullStepListItem ...
+func CachePullStepListItem() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CachePullID, CachePullVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
+// CachePushStepListItem ...
+func CachePushStepListItem() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CachePushID, CachePushVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
 // CertificateAndProfileInstallerStepListItem ...
 func CertificateAndProfileInstallerStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(CertificateAndProfileInstallerID, CertificateAndProfileInstallerVersion)

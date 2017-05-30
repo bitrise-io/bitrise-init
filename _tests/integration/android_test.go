@@ -93,9 +93,11 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
+	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
@@ -136,6 +138,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
+          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -143,6 +146,7 @@ configs:
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   android: []
 `, sampleAppsAndroidSDK22SubdirVersions...)
@@ -162,9 +166,11 @@ var sampleAppsAndroid22Versions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
+	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
@@ -205,6 +211,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
+          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -212,6 +219,7 @@ configs:
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   android: []
 `, sampleAppsAndroid22Versions...)
@@ -221,9 +229,11 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
+	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
@@ -264,6 +274,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
+          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -271,6 +282,7 @@ configs:
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   android: []
 `, androidNonExecutableGradlewVersions...)
