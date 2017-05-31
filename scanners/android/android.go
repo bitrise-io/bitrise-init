@@ -77,14 +77,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	scanner.FileList = fileList
 
-	// Search for local.properties file
-	for _, filePath := range fileList {
-		if strings.Contains(filePath, "local.properties") {
-			return false, fmt.Errorf(`the local.properties file should not be committed into the repository. The location of the file is:
-%s`, filePath)
-		}
-	}
-
 	// Search for gradle file
 	log.Infoft("Searching for build.gradle files")
 
@@ -116,6 +108,15 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+
+	// Search for local.properties file
+	for _, filePath := range scanner.FileList {
+		if strings.Contains(filePath, "local.properties") {
+			log.Warnft(`the local.properties file should not be committed into the repository. The location of the file is:
+%s`, filePath)
+		}
+	}
+
 	// Search for gradle wrapper
 	log.Infoft("Searching for gradlew files")
 
