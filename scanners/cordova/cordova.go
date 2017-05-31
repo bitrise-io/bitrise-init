@@ -287,7 +287,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 
-	configBuilder.AppendDependencyStepList(steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendDependencyStepList(steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 	if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
 		// CI
@@ -300,7 +300,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		// CD
 		configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
 
-		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 		if scanner.hasKarmaJasmineTest {
 			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
@@ -364,15 +364,16 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendDependencyStepList(steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendDependencyStepList(steps.NpmStepListItem(
+		envmanModels.EnvironmentItemModel{"command": "install"},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey}))
 
 	configBuilder.AppendMainStepList(steps.GenerateCordovaBuildConfigStepListItem())
-	cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
+
+	configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
-		envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator},
-	}
-	configBuilder.AppendMainStepList(steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+		envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator}))
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

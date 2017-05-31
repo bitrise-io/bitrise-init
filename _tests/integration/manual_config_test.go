@@ -272,6 +272,7 @@ configs:
           - npm@%s:
               inputs:
               - command: install
+              - workdir: $CORDOVA_WORK_DIR
           - generate-cordova-build-configuration@%s: {}
           - cordova-archive@%s:
               inputs:
@@ -327,6 +328,7 @@ configs:
           - npm@%s:
               inputs:
               - command: install
+              - workdir: $IONIC_WORK_DIR
           - generate-cordova-build-configuration@%s: {}
           - ionic-archive@%s:
               inputs:

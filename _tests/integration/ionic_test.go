@@ -84,6 +84,7 @@ configs:
               title: Do anything with Script step
           - npm@%s:
               inputs:
+              - workdir: $IONIC_WORK_DIR
               - command: install
           - generate-cordova-build-configuration@%s: {}
           - ionic-archive@%s:
