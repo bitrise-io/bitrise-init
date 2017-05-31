@@ -35,7 +35,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.2"
+	DeployToBitriseIoVersion = "1.3.3"
 )
 
 const (
@@ -163,7 +163,7 @@ const (
 	// IonicArchiveID ...
 	IonicArchiveID = "ionic-archive"
 	// IonicArchiveVersion ...
-	IonicArchiveVersion = "0.9.1"
+	IonicArchiveVersion = "0.9.3"
 )
 
 const (
