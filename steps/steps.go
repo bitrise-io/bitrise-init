@@ -32,19 +32,30 @@ func stepListItem(stepIDComposite, title, runIf string, inputs ...envmanModels.E
 }
 
 // DefaultPrepareStepList ...
-func DefaultPrepareStepList() []bitriseModels.StepListItemModel {
-	return []bitriseModels.StepListItemModel{
+func DefaultPrepareStepList(isIncludeCache bool) []bitriseModels.StepListItemModel {
+	stepList := []bitriseModels.StepListItemModel{
 		ActivateSSHKeyStepListItem(),
 		GitCloneStepListItem(),
-		ScriptSteplistItem(ScriptDefaultTitle),
 	}
+
+	if isIncludeCache {
+		stepList = append(stepList, CachePullStepListItem())
+	}
+
+	return append(stepList, ScriptSteplistItem(ScriptDefaultTitle))
 }
 
 // DefaultDeployStepList ...
-func DefaultDeployStepList() []bitriseModels.StepListItemModel {
-	return []bitriseModels.StepListItemModel{
+func DefaultDeployStepList(isIncludeCache bool) []bitriseModels.StepListItemModel {
+	stepList := []bitriseModels.StepListItemModel{
 		DeployToBitriseIoStepListItem(),
 	}
+
+	if isIncludeCache {
+		stepList = append(stepList, CachePushStepListItem())
+	}
+
+	return stepList
 }
 
 // ActivateSSHKeyStepListItem ...

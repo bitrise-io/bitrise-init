@@ -352,7 +352,7 @@ func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionM
 
 // GenerateConfigBuilder ...
 func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(false)
 
 	// CI
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
@@ -388,7 +388,7 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 	}
 
 	// CD
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, false)
 
 	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
@@ -463,7 +463,7 @@ func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []Co
 
 // GenerateDefaultConfig ...
 func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(false)
 
 	// CI
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
@@ -486,7 +486,7 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.Bitrise
 	}
 
 	// CD
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID)
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, false)
 
 	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(

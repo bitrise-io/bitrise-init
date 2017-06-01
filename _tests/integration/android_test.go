@@ -92,8 +92,8 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CachePullVersion,
+	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -136,9 +136,9 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -165,8 +165,8 @@ var sampleAppsAndroid22Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CachePullVersion,
+	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -209,9 +209,9 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
@@ -228,8 +228,8 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CachePullVersion,
+	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
@@ -272,9 +272,9 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
