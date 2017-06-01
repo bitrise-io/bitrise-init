@@ -42,10 +42,12 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// cordova
 	models.FormatVersion,
@@ -242,6 +244,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - install-missing-android-tools@%s: {}
@@ -251,6 +254,7 @@ configs:
               - gradle_task: $GRADLE_TASK
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
   cordova:
     default-cordova-config: |
       format_version: "%s"

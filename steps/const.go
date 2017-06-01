@@ -25,6 +25,20 @@ const (
 )
 
 const (
+	// CachePullID ...
+	CachePullID = "cache-pull"
+	// CachePullVersion ...
+	CachePullVersion = "1.0.0"
+)
+
+const (
+	// CachePushID ...
+	CachePushID = "cache-push"
+	// CachePushVersion ...
+	CachePushVersion = "1.1.0"
+)
+
+const (
 	// CertificateAndProfileInstallerID ...
 	CertificateAndProfileInstallerID = "certificate-and-profile-installer"
 	// CertificateAndProfileInstallerVersion ...
@@ -58,7 +72,7 @@ const (
 	// GradleRunnerID ...
 	GradleRunnerID = "gradle-runner"
 	// GradleRunnerVersion ...
-	GradleRunnerVersion = "1.6.1"
+	GradleRunnerVersion = "1.6.3"
 )
 
 const (

@@ -185,7 +185,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(true)
 
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
 
@@ -212,9 +212,10 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(true)
 
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
+
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
