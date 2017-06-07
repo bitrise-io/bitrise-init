@@ -82,6 +82,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
@@ -89,20 +90,24 @@ var customConfigVersions = []interface{}{
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// macos
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
@@ -110,15 +115,18 @@ var customConfigVersions = []interface{}{
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// other
 	models.FormatVersion,
@@ -356,6 +364,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
@@ -372,11 +381,13 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
@@ -389,6 +400,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
   macos:
     default-macos-config: |
       format_version: "%s"
@@ -405,6 +417,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
@@ -421,11 +434,13 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
@@ -438,6 +453,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
   other:
     other-config: |
       format_version: "%s"
