@@ -86,14 +86,14 @@ const (
 	// CocoapodsInstallID ...
 	CocoapodsInstallID = "cocoapods-install"
 	// CocoapodsInstallVersion ...
-	CocoapodsInstallVersion = "1.6.1"
+	CocoapodsInstallVersion = "1.7.1"
 )
 
 const (
 	// CarthageID ...
 	CarthageID = "carthage"
 	// CarthageVersion ...
-	CarthageVersion = "3.0.6"
+	CarthageVersion = "3.1.2"
 )
 
 const (
