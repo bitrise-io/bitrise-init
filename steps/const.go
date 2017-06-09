@@ -107,21 +107,21 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2.0.5"
+	XcodeArchiveVersion = "2.0.6"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "1.18.3"
+	XcodeTestVersion = "1.18.4"
 )
 
 const (
 	// XamarinUserManagementID ...
 	XamarinUserManagementID = "xamarin-user-management"
 	// XamarinUserManagementVersion ...
-	XamarinUserManagementVersion = "1.0.3"
+	XamarinUserManagementVersion = "1.1.0"
 )
 
 const (
@@ -142,7 +142,7 @@ const (
 	// XamarinArchiveID ...
 	XamarinArchiveID = "xamarin-archive"
 	// XamarinArchiveVersion ...
-	XamarinArchiveVersion = "1.3.3"
+	XamarinArchiveVersion = "1.4.1"
 )
 
 const (
