@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -107,10 +108,21 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+	warnings := models.Warnings{}
+
+	// Search for local.properties file
+	for _, filePath := range scanner.FileList {
+		if strings.Contains(filePath, "local.properties") {
+			warningText := fmt.Sprintf(`the local.properties file should not be committed into the repository. The location of the file is:
+%s`, filePath)
+			log.Warnft(warningText)
+			warnings = append(warnings, fmt.Sprintf(warningText))
+		}
+	}
+
 	// Search for gradle wrapper
 	log.Infoft("Searching for gradlew files")
 
-	warnings := models.Warnings{}
 	gradlewFiles, err := utility.FilterGradlewFiles(scanner.FileList)
 	if err != nil {
 		return models.OptionModel{}, warnings, fmt.Errorf("Failed to list gradlew files, error: %s", err)
