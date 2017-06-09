@@ -2,9 +2,10 @@ package android
 
 import (
 	"fmt"
-	"strings"
 
 	"gopkg.in/yaml.v2"
+
+	"path/filepath"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -111,12 +112,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	// Search for local.properties file
-	for _, filePath := range scanner.FileList {
-		if strings.Contains(filePath, "local.properties") {
-			warningText := fmt.Sprintf(`the local.properties file should not be committed into the repository. The location of the file is:
-%s`, filePath)
-			log.Warnft(warningText)
-			warnings = append(warnings, fmt.Sprintf(warningText))
+	for _, pth := range scanner.FileList {
+		if filepath.Base(pth) == "local.properties" {
+			warning := fmt.Sprintf(`The local.properties file must NOT be checked into Version Control Systems, as it contains information specific to your local configuration.
+The location of the file is: %s`, pth)
+			log.Warnft(warning)
+			warnings = append(warnings, warning)
 		}
 	}
 
