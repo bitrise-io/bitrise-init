@@ -49,6 +49,15 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.GradleRunnerVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+
 	// cordova
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -158,11 +167,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: GRADLE_BUILD_FILE_PATH
         value_map:
           _:
-            title: Gradle task to run
-            env_key: GRADLE_TASK
-            value_map:
-              _:
-                config: default-android-config
+            config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR
@@ -247,6 +252,22 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
+        deploy:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - install-missing-android-tools@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradle_file: $GRADLE_BUILD_FILE_PATH
+              - gradle_task: assembleRelease
+              - gradlew_path: $GRADLEW_PATH
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -259,7 +280,7 @@ configs:
           - gradle-runner@%s:
               inputs:
               - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: $GRADLE_TASK
+              - gradle_task: assembleDebug
               - gradlew_path: $GRADLEW_PATH
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}

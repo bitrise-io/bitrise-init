@@ -36,16 +36,8 @@ const (
 )
 
 const (
-	gradleTaskInputKey    = "gradle_task"
-	gradleTaskInputEnvKey = "GRADLE_TASK"
-	gradleTaskInputTitle  = "Gradle task to run"
+	gradleTaskInputKey = "gradle_task"
 )
-
-var defaultGradleTasks = []string{
-	"assemble",
-	"assembleDebug",
-	"assembleRelease",
-}
 
 //------------------
 // ScannerInterface
@@ -163,17 +155,8 @@ that the right Gradle version is installed and used for the build. More info/gui
 	for _, gradleFile := range scanner.BuildGradleFiles {
 		log.Infoft("Inspecting gradle file: %s", gradleFile)
 
-		gradleTaskOption := models.NewOption(gradleTaskInputTitle, gradleTaskInputEnvKey)
-		gradleFileOption.AddOption(gradleFile, gradleTaskOption)
-
-		log.Printft("%d gradle tasks", len(defaultGradleTasks))
-
-		for _, gradleTask := range defaultGradleTasks {
-			log.Printft("- %s", gradleTask)
-
-			configOption := models.NewConfigOption(configName)
-			gradleTaskOption.AddConfig(gradleTask, configOption)
-		}
+		configOption := models.NewConfigOption(configName)
+		gradleFileOption.AddConfig(gradleFile, configOption)
 	}
 	// ---
 
@@ -187,11 +170,8 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
 	gradlewPthOption.AddOption("_", gradleFileOption)
 
-	gradleTaskOption := models.NewOption(gradleTaskInputTitle, gradleTaskInputEnvKey)
-	gradleFileOption.AddOption("_", gradleTaskOption)
-
 	configOption := models.NewConfigOption(defaultConfigName)
-	gradleTaskOption.AddConfig("_", configOption)
+	gradleFileOption.AddConfig("_", configOption)
 
 	return *gradlewPthOption
 }
@@ -204,7 +184,16 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleDebug"},
+		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+	))
+
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, true)
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+
+	configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
 		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 	))
 
@@ -231,7 +220,16 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "$" + gradleTaskInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleDebug"},
+		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+	))
+
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, true)
+	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+
+	configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
 		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 	))
 
