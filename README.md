@@ -6,7 +6,7 @@ Initialize bitrise config, step template or plugin template
 
 - update the step versions in steps/const.go
 - bump `RELEASE_VERSION` in bitrise.yml
-- comit these changes
+- commit these changes
 - call `bitrise run create-release`
 - check and update the generated CHANGELOG.md
 - test the generated binaries in _bin/ directory
