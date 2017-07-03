@@ -35,7 +35,7 @@ const (
 	// CachePushID ...
 	CachePushID = "cache-push"
 	// CachePushVersion ...
-	CachePushVersion = "1.1.0"
+	CachePushVersion = "1.1.1"
 )
 
 const (
@@ -72,7 +72,7 @@ const (
 	// GradleRunnerID ...
 	GradleRunnerID = "gradle-runner"
 	// GradleRunnerVersion ...
-	GradleRunnerVersion = "1.7.0"
+	GradleRunnerVersion = "1.7.1"
 )
 
 const (
