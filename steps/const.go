@@ -21,7 +21,7 @@ const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
-	GitCloneVersion = "3.4.4"
+	GitCloneVersion = "3.5.0"
 )
 
 const (
@@ -49,7 +49,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.4"
+	DeployToBitriseIoVersion = "1.3.5"
 )
 
 const (
