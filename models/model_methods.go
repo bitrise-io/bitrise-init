@@ -40,18 +40,27 @@ func NewConfigOption(name string) *OptionModel {
 }
 
 func (option *OptionModel) String() string {
-	if option.Config != "" {
-		return fmt.Sprintf(`Config Option:
-  config: %s
-`, option.Config)
+	bytes, err := json.MarshalIndent(option, "", "\t")
+	if err != nil {
+		return fmt.Sprintf("failed to marshal, error: %s", err)
 	}
 
-	values := option.GetValues()
-	return fmt.Sprintf(`Option:
-  title: %s
-  env_key: %s
-  values: %v
-`, option.Title, option.EnvKey, values)
+	return string(bytes)
+}
+
+// IsConfigOption ...
+func (option *OptionModel) IsConfigOption() bool {
+	return option.Config != ""
+}
+
+// IsValueOption ...
+func (option *OptionModel) IsValueOption() bool {
+	return option.Title != ""
+}
+
+// IsEmpty ...
+func (option *OptionModel) IsEmpty() bool {
+	return !option.IsValueOption() && !option.IsConfigOption()
 }
 
 // AddOption ...
@@ -121,14 +130,22 @@ func (option *OptionModel) LastChilds() []*OptionModel {
 	var walk func(option *OptionModel)
 	walk = func(option *OptionModel) {
 		if len(option.ChildOptionMap) == 0 {
-			// no more child, this is the last option in this branch
 			lastOptions = append(lastOptions, option)
 			return
 		}
 
 		for _, childOption := range option.ChildOptionMap {
 			if childOption == nil {
-				// values are set to this option, but has value without child
+				lastOptions = append(lastOptions, option)
+				return
+			}
+
+			if childOption.IsConfigOption() {
+				lastOptions = append(lastOptions, option)
+				return
+			}
+
+			if childOption.IsEmpty() {
 				lastOptions = append(lastOptions, option)
 				return
 			}
@@ -140,6 +157,27 @@ func (option *OptionModel) LastChilds() []*OptionModel {
 	walk(option)
 
 	return lastOptions
+}
+
+// RemoveConfigs ...
+func (option *OptionModel) RemoveConfigs() {
+	lastChilds := option.LastChilds()
+	for _, child := range lastChilds {
+		for _, child := range child.ChildOptionMap {
+			child.Config = ""
+		}
+	}
+}
+
+// AttachToLastChilds ...
+func (option *OptionModel) AttachToLastChilds(opt *OptionModel) {
+	childs := option.LastChilds()
+	for _, child := range childs {
+		values := child.GetValues()
+		for _, value := range values {
+			child.AddOption(value, opt)
+		}
+	}
 }
 
 // Copy ...
@@ -187,6 +225,76 @@ func newDefaultWorkflowBuilder(isIncludeCache bool) *workflowBuilderModel {
 func newWorkflowBuilder(items ...bitriseModels.StepListItemModel) *workflowBuilderModel {
 	return &workflowBuilderModel{
 		steps: items,
+	}
+}
+
+func stepListItemEquals(stepListItem1, stepListItem2 bitriseModels.StepListItemModel) bool {
+	stepID1 := ""
+	for key := range stepListItem1 {
+		stepID1 = key
+		break
+	}
+
+	stepID2 := ""
+	for key := range stepListItem2 {
+		stepID2 = key
+		break
+	}
+
+	return stepID1 == stepID2
+}
+
+func (builder *workflowBuilderModel) merge(workflowBuilder *workflowBuilderModel) {
+	for _, stepListItemToCheck := range workflowBuilder.PrepareSteps {
+		contains := false
+		for _, stepListItem := range builder.PrepareSteps {
+			if stepListItemEquals(stepListItem, stepListItemToCheck) {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			builder.appendPreparStepList(stepListItemToCheck)
+		}
+	}
+
+	for _, stepListItemToCheck := range workflowBuilder.DependencySteps {
+		contains := false
+		for _, stepListItem := range builder.DependencySteps {
+			if stepListItemEquals(stepListItem, stepListItemToCheck) {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			builder.appendPreparStepList(stepListItemToCheck)
+		}
+	}
+
+	for _, stepListItemToCheck := range workflowBuilder.MainSteps {
+		contains := false
+		for _, stepListItem := range builder.MainSteps {
+			if stepListItemEquals(stepListItem, stepListItemToCheck) {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			builder.appendPreparStepList(stepListItemToCheck)
+		}
+	}
+
+	for _, stepListItemToCheck := range workflowBuilder.DeploySteps {
+		contains := false
+		for _, stepListItem := range builder.DeploySteps {
+			if stepListItemEquals(stepListItem, stepListItemToCheck) {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			builder.appendPreparStepList(stepListItemToCheck)
+		}
 	}
 }
 
@@ -316,7 +424,6 @@ func (builder *ConfigBuilderModel) AppendMainStepList(items ...bitriseModels.Ste
 		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
 	}
 	workflowBuilder.appendMainStepList(items...)
-
 }
 
 // AppendDeployStepList ...
@@ -327,6 +434,24 @@ func (builder *ConfigBuilderModel) AppendDeployStepList(items ...bitriseModels.S
 		builder.workflowBuilderMap[PrimaryWorkflowID] = workflowBuilder
 	}
 	workflowBuilder.appendDeployStepList(items...)
+}
+
+// Merge ...
+func (builder ConfigBuilderModel) Merge(configBuilder ConfigBuilderModel) ConfigBuilderModel {
+	workflowIDs := []WorkflowID{}
+	for workflowID := range builder.workflowBuilderMap {
+		workflowIDs = append(workflowIDs, workflowID)
+	}
+
+	for _, workfloID := range workflowIDs {
+		toMergeWorkflowBuilder, ok := configBuilder.workflowBuilderMap[workfloID]
+		if ok {
+			originalWorkflowBuilder := builder.workflowBuilderMap[workfloID]
+			originalWorkflowBuilder.merge(toMergeWorkflowBuilder)
+		}
+	}
+
+	return builder
 }
 
 // Generate ...

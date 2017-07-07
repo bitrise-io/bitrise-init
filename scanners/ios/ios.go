@@ -12,8 +12,8 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	searchDir         string
-	configDescriptors []xcode.ConfigDescriptor
+	SearchDir         string
+	ConfigDescriptors []xcode.ConfigDescriptor
 }
 
 // NewScanner ...
@@ -28,7 +28,7 @@ func (scanner *Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	scanner.searchDir = searchDir
+	scanner.SearchDir = searchDir
 
 	detected, err := xcode.Detect(utility.XcodeProjectTypeIOS, searchDir)
 	if err != nil {
@@ -45,12 +45,12 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeIOS, scanner.searchDir)
+	options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeIOS, scanner.SearchDir)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}
 
-	scanner.configDescriptors = configDescriptors
+	scanner.ConfigDescriptors = configDescriptors
 
 	return options, warnings, nil
 }
@@ -62,7 +62,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	return xcode.GenerateConfig(utility.XcodeProjectTypeIOS, scanner.configDescriptors)
+	return xcode.GenerateConfig(utility.XcodeProjectTypeIOS, scanner.ConfigDescriptors)
 }
 
 // DefaultConfigs ...

@@ -7,6 +7,8 @@ import (
 
 	"path/filepath"
 
+	"strings"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -62,6 +64,24 @@ func NewConfigDescriptor(hasPodfile bool, carthageCommand string, hasXCTest bool
 		HasTest:              hasXCTest,
 		MissingSharedSchemes: missingSharedSchemes,
 	}
+}
+
+// NewConfigDescriptorWithName ...
+func NewConfigDescriptorWithName(name string) ConfigDescriptor {
+	descriptor := ConfigDescriptor{}
+	if strings.Contains(name, "-pod") {
+		descriptor.HasPodfile = true
+	}
+	if strings.Contains(name, "-carthage") {
+		descriptor.CarthageCommand = "bootstrap"
+	}
+	if strings.Contains(name, "-test") {
+		descriptor.HasTest = true
+	}
+	if strings.Contains(name, "-missing-shared-schemes") {
+		descriptor.MissingSharedSchemes = true
+	}
+	return descriptor
 }
 
 // ConfigName ...
@@ -336,7 +356,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 		}
 	}
 
-	configDescriptors = plain(configDescriptors, projectType)
+	configDescriptors = RemoveDuplicatedConfigDescriptors(configDescriptors, projectType)
 
 	if len(configDescriptors) == 0 {
 		log.Errorft("No valid %s config found", string(projectType))
@@ -436,15 +456,19 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 	return *configBuilder
 }
 
-func plain(configDescriptors []ConfigDescriptor, projectType utility.XcodeProjectType) []ConfigDescriptor {
-	descriptors := []ConfigDescriptor{}
-	descritorNameMap := map[string]bool{}
+// RemoveDuplicatedConfigDescriptors ...
+func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, projectType utility.XcodeProjectType) []ConfigDescriptor {
+	descritorNameMap := map[string]ConfigDescriptor{}
 	for _, descriptor := range configDescriptors {
-		_, exist := descritorNameMap[descriptor.ConfigName(projectType)]
-		if !exist {
-			descriptors = append(descriptors, descriptor)
-		}
+		name := descriptor.ConfigName(projectType)
+		descritorNameMap[name] = descriptor
 	}
+
+	descriptors := []ConfigDescriptor{}
+	for _, descriptor := range descritorNameMap {
+		descriptors = append(descriptors, descriptor)
+	}
+
 	return descriptors
 }
 
