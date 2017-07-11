@@ -61,18 +61,12 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	packageJSONPth := packageJSONPths[0]
 	projectDir := filepath.Dir(packageJSONPth)
 
-	hasAndroidProjectDir := false
-	androidDir := filepath.Join(projectDir, "android")
-	{
-		var err error
-		hasAndroidProjectDir, err = pathutil.IsDirExists(androidDir)
-		if err != nil {
-			return models.OptionModel{}, warnings, err
-		}
-	}
-
+	// android options
 	var androidOptions *models.OptionModel
-	if hasAndroidProjectDir {
+	androidDir := filepath.Join(projectDir, "android")
+	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
+		return models.OptionModel{}, warnings, err
+	} else if exist {
 		androidScanner := android.NewScanner()
 
 		if detected, err := androidScanner.DetectPlatform(scanner.SearchDir); err != nil {
@@ -84,25 +78,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return models.OptionModel{}, warnings, err
 			}
 
-			options.RemoveConfigs()
 			androidOptions = &options
-
 			scanner.androidScanner = androidScanner
 		}
 	}
 
-	hasIosProjectDir := false
-	iosDir := filepath.Join(projectDir, "ios")
-	{
-		var err error
-		hasIosProjectDir, err = pathutil.IsDirExists(iosDir)
-		if err != nil {
-			return models.OptionModel{}, warnings, err
-		}
-	}
-
+	// ios options
 	var iosOptions *models.OptionModel
-	if hasIosProjectDir {
+	iosDir := filepath.Join(projectDir, "ios")
+	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
+		return models.OptionModel{}, warnings, err
+	} else if exist {
 		iosScanner := ios.NewScanner()
 
 		if detected, err := iosScanner.DetectPlatform(scanner.SearchDir); err != nil {
@@ -114,40 +100,8 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				return models.OptionModel{}, warnings, err
 			}
 
-			// these options will be the last options
-			// we need to update the last options config names
-			// currently they are the ios config names
-			lastChilds := options.LastChilds()
-			for _, child := range lastChilds {
-				for _, child := range child.ChildOptionMap {
-					if child.Config == "" {
-						return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
-					}
-
-					descriptor := xcode.NewConfigDescriptorWithName(child.Config)
-					configName := configName(scanner.androidScanner != nil, &descriptor)
-					child.Config = configName
-				}
-			}
-			// ---
-
 			iosOptions = &options
-
 			scanner.iosScanner = iosScanner
-		}
-	} else if scanner.androidScanner != nil {
-		// no ios project detected, but android found
-		// we did not updated the last option's config names
-		lastChilds := androidOptions.LastChilds()
-		for _, child := range lastChilds {
-			for _, child := range child.ChildOptionMap {
-				if child.Config == "" {
-					return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
-				}
-
-				configName := configName(true, nil)
-				child.Config = configName
-			}
 		}
 	}
 
@@ -157,14 +111,49 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	var options *models.OptionModel
 	if androidOptions != nil {
+		if iosOptions == nil {
+			// we only found an android project
+			lastChilds := androidOptions.LastChilds()
+			for _, child := range lastChilds {
+				for _, child := range child.ChildOptionMap {
+					if child.Config == "" {
+						return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
+					}
+
+					configName := configName(true, nil)
+					child.Config = configName
+				}
+			}
+		} else {
+			// we have both ios and android projects
+			androidOptions.RemoveConfigs()
+		}
+
 		options = androidOptions
 	}
+
 	if iosOptions != nil {
-		if androidOptions != nil {
-			options.AttachToLastChilds(iosOptions)
-		} else {
-			options = iosOptions
+		lastChilds := iosOptions.LastChilds()
+		for _, child := range lastChilds {
+			for _, child := range child.ChildOptionMap {
+				if child.Config == "" {
+					return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
+				}
+
+				descriptor := xcode.NewConfigDescriptorWithName(child.Config)
+				configName := configName(scanner.androidScanner != nil, &descriptor)
+				child.Config = configName
+			}
 		}
+
+		if androidOptions == nil {
+			// we only found an ios project
+			options = iosOptions
+		} else {
+			// we have both ios and android projects
+			options.AttachToLastChilds(iosOptions)
+		}
+
 	}
 
 	return *options, warnings, nil
