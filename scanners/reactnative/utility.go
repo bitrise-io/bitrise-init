@@ -1,6 +1,11 @@
 package reactnative
 
-import "github.com/bitrise-core/bitrise-init/utility"
+import (
+	"strings"
+
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/utility"
+)
 
 // CollectPackageJSONFiles - Collects package.json files, with react-native dependency
 func CollectPackageJSONFiles(searchDir string) ([]string, error) {
@@ -32,4 +37,18 @@ func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 	}
 
 	return relevantPackageFileList, nil
+}
+
+func configName(hasAndroidProject bool, iosConfigDescriptor *ios.ConfigDescriptor) string {
+	name := "reactnative"
+	if hasAndroidProject {
+		name += "-android"
+	}
+	if iosConfigDescriptor != nil {
+		name += "-" + iosConfigDescriptor.ConfigName(utility.XcodeProjectTypeIOS)
+	}
+	if !strings.HasSuffix(name, "-config") {
+		name += "-config"
+	}
+	return name
 }

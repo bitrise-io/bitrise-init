@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	yaml "gopkg.in/yaml.v1"
-
-	"strings"
+	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/xcode"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -25,6 +22,7 @@ type Scanner struct {
 	SearchDir      string
 	iosScanner     *ios.Scanner
 	androidScanner *android.Scanner
+	hasNPMTest     bool
 }
 
 // NewScanner ...
@@ -58,7 +56,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		return models.OptionModel{}, warnings, err
 	}
 
+	// react options
 	packageJSONPth := packageJSONPths[0]
+	packages, err := utility.ParsePackagesJSON(packageJSONPth)
+	if err != nil {
+		return models.OptionModel{}, warnings, err
+	}
+
+	if _, found := packages.Scripts["test"]; found {
+		scanner.hasNPMTest = true
+	}
+
 	projectDir := filepath.Dir(packageJSONPth)
 
 	// android options
@@ -113,6 +121,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	if androidOptions != nil {
 		if iosOptions == nil {
 			// we only found an android project
+			// we need to update the config names
 			lastChilds := androidOptions.LastChilds()
 			for _, child := range lastChilds {
 				for _, child := range child.ChildOptionMap {
@@ -126,6 +135,8 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			}
 		} else {
 			// we have both ios and android projects
+			// we need to remove the android option's config names,
+			// since ios options will hold them
 			androidOptions.RemoveConfigs()
 		}
 
@@ -140,7 +151,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 					return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 				}
 
-				descriptor := xcode.NewConfigDescriptorWithName(child.Config)
+				descriptor := ios.NewConfigDescriptorWithName(child.Config)
 				configName := configName(scanner.androidScanner != nil, &descriptor)
 				child.Config = configName
 			}
@@ -151,6 +162,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 			options = iosOptions
 		} else {
 			// we have both ios and android projects
+			// we attach ios options to the android options
 			options.AttachToLastChilds(iosOptions)
 		}
 
@@ -164,20 +176,6 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	return models.OptionModel{}
 }
 
-func configName(hasAndroidProject bool, iosConfigDescriptor *xcode.ConfigDescriptor) string {
-	name := "reactnative"
-	if hasAndroidProject {
-		name += "-android"
-	}
-	if iosConfigDescriptor != nil {
-		name += "-" + iosConfigDescriptor.ConfigName(utility.XcodeProjectTypeIOS)
-	}
-	if !strings.HasSuffix(name, "-config") {
-		name += "-config"
-	}
-	return name
-}
-
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
@@ -185,17 +183,17 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder(true)
 
 	if scanner.androidScanner != nil {
-		androidConfigBuilder := android.GenerateConfigBuilder()
+		androidConfigBuilder := android.GenerateConfigBuilder(true)
 		configBuilder = &androidConfigBuilder
 	}
 
 	// ---
 	if scanner.iosScanner != nil {
 		descriptors := scanner.iosScanner.ConfigDescriptors
-		descriptors = xcode.RemoveDuplicatedConfigDescriptors(descriptors, utility.XcodeProjectTypeIOS)
+		descriptors = ios.RemoveDuplicatedConfigDescriptors(descriptors, utility.XcodeProjectTypeIOS)
 
 		for _, descriptor := range descriptors {
-			iosConfigBuilder := xcode.GenerateConfigBuilder(utility.XcodeProjectTypeIOS, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
+			iosConfigBuilder := ios.GenerateConfigBuilder(utility.XcodeProjectTypeIOS, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand, true)
 			mergedBuilder := configBuilder.Merge(iosConfigBuilder)
 
 			bitriseDataModel, err := mergedBuilder.Generate(Name)

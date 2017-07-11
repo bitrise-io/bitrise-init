@@ -139,6 +139,15 @@ func (builder ConfigBuilderModel) Merge(configBuilder ConfigBuilderModel) Config
 	return builder
 }
 
+// RemoveStepListItem ...
+func (builder *ConfigBuilderModel) RemoveStepListItem(workflowID WorkflowID, stepListItemID string) {
+	_, found := builder.workflowBuilderMap[workflowID]
+	if !found {
+		return
+	}
+
+}
+
 // Generate ...
 func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
 	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]

@@ -48,6 +48,7 @@ func FilterRootConfigXMLFile(fileList []string) (string, error) {
 
 // PackagesModel ...
 type PackagesModel struct {
+	Scripts         map[string]string `json:"scripts"`
 	Dependencies    map[string]string `json:"dependencies"`
 	DevDependencies map[string]string `json:"devDependencies"`
 }

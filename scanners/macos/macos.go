@@ -2,7 +2,7 @@ package macos
 
 import (
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners/xcode"
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/utility"
 )
 
@@ -13,7 +13,7 @@ import (
 // Scanner ...
 type Scanner struct {
 	searchDir         string
-	configDescriptors []xcode.ConfigDescriptor
+	configDescriptors []ios.ConfigDescriptor
 }
 
 // NewScanner ...
@@ -30,7 +30,7 @@ func (scanner *Scanner) Name() string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	detected, err := xcode.Detect(utility.XcodeProjectTypeMacOS, searchDir)
+	detected, err := ios.Detect(utility.XcodeProjectTypeMacOS, searchDir)
 	if err != nil {
 		return false, err
 	}
@@ -45,7 +45,7 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	options, configDescriptors, warnings, err := xcode.GenerateOptions(utility.XcodeProjectTypeMacOS, scanner.searchDir)
+	options, configDescriptors, warnings, err := ios.GenerateOptions(utility.XcodeProjectTypeMacOS, scanner.searchDir)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}
@@ -57,15 +57,15 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	return xcode.GenerateDefaultOptions(utility.XcodeProjectTypeMacOS)
+	return ios.GenerateDefaultOptions(utility.XcodeProjectTypeMacOS)
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	return xcode.GenerateConfig(utility.XcodeProjectTypeMacOS, scanner.configDescriptors)
+	return ios.GenerateConfig(utility.XcodeProjectTypeMacOS, scanner.configDescriptors, true)
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return xcode.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS)
+	return ios.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS)
 }

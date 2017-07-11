@@ -25,16 +25,104 @@ func (builder *workflowBuilderModel) appendPreparStepList(items ...bitriseModels
 	builder.PrepareSteps = append(builder.PrepareSteps, items...)
 }
 
+func (builder *workflowBuilderModel) removePreparStepList(item bitriseModels.StepListItemModel) {
+	updatedPrepareSteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.PrepareSteps {
+		for stepID := range stepListItem {
+			shouldRemove := false
+
+			for stepIDToRemove := range item {
+				if stepIDToRemove == stepID {
+					shouldRemove = true
+				}
+				break
+			}
+
+			if !shouldRemove {
+				updatedPrepareSteps = append(updatedPrepareSteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.PrepareSteps = updatedPrepareSteps
+}
+
 func (builder *workflowBuilderModel) appendDependencyStepList(items ...bitriseModels.StepListItemModel) {
 	builder.DependencySteps = append(builder.DependencySteps, items...)
+}
+
+func (builder *workflowBuilderModel) removeDependencyStepList(item bitriseModels.StepListItemModel) {
+	updatedDependencySteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.DependencySteps {
+		for stepID := range stepListItem {
+			shouldRemove := false
+
+			for stepIDToRemove := range item {
+				if stepIDToRemove == stepID {
+					shouldRemove = true
+				}
+				break
+			}
+
+			if !shouldRemove {
+				updatedDependencySteps = append(updatedDependencySteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.DependencySteps = updatedDependencySteps
 }
 
 func (builder *workflowBuilderModel) appendMainStepList(items ...bitriseModels.StepListItemModel) {
 	builder.MainSteps = append(builder.MainSteps, items...)
 }
 
+func (builder *workflowBuilderModel) removeMainStepList(item bitriseModels.StepListItemModel) {
+	updatedMainSteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.MainSteps {
+		for stepID := range stepListItem {
+			shouldRemove := false
+
+			for stepIDToRemove := range item {
+				if stepIDToRemove == stepID {
+					shouldRemove = true
+				}
+				break
+			}
+
+			if !shouldRemove {
+				updatedMainSteps = append(updatedMainSteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.MainSteps = updatedMainSteps
+}
+
 func (builder *workflowBuilderModel) appendDeployStepList(items ...bitriseModels.StepListItemModel) {
 	builder.DeploySteps = append(builder.DeploySteps, items...)
+}
+
+func (builder *workflowBuilderModel) removeDeployStepList(item bitriseModels.StepListItemModel) {
+	updatedDeploySteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.DeploySteps {
+		for stepID := range stepListItem {
+			shouldRemove := false
+
+			for stepIDToRemove := range item {
+				if stepIDToRemove == stepID {
+					shouldRemove = true
+				}
+				break
+			}
+
+			if !shouldRemove {
+				updatedDeploySteps = append(updatedDeploySteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.DeploySteps = updatedDeploySteps
 }
 
 func (builder *workflowBuilderModel) stepList() []bitriseModels.StepListItemModel {
@@ -104,6 +192,53 @@ func (builder *workflowBuilderModel) merge(workflowBuilder *workflowBuilderModel
 			builder.appendPreparStepList(stepListItemToCheck)
 		}
 	}
+}
+
+// RemoveStepListItem ...
+func (builder *workflowBuilderModel) RemoveStepListItem(stepListItemID string) {
+	updatedPrepareSteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.PrepareSteps {
+		for stepID := range stepListItem {
+			if stepID != stepListItemID {
+				updatedPrepareSteps = append(updatedPrepareSteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.PrepareSteps = updatedPrepareSteps
+
+	updatedDependencySteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.DependencySteps {
+		for stepID := range stepListItem {
+			if stepID != stepListItemID {
+				updatedDependencySteps = append(updatedDependencySteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.DependencySteps = updatedDependencySteps
+
+	updatedMainSteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.MainSteps {
+		for stepID := range stepListItem {
+			if stepID != stepListItemID {
+				updatedMainSteps = append(updatedMainSteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.MainSteps = updatedMainSteps
+
+	updatedDeploySteps := []bitriseModels.StepListItemModel{}
+	for _, stepListItem := range builder.DeploySteps {
+		for stepID := range stepListItem {
+			if stepID != stepListItemID {
+				updatedDeploySteps = append(updatedDeploySteps, stepListItem)
+			}
+			break
+		}
+	}
+	builder.DeploySteps = updatedDeploySteps
 }
 
 func stepListItemEquals(stepListItem1, stepListItem2 bitriseModels.StepListItemModel) bool {

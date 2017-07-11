@@ -69,7 +69,8 @@ func EnsureGradlew(buildGradleFile string) (string, error) {
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
-	return gradlewPth, nil
+
+	return utility.FixedGradlewPath(gradlewPth), nil
 }
 
 // GenerateOptions ...
@@ -104,8 +105,8 @@ func GenerateOptions(searchDir string) (models.OptionModel, models.Warnings, err
 }
 
 // GenerateConfigBuilder ...
-func GenerateConfigBuilder() models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder(true)
+func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
+	configBuilder := models.NewDefaultConfigBuilder(isIncludeCache)
 
 	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
 

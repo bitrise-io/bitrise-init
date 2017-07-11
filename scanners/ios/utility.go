@@ -1,4 +1,4 @@
-package xcode
+package ios
 
 import (
 	"fmt"
@@ -380,8 +380,8 @@ func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionM
 }
 
 // GenerateConfigBuilder ...
-func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder(true)
+func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string, isIncludeCache bool) models.ConfigBuilderModel {
+	configBuilder := models.NewDefaultConfigBuilder(isIncludeCache)
 
 	// CI
 	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
@@ -417,7 +417,7 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 	}
 
 	// CD
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, true)
+	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, isIncludeCache)
 
 	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
@@ -473,10 +473,10 @@ func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, pro
 }
 
 // GenerateConfig ...
-func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []ConfigDescriptor) (models.BitriseConfigMap, error) {
+func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []ConfigDescriptor, isIncludeCache bool) (models.BitriseConfigMap, error) {
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range configDescriptors {
-		configBuilder := GenerateConfigBuilder(projectType, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand)
+		configBuilder := GenerateConfigBuilder(projectType, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand, isIncludeCache)
 
 		config, err := configBuilder.Generate(string(projectType))
 		if err != nil {

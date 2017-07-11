@@ -161,12 +161,12 @@ var customConfigVersions = []interface{}{
 
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
-    title: Gradlew file path
-    env_key: GRADLEW_PATH
+    title: Path to the gradle file to use
+    env_key: GRADLE_BUILD_FILE_PATH
     value_map:
       _:
-        title: Path to the gradle file to use
-        env_key: GRADLE_BUILD_FILE_PATH
+        title: Gradlew file path
+        env_key: GRADLEW_PATH
         value_map:
           _:
             config: default-android-config
