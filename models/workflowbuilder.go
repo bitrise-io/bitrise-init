@@ -10,8 +10,6 @@ type workflowBuilderModel struct {
 	DependencySteps []bitriseModels.StepListItemModel
 	MainSteps       []bitriseModels.StepListItemModel
 	DeploySteps     []bitriseModels.StepListItemModel
-
-	steps []bitriseModels.StepListItemModel
 }
 
 func newDefaultWorkflowBuilder(isIncludeCache bool) *workflowBuilderModel {
@@ -20,12 +18,6 @@ func newDefaultWorkflowBuilder(isIncludeCache bool) *workflowBuilderModel {
 		DependencySteps: []bitriseModels.StepListItemModel{},
 		MainSteps:       []bitriseModels.StepListItemModel{},
 		DeploySteps:     steps.DefaultDeployStepList(isIncludeCache),
-	}
-}
-
-func newWorkflowBuilder(items ...bitriseModels.StepListItemModel) *workflowBuilderModel {
-	return &workflowBuilderModel{
-		steps: items,
 	}
 }
 
@@ -46,10 +38,6 @@ func (builder *workflowBuilderModel) appendDeployStepList(items ...bitriseModels
 }
 
 func (builder *workflowBuilderModel) stepList() []bitriseModels.StepListItemModel {
-	if len(builder.steps) > 0 {
-		return builder.steps
-	}
-
 	stepList := []bitriseModels.StepListItemModel{}
 	stepList = append(stepList, builder.PrepareSteps...)
 	stepList = append(stepList, builder.DependencySteps...)
