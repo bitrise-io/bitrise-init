@@ -36,7 +36,7 @@ const (
 // May the searchDir contains multiple android projects, this case it return multiple builde.gradle path
 // searchDir/android-project1/build.gradle, searchDir/android-project2/build.gradle, ...
 func CollectRootBuildGradleFiles(searchDir string) ([]string, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, false)
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}

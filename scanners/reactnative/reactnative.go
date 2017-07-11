@@ -155,20 +155,19 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		return models.OptionModel{}, warnings, errors.New("no ios nor android config options found")
 	}
 
-	rootOption := models.NewOption("project_dir", "PROJECT_DIR")
+	var options *models.OptionModel
 	if androidOptions != nil {
-		rootOption.AddOption(projectDir, androidOptions)
+		options = androidOptions
 	}
 	if iosOptions != nil {
 		if androidOptions != nil {
-			rootOption.AttachToLastChilds(iosOptions)
+			options.AttachToLastChilds(iosOptions)
 		} else {
-			rootOption.AddOption(projectDir, iosOptions)
+			options = iosOptions
 		}
 	}
 
-	// return *rootOption, warnings, nil
-	return models.OptionModel{}, models.Warnings{}, nil
+	return *options, warnings, nil
 }
 
 // DefaultOptions ...

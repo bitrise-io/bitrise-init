@@ -57,6 +57,9 @@ var ForbidCordovaLibDirComponentFilter = ComponentFilter(cordovaLibDirName, fals
 // ForbidFramworkComponentWithExtensionFilter ...
 var ForbidFramworkComponentWithExtensionFilter = ComponentWithExtensionFilter(frameworkExt, false)
 
+// ForbidNodeModulesComponentFilter ...
+var ForbidNodeModulesComponentFilter = ComponentFilter(nodeModulesDirName, false)
+
 // AllowIphoneosSDKFilter ...
 var AllowIphoneosSDKFilter = SDKFilter("iphoneos", true)
 
@@ -201,6 +204,7 @@ func FilterRelevantProjectFiles(fileList []string, projectTypes ...XcodeProjectT
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
 		ForbidCordovaLibDirComponentFilter,
+		ForbidNodeModulesComponentFilter,
 	}
 
 	for _, projectType := range projectTypes {
@@ -226,6 +230,7 @@ func FilterRelevantWorkspaceFiles(fileList []string, projectTypes ...XcodeProjec
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
 		ForbidCordovaLibDirComponentFilter,
+		ForbidNodeModulesComponentFilter,
 	}
 
 	for _, projectType := range projectTypes {
@@ -248,7 +253,8 @@ func FilterRelevantPodfiles(fileList []string) ([]string, error) {
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
-		ForbidCordovaLibDirComponentFilter)
+		ForbidCordovaLibDirComponentFilter,
+		ForbidNodeModulesComponentFilter)
 }
 
 // FilterRelevantCartFile ...
@@ -259,5 +265,6 @@ func FilterRelevantCartFile(fileList []string) ([]string, error) {
 		ForbidPodsDirComponentFilter,
 		ForbidCarthageDirComponentFilter,
 		ForbidFramworkComponentWithExtensionFilter,
-		ForbidCordovaLibDirComponentFilter)
+		ForbidCordovaLibDirComponentFilter,
+		ForbidNodeModulesComponentFilter)
 }
