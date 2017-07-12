@@ -43,7 +43,11 @@ func ListPathInDirSortedByComponents(searchDir string, relPath bool) ([]string, 
 
 	fileList := []string{}
 
-	if err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
+	if err := filepath.Walk(searchDir, func(path string, _ os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+
 		if relPath {
 			rel, err := filepath.Rel(searchDir, path)
 			if err != nil {
@@ -84,7 +88,7 @@ func FilterPaths(fileList []string, filters ...FilterFunc) ([]string, error) {
 }
 
 // FilterFunc ...
-type FilterFunc func(pth string) (bool, error)
+type FilterFunc func(string) (bool, error)
 
 // BaseFilter ...
 func BaseFilter(base string, allowed bool) FilterFunc {

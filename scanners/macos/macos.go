@@ -22,7 +22,7 @@ func NewScanner() *Scanner {
 }
 
 // Name ...
-func (scanner *Scanner) Name() string {
+func (Scanner) Name() string {
 	return string(utility.XcodeProjectTypeMacOS)
 }
 
@@ -39,7 +39,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 }
 
 // ExcludedScannerNames ...
-func (scanner *Scanner) ExcludedScannerNames() []string {
+func (Scanner) ExcludedScannerNames() []string {
 	return []string{}
 }
 
@@ -56,7 +56,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 }
 
 // DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+func (Scanner) DefaultOptions() models.OptionModel {
 	return ios.GenerateDefaultOptions(utility.XcodeProjectTypeMacOS)
 }
 
@@ -66,6 +66,6 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return ios.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS, true)
 }

@@ -52,7 +52,7 @@ func NewScanner() *Scanner {
 }
 
 // Name ...
-func (scanner Scanner) Name() string {
+func (Scanner) Name() string {
 	return scannerName
 }
 
@@ -89,7 +89,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 }
 
 // ExcludedScannerNames ...
-func (scanner *Scanner) ExcludedScannerNames() []string {
+func (*Scanner) ExcludedScannerNames() []string {
 	return []string{}
 }
 
@@ -147,7 +147,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 }
 
 // DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+func (*Scanner) DefaultOptions() models.OptionModel {
 	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
 	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
@@ -160,7 +160,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
@@ -189,7 +189,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 

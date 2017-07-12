@@ -123,7 +123,7 @@ func (option *OptionModel) Child(components ...string) (*OptionModel, bool) {
 func (option *OptionModel) LastChilds() []*OptionModel {
 	lastOptions := []*OptionModel{}
 
-	var walk func(opt *OptionModel)
+	var walk func(*OptionModel)
 	walk = func(opt *OptionModel) {
 		if len(opt.ChildOptionMap) == 0 {
 			lastOptions = append(lastOptions, opt)

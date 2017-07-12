@@ -30,7 +30,7 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform detected
 	// - error if (if any)
-	DetectPlatform(searchDir string) (bool, error)
+	DetectPlatform(string) (bool, error)
 
 	// ExcludedScannerNames is used to mark, which scanners should be excluded, if the current scanner detects platform.
 	ExcludedScannerNames() []string

@@ -19,12 +19,12 @@ func NewScanner() *Scanner {
 }
 
 // Name ...
-func (scanner Scanner) Name() string {
+func (Scanner) Name() string {
 	return ScannerName
 }
 
 // ExcludedScannerNames ...
-func (scanner *Scanner) ExcludedScannerNames() []string {
+func (*Scanner) ExcludedScannerNames() []string {
 	return []string{}
 }
 
@@ -46,7 +46,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 }
 
 // DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+func (*Scanner) DefaultOptions() models.OptionModel {
 	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
 
 	gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
@@ -59,7 +59,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := GenerateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)
@@ -78,7 +78,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := GenerateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)

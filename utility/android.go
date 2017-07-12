@@ -7,7 +7,6 @@ import (
 
 const (
 	buildGradleBasePath = "build.gradle"
-	gradlewBasePath     = "gradlew"
 )
 
 // FixedGradlewPath ...

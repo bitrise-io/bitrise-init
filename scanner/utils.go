@@ -49,8 +49,7 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 	configPth := ""
 	appEnvs := []envmanModels.EnvironmentItemModel{}
 
-	var walkDepth func(opt models.OptionModel) error
-
+	var walkDepth func(models.OptionModel) error
 	walkDepth = func(opt models.OptionModel) error {
 		optionEnvKey, selectedValue, err := askForOptionValue(opt)
 		if err != nil {

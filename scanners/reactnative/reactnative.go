@@ -21,10 +21,11 @@ const Name = "react-native"
 
 // Scanner ...
 type Scanner struct {
-	SearchDir      string
-	iosScanner     *ios.Scanner
-	androidScanner *android.Scanner
-	hasNPMTest     bool
+	searchDir       string
+	iosScanner      *ios.Scanner
+	androidScanner  *android.Scanner
+	hasNPMTest      bool
+	packageJSONPths []string
 }
 
 // NewScanner ...
@@ -33,18 +34,20 @@ func NewScanner() *Scanner {
 }
 
 // Name ...
-func (scanner *Scanner) Name() string {
+func (Scanner) Name() string {
 	return Name
 }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	scanner.SearchDir = searchDir
+	scanner.searchDir = searchDir
 
 	packageJSONPths, err := CollectPackageJSONFiles(searchDir)
 	if err != nil {
 		return false, err
 	}
+
+	scanner.packageJSONPths = packageJSONPths
 
 	return (len(packageJSONPths) > 0), nil
 }
@@ -53,128 +56,137 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
 
-	packageJSONPths, err := CollectPackageJSONFiles(scanner.SearchDir)
-	if err != nil {
-		return models.OptionModel{}, warnings, err
-	}
+	rootOption := models.NewOption("Project Dir", "PROJECT_DIR")
 
-	// react options
-	packageJSONPth := packageJSONPths[0]
-	packages, err := utility.ParsePackagesJSON(packageJSONPth)
-	if err != nil {
-		return models.OptionModel{}, warnings, err
-	}
-
-	if _, found := packages.Scripts["test"]; found {
-		scanner.hasNPMTest = true
-	}
-
-	projectDir := filepath.Dir(packageJSONPth)
-
-	// android options
-	var androidOptions *models.OptionModel
-	androidDir := filepath.Join(projectDir, "android")
-	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-		return models.OptionModel{}, warnings, err
-	} else if exist {
-		androidScanner := android.NewScanner()
-
-		if detected, err := androidScanner.DetectPlatform(scanner.SearchDir); err != nil {
+	for _, packageJSONPth := range scanner.packageJSONPths {
+		// react options
+		packages, err := utility.ParsePackagesJSON(packageJSONPth)
+		if err != nil {
 			return models.OptionModel{}, warnings, err
-		} else if detected {
-			options, warns, err := androidScanner.Options()
-			warnings = append(warnings, warns...)
-			if err != nil {
+		}
+
+		if _, found := packages.Scripts["test"]; found {
+			scanner.hasNPMTest = true
+		}
+
+		projectDir := filepath.Dir(packageJSONPth)
+
+		// android options
+		var androidOptions *models.OptionModel
+		androidDir := filepath.Join(projectDir, "android")
+		if exist, err := pathutil.IsDirExists(androidDir); err != nil {
+			return models.OptionModel{}, warnings, err
+		} else if exist {
+			androidScanner := android.NewScanner()
+
+			if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
 				return models.OptionModel{}, warnings, err
+			} else if detected {
+				options, warns, err := androidScanner.Options()
+				warnings = append(warnings, warns...)
+				if err != nil {
+					return models.OptionModel{}, warnings, err
+				}
+
+				androidOptions = &options
+				scanner.androidScanner = androidScanner
+			}
+		}
+
+		// ios options
+		var iosOptions *models.OptionModel
+		iosDir := filepath.Join(projectDir, "ios")
+		if exist, err := pathutil.IsDirExists(iosDir); err != nil {
+			return models.OptionModel{}, warnings, err
+		} else if exist {
+			iosScanner := ios.NewScanner()
+
+			if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
+				return models.OptionModel{}, warnings, err
+			} else if detected {
+				options, warns, err := iosScanner.Options()
+				warnings = append(warnings, warns...)
+				if err != nil {
+					return models.OptionModel{}, warnings, err
+				}
+
+				iosOptions = &options
+				scanner.iosScanner = iosScanner
+			}
+		}
+
+		if androidOptions == nil && iosOptions == nil {
+			return models.OptionModel{}, warnings, errors.New("no ios nor android config options found")
+		}
+		// ---
+
+		if androidOptions != nil {
+			if iosOptions == nil {
+				// we only found an android project
+				// we need to update the config names
+				lastChilds := androidOptions.LastChilds()
+				for _, child := range lastChilds {
+					for _, child := range child.ChildOptionMap {
+						if child.Config == "" {
+							return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
+						}
+
+						configName := configName(true, nil)
+						child.Config = configName
+					}
+				}
+			} else {
+				// we have both ios and android projects
+				// we need to remove the android option's config names,
+				// since ios options will hold them
+				androidOptions.RemoveConfigs()
 			}
 
-			androidOptions = &options
-			scanner.androidScanner = androidScanner
+			rootOption.AddOption(projectDir, androidOptions)
 		}
-	}
 
-	// ios options
-	var iosOptions *models.OptionModel
-	iosDir := filepath.Join(projectDir, "ios")
-	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
-		return models.OptionModel{}, warnings, err
-	} else if exist {
-		iosScanner := ios.NewScanner()
-
-		if detected, err := iosScanner.DetectPlatform(scanner.SearchDir); err != nil {
-			return models.OptionModel{}, warnings, err
-		} else if detected {
-			options, warns, err := iosScanner.Options()
-			warnings = append(warnings, warns...)
-			if err != nil {
-				return models.OptionModel{}, warnings, err
-			}
-
-			iosOptions = &options
-			scanner.iosScanner = iosScanner
-		}
-	}
-
-	if androidOptions == nil && iosOptions == nil {
-		return models.OptionModel{}, warnings, errors.New("no ios nor android config options found")
-	}
-
-	var options *models.OptionModel
-	if androidOptions != nil {
-		if iosOptions == nil {
-			// we only found an android project
-			// we need to update the config names
-			lastChilds := androidOptions.LastChilds()
+		if iosOptions != nil {
+			lastChilds := iosOptions.LastChilds()
 			for _, child := range lastChilds {
 				for _, child := range child.ChildOptionMap {
 					if child.Config == "" {
 						return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 					}
 
-					configName := configName(true, nil)
+					descriptor := ios.NewConfigDescriptorWithName(child.Config)
+					configName := configName(scanner.androidScanner != nil, &descriptor)
 					child.Config = configName
 				}
 			}
-		} else {
-			// we have both ios and android projects
-			// we need to remove the android option's config names,
-			// since ios options will hold them
-			androidOptions.RemoveConfigs()
-		}
 
-		options = androidOptions
-	}
-
-	if iosOptions != nil {
-		lastChilds := iosOptions.LastChilds()
-		for _, child := range lastChilds {
-			for _, child := range child.ChildOptionMap {
-				if child.Config == "" {
-					return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
-				}
-
-				descriptor := ios.NewConfigDescriptorWithName(child.Config)
-				configName := configName(scanner.androidScanner != nil, &descriptor)
-				child.Config = configName
+			if androidOptions == nil {
+				// we only found an ios project
+				rootOption.AddOption(projectDir, iosOptions)
+			} else {
+				// we have both ios and android projects
+				// we attach ios options to the android options
+				rootOption.AttachToLastChilds(iosOptions)
 			}
-		}
 
-		if androidOptions == nil {
-			// we only found an ios project
-			options = iosOptions
-		} else {
-			// we have both ios and android projects
-			// we attach ios options to the android options
-			options.AttachToLastChilds(iosOptions)
 		}
-
 	}
 
-	return *options, warnings, nil
+	if len(scanner.packageJSONPths) == 1 {
+		packageJSONPth := scanner.packageJSONPths[0]
+		projectDir := filepath.Dir(packageJSONPth)
+		firstChild, found := rootOption.Child(projectDir)
+		if !found {
+			return models.OptionModel{}, warnings, fmt.Errorf("invalid root option (%v), no child option for: %s", rootOption, projectDir)
+		}
+
+		rootOption = firstChild
+	}
+
+	return *rootOption, warnings, nil
 }
 
 // DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+func (Scanner) DefaultOptions() models.OptionModel {
 	return models.OptionModel{}
 }
 
@@ -296,12 +308,12 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{}, nil
 }
 
 // ExcludedScannerNames ...
-func (scanner *Scanner) ExcludedScannerNames() []string {
+func (Scanner) ExcludedScannerNames() []string {
 	return []string{
 		string(utility.XcodeProjectTypeIOS),
 		string(utility.XcodeProjectTypeMacOS),
