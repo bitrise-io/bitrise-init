@@ -8,18 +8,18 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
-			"Comment": "v1.0.0-3-g7dd06bf",
-			"Rev": "7dd06bf38e1e13df288d471a57d5adbac106be9e"
+			"Comment": "v1.0.1-5-g10e5e38",
+			"Rev": "10e5e38b53df0f5f80e72a929c01af6c84d7f847"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.6.2-6-g45e9fec",
-			"Rev": "45e9fec2b874247d87e701c52d9a24b30afeaefc"
+			"Comment": "1.7.0",
+			"Rev": "f943f1c7a7593827c68ba2619cd7599215bf1a00"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
-			"Comment": "1.1.4-2-ga9e6184",
-			"Rev": "a9e61845c44ff4f165ecaa4c5e288eb8344c3365"
+			"Comment": "1.1.5",
+			"Rev": "2f6a9de9ada709980967773c4942936dca8daa75"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/colorstring",
@@ -67,8 +67,8 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/stepman/models",
-			"Comment": "0.9.31-2-g58796bd",
-			"Rev": "58796bd4b4ea846ca35df3ef1ce39588309db445"
+			"Comment": "0.9.32",
+			"Rev": "04ea970027a695e3e1d2dffdee4c24eb224d3652"
 		},
 		{
 			"ImportPath": "github.com/bitrise-tools/go-xcode/xcodeproj",
@@ -76,8 +76,8 @@
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Comment": "v1.1.0-1-g782f496",
-			"Rev": "782f4967f2dc4564575ca782fe2d04090b5faca8"
+			"Comment": "v1.1.0-6-gadab964",
+			"Rev": "adab96458c51a58dc1783b3335dcce5461522e75"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",
@@ -101,16 +101,16 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.19.1-52-gb892ba3",
-			"Rev": "b892ba3809cd07fcf2b064e166b0c2e16e0147bd"
+			"Comment": "v1.19.1-54-g4b90d79",
+			"Rev": "4b90d79a682b4bf685762c7452db20f2a676ecb2"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "6faef541c73732f438fb660a212750a9ba9f9362"
+			"Rev": "abf9c25f54453410d0c6668e519582a9e1115027"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
+			"Rev": "1be3d31502d6eabc0dd7ce5b0daab022e14a5538"
 		}
 	]
 }
