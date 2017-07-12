@@ -25,7 +25,7 @@ const (
 	// CachePushID ...
 	CachePushID = "cache-push"
 	// CachePushVersion ...
-	CachePushVersion = "1.1.1"
+	CachePushVersion = "1.1.3"
 )
 
 const (
@@ -39,7 +39,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.5"
+	DeployToBitriseIoVersion = "1.3.6"
 )
 
 const (
