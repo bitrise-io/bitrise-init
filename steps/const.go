@@ -8,16 +8,6 @@ const (
 )
 
 const (
-	// ChangeWorkDirID ...
-	ChangeWorkDirID = "change-workdir"
-	// ChangeWorkDirVersion ...
-	ChangeWorkDirVersion = "1.0.1"
-
-	// ChangeWorkDirInputPathKey ...
-	ChangeWorkDirInputPathKey = "path"
-)
-
-const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
@@ -157,13 +147,6 @@ const (
 	XcodeTestMacID = "xcode-test-mac"
 	// XcodeTestMacVersion ...
 	XcodeTestMacVersion = "1.1.0"
-)
-
-const (
-	// GenerateGradleWrapperID ...
-	GenerateGradleWrapperID = "generate-gradle-wrapper"
-	// GenerateGradleWrapperVersion ...
-	GenerateGradleWrapperVersion = "0.9.2"
 )
 
 const (

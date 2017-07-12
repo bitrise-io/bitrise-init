@@ -10,6 +10,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanners/macos"
 	"github.com/bitrise-core/bitrise-init/scanners/reactnative"
 	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
+	"github.com/bitrise-core/bitrise-init/steps"
 	"gopkg.in/yaml.v2"
 )
 
@@ -79,7 +80,9 @@ const CustomConfigName = "other-config"
 
 // CustomConfig ...
 func CustomConfig() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder(false)
+	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	config, err := configBuilder.Generate(CustomProjectType)
 	if err != nil {

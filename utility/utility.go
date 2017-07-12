@@ -34,12 +34,6 @@ func RelPath(basePth, pth string) (string, error) {
 	return filepath.Rel(absBasePth, absPth)
 }
 
-// CaseInsensitiveContains ...
-func CaseInsensitiveContains(s, substr string) bool {
-	s, substr = strings.ToUpper(s), strings.ToUpper(substr)
-	return strings.Contains(s, substr)
-}
-
 // ListPathInDirSortedByComponents ...
 func ListPathInDirSortedByComponents(searchDir string, relPath bool) ([]string, error) {
 	searchDir, err := filepath.Abs(searchDir)

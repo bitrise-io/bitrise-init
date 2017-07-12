@@ -42,6 +42,11 @@ const (
 )
 
 const (
+	// ConfigurationInputKey ...
+	ConfigurationInputKey = "configuration"
+)
+
+const (
 	// CarthageCommandInputKey ...
 	CarthageCommandInputKey = "carthage_command"
 	// CarthageCommandInputTitle ...
@@ -381,23 +386,24 @@ func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionM
 
 // GenerateConfigBuilder ...
 func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string, isIncludeCache bool) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder(isIncludeCache)
+	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 
 	// CI
-	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
 	if missingSharedSchemes {
-		configBuilder.AppendPreparStepList(steps.RecreateUserSchemesStepListItem(
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RecreateUserSchemesStepListItem(
 			envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		))
 	}
 
 	if hasPodfile {
-		configBuilder.AppendDependencyStepList(steps.CocoapodsInstallStepListItem())
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
 	}
 
 	if carthageCommand != "" {
-		configBuilder.AppendDependencyStepList(steps.CarthageStepListItem(
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CarthageStepListItem(
 			envmanModels.EnvironmentItemModel{CarthageCommandInputKey: carthageCommand},
 		))
 	}
@@ -410,29 +416,29 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 	if hasTest {
 		switch projectType {
 		case utility.XcodeProjectTypeIOS:
-			configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
 		case utility.XcodeProjectTypeMacOS:
-			configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 		}
 	}
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
 	// CD
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, isIncludeCache)
-
-	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
 	if missingSharedSchemes {
-		configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
 			envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		))
 	}
 
 	if hasPodfile {
-		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
 	}
 
 	if carthageCommand != "" {
-		configBuilder.AppendDependencyStepListTo(models.DeployWorkflowID, steps.CarthageStepListItem(
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CarthageStepListItem(
 			envmanModels.EnvironmentItemModel{CarthageCommandInputKey: carthageCommand},
 		))
 	}
@@ -440,18 +446,19 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 	if hasTest {
 		switch projectType {
 		case utility.XcodeProjectTypeIOS:
-			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
 		case utility.XcodeProjectTypeMacOS:
-			configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 		}
 	}
 
 	switch projectType {
 	case utility.XcodeProjectTypeIOS:
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
 	case utility.XcodeProjectTypeMacOS:
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
 	return *configBuilder
 }
@@ -495,16 +502,17 @@ func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []Co
 }
 
 // GenerateDefaultConfig ...
-func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder(true)
+func GenerateDefaultConfig(projectType utility.XcodeProjectType, isIncludeCache bool) (models.BitriseConfigMap, error) {
+	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 
 	// CI
-	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendPreparStepList(steps.RecreateUserSchemesStepListItem(
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RecreateUserSchemesStepListItem(
 		envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 	))
 
-	configBuilder.AppendDependencyStepList(steps.CocoapodsInstallStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
 
 	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
@@ -513,29 +521,30 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType) (models.Bitrise
 
 	switch projectType {
 	case utility.XcodeProjectTypeIOS:
-		configBuilder.AppendMainStepList(steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
 	case utility.XcodeProjectTypeMacOS:
-		configBuilder.AppendMainStepList(steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
 	// CD
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, true)
-
-	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
 		envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 	))
 
-	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
 
 	switch projectType {
 	case utility.XcodeProjectTypeIOS:
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
 	case utility.XcodeProjectTypeMacOS:
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
-		configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
 
 	config, err := configBuilder.Generate(string(projectType))
 	if err != nil {

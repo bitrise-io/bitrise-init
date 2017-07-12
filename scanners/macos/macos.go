@@ -67,5 +67,5 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return ios.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS)
+	return ios.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS, true)
 }

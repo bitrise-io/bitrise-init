@@ -20,16 +20,22 @@ const (
 	// DefaultConfigName ...
 	DefaultConfigName = "default-android-config"
 
-	// Step Inputs
-	gradlewPathInputKey    = "gradlew_path"
-	gradlewPathInputEnvKey = "GRADLEW_PATH"
-	gradlewPathInputTitle  = "Gradlew file path"
+	// GradlewPathInputKey ...
+	GradlewPathInputKey = "gradlew_path"
+	// GradlewPathInputEnvKey ...
+	GradlewPathInputEnvKey = "GRADLEW_PATH"
+	// GradlewPathInputTitle ...
+	GradlewPathInputTitle = "Gradlew file path"
 
-	gradleFileInputKey    = "gradle_file"
-	gradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
-	gradleFileInputTitle  = "Path to the gradle file to use"
+	// GradleFileInputKey ...
+	GradleFileInputKey = "gradle_file"
+	// GradleFileInputEnvKey ...
+	GradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
+	// GradleFileInputTitle ...
+	GradleFileInputTitle = "Path to the gradle file to use"
 
-	gradleTaskInputKey = "gradle_task"
+	// GradleTaskInputKey ...
+	GradleTaskInputKey = "gradle_task"
 )
 
 // CollectRootBuildGradleFiles - Collects the most root (mint path depth) build.gradle files
@@ -82,7 +88,7 @@ func GenerateOptions(searchDir string) (models.OptionModel, models.Warnings, err
 		return models.OptionModel{}, warnings, err
 	}
 
-	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
+	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
 
 	for _, buildGradlePth := range buildGradlePths {
 		if warning := CheckLocalProperties(buildGradlePth); warning != "" {
@@ -94,7 +100,7 @@ func GenerateOptions(searchDir string) (models.OptionModel, models.Warnings, err
 			return models.OptionModel{}, warnings, err
 		}
 
-		gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
+		gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
 		gradleFileOption.AddOption(buildGradlePth, gradlewPthOption)
 
 		configOption := models.NewConfigOption(ConfigName)
@@ -106,24 +112,25 @@ func GenerateOptions(searchDir string) (models.OptionModel, models.Warnings, err
 
 // GenerateConfigBuilder ...
 func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder(isIncludeCache)
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendPreparStepList(steps.InstallMissingAndroidToolsStepListItem())
-
-	configBuilder.AppendMainStepList(steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleDebug"},
-		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{GradleFileInputKey: "$" + GradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{GradleTaskInputKey: "assembleDebug"},
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
 	))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
-	configBuilder.AddDefaultWorkflowBuilder(models.DeployWorkflowID, true)
-	configBuilder.AppendPreparStepListTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-
-	configBuilder.AppendMainStepListTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
-		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(true)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{GradleFileInputKey: "$" + GradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{GradleTaskInputKey: "assembleRelease"},
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
 	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
 
 	return *configBuilder
 }

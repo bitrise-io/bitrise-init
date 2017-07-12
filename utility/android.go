@@ -57,20 +57,3 @@ func FilterRootBuildGradleFiles(fileList []string) ([]string, error) {
 
 	return rootGradleFiles, nil
 }
-
-// FilterGradlewFiles ...
-func FilterGradlewFiles(fileList []string) ([]string, error) {
-	allowGradlewBaseFilter := BaseFilter(gradlewBasePath, true)
-	gradlewFiles, err := FilterPaths(fileList, allowGradlewBaseFilter)
-	if err != nil {
-		return []string{}, err
-	}
-
-	fixedGradlewFiles := []string{}
-	for _, gradlewFile := range gradlewFiles {
-		fixed := FixedGradlewPath(gradlewFile)
-		fixedGradlewFiles = append(fixedGradlewFiles, fixed)
-	}
-
-	return fixedGradlewFiles, nil
-}

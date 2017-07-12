@@ -47,9 +47,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
+	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
 
-	gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
+	gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
 	gradleFileOption.AddOption("_", gradlewPthOption)
 
 	configOption := models.NewConfigOption(DefaultConfigName)
