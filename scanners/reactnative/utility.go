@@ -1,6 +1,9 @@
 package reactnative
 
-import "github.com/bitrise-core/bitrise-init/utility"
+import (
+	"github.com/bitrise-core/bitrise-init/scanners/cordova"
+	"github.com/bitrise-core/bitrise-init/utility"
+)
 
 // CollectPackageJSONFiles - Collects package.json files, with react-native dependency
 func CollectPackageJSONFiles(searchDir string) ([]string, error) {
@@ -20,7 +23,7 @@ func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 
 	relevantPackageFileList := []string{}
 	for _, packageFile := range packageFileList {
-		packages, err := utility.ParsePackagesJSON(packageFile)
+		packages, err := cordova.ParsePackagesJSON(packageFile)
 		if err != nil {
 			return nil, err
 		}

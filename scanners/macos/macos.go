@@ -3,7 +3,6 @@ package macos
 import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/utility"
 )
 
 //------------------
@@ -23,14 +22,14 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (Scanner) Name() string {
-	return string(utility.XcodeProjectTypeMacOS)
+	return string(ios.XcodeProjectTypeMacOS)
 }
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	detected, err := ios.Detect(utility.XcodeProjectTypeMacOS, searchDir)
+	detected, err := ios.Detect(ios.XcodeProjectTypeMacOS, searchDir)
 	if err != nil {
 		return false, err
 	}
@@ -45,7 +44,7 @@ func (Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	options, configDescriptors, warnings, err := ios.GenerateOptions(utility.XcodeProjectTypeMacOS, scanner.searchDir)
+	options, configDescriptors, warnings, err := ios.GenerateOptions(ios.XcodeProjectTypeMacOS, scanner.searchDir)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}
@@ -57,15 +56,15 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	return ios.GenerateDefaultOptions(utility.XcodeProjectTypeMacOS)
+	return ios.GenerateDefaultOptions(ios.XcodeProjectTypeMacOS)
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	return ios.GenerateConfig(utility.XcodeProjectTypeMacOS, scanner.configDescriptors, true)
+	return ios.GenerateConfig(ios.XcodeProjectTypeMacOS, scanner.configDescriptors, true)
 }
 
 // DefaultConfigs ...
 func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return ios.GenerateDefaultConfig(utility.XcodeProjectTypeMacOS, true)
+	return ios.GenerateDefaultConfig(ios.XcodeProjectTypeMacOS, true)
 }

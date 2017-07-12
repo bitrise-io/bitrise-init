@@ -88,7 +88,7 @@ func NewConfigDescriptorWithName(name string) ConfigDescriptor {
 }
 
 // ConfigName ...
-func (descriptor ConfigDescriptor) ConfigName(projectType utility.XcodeProjectType) string {
+func (descriptor ConfigDescriptor) ConfigName(projectType XcodeProjectType) string {
 	qualifiers := ""
 	if descriptor.HasPodfile {
 		qualifiers += "-pod"
@@ -106,7 +106,7 @@ func (descriptor ConfigDescriptor) ConfigName(projectType utility.XcodeProjectTy
 }
 
 // Detect ...
-func Detect(projectType utility.XcodeProjectType, searchDir string) (bool, error) {
+func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return false, err
@@ -114,7 +114,7 @@ func Detect(projectType utility.XcodeProjectType, searchDir string) (bool, error
 
 	log.Infoft("Filter relevant Xcode project files")
 
-	relevantXcodeprojectFiles, err := utility.FilterRelevantProjectFiles(fileList, projectType)
+	relevantXcodeprojectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
 		return false, err
 	}
@@ -181,8 +181,8 @@ func detectCarthageCommand(projectPth string) (string, string) {
 	carthageCommand := ""
 	warning := ""
 
-	if utility.HasCartfileInDirectoryOf(projectPth) {
-		if utility.HasCartfileResolvedInDirectoryOf(projectPth) {
+	if HasCartfileInDirectoryOf(projectPth) {
+		if HasCartfileResolvedInDirectoryOf(projectPth) {
 			carthageCommand = "bootstrap"
 		} else {
 			dir := filepath.Dir(projectPth)
@@ -199,7 +199,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 }
 
 // GenerateOptions ...
-func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (models.OptionModel, []ConfigDescriptor, models.Warnings, error) {
+func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionModel, []ConfigDescriptor, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
@@ -208,17 +208,17 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 	}
 
 	// Separate workspaces and standalon projects
-	projectFiles, err := utility.FilterRelevantProjectFiles(fileList, projectType)
+	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
-	workspaceFiles, err := utility.FilterRelevantWorkspaceFiles(fileList, projectType)
+	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
-	standaloneProjects, workspaces, err := utility.CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
+	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
@@ -226,7 +226,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 	// Create cocoapods workspace-project mapping
 	log.Infoft("Searching for Podfile")
 
-	podfiles, err := utility.FilterRelevantPodfiles(fileList)
+	podfiles, err := FilterRelevantPodfiles(fileList)
 	if err != nil {
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
@@ -236,7 +236,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 	for _, podfile := range podfiles {
 		log.Printft("- %s", podfile)
 
-		workspaceProjectMap, err := utility.GetWorkspaceProjectMap(podfile, projectFiles)
+		workspaceProjectMap, err := GetWorkspaceProjectMap(podfile, projectFiles)
 		if err != nil {
 			warning := fmt.Sprintf("Failed to determine cocoapods project-workspace mapping, error: %s", err)
 			warnings = append(warnings, warning)
@@ -244,7 +244,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 			continue
 		}
 
-		aStandaloneProjects, aWorkspaces, err := utility.MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
+		aStandaloneProjects, aWorkspaces, err := MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
 		if err != nil {
 			warning := fmt.Sprintf("Failed to create cocoapods project-workspace mapping, error: %s", err)
 			warnings = append(warnings, warning)
@@ -259,7 +259,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 	// Carthage
 	log.Infoft("Searching for Cartfile")
 
-	cartfiles, err := utility.FilterRelevantCartFile(fileList)
+	cartfiles, err := FilterRelevantCartFile(fileList)
 	if err != nil {
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
@@ -370,7 +370,7 @@ func GenerateOptions(projectType utility.XcodeProjectType, searchDir string) (mo
 }
 
 // GenerateDefaultOptions ...
-func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionModel {
+func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionModel {
 	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputEnvKey)
 
 	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
@@ -383,7 +383,7 @@ func GenerateDefaultOptions(projectType utility.XcodeProjectType) models.OptionM
 }
 
 // GenerateConfigBuilder ...
-func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string, isIncludeCache bool) models.ConfigBuilderModel {
+func GenerateConfigBuilder(projectType XcodeProjectType, hasPodfile, hasTest, missingSharedSchemes bool, carthageCommand string, isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 
@@ -413,9 +413,9 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 
 	if hasTest {
 		switch projectType {
-		case utility.XcodeProjectTypeIOS:
+		case XcodeProjectTypeIOS:
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
-		case utility.XcodeProjectTypeMacOS:
+		case XcodeProjectTypeMacOS:
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 		}
 	}
@@ -443,17 +443,17 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 
 	if hasTest {
 		switch projectType {
-		case utility.XcodeProjectTypeIOS:
+		case XcodeProjectTypeIOS:
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
-		case utility.XcodeProjectTypeMacOS:
+		case XcodeProjectTypeMacOS:
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 		}
 	}
 
 	switch projectType {
-	case utility.XcodeProjectTypeIOS:
+	case XcodeProjectTypeIOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
-	case utility.XcodeProjectTypeMacOS:
+	case XcodeProjectTypeMacOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
@@ -462,7 +462,7 @@ func GenerateConfigBuilder(projectType utility.XcodeProjectType, hasPodfile, has
 }
 
 // RemoveDuplicatedConfigDescriptors ...
-func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, projectType utility.XcodeProjectType) []ConfigDescriptor {
+func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, projectType XcodeProjectType) []ConfigDescriptor {
 	descritorNameMap := map[string]ConfigDescriptor{}
 	for _, descriptor := range configDescriptors {
 		name := descriptor.ConfigName(projectType)
@@ -478,7 +478,7 @@ func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, pro
 }
 
 // GenerateConfig ...
-func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []ConfigDescriptor, isIncludeCache bool) (models.BitriseConfigMap, error) {
+func GenerateConfig(projectType XcodeProjectType, configDescriptors []ConfigDescriptor, isIncludeCache bool) (models.BitriseConfigMap, error) {
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range configDescriptors {
 		configBuilder := GenerateConfigBuilder(projectType, descriptor.HasPodfile, descriptor.HasTest, descriptor.MissingSharedSchemes, descriptor.CarthageCommand, isIncludeCache)
@@ -500,7 +500,7 @@ func GenerateConfig(projectType utility.XcodeProjectType, configDescriptors []Co
 }
 
 // GenerateDefaultConfig ...
-func GenerateDefaultConfig(projectType utility.XcodeProjectType, isIncludeCache bool) (models.BitriseConfigMap, error) {
+func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 
@@ -518,9 +518,9 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType, isIncludeCache 
 	}
 
 	switch projectType {
-	case utility.XcodeProjectTypeIOS:
+	case XcodeProjectTypeIOS:
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
-	case utility.XcodeProjectTypeMacOS:
+	case XcodeProjectTypeMacOS:
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
@@ -535,10 +535,10 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType, isIncludeCache 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
 
 	switch projectType {
-	case utility.XcodeProjectTypeIOS:
+	case XcodeProjectTypeIOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
-	case utility.XcodeProjectTypeMacOS:
+	case XcodeProjectTypeMacOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
 	}
@@ -557,4 +557,32 @@ func GenerateDefaultConfig(projectType utility.XcodeProjectType, isIncludeCache 
 	return models.BitriseConfigMap{
 		fmt.Sprintf(defaultConfigNameFormat, string(projectType)): string(data),
 	}, nil
+}
+
+const cartfileBase = "Cartfile"
+const cartfileResolvedBase = "Cartfile.resolved"
+
+// AllowCartfileBaseFilter ...
+var AllowCartfileBaseFilter = utility.BaseFilter(cartfileBase, true)
+
+// HasCartfileInDirectoryOf ...
+func HasCartfileInDirectoryOf(pth string) bool {
+	dir := filepath.Dir(pth)
+	cartfilePth := filepath.Join(dir, cartfileBase)
+	exist, err := pathutil.IsPathExists(cartfilePth)
+	if err != nil {
+		return false
+	}
+	return exist
+}
+
+// HasCartfileResolvedInDirectoryOf ...
+func HasCartfileResolvedInDirectoryOf(pth string) bool {
+	dir := filepath.Dir(pth)
+	cartfileResolvedPth := filepath.Join(dir, cartfileResolvedBase)
+	exist, err := pathutil.IsPathExists(cartfileResolvedPth)
+	if err != nil {
+		return false
+	}
+	return exist
 }

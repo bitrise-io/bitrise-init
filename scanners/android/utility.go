@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -36,6 +38,8 @@ const (
 
 	// GradleTaskInputKey ...
 	GradleTaskInputKey = "gradle_task"
+
+	buildGradleBasePath = "build.gradle"
 )
 
 // CollectRootBuildGradleFiles - Collects the most root (mint path depth) build.gradle files
@@ -47,7 +51,7 @@ func CollectRootBuildGradleFiles(searchDir string) ([]string, error) {
 		return nil, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
 
-	return utility.FilterRootBuildGradleFiles(fileList)
+	return FilterRootBuildGradleFiles(fileList)
 }
 
 // CheckLocalProperties - Returns warning if local.properties exists
@@ -76,7 +80,7 @@ Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
 
-	return utility.FixedGradlewPath(gradlewPth), nil
+	return FixedGradlewPath(gradlewPth), nil
 }
 
 // GenerateOptions ...
@@ -133,4 +137,52 @@ func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
 	return *configBuilder
+}
+
+// FixedGradlewPath ...
+func FixedGradlewPath(gradlewPth string) string {
+	split := strings.Split(gradlewPth, "/")
+	if len(split) != 1 {
+		return gradlewPth
+	}
+
+	if !strings.HasPrefix(gradlewPth, "./") {
+		return "./" + gradlewPth
+	}
+	return gradlewPth
+}
+
+// FilterRootBuildGradleFiles ...
+func FilterRootBuildGradleFiles(fileList []string) ([]string, error) {
+	allowBuildGradleBaseFilter := utility.BaseFilter(buildGradleBasePath, true)
+	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter)
+	if err != nil {
+		return []string{}, err
+	}
+
+	if len(gradleFiles) == 0 {
+		return []string{}, nil
+	}
+
+	sortableFiles := []utility.SortablePath{}
+	for _, pth := range gradleFiles {
+		sortable, err := utility.NewSortablePath(pth)
+		if err != nil {
+			return []string{}, err
+		}
+		sortableFiles = append(sortableFiles, sortable)
+	}
+
+	sort.Sort(utility.BySortablePathComponents(sortableFiles))
+	mindDepth := len(sortableFiles[0].Components)
+
+	rootGradleFiles := []string{}
+	for _, sortable := range sortableFiles {
+		depth := len(sortable.Components)
+		if depth == mindDepth {
+			rootGradleFiles = append(rootGradleFiles, sortable.Pth)
+		}
+	}
+
+	return rootGradleFiles, nil
 }

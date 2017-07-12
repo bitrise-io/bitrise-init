@@ -9,6 +9,7 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -75,7 +76,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for config.xml file
 	log.Infoft("Searching for config.xml file")
 
-	configXMLPth, err := utility.FilterRootConfigXMLFile(fileList)
+	configXMLPth, err := FilterRootConfigXMLFile(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for config.xml file, error: %s", err)
 	}
@@ -87,7 +88,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	widget, err := utility.ParseConfigXML(configXMLPth)
+	widget, err := ParseConfigXML(configXMLPth)
 	if err != nil {
 		log.Printft("can not parse config.xml as a Cordova widget, error: %s", err)
 		log.Printft("platform not detected")
@@ -129,8 +130,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 // ExcludedScannerNames ...
 func (*Scanner) ExcludedScannerNames() []string {
 	return []string{
-		string(utility.XcodeProjectTypeIOS),
-		string(utility.XcodeProjectTypeMacOS),
+		string(ios.XcodeProjectTypeIOS),
+		string(ios.XcodeProjectTypeMacOS),
 		android.ScannerName,
 	}
 }
@@ -141,7 +142,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	projectRootDir := filepath.Dir(scanner.cordovaConfigPth)
 
 	packagesJSONPth := filepath.Join(projectRootDir, "package.json")
-	packages, err := utility.ParsePackagesJSON(packagesJSONPth)
+	packages, err := ParsePackagesJSON(packagesJSONPth)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}

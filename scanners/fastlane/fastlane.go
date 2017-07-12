@@ -66,7 +66,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for Fastfile
 	log.Infoft("Searching for Fastfiles")
 
-	fastfiles, err := utility.FilterFastfiles(fileList)
+	fastfiles, err := FilterFastfiles(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for Fastfile in (%s), error: %s", searchDir, err)
 	}
@@ -106,10 +106,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	for _, fastfile := range scanner.Fastfiles {
 		log.Infoft("Inspecting Fastfile: %s", fastfile)
 
-		workDir := utility.FastlaneWorkDir(fastfile)
+		workDir := WorkDir(fastfile)
 		log.Printft("fastlane work dir: %s", workDir)
 
-		lanes, err := utility.InspectFastfile(fastfile)
+		lanes, err := InspectFastfile(fastfile)
 		if err != nil {
 			log.Warnft("Failed to inspect Fastfile, error: %s", err)
 			warnings = append(warnings, fmt.Sprintf("Failed to inspect Fastfile (%s), error: %s", fastfile, err))

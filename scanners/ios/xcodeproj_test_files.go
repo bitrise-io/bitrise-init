@@ -1,4 +1,4 @@
-package utility
+package ios
 
 const testMacOSPbxprojContent = `// !$*UTF8*$!
 {

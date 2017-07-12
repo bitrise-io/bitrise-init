@@ -94,7 +94,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// Search for solution file
 	log.Infoft("Searching for solution files")
 
-	solutionFiles, err := utility.FilterSolutionFiles(fileList)
+	solutionFiles, err := FilterSolutionFiles(fileList)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for solution files, error: %s", err)
 	}
@@ -169,7 +169,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	for _, solutionFile := range scanner.SolutionFiles {
 		log.Infoft("Inspecting solution file: %s", solutionFile)
 
-		configs, err := utility.GetSolutionConfigs(solutionFile)
+		configs, err := GetSolutionConfigs(solutionFile)
 		if err != nil {
 			log.Warnft("Failed to get solution configs, error: %s", err)
 			warnings = append(warnings, fmt.Sprintf("Failed to get solution (%s) configs, error: %s", solutionFile, err))

@@ -9,9 +9,9 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
-	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -60,7 +60,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	for _, packageJSONPth := range scanner.packageJSONPths {
 		// react options
-		packages, err := utility.ParsePackagesJSON(packageJSONPth)
+		packages, err := cordova.ParsePackagesJSON(packageJSONPth)
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
@@ -421,8 +421,8 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 // ExcludedScannerNames ...
 func (Scanner) ExcludedScannerNames() []string {
 	return []string{
-		string(utility.XcodeProjectTypeIOS),
-		string(utility.XcodeProjectTypeMacOS),
+		string(ios.XcodeProjectTypeIOS),
+		string(ios.XcodeProjectTypeMacOS),
 		android.ScannerName,
 	}
 }
