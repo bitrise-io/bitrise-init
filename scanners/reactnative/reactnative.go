@@ -187,7 +187,18 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	return models.OptionModel{}
+	gradleFileOption := models.NewOption(android.GradleFileInputTitle, android.GradleFileInputEnvKey)
+
+	gradlewPthOption := models.NewOption(android.GradlewPathInputTitle, android.GradlewPathInputEnvKey)
+	gradleFileOption.AddOption("_", gradlewPthOption)
+
+	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+	gradlewPthOption.AddOption("_", projectPathOption)
+
+	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
+	projectPathOption.AddOption("_", schemeOption)
+
+	return *gradleFileOption
 }
 
 // Configs ...
@@ -302,14 +313,53 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	}
 
 	configName := configName(scanner.androidScanner != nil, descriptor)
-	configMap := models.BitriseConfigMap{}
-	configMap[configName] = string(data)
+	configMap := models.BitriseConfigMap{
+		configName: string(data),
+	}
 	return configMap, nil
 }
 
 // DefaultConfigs ...
 func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return models.BitriseConfigMap{}, nil
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+
+	// android
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
+		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+	))
+
+	// ios
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
+		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "release"},
+	))
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+
+	bitriseDataModel, err := configBuilder.Generate(Name)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(bitriseDataModel)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	iosDefultConfigDescriptor := ios.NewConfigDescriptor(false, "", false, false)
+	configName := configName(true, &iosDefultConfigDescriptor)
+	configMap := models.BitriseConfigMap{
+		configName: string(data),
+	}
+	return configMap, nil
 }
 
 // ExcludedScannerNames ...
