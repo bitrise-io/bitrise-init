@@ -13,6 +13,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -42,14 +43,64 @@ func (Scanner) Name() string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
+	log.Infoft("Collect package.json files")
+
 	packageJSONPths, err := CollectPackageJSONFiles(searchDir)
 	if err != nil {
 		return false, err
 	}
 
-	scanner.packageJSONPths = packageJSONPths
+	log.Printft("%d package.json file detected", len(packageJSONPths))
 
-	return (len(packageJSONPths) > 0), nil
+	log.Infoft("Filter relevant package.json files")
+
+	relevantPackageJSONPths := []string{}
+	iosScanner := ios.NewScanner()
+	androidScanner := android.NewScanner()
+	for _, packageJSONPth := range packageJSONPths {
+		log.Printft("checking: %s", packageJSONPth)
+
+		projectDir := filepath.Dir(packageJSONPth)
+
+		iosProjectDetected := false
+		iosDir := filepath.Join(projectDir, "ios")
+		if exist, err := pathutil.IsDirExists(iosDir); err != nil {
+			return false, err
+		} else if exist {
+			if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
+				return false, err
+			} else if detected {
+				iosProjectDetected = true
+			}
+		}
+
+		androidProjectDetected := false
+		androidDir := filepath.Join(projectDir, "android")
+		if exist, err := pathutil.IsDirExists(androidDir); err != nil {
+			return false, err
+		} else if exist {
+			if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
+				return false, err
+			} else if detected {
+				androidProjectDetected = true
+			}
+		}
+
+		if iosProjectDetected || androidProjectDetected {
+			relevantPackageJSONPths = append(relevantPackageJSONPths, packageJSONPth)
+		} else {
+			log.Warnft("no ios nor android project found, skipping package.json file")
+		}
+	}
+
+	scanner.packageJSONPths = relevantPackageJSONPths
+
+	if len(packageJSONPths) > 0 {
+		log.Doneft("Platform detected")
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // Options ...
@@ -118,7 +169,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		}
 
 		if androidOptions == nil && iosOptions == nil {
-			return models.OptionModel{}, warnings, errors.New("no ios nor android config options found")
+			return models.OptionModel{}, warnings, errors.New("no ios nor android project detected")
 		}
 		// ---
 
