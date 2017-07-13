@@ -567,7 +567,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - configuration: release
+              - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:

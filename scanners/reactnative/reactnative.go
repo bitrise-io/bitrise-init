@@ -255,7 +255,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "release"},
+					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 				))
 
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
@@ -328,7 +328,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
 					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "release"},
+					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 				))
 
 				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
@@ -396,7 +396,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "release"},
+		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
