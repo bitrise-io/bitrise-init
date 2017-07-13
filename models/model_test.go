@@ -131,11 +131,11 @@ func TestLastOptions(t *testing.T) {
 	"title": "Gradlew file path",
 	"env_key": "GRADLEW_PATH",
 	"value_map": {
-		"/Users/godrei/Develop/react/AwesomeProject/android/gradlew": {
+		"$HOME/Develop/react/AwesomeProject/android/gradlew": {
 			"title": "Path to the gradle file to use",
 			"env_key": "GRADLE_BUILD_FILE_PATH",
 			"value_map": {
-				"/Users/godrei/Develop/react/AwesomeProject/android/build.gradle": {
+				"$HOME/Develop/react/AwesomeProject/android/build.gradle": {
 					"config": "android-config"
 				}
 			}
@@ -156,7 +156,7 @@ func TestLastOptions(t *testing.T) {
 	"title": "Path to the gradle file to use",
 	"env_key": "GRADLE_BUILD_FILE_PATH",
 	"value_map": {
-		"/Users/godrei/Develop/react/AwesomeProject/android/build.gradle": {
+		"$HOME/Develop/react/AwesomeProject/android/build.gradle": {
 			"config": "android-config"
 		}
 	}
@@ -168,15 +168,15 @@ func TestLastOptions(t *testing.T) {
 	"title": "project_dir",
 	"env_key": "PROJECT_DIR",
 	"value_map": {
-		"/Users/godrei/Develop/react/AwesomeProject": {
+		"$HOME/Develop/react/AwesomeProject": {
 			"title": "Gradlew file path",
 			"env_key": "GRADLEW_PATH",
 			"value_map": {
-				"/Users/godrei/Develop/react/AwesomeProject/android/gradlew": {
+				"$HOME/Develop/react/AwesomeProject/android/gradlew": {
 					"title": "Path to the gradle file to use",
 					"env_key": "GRADLE_BUILD_FILE_PATH",
 					"value_map": {
-						"/Users/godrei/Develop/react/AwesomeProject/android/build.gradle": {}
+						"$HOME/Develop/react/AwesomeProject/android/build.gradle": {}
 					}
 				}
 			}
@@ -197,7 +197,7 @@ func TestLastOptions(t *testing.T) {
 	"title": "Path to the gradle file to use",
 	"env_key": "GRADLE_BUILD_FILE_PATH",
 	"value_map": {
-		"/Users/godrei/Develop/react/AwesomeProject/android/build.gradle": {}
+		"$HOME/Develop/react/AwesomeProject/android/build.gradle": {}
 	}
 }`])
 	}
