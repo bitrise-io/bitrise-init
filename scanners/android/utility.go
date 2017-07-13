@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -155,7 +156,8 @@ func FixedGradlewPath(gradlewPth string) string {
 // FilterRootBuildGradleFiles ...
 func FilterRootBuildGradleFiles(fileList []string) ([]string, error) {
 	allowBuildGradleBaseFilter := utility.BaseFilter(buildGradleBasePath, true)
-	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter)
+	denyNodeModulesComponent := utility.ComponentFilter(xamarin.NodeModulesDirName, false)
+	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter, denyNodeModulesComponent)
 	if err != nil {
 		return []string{}, err
 	}
