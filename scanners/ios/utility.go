@@ -51,6 +51,12 @@ const (
 	CarthageCommandInputKey = "carthage_command"
 )
 
+const cartfileBase = "Cartfile"
+const cartfileResolvedBase = "Cartfile.resolved"
+
+// AllowCartfileBaseFilter ...
+var AllowCartfileBaseFilter = utility.BaseFilter(cartfileBase, true)
+
 // ConfigDescriptor ...
 type ConfigDescriptor struct {
 	HasPodfile           bool
@@ -103,6 +109,28 @@ func (descriptor ConfigDescriptor) ConfigName(projectType XcodeProjectType) stri
 		qualifiers += "-missing-shared-schemes"
 	}
 	return fmt.Sprintf(configNameFormat, string(projectType), qualifiers)
+}
+
+// HasCartfileInDirectoryOf ...
+func HasCartfileInDirectoryOf(pth string) bool {
+	dir := filepath.Dir(pth)
+	cartfilePth := filepath.Join(dir, cartfileBase)
+	exist, err := pathutil.IsPathExists(cartfilePth)
+	if err != nil {
+		return false
+	}
+	return exist
+}
+
+// HasCartfileResolvedInDirectoryOf ...
+func HasCartfileResolvedInDirectoryOf(pth string) bool {
+	dir := filepath.Dir(pth)
+	cartfileResolvedPth := filepath.Join(dir, cartfileResolvedBase)
+	exist, err := pathutil.IsPathExists(cartfileResolvedPth)
+	if err != nil {
+		return false
+	}
+	return exist
 }
 
 // Detect ...
@@ -557,32 +585,4 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 	return models.BitriseConfigMap{
 		fmt.Sprintf(defaultConfigNameFormat, string(projectType)): string(data),
 	}, nil
-}
-
-const cartfileBase = "Cartfile"
-const cartfileResolvedBase = "Cartfile.resolved"
-
-// AllowCartfileBaseFilter ...
-var AllowCartfileBaseFilter = utility.BaseFilter(cartfileBase, true)
-
-// HasCartfileInDirectoryOf ...
-func HasCartfileInDirectoryOf(pth string) bool {
-	dir := filepath.Dir(pth)
-	cartfilePth := filepath.Join(dir, cartfileBase)
-	exist, err := pathutil.IsPathExists(cartfilePth)
-	if err != nil {
-		return false
-	}
-	return exist
-}
-
-// HasCartfileResolvedInDirectoryOf ...
-func HasCartfileResolvedInDirectoryOf(pth string) bool {
-	dir := filepath.Dir(pth)
-	cartfileResolvedPth := filepath.Join(dir, cartfileResolvedBase)
-	exist, err := pathutil.IsPathExists(cartfileResolvedPth)
-	if err != nil {
-		return false
-	}
-	return exist
 }
