@@ -1,6 +1,11 @@
-## Changelog (Current version: 1.5.1)
+## Changelog (Current version: 1.5.2)
 
 -----------------
+
+### 1.5.2 (2017 Jul 25)
+
+* [2e21ee8] prepare for 1.5.2
+* [48ae9e7] step version updates
 
 ### 1.5.1 (2017 Jul 25)
 
