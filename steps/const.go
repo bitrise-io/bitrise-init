@@ -190,10 +190,3 @@ const (
 	// NpmVersion ...
 	NpmVersion = "0.9.0"
 )
-
-const (
-	// InstallReactNativeID ...
-	InstallReactNativeID = "install-react-native"
-	// InstallReactNativeVersion ...
-	InstallReactNativeVersion = "0.9.1"
-)
