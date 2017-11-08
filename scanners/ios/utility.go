@@ -50,7 +50,11 @@ const (
 	ExportMethodInputTitle = "Export method"
 )
 
-var exportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
+// IosExportMethods ...
+var IosExportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
+
+// MacExportMethods ...
+var MacExportMethods = []string{"app-store", "developer-id", "none", "development"}
 
 const (
 	// ConfigurationInputKey ...
@@ -262,6 +266,13 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
+	exportMethods := []string{}
+	if projectType == XcodeProjectTypeIOS {
+		exportMethods = IosExportMethods
+	} else {
+		exportMethods = MacExportMethods
+	}
+
 	// Create cocoapods workspace-project mapping
 	log.Infoft("Searching for Podfile")
 
@@ -437,8 +448,20 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionModel {
 	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
 	projectPathOption.AddOption("_", schemeOption)
 
-	configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)))
-	schemeOption.AddConfig("_", configOption)
+	exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+	schemeOption.AddOption("_", exportMethodOption)
+
+	exportMethods := []string{}
+	if projectType == XcodeProjectTypeIOS {
+		exportMethods = IosExportMethods
+	} else {
+		exportMethods = MacExportMethods
+	}
+
+	for _, exportMethod := range exportMethods {
+		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)))
+		exportMethodOption.AddConfig(exportMethod, configOption)
+	}
 
 	return *projectPathOption
 }
@@ -583,16 +606,17 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
 
-	xcodeTestAndArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
+	xcodeTestStepInputModels := []envmanModels.EnvironmentItemModel{
 		envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
+	xcodeArchiveStepInputModels := append(xcodeTestStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	switch projectType {
 	case XcodeProjectTypeIOS:
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestStepListItem(xcodeTestStepInputModels...))
 	case XcodeProjectTypeMacOS:
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestStepInputModels...))
 	}
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
@@ -607,12 +631,12 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 
 	switch projectType {
 	case XcodeProjectTypeIOS:
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestStepInputModels...))
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 	case XcodeProjectTypeMacOS:
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeTestAndArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
 	}
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
