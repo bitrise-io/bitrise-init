@@ -241,7 +241,7 @@ func (Scanner) DefaultOptions() models.OptionModel {
 	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
 	projectPathOption.AddOption("_", schemeOption)
 
-	exportMethodOption := models.NewOption(ios.ExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
 	schemeOption.AddOption("_", exportMethodOption)
 
 	for _, exportMethod := range ios.IosExportMethods {

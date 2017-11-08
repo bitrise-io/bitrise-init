@@ -46,15 +46,17 @@ const (
 	ExportMethodInputKey = "export_method"
 	// ExportMethodInputEnvKey ...
 	ExportMethodInputEnvKey = "BITRISE_EXPORT_METHOD"
-	// ExportMethodInputTitle ...
-	ExportMethodInputTitle = "Export method"
+	// IosExportMethodInputTitle ...
+	IosExportMethodInputTitle = "ipa export method"
+	// MacExportMethodInputTitle ...
+	MacExportMethodInputTitle = "Application export method\nNOTE: `none` means: Export a copy of the application without re-signing."
 )
 
 // IosExportMethods ...
 var IosExportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
 
 // MacExportMethods ...
-var MacExportMethods = []string{"app-store", "developer-id", "none", "development"}
+var MacExportMethods = []string{"app-store", "developer-id", "development", "none"}
 
 const (
 	// ConfigurationInputKey ...
@@ -266,10 +268,13 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
+	exportMethodInputTitle := ""
 	exportMethods := []string{}
 	if projectType == XcodeProjectTypeIOS {
+		exportMethodInputTitle = IosExportMethodInputTitle
 		exportMethods = IosExportMethods
 	} else {
+		exportMethodInputTitle = MacExportMethodInputTitle
 		exportMethods = MacExportMethods
 	}
 
@@ -348,7 +353,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 			for _, target := range project.Targets {
 
-				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(target.Name, exportMethodOption)
 
 				for _, exportMethod := range exportMethods {
@@ -363,7 +368,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			for _, scheme := range project.SharedSchemes {
 				log.Printft("- %s", scheme.Name)
 
-				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
 				for _, exportMethod := range exportMethods {
@@ -402,7 +407,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			}
 
 			for _, target := range targets {
-				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(target.Name, exportMethodOption)
 
 				for _, exportMethod := range exportMethods {
@@ -417,7 +422,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			for _, scheme := range sharedSchemes {
 				log.Printft("- %s", scheme.Name)
 
-				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
 				for _, exportMethod := range exportMethods {
@@ -448,15 +453,18 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionModel {
 	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
 	projectPathOption.AddOption("_", schemeOption)
 
-	exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
-	schemeOption.AddOption("_", exportMethodOption)
-
+	exportMethodInputTitle := ""
 	exportMethods := []string{}
 	if projectType == XcodeProjectTypeIOS {
+		exportMethodInputTitle = IosExportMethodInputTitle
 		exportMethods = IosExportMethods
 	} else {
+		exportMethodInputTitle = MacExportMethodInputTitle
 		exportMethods = MacExportMethods
 	}
+
+	exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
+	schemeOption.AddOption("_", exportMethodOption)
 
 	for _, exportMethod := range exportMethods {
 		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)))

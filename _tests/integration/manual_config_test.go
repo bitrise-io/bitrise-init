@@ -236,7 +236,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           _:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -256,7 +256,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           _:
-            title: Export method
+            title: |-
+              Application export method
+              NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               app-store:
@@ -284,7 +286,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 env_key: BITRISE_SCHEME
                 value_map:
                   _:
-                    title: Export method
+                    title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:

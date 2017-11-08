@@ -93,7 +93,7 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                 env_key: BITRISE_SCHEME
                 value_map:
                   SampleAppsReactNativeAndroid:
-                    title: Export method
+                    title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:
@@ -105,7 +105,7 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                       enterprise:
                         config: react-native-android-ios-test-config
                   SampleAppsReactNativeAndroid-tvOS:
-                    title: Export method
+                    title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:
@@ -212,7 +212,7 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                 env_key: BITRISE_SCHEME
                 value_map:
                   SampleAppsReactNativeAndroid:
-                    title: Export method
+                    title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:
@@ -224,7 +224,7 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                       enterprise:
                         config: react-native-android-ios-test-config
                   SampleAppsReactNativeAndroid-tvOS:
-                    title: Export method
+                    title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:

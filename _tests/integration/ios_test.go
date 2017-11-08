@@ -124,7 +124,7 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           BitriseXcode7Sample:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -230,7 +230,7 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           iOSMinimalCocoaPodsSample:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -336,7 +336,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           Complication - watch-test WatchKit App:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -348,7 +348,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Glance - watch-test WatchKit App:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -360,7 +360,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Notification - watch-test WatchKit App:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -372,7 +372,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           watch-test:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -384,7 +384,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-test-config
           watch-test WatchKit App:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
@@ -506,7 +506,7 @@ var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           sample-apps-carthage:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:

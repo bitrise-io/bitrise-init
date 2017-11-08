@@ -89,7 +89,7 @@ var fastlaneResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         value_map:
           BitriseFastlaneSample:
-            title: Export method
+            title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               ad-hoc:
