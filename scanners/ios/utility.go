@@ -42,6 +42,17 @@ const (
 )
 
 const (
+	// ExportMethodInputKey ...
+	ExportMethodInputKey = "export_method"
+	// ExportMethodInputEnvKey ...
+	ExportMethodInputEnvKey = "BITRISE_EXPORT_METHOD"
+	// ExportMethodInputTitle ...
+	ExportMethodInputTitle = "Export method"
+)
+
+var exportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
+
+const (
 	// ConfigurationInputKey ...
 	ConfigurationInputKey = "configuration"
 )
@@ -325,21 +336,33 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			}
 
 			for _, target := range project.Targets {
-				configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
-				configDescriptors = append(configDescriptors, configDescriptor)
 
-				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-				schemeOption.AddConfig(target.Name, configOption)
+				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				schemeOption.AddOption(target.Name, exportMethodOption)
+
+				for _, exportMethod := range exportMethods {
+					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
+					configDescriptors = append(configDescriptors, configDescriptor)
+
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					exportMethodOption.AddConfig(exportMethod, configOption)
+				}
 			}
 		} else {
 			for _, scheme := range project.SharedSchemes {
 				log.Printft("- %s", scheme.Name)
 
-				configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, false)
-				configDescriptors = append(configDescriptors, configDescriptor)
+				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
-				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-				schemeOption.AddConfig(scheme.Name, configOption)
+				for _, exportMethod := range exportMethods {
+					configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, false)
+					configDescriptors = append(configDescriptors, configDescriptor)
+
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					exportMethodOption.AddConfig(exportMethod, configOption)
+
+				}
 			}
 		}
 	}
@@ -368,21 +391,31 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			}
 
 			for _, target := range targets {
-				configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
-				configDescriptors = append(configDescriptors, configDescriptor)
+				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				schemeOption.AddOption(target.Name, exportMethodOption)
 
-				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-				schemeOption.AddConfig(target.Name, configOption)
+				for _, exportMethod := range exportMethods {
+					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
+					configDescriptors = append(configDescriptors, configDescriptor)
+
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					exportMethodOption.AddConfig(exportMethod, configOption)
+				}
 			}
 		} else {
 			for _, scheme := range sharedSchemes {
 				log.Printft("- %s", scheme.Name)
 
-				configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
-				configDescriptors = append(configDescriptors, configDescriptor)
+				exportMethodOption := models.NewOption(ExportMethodInputTitle, ExportMethodInputEnvKey)
+				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
-				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-				schemeOption.AddConfig(scheme.Name, configOption)
+				for _, exportMethod := range exportMethods {
+					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
+					configDescriptors = append(configDescriptors, configDescriptor)
+
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					exportMethodOption.AddConfig(exportMethod, configOption)
+				}
 			}
 		}
 	}
@@ -438,6 +471,7 @@ func GenerateConfigBuilder(projectType XcodeProjectType, hasPodfile, hasTest, mi
 		envmanModels.EnvironmentItemModel{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
+	xcodeArchiveStepInputModels := append(xcodeStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	if hasTest {
 		switch projectType {
@@ -449,9 +483,9 @@ func GenerateConfigBuilder(projectType XcodeProjectType, hasPodfile, hasTest, mi
 	} else {
 		switch projectType {
 		case XcodeProjectTypeIOS:
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(xcodeStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 		case XcodeProjectTypeMacOS:
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
 		}
 	}
 
@@ -487,9 +521,9 @@ func GenerateConfigBuilder(projectType XcodeProjectType, hasPodfile, hasTest, mi
 
 		switch projectType {
 		case XcodeProjectTypeIOS:
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 		case XcodeProjectTypeMacOS:
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
 		}
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
@@ -574,6 +608,7 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 	switch projectType {
 	case XcodeProjectTypeIOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeTestAndArchiveStepInputModels...))
+
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeTestAndArchiveStepInputModels...))
 	case XcodeProjectTypeMacOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestAndArchiveStepInputModels...))
