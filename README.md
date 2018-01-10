@@ -12,18 +12,19 @@ which contains workflows for this project.
 You can run `bitrise` workflows on your local machine using [bitrise CLI](https://www.bitrise.io/cli).
 
 Before you start, make sure 
-- `$HOME/go/bin` is added to `$PATH`
-- `Ruby >= 2.2.2` version is installed (required for integration tests)
-
-**How to build the project using Go commands**
-- `go build` command builds the project and generates `bitrise-init` binary at `$HOME/go/bin/bitrise-init`.
-- `go test ./...` command runs unit tests in every project folder/subfolder.
-- `go test -v ./_tests/integration/...` command runs integration tests. This command requires `INTEGRATION_TEST_BINARY_PATH=$HOME/go/bin/bitrise-init` environment variable.
+- `$HOME/go/bin` (or `$GOPATH/bin` in case of custom go workspace) is added to `$PATH`
+- `Ruby >= 2.2.2` version is installed
+- `bundler` gem installed
 
 **How to build the project using bitrise workflows**
 
 Please check available workflows in [bitrise.yml](./bitrise.yml). 
 `bitrise --ci run ci` will execute `ci` workflow which consists of `prepare/build/run tests` stages.
+
+**How to build the project using Go commands**
+- `go build` command builds the project and generates `bitrise-init` binary at `$HOME/go/bin/bitrise-init`  (or `$GOPATH/bin/bitrise-init` in case of custom go workspace).
+- `go test ./...` command runs unit tests in every project folder/subfolder.
+- `go test -v ./_tests/integration/...` command runs integration tests. This command requires `INTEGRATION_TEST_BINARY_PATH=$HOME/go/bin/bitrise-init` (or `INTEGRATION_TEST_BINARY_PATH=$GOPATH/bin/bitrise-init` in case of custom go workspace) environment variable.
 
 ## How to release new bitrise-init version
 
