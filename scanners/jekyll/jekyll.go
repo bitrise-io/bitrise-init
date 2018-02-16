@@ -7,6 +7,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
 	"strings"
+	"gopkg.in/yaml.v2"
 )
 
 // Scanner ...
@@ -90,10 +91,39 @@ func (Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	return models.BitriseConfigMap{}, nil
+	configBuilder := GenerateConfigBuilder(true)
+
+	config, err := configBuilder.Generate(ScannerName)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	return models.BitriseConfigMap{
+		ConfigName: string(data),
+	}, nil
+
 }
 
 // DefaultConfigs ...
 func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return models.BitriseConfigMap{}, nil
+	configBuilder := GenerateConfigBuilder(true)
+
+	config, err := configBuilder.Generate(ScannerName)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	return models.BitriseConfigMap{
+		DefaultConfigName: string(data),
+	}, nil
 }
