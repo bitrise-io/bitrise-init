@@ -6,6 +6,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
+	"strings"
 )
 
 // Scanner ...
@@ -41,17 +42,33 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TPrintf("%s found", configYmlFile)
 
 	// Search for Jekyll in Gemfile
-	log.TInfof("Searching for %s file", gemfile)
-	gemfilePath, err := filterProjectFile(gemfile, fileList)
+	log.TInfof("Searching for %s file", gemfileFile)
+	gemfilePath, err := filterProjectFile(gemfileFile, fileList)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for %s file, error: %s", gemfile, err)
+		return false, fmt.Errorf("failed to search for %s file, error: %s", gemfileFile, err)
 	}
-	log.TPrintf("%s found", gemfile)
+	log.TPrintf("%s found", gemfileFile)
 
 	if configYmlPath == "" || gemfilePath == "" {
 		log.TPrintf("platform not detected")
 		return false, nil
 	}
+
+	gemfileContent, err := readGemfileToString()
+	if err != nil {
+		log.TPrintf("can not read Gemfile, error: %s", err)
+		log.TPrintf("platform not detected")
+		return false, nil
+	}
+
+	// ensure jekyll gem is in Gemfile
+	if !strings.Contains(gemfileContent, jekyllGemName) {
+		log.TPrintf("%s does not contain %s gem", gemfileFile, jekyllGemName)
+		log.TPrintf("platform not detected")
+		return false, nil
+	}
+
+	log.TSuccessf("Platform detected")
 
 	return true, nil
 }
