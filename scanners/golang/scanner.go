@@ -5,12 +5,15 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v2"
 )
 
 const scannerName = "go"
+
+const (
+	configName = "go-config"
+)
 
 // Scanner ...
 type Scanner struct {
@@ -43,12 +46,16 @@ func (*Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return models.OptionModel{}, models.Warnings{}, nil
+	return scanner.DefaultOptions(), models.Warnings{}, nil
 }
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionModel {
-	return models.OptionModel{}
+	return models.OptionModel{
+		Title:  "_",
+		EnvKey: "_",
+		Config: configName,
+	}
 }
 
 // Configs ...
@@ -66,7 +73,7 @@ func confGen() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{})
+	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -77,6 +84,6 @@ func confGen() (models.BitriseConfigMap, error) {
 	}
 
 	return models.BitriseConfigMap{
-		`go-config`: string(data),
+		configName: string(data),
 	}, nil
 }

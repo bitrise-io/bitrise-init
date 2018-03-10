@@ -78,6 +78,12 @@ var customConfigVersions = []interface{}{
 	steps.FastlaneVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// go
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+
 	// ionic
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -213,6 +219,10 @@ var customConfigResultYML = fmt.Sprintf(`options:
         value_map:
           _:
             config: default-fastlane-config
+  go:
+    title: _
+    env_key: _
+    config: go-config
   ionic:
     title: Directory of Ionic Config.xml
     env_key: IONIC_WORK_DIR
@@ -412,6 +422,24 @@ configs:
               - lane: $FASTLANE_LANE
               - work_dir: $FASTLANE_WORK_DIR
           - deploy-to-bitrise-io@%s: {}
+  go:
+    go-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: go
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
   ionic:
     default-ionic-config: |
       format_version: "%s"
