@@ -3,10 +3,11 @@ package jekyll
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
-	"strings"
 	"gopkg.in/yaml.v2"
 )
 
@@ -81,12 +82,12 @@ func (Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return models.OptionModel{}, nil, nil
+	return models.OptionModel{Config: ConfigName}, nil, nil
 }
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	return models.OptionModel{}
+	return models.OptionModel{Config: DefaultConfigName}
 }
 
 // Configs ...
