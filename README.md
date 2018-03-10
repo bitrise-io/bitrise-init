@@ -2,23 +2,23 @@
 
 Initialize bitrise config, step template or plugin template
 
-## How to build this project 
-Project is written in [Go](https://golang.org/) language and 
-uses [godep](https://github.com/tools/godep) as dependency management tool.
+## How to build this project
+Project is written in [Go](https://golang.org/) language and
+uses [dep](github.com/golang/dep/cmd/dep) as dependency management tool.
 
 You can build this project using sequence of `go` commands or refer to [bitrise.yml](./bitrise.yml) file,
 which contains workflows for this project.
 
 You can run `bitrise` workflows on your local machine using [bitrise CLI](https://www.bitrise.io/cli).
 
-Before you start, make sure 
+Before you start, make sure
 - `$HOME/go/bin` (or `$GOPATH/bin` in case of custom go workspace) is added to `$PATH`
 - `Ruby >= 2.2.2` version is installed
 - `bundler` gem installed
 
 **How to build the project using bitrise workflows**
 
-Please check available workflows in [bitrise.yml](./bitrise.yml). 
+Please check available workflows in [bitrise.yml](./bitrise.yml).
 `bitrise --ci run ci` will execute `ci` workflow which consists of `prepare/build/run tests` stages.
 
 **How to build the project using Go commands**
