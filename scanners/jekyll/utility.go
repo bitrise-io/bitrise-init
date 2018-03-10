@@ -20,6 +20,7 @@ const (
 	gemfileFile   = "Gemfile"
 	jekyllGemName = "jekyll"
 
+	jekyllInitialBuildScriptName = "Install dependencies & build"
 	jekyllInitialBuildCommand =
 		"#!/usr/bin/env bash\n" +
 		"# fail if any commands fails\n" +
@@ -34,13 +35,13 @@ func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ScriptSteplistItem("",
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ScriptSteplistItem(jekyllInitialBuildScriptName,
 		envmanModels.EnvironmentItemModel{"content": jekyllInitialBuildCommand},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem("",
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem(jekyllInitialBuildScriptName,
 		envmanModels.EnvironmentItemModel{"content": jekyllInitialBuildCommand},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
