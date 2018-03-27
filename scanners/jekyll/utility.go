@@ -4,7 +4,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-io/go-utils/fileutil"
 	envmanModels "github.com/bitrise-io/envman/models"
 )
 
@@ -18,7 +17,6 @@ const (
 
 	configYmlFile = "_config.yml"
 	gemfileFile   = "Gemfile"
-	jekyllGemName = "jekyll"
 
 	jekyllInitialBuildScriptName = "Install dependencies & build"
 	jekyllInitialBuildCommand =
@@ -62,12 +60,4 @@ func filterProjectFile(fileName string, fileList []string) (string, error) {
 	}
 
 	return filePaths[0], nil
-}
-
-func readGemfileToString() (string, error) {
-	content, err := fileutil.ReadStringFromFile(gemfileFile)
-	if err != nil {
-		return "", err
-	}
-	return content, nil
 }

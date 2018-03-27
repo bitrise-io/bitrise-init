@@ -3,8 +3,6 @@ package jekyll
 import (
 	"fmt"
 
-	"strings"
-
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
@@ -52,20 +50,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TPrintf("%s found", gemfileFile)
 
 	if configYmlPath == "" || gemfilePath == "" {
-		log.TPrintf("platform not detected")
-		return false, nil
-	}
-
-	gemfileContent, err := readGemfileToString()
-	if err != nil {
-		log.TPrintf("can not read Gemfile, error: %s", err)
-		log.TPrintf("platform not detected")
-		return false, nil
-	}
-
-	// ensure jekyll gem is in Gemfile
-	if !strings.Contains(gemfileContent, jekyllGemName) {
-		log.TPrintf("%s does not contain %s gem", gemfileFile, jekyllGemName)
 		log.TPrintf("platform not detected")
 		return false, nil
 	}
