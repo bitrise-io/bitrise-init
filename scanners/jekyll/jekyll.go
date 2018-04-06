@@ -30,10 +30,18 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
 
-	// Search for _config.yml file
-	// Note: hexo.io also uses _config.yml, but package.json for dependencies.
+	// typical Jekyll project structure:
+	// "_config.yml" = mandatory
+	// either "_posts" or "_layouts" dir = mandatory
+	// "_includes"/"_data"/"_OTHER_DIRS" dirs = optional
+	// "Gemfile" / "jekyll gem in Gemfile" = optional
+
+	// Note: hexo.io also uses _config.yml, but package.json for dependencies and layout folder instead of _layouts.
 	// This means having config file is not enough to detect Jekyll platform.
-	// _config.yml + Gemfile (with jekyll gem) = Jekyll platform
+	// _config.yml + ("_posts" || "_layouts") = Jekyll platform
+	// _config.yml + package.json + layout = hexo.io platform
+
+	// Search for _config.yml file
 	log.TInfof("Searching for %s file", configYmlFile)
 	configYmlPath, err := filterProjectFile(configYmlFile, fileList)
 	if err != nil {
