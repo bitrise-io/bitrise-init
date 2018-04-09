@@ -1,6 +1,230 @@
-## Changelog (Current version: 1.10.1)
+## Changelog (Current version: 1.14.0)
 
 -----------------
+
+## 1.14.0 (2018 Mar 12)
+
+### Release Notes
+
+* __Run apt-get update before install apt-get dependencies__
+
+__tools update__
+
+- envman update to version [1.1.11](https://github.com/bitrise-io/envman/releases/tag/1.1.11)
+- stepman update to version [0.9.39](https://github.com/bitrise-io/stepman/releases/tag/0.9.39)
+
+__default plugins update__
+
+- workflow-editor plugin update to version [1.1.12](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.12)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.14.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.13.0 -> 1.14.0
+
+* [1f8dce2] Krisztian Dobmayer - Bump version to 1.14.0 (2018 Mar 12)
+* [1be454a] Krisztian Dobmayer - Run apt-get update before install apt-get dependencies (once per build) (#584) (2018 Feb 27)
+
+
+## 1.13.0 (2018 Feb 13)
+
+### Release Notes
+
+* __added self update__
+
+- Show if CLI update is available
+- New subcommand: update
+- Update is accepting an exact version number
+
+* __added functionality of exporting the directory of the current step__
+
+- Now you will be able to use side-load assets for the step because `BITRISE_STEP_SOURCE_DIR` ENV now will be exported with the root source directory of the currently running step.
+
+__tools update__
+
+- envman update to version [1.1.10](https://github.com/bitrise-io/envman/releases/tag/1.1.10)
+- stepman update to version [0.9.38](https://github.com/bitrise-io/stepman/releases/tag/0.9.38)
+
+__default plugins update__
+
+- workflow-editor plugin update to version [1.1.11](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.11)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.13.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.12.0 -> 1.13.0
+
+* [4f2ef8c] trapacska - Prepare for 1.13.0 (2018 Feb 13)
+* [f74620d] Tamas Papik - updated versions (#579) (2018 Feb 13)
+* [f82f5f4] Tamas Papik - dep-update & readme.md update (#578) (2018 Feb 12)
+* [2268242] Viktor Benei - Go toolkit - go version bump to 1.9.4 (#576) (2018 Feb 12)
+* [a7d713e] Krisztián Gödrei - readme update (#577) (2018 Feb 12)
+* [b5eb848] Viktor Benei - Update golang.go (#575) (2018 Feb 06)
+* [d92ff71] Krisztian Dobmayer - Export the directory of the current step (#574) (2018 Feb 05)
+* [7da2ff5] Krisztián Gödrei - Update step-development-guideline.md (2018 Jan 17)
+* [7445d3a] Krisztian Dobmayer - Self update (#568) (2018 Jan 15)
+
+
+## 1.12.0 (2018 Jan 09)
+
+### Release Notes
+
+__removed `include-workflow-meta` flag from `trigger-check` command__
+
+The workflow's meta tag is designed to define extra options for the workflows by other tools, but the cli does not handle this property.
+
+__tools update__
+
+- envman update to version [1.1.9](https://github.com/bitrise-io/envman/releases/tag/1.1.9)
+- stepman update to version [0.9.37](https://github.com/bitrise-io/stepman/releases/tag/0.9.37)
+
+__default plugins update__
+
+- init plugin update to version [1.0.1](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.1)
+- workflow-editor plugin update to version [1.1.3](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.3)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.12.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.11.0 -> 1.12.0
+
+* [fbe0ff6] godrei - prepare for 1.12.0 (2018 Jan 09)
+* [fedff33] Krisztián Gödrei - update bitrise tools and plugins (#570) (2018 Jan 09)
+* [20664cb] Krisztián Gödrei - revert include-workflow-metadata & godeps update (#569) (2018 Jan 09)
+* [ee7cf78] Krisztian Dobmayer - Add description about shell completion (#567) (2018 Jan 02)
+* [a6abe29] Krisztian Dobmayer - Add fastlane project type (#565) (2017 Dec 19)
+* [1760eb4] Viktor Benei - Added more unit tests for trigger-check/match with Glob patterns (#564) (2017 Dec 15)
+
+
+## 1.11.0 (2017 Dec 12)
+
+### Release Notes
+
+__workflow model new property: `meta`__
+
+From now on you can define workflow's `meta` field:
+
+```
+format_version: 5
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+trigger_map:
+- push_branch: "branch1"
+  workflow: primary
+
+workflows:
+  primary:
+    meta:
+      bitriseio:
+        stack: fast-stack
+    steps:
+    ...
+```
+
+`meta` property is used to define extra options without creating a new bitrise cli release.
+
+The cli does not use `meta` field directly, but other tools can use this property to expand the workflow options.
+
+__tools update__
+
+- stepman update to version [0.9.36](https://github.com/bitrise-io/stepman/releases/tag/0.9.36)
+
+__default plugins update__
+
+- analytics plugin update to version [0.9.11](https://github.com/bitrise-core/bitrise-plugins-analytics/releases/tag/0.9.11)
+- init plugin update to version [1.0.0](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.0)
+- workflow-editor plugin update to version [1.1.0](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.0)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.11.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.10.1 -> 1.11.0
+
+* [4586598] godrei - prepare for 1.11.0 (2017 Dec 12)
+* [56e5eda] Krisztián Gödrei - update analytics plugin to 0.9.11 (#563) (2017 Dec 12)
+* [457aa0b] Krisztián Gödrei - update bitrise tools versions (#562) (2017 Dec 12)
+* [03b6319] Tamas Papik - bumped format version (#561) (2017 Dec 11)
+* [84cf511] Tamas Papik - added --include-workflow-meta flag (#558) (2017 Dec 11)
+* [c593bca] Tamas Papik - Revert "added multiple workflow handling, bumped version (#554)" (#557) (2017 Dec 04)
+* [acf72fe] Tamas Papik - added multiple workflow handling, bumped version (#554) (2017 Nov 30)
+* [2f2937b] Tamas Papik - updated version info (2017 Nov 14)
+* [b8eabdd] Tamas Papik - Update CHANGELOG.md (2017 Nov 14)
+* [8988eae] Tamas Papik - Update CHANGELOG.md (2017 Nov 14)
+
 
 ## 1.10.1 (2017 Nov 14)
 
@@ -3317,4 +3541,4 @@ time you call bitrise run.
 
 -----------------
 
-Updated: 2017 Nov 14
+Updated: 2018 Mar 12
