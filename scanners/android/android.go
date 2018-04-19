@@ -10,7 +10,8 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	SearchDir string
+	SearchDir    string
+	ProjectRoots []string
 }
 
 // NewScanner ...
@@ -32,24 +33,26 @@ func (*Scanner) ExcludedScannerNames() []string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.SearchDir = searchDir
 
-	buildGradleFiles, err := CollectRootBuildGradleFiles(searchDir)
+	projectRoots, err := detect(searchDir, "build.gradle", "settings.gradle")
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	return (len(buildGradleFiles) > 0), nil
+	scanner.ProjectRoots = projectRoots
+
+	return len(projectRoots) > 0, nil
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return GenerateOptions(scanner.SearchDir)
+	return scanner.generateOptions(scanner.SearchDir)
 }
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
+	gradleFileOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 
-	gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
+	gradlewPthOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	gradleFileOption.AddOption("_", gradlewPthOption)
 
 	configOption := models.NewConfigOption(DefaultConfigName)

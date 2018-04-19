@@ -65,6 +65,12 @@ func ActivateSSHKeyStepListItem() bitriseModels.StepListItemModel {
 	return stepListItem(stepIDComposite, "", runIf)
 }
 
+// AndroidUnitTestStepListItem ...
+func AndroidUnitTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidUnitTestKeyID, AndroidUnitTestKeyVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // GitCloneStepListItem ...
 func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(GitCloneID, GitCloneVersion)

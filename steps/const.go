@@ -8,6 +8,13 @@ const (
 )
 
 const (
+	// AndroidUnitTestKeyID ...
+	AndroidUnitTestKeyID = "android-unit-test"
+	// AndroidUnitTestKeyVersion ...
+	AndroidUnitTestKeyVersion = "0.9.0"
+)
+
+const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...

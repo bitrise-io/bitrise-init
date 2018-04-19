@@ -23,6 +23,16 @@ const Name = "react-native"
 
 const (
 	workDirInputKey = "workdir"
+
+	gradlewPathInputKey    = "gradlew_path"
+	gradlewPathInputEnvKey = "GRADLEW_PATH"
+	gradlewPathInputTitle  = "Gradlew file path"
+
+	gradleFileInputKey    = "gradle_file"
+	gradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
+	gradleFileInputTitle  = "Path to the gradle file to use"
+
+	gradleTaskInputKey = "gradle_task"
 )
 
 // Scanner ...
@@ -230,9 +240,9 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(android.GradleFileInputTitle, android.GradleFileInputEnvKey)
+	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
 
-	gradlewPthOption := models.NewOption(android.GradlewPathInputTitle, android.GradlewPathInputEnvKey)
+	gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
 	gradleFileOption.AddOption("_", gradlewPthOption)
 
 	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
@@ -288,9 +298,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		if scanner.androidScanner != nil {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-				envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+				envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
+				envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
+				envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 			))
 		}
 
@@ -362,9 +372,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		if scanner.androidScanner != nil {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-				envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+				envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
+				envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
+				envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 			))
 		}
 
@@ -448,9 +458,9 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// android
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
+		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
+		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
 	))
 
 	// ios
