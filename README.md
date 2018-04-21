@@ -22,7 +22,8 @@ Please check available workflows in [bitrise.yml](./bitrise.yml).
 `bitrise --ci run ci` will execute `ci` workflow which consists of `prepare/build/run tests` stages.
 
 **How to build the project using Go commands**
-- `go build` command builds the project and generates `bitrise-init` binary at `$HOME/go/bin/bitrise-init`  (or `$GOPATH/bin/bitrise-init` in case of custom go workspace).
+- `go build` command builds the project and generates `bitrise-init` in project root folder
+- `go install` command installs `bitrise-init` binary at `$HOME/go/bin/bitrise-init` (or `$GOPATH/bin/bitrise-init` in case of custom go workspace).
 - `go test ./...` command runs unit tests in every project folder/subfolder.
 - `go test -v ./_tests/integration/...` command runs integration tests. This command requires `INTEGRATION_TEST_BINARY_PATH=$HOME/go/bin/bitrise-init` (or `INTEGRATION_TEST_BINARY_PATH=$GOPATH/bin/bitrise-init` in case of custom go workspace) environment variable.
 
