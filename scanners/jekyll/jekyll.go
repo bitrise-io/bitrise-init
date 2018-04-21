@@ -36,7 +36,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	// "_includes"/"_data"/"_OTHER_DIRS" dirs = optional
 	// "Gemfile" / "jekyll gem in Gemfile" = optional
 
-	// Note: hexo.io also uses _config.yml, but package.json for dependencies and layout folder instead of _layouts.
+	// Note: hexo.io also uses _config.yml, but package.json for dependencies and layout directory instead of _layouts.
 	// This means having config file is not enough to detect Jekyll platform.
 	// _config.yml + ("_posts" || "_layouts") = Jekyll platform
 	// _config.yml + package.json + layout = hexo.io platform
@@ -45,25 +45,41 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TInfof("Searching for %s file", configYmlFile)
 	configYmlPath, err := filterProjectFile(configYmlFile, fileList)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for %s file, error: %s", configYmlFile, err)
+		log.TWarnf("failed to search for %s file, error: %s", configYmlFile, err)
+		return false, nil
 	}
 	log.TPrintf("%s found", configYmlFile)
 
-	// Search for Jekyll in Gemfile
-	log.TInfof("Searching for %s file", gemfileFile)
-	gemfilePath, err := filterProjectFile(gemfileFile, fileList)
-	if err != nil {
-		return false, fmt.Errorf("failed to search for %s file, error: %s", gemfileFile, err)
+	// Search _posts directory
+	log.TInfof("Searching for %s directory", postsDirectory)
+	postsDirExists := utility.DirExists(postsDirectory)
+	if postsDirExists {
+		log.TPrintf("%s found", postsDirectory)
+	} else {
+		log.TWarnf("failed to search for %s directory", postsDirectory)
 	}
-	log.TPrintf("%s found", gemfileFile)
 
-	if configYmlPath == "" || gemfilePath == "" {
+	// Search _includes directory
+	log.TInfof("Searching for %s directory", includesDirectory)
+	includesDirExists := utility.DirExists(includesDirectory)
+	if includesDirExists {
+		log.TPrintf("%s found", includesDirectory)
+	} else {
+		log.TWarnf("failed to search for %s directory", includesDirectory)
+	}
+
+	// config is mandatory
+	if configYmlPath == "" {
+		log.TPrintf("platform not detected")
+		return false, nil
+	}
+	// at least one dir(_posts/_includes) is mandatory
+	if !postsDirExists && !includesDirExists {
 		log.TPrintf("platform not detected")
 		return false, nil
 	}
 
 	log.TSuccessf("Platform detected")
-
 	return true, nil
 }
 

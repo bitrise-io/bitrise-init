@@ -15,8 +15,9 @@ const (
 	// DefaultConfigName ...
 	DefaultConfigName = "default-jekyll-config"
 
-	configYmlFile = "_config.yml"
-	gemfileFile   = "Gemfile"
+	configYmlFile     = "_config.yml"
+	postsDirectory    = "_posts"
+	includesDirectory = "_includes"
 
 	jekyllInitialBuildScriptName = "Install dependencies & build"
 	jekyllInitialBuildCommand =

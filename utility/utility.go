@@ -175,3 +175,10 @@ func FileContains(pth, str string) (bool, error) {
 
 	return strings.Contains(content, str), nil
 }
+
+func DirExists(dir string) (exists bool) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
