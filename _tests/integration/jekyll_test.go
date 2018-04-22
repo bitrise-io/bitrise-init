@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -37,52 +36,78 @@ func TestJekyll(t *testing.T) {
 }
 
 var jekyllVersions = []interface{}{
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.NpmVersion,
-	steps.GenerateCordovaBuildConfigVersion,
-	steps.IonicArchiveVersion,
-	steps.DeployToBitriseIoVersion,
+	"4",
+	steps.ActivateSSHKeyVersion, // 3.1.1
+	steps.GitCloneVersion, // 4.0.5
+	steps.CachePullVersion, // 2.0.1
+	steps.ScriptVersion, // 1.1.5
+	steps.ScriptVersion, // 1.1.5
+	steps.DeployToBitriseIoVersion, // 1.3.10
+	steps.CachePushVersion, // 2.0.3
+	steps.ActivateSSHKeyVersion, // 3.1.1
+	steps.GitCloneVersion, // 4.0.5
+	steps.CachePullVersion, // 2.0.1
+	steps.ScriptVersion, // 1.1.5
+	steps.ScriptVersion, // 1.1.5
+	steps.DeployToBitriseIoVersion, // 1.3.10
+	steps.CachePushVersion, // 2.0.3
 }
 
-// TODO use correct YML (copy-pasted from ionic as a starting point)
-var jekyllResultYML = fmt.Sprintf(`2
-          ios,android:
-            config: ionic-config
+var jekyllResultYML = fmt.Sprintf(`options:
+  jekyll:
+    config: jekyll-config
 configs:
-  ionic:
-    ionic-config: |
+  jekyll:
+    jekyll-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: ionic
+      project_type: jekyll
       trigger_map:
       - push_branch: '*'
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
+        deploy:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - script@%s:
+              title: Install dependencies & build
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # debug log
+                  set -x
+                  bundle install && bundle exec jekyll build
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
-          - npm@%s:
+          - script@%s:
+              title: Install dependencies & build
               inputs:
-              - workdir: $IONIC_WORK_DIR
-              - command: install
-          - generate-cordova-build-configuration@%s: {}
-          - ionic-archive@%s:
-              inputs:
-              - platform: $IONIC_PLATFORM
-              - target: emulator
-              - workdir: $IONIC_WORK_DIR
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # debug log
+                  set -x
+                  bundle install && bundle exec jekyll build
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
-  ionic: []
+  jekyll: []
 `, jekyllVersions...)
