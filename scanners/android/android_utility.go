@@ -133,29 +133,23 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 			return models.OptionModel{}, warnings, err
 		}
 
-		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-		modules, err := detect(projectRoot, "build.gradle", "src")
+		proj, err := gradle.NewProject(projectRoot)
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
-		for _, module := range modules {
-			module = filepath.Base(module)
+		variantsMap, err := proj.GetTask("test").GetVariants()
+		if err != nil {
+			return models.OptionModel{}, warnings, err
+		}
 
-			proj, err := gradle.NewProject(projectRoot)
-			if err != nil {
-				return models.OptionModel{}, warnings, err
-			}
-			variants, err := proj.GetModule(module).GetTask("test").GetVariants()
-			if err != nil {
-				return models.OptionModel{}, warnings, err
-			}
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 
+		for module, variants := range variantsMap {
 			variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
 
 			for _, variant := range variants {
 				configOption := models.NewConfigOption(ConfigName)
-
-				variant = strings.Split(strings.Split(variant, "Debug")[0], "Release")[0]
+				variant = strings.TrimSuffix(variant, "UnitTest")
 				variantOption.AddOption(variant, configOption)
 			}
 

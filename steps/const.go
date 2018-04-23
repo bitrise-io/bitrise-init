@@ -11,7 +11,7 @@ const (
 	// AndroidUnitTestKeyID ...
 	AndroidUnitTestKeyID = "android-unit-test"
 	// AndroidUnitTestKeyVersion ...
-	AndroidUnitTestKeyVersion = "0.9.0"
+	AndroidUnitTestKeyVersion = "0.9.2"
 )
 
 const (
