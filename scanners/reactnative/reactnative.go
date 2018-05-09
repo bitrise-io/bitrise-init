@@ -24,10 +24,6 @@ const Name = "react-native"
 const (
 	workDirInputKey = "workdir"
 
-	gradlewPathInputKey    = "gradlew_path"
-	gradlewPathInputEnvKey = "GRADLEW_PATH"
-	gradlewPathInputTitle  = "Gradlew file path"
-
 	gradleFileInputKey    = "gradle_file"
 	gradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
 	gradleFileInputTitle  = "Path to the gradle file to use"
@@ -242,7 +238,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 func (Scanner) DefaultOptions() models.OptionModel {
 	gradleFileOption := models.NewOption(gradleFileInputTitle, gradleFileInputEnvKey)
 
-	gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
+	gradlewPthOption := models.NewOption(android.GradlewPathInputTitle, android.GradlewPathInputEnvKey)
 	gradleFileOption.AddOption("_", gradlewPthOption)
 
 	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
@@ -300,7 +296,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
 				envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 				envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
 			))
 		}
 
@@ -374,7 +370,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
 				envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 				envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
 			))
 		}
 
@@ -460,7 +456,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
 		envmanModels.EnvironmentItemModel{gradleFileInputKey: "$" + gradleFileInputEnvKey},
 		envmanModels.EnvironmentItemModel{gradleTaskInputKey: "assembleRelease"},
-		envmanModels.EnvironmentItemModel{gradlewPathInputKey: "$" + gradlewPathInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
 	))
 
 	// ios

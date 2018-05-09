@@ -37,9 +37,9 @@ const (
 	TestVariantInputTitle   = "The variant for testing"
 	BuildVariantInputTitle  = "The variant for building"
 
-	gradlewPathInputKey    = "gradlew_path"
-	gradlewPathInputEnvKey = "GRADLEW_PATH"
-	gradlewPathInputTitle  = "Gradlew file path"
+	GradlewPathInputKey    = "gradlew_path"
+	GradlewPathInputEnvKey = "GRADLEW_PATH"
+	GradlewPathInputTitle  = "Gradlew file path"
 )
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
@@ -169,7 +169,7 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 			moduleOption.AddOption(module, variantOption)
 		}
 
-		gradlewPthOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputEnvKey)
+		gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
 		gradlewPthOption.AddOption(filepath.Join(projectRoot, "gradlew"), moduleOption)
 
 		projectLocationOption.AddOption(projectRoot, gradlewPthOption)
