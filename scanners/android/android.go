@@ -30,17 +30,15 @@ func (*Scanner) ExcludedScannerNames() []string {
 }
 
 // DetectPlatform ...
-func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+func (scanner *Scanner) DetectPlatform(searchDir string) (b bool, err error) {
 	scanner.SearchDir = searchDir
 
-	projectRoots, err := detect(searchDir, "build.gradle", "settings.gradle")
+	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle", "gradlew")
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	scanner.ProjectRoots = projectRoots
-
-	return len(projectRoots) > 0, nil
+	return len(scanner.ProjectRoots) > 0, err
 }
 
 // Options ...
@@ -50,15 +48,21 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 
-	gradlewPthOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-	gradleFileOption.AddOption("_", gradlewPthOption)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
+	projectLocationOption.AddOption("_", moduleOption)
+
+	testVariantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
+	moduleOption.AddOption("_", testVariantOption)
+
+	buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
+	testVariantOption.AddOption("_", buildVariantOption)
 
 	configOption := models.NewConfigOption(DefaultConfigName)
-	gradlewPthOption.AddConfig("_", configOption)
+	buildVariantOption.AddConfig("_", configOption)
 
-	return *gradleFileOption
+	return *projectLocationOption
 }
 
 // Configs ...

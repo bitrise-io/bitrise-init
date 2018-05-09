@@ -1,11 +1,6 @@
 package android
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
+/*
 func TestFixedGradlewPath(t *testing.T) {
 	require.Equal(t, "./gradlew", FixedGradlewPath("gradlew"))
 	require.Equal(t, "./gradlew", FixedGradlewPath("./gradlew"))
@@ -55,3 +50,4 @@ func TestFilterRootBuildGradleFiles(t *testing.T) {
 		require.Equal(t, 2, len(files))
 	}
 }
+*/

@@ -65,9 +65,21 @@ func ActivateSSHKeyStepListItem() bitriseModels.StepListItemModel {
 	return stepListItem(stepIDComposite, "", runIf)
 }
 
+// AndroidLintStepListItem ...
+func AndroidLintStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidLintKeyID, AndroidLintKeyVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // AndroidUnitTestStepListItem ...
 func AndroidUnitTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(AndroidUnitTestKeyID, AndroidUnitTestKeyVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// AndroidBuildStepListItem ...
+func AndroidBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidBuildKeyID, AndroidBuildKeyVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
@@ -95,6 +107,12 @@ func CertificateAndProfileInstallerStepListItem() bitriseModels.StepListItemMode
 	return stepListItem(stepIDComposite, "", "")
 }
 
+// ChangeAndroidVersionCodeAndVersionNameStepListItem ...
+func ChangeAndroidVersionCodeAndVersionNameStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ChangeAndroidVersionCodeAndVersionNameID, ChangeAndroidVersionCodeAndVersionNameVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // DeployToBitriseIoStepListItem ...
 func DeployToBitriseIoStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(DeployToBitriseIoID, DeployToBitriseIoVersion)
@@ -105,6 +123,12 @@ func DeployToBitriseIoStepListItem() bitriseModels.StepListItemModel {
 func ScriptSteplistItem(title string, inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(ScriptID, ScriptVersion)
 	return stepListItem(stepIDComposite, title, "", inputs...)
+}
+
+// SignAPKStepListItem ...
+func SignAPKStepListItem() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(SignAPKID, SignAPKVersion)
+	return stepListItem(stepIDComposite, "", `{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}`)
 }
 
 // InstallMissingAndroidToolsStepListItem ....

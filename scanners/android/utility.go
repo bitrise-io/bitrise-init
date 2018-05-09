@@ -25,13 +25,17 @@ const (
 	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
 	ProjectLocationInputTitle  = "The root directory of an Android project"
 
+	ModuleBuildGradlePathInputKey = "build_gradle_path"
+
 	ModuleInputKey    = "module"
 	ModuleInputEnvKey = "MODULE"
 	ModuleInputTitle  = "Module in an Android project"
 
-	VariantInputKey    = "variant"
-	VariantInputEnvKey = "VARIANT"
-	VariantInputTitle  = "The variant in the selected module"
+	VariantInputKey         = "variant"
+	TestVariantInputEnvKey  = "TEST_VARIANT"
+	BuildVariantInputEnvKey = "BUILD_VARIANT"
+	TestVariantInputTitle   = "The variant for testing"
+	BuildVariantInputTitle  = "The variant for building"
 
 	gradlewPathInputKey    = "gradlew_path"
 	gradlewPathInputEnvKey = "GRADLEW_PATH"
@@ -70,7 +74,7 @@ func checkFiles(path string, files ...string) (bool, error) {
 	return true, nil
 }
 
-func detect(searchDir string, files ...string) (matches []string, err error) {
+func walkMultipleFiles(searchDir string, files ...string) (matches []string, err error) {
 	match, err := checkFiles(searchDir, files...)
 	if err != nil {
 		return nil, err
@@ -137,20 +141,29 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
-		variantsMap, err := proj.GetTask("test").GetVariants()
+		testVariantsMap, err := proj.GetTask("test").GetVariants()
+		if err != nil {
+			return models.OptionModel{}, warnings, err
+		}
+		buildVariantsMap, err := proj.GetTask("assemble").GetVariants()
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
 
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 
-		for module, variants := range variantsMap {
-			variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+		for module, variants := range testVariantsMap {
+			variantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
+			buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
 
 			for _, variant := range variants {
-				configOption := models.NewConfigOption(ConfigName)
 				variant = strings.TrimSuffix(variant, "UnitTest")
-				variantOption.AddOption(variant, configOption)
+				variantOption.AddOption(variant, buildVariantOption)
+			}
+
+			for _, variant := range buildVariantsMap[module] {
+				configOption := models.NewConfigOption(ConfigName)
+				buildVariantOption.AddOption(variant, configOption)
 			}
 
 			moduleOption.AddOption(module, variantOption)
@@ -168,22 +181,46 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
+	projectLocationEnv, moduleEnv, testVariantEnv, buildVariantEnv := "$"+ProjectLocationInputEnvKey, "$"+ModuleInputEnvKey, "$"+TestVariantInputEnvKey, "$"+BuildVariantInputEnvKey
+
+	//-- primary
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidLintStepListItem(
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{VariantInputKey: testVariantEnv},
+	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
-		envmanModels.EnvironmentItemModel{ModuleInputKey: "$" + ModuleInputEnvKey},
-		envmanModels.EnvironmentItemModel{VariantInputKey: "$" + VariantInputEnvKey},
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{VariantInputKey: testVariantEnv},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
+	//-- deploy
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-	// envmanModels.EnvironmentItemModel{GradleFileInputKey: "$" + GradleFileInputEnvKey},
-	// envmanModels.EnvironmentItemModel{GradleTaskInputKey: "assembleRelease"},
-	// envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
+		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
 	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{VariantInputKey: testVariantEnv},
+	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{VariantInputKey: testVariantEnv},
+	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{VariantInputKey: buildVariantEnv},
+	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
 	return *configBuilder

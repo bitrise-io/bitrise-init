@@ -8,10 +8,24 @@ const (
 )
 
 const (
+	// AndroidLintKeyID ...
+	AndroidLintKeyID = "android-lint"
+	// AndroidLintKeyVersion ...
+	AndroidLintKeyVersion = "0.9.1"
+)
+
+const (
 	// AndroidUnitTestKeyID ...
 	AndroidUnitTestKeyID = "android-unit-test"
 	// AndroidUnitTestKeyVersion ...
 	AndroidUnitTestKeyVersion = "0.9.2"
+)
+
+const (
+	// AndroidBuildKeyID ...
+	AndroidBuildKeyID = "android-build"
+	// AndroidBuildKeyVersion ...
+	AndroidBuildKeyVersion = "0.9.2"
 )
 
 const (
@@ -43,6 +57,13 @@ const (
 )
 
 const (
+	// ChangeAndroidVersionCodeAndVersionNameID ...
+	ChangeAndroidVersionCodeAndVersionNameID = "change-android-versioncode-and-versionname"
+	// ChangeAndroidVersionCodeAndVersionNameVersion ...
+	ChangeAndroidVersionCodeAndVersionNameVersion = "1.1.0"
+)
+
+const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
@@ -56,6 +77,13 @@ const (
 	ScriptVersion = "1.1.5"
 	// ScriptDefaultTitle ...
 	ScriptDefaultTitle = "Do anything with Script step"
+)
+
+const (
+	// SignAPKID ...
+	SignAPKID = "sign-apk"
+	// SignAPKVersion ...
+	SignAPKVersion = "1.2.0"
 )
 
 const (
