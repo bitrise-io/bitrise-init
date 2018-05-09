@@ -223,5 +223,7 @@ func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
+	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+
 	return *configBuilder
 }
