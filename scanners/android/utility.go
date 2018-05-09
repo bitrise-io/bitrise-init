@@ -29,13 +29,13 @@ const (
 
 	ModuleInputKey    = "module"
 	ModuleInputEnvKey = "MODULE"
-	ModuleInputTitle  = "Module in an Android project"
+	ModuleInputTitle  = "Module"
 
 	VariantInputKey         = "variant"
 	TestVariantInputEnvKey  = "TEST_VARIANT"
 	BuildVariantInputEnvKey = "BUILD_VARIANT"
-	TestVariantInputTitle   = "The variant for testing"
-	BuildVariantInputTitle  = "The variant for building"
+	TestVariantInputTitle   = "Variant for testing"
+	BuildVariantInputTitle  = "Variant for building"
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"
@@ -153,12 +153,12 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 
 		for module, variants := range testVariantsMap {
-			variantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
+			testVariantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
 			buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
 
 			for _, variant := range variants {
 				variant = strings.TrimSuffix(variant, "UnitTest")
-				variantOption.AddOption(variant, buildVariantOption)
+				testVariantOption.AddOption(variant, buildVariantOption)
 			}
 
 			for _, variant := range buildVariantsMap[module] {
@@ -166,7 +166,7 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 				buildVariantOption.AddOption(variant, configOption)
 			}
 
-			moduleOption.AddOption(module, variantOption)
+			moduleOption.AddOption(module, testVariantOption)
 		}
 
 		gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
