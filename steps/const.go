@@ -25,7 +25,7 @@ const (
 	// AndroidBuildKeyID ...
 	AndroidBuildKeyID = "android-build"
 	// AndroidBuildKeyVersion ...
-	AndroidBuildKeyVersion = "0.9.2"
+	AndroidBuildKeyVersion = "0.9.3"
 )
 
 const (
