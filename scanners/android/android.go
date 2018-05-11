@@ -12,6 +12,7 @@ import (
 type Scanner struct {
 	SearchDir    string
 	ProjectRoots []string
+	ExcludeTest  bool
 }
 
 // NewScanner ...
@@ -33,7 +34,7 @@ func (*Scanner) ExcludedScannerNames() []string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (b bool, err error) {
 	scanner.SearchDir = searchDir
 
-	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle", "gradlew")
+	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle")
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
@@ -66,8 +67,8 @@ func (*Scanner) DefaultOptions() models.OptionModel {
 }
 
 // Configs ...
-func (*Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := GenerateConfigBuilder(true)
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+	configBuilder := scanner.generateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
@@ -85,8 +86,8 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := GenerateConfigBuilder(true)
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	configBuilder := scanner.generateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

@@ -67,19 +67,19 @@ func ActivateSSHKeyStepListItem() bitriseModels.StepListItemModel {
 
 // AndroidLintStepListItem ...
 func AndroidLintStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(AndroidLintKeyID, AndroidLintKeyVersion)
+	stepIDComposite := stepIDComposite(AndroidLintID, AndroidLintVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
 // AndroidUnitTestStepListItem ...
 func AndroidUnitTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(AndroidUnitTestKeyID, AndroidUnitTestKeyVersion)
+	stepIDComposite := stepIDComposite(AndroidUnitTestID, AndroidUnitTestVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
 // AndroidBuildStepListItem ...
 func AndroidBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(AndroidBuildKeyID, AndroidBuildKeyVersion)
+	stepIDComposite := stepIDComposite(AndroidBuildID, AndroidBuildVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 

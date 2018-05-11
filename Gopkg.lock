@@ -33,6 +33,7 @@
     "parseutil",
     "pathutil",
     "pointers",
+    "retry",
     "sliceutil",
     "ziputil"
   ]
@@ -53,7 +54,12 @@
 [[projects]]
   branch = "master"
   name = "github.com/bitrise-tools/go-android"
-  packages = ["gradle"]
+  packages = [
+    "gradle",
+    "sdk",
+    "sdkcomponent",
+    "sdkmanager"
+  ]
   revision = "5e32d58739d3376ecd9e74fc1eee44c0f00984e5"
 
 [[projects]]
@@ -70,6 +76,12 @@
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-version"
+  packages = ["."]
+  revision = "23480c0665776210b5fbbac6eaaee40e3e6a96b7"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -108,7 +120,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "21052ae46654ecf18dfdba0f7c12701a1e2b3164"
+  revision = "2d027ae1dddd4694d54f7a8b6cbe78dca8720226"
 
 [[projects]]
   branch = "master"
@@ -117,7 +129,7 @@
     "unix",
     "windows"
   ]
-  revision = "7db1c3b1a98089d0071c84f646ff5c96aad43682"
+  revision = "7dfd1290c7917b7ba22824b9d24954ab3002fe24"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -134,6 +146,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9c082b6928c3d9249a848292f09fd79b9bffab091ed0d5dd104319b329772b15"
+  inputs-digest = "0f7fe6ba3ce1a03b0e916755ebda02d3defef52894c113c3b60b09f78e5c928f"
   solver-name = "gps-cdcl"
   solver-version = 1
