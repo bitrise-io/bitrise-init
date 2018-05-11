@@ -1,6 +1,7 @@
 package expo
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -54,6 +55,29 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
+	if len(packageJSONPths) == 0 {
+		return false, nil
+	}
+
+	dependencyFound := false
+	for _, packageJSONPth := range packageJSONPths {
+		dependency := "expo"
+		dependencyFound, err := FindDependency(packageJSONPth, dependency)
+		if err != nil {
+			fmt.Printf("Error during finding dependency: %s", err.Error())
+			return false, err
+		}
+
+		fmt.Printf("%s found: %t\n", dependency, dependencyFound)
+		if dependencyFound {
+			break
+		}
+	}
+
+	if !dependencyFound {
+		return false, nil
+	}
+
 	log.TPrintf("%d package.json file detected", len(packageJSONPths))
 
 	log.TInfof("Filter relevant package.json files")
@@ -87,9 +111,9 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			}
 		}
 	}
-
 	if err := ejectProject(searchDir); err != nil {
-		return false, err
+		log.Errorf("ERROR DURING EJECTING THE PROJECT: %s", err)
+		return false, nil
 	}
 
 	reactnativeScanner := reactnative.NewScanner()
@@ -184,17 +208,13 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 // ExcludedScannerNames ...
 func (Scanner) ExcludedScannerNames() []string {
-	return []string{
-		string(ios.XcodeProjectTypeIOS),
-		string(ios.XcodeProjectTypeMacOS),
-		android.ScannerName,
-	}
+	return nil
 }
 
 func ejectProject(pth string) error {
 	log.Infof("Eject project")
 
-	cmd := command.New(pth, "npm", "run", "eject")
+	cmd := command.New("npm", "run", "eject")
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 	return cmd.Run()
