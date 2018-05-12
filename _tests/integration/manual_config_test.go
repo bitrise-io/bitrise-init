@@ -114,6 +114,23 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 
+	// jekyll
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion, // 3.1.1
+	steps.GitCloneVersion, // 4.0.5
+	steps.CachePullVersion, // 2.0.1
+	steps.ScriptVersion, // 1.1.5
+	steps.ScriptVersion, // 1.1.5
+	steps.DeployToBitriseIoVersion, // 1.3.10
+	steps.CachePushVersion, // 2.0.3
+	steps.ActivateSSHKeyVersion, // 3.1.1
+	steps.GitCloneVersion, // 4.0.5
+	steps.CachePullVersion, // 2.0.1
+	steps.ScriptVersion, // 1.1.5
+	steps.ScriptVersion, // 1.1.5
+	steps.DeployToBitriseIoVersion, // 1.3.10
+	steps.CachePushVersion, // 2.0.3
+
 	// macos
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -247,6 +264,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-ios-config
               enterprise:
                 config: default-ios-config
+  jekyll:
+    config: default-jekyll-config
   macos:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
@@ -494,6 +513,57 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
+  jekyll:
+    default-jekyll-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: jekyll
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        deploy:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - script@%s:
+              title: Install dependencies & build
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # debug log
+                  set -x
+                  bundle install && bundle exec jekyll build
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
+        primary:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - script@%s:
+              title: Install dependencies & build
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # debug log
+                  set -x
+                  bundle install && bundle exec jekyll build
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
   macos:

@@ -11,6 +11,7 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
+	"github.com/bitrise-core/bitrise-init/models"
 )
 
 func TestJekyll(t *testing.T) {
@@ -36,7 +37,7 @@ func TestJekyll(t *testing.T) {
 }
 
 var jekyllVersions = []interface{}{
-	"4",
+	models.FormatVersion,
 	steps.ActivateSSHKeyVersion, // 3.1.1
 	steps.GitCloneVersion, // 4.0.5
 	steps.CachePullVersion, // 2.0.1
