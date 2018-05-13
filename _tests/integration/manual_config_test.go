@@ -116,20 +116,20 @@ var customConfigVersions = []interface{}{
 
 	// jekyll
 	models.FormatVersion,
-	steps.ActivateSSHKeyVersion, // 3.1.1
-	steps.GitCloneVersion, // 4.0.5
-	steps.CachePullVersion, // 2.0.1
-	steps.ScriptVersion, // 1.1.5
-	steps.ScriptVersion, // 1.1.5
-	steps.DeployToBitriseIoVersion, // 1.3.10
-	steps.CachePushVersion, // 2.0.3
-	steps.ActivateSSHKeyVersion, // 3.1.1
-	steps.GitCloneVersion, // 4.0.5
-	steps.CachePullVersion, // 2.0.1
-	steps.ScriptVersion, // 1.1.5
-	steps.ScriptVersion, // 1.1.5
-	steps.DeployToBitriseIoVersion, // 1.3.10
-	steps.CachePushVersion, // 2.0.3
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// macos
 	models.FormatVersion,
