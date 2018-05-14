@@ -62,7 +62,9 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	dependencyFound := false
 	for _, packageJSONPth := range packageJSONPths {
 		dependency := "expo"
-		dependencyFound, err := FindDependency(packageJSONPth, dependency)
+
+		var err error
+		dependencyFound, err = FindDependency(packageJSONPth, dependency)
 		if err != nil {
 			fmt.Printf("Error during finding dependency: %s", err.Error())
 			return false, err
@@ -82,6 +84,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	log.TInfof("Filter relevant package.json files")
 
+	fmt.Printf("Returning true for expo")
 	iosScanner := ios.NewScanner()
 	androidScanner := android.NewScanner()
 	for _, packageJSONPth := range packageJSONPths {
@@ -111,6 +114,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			}
 		}
 	}
+
+	if err := ensureNodeModules(); err != nil {
+		log.Errorf("ERROR DURING INSTALLING NPM: %s", err)
+		return false, nil
+	}
+
 	if err := ejectProject(searchDir); err != nil {
 		log.Errorf("ERROR DURING EJECTING THE PROJECT: %s", err)
 		return false, nil
@@ -209,6 +218,15 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 // ExcludedScannerNames ...
 func (Scanner) ExcludedScannerNames() []string {
 	return nil
+}
+
+func ensureNodeModules() error {
+	log.Infof("Npm install")
+
+	cmd := command.New("npm", "install")
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(os.Stderr)
+	return cmd.Run()
 }
 
 func ejectProject(pth string) error {
