@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -53,22 +52,15 @@ const (
 )
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
-	infos, err := ioutil.ReadDir(src)
-	if err != nil {
-		return err
-	}
-
-	for _, info := range infos {
-		if info.IsDir() {
-			if err := walk(filepath.Join(src, info.Name()), fn); err != nil {
-				return err
-			}
-		}
-		if err := fn(filepath.Join(src, info.Name()), info); err != nil {
+	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return err
 		}
-	}
-	return nil
+		if path == src {
+			return nil
+		}
+		return fn(path, info)
+	})
 }
 
 func checkFiles(path string, files ...string) (bool, error) {
@@ -367,6 +359,7 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 					variant = strings.TrimSuffix(variant, "UnitTest")
 					testVariantOption.AddOption(variant, configOption)
 				}
+				testVariantOption.AddOption("", configOption)
 			}
 
 			for _, variant := range variants {
@@ -375,6 +368,7 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 				}
 				buildVariantOption.AddOption(variant, configOption)
 			}
+			buildVariantOption.AddOption("", configOption)
 
 			moduleOption.AddOption(module, buildVariantOption)
 		}

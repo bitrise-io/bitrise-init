@@ -193,15 +193,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: MODULE
         value_map:
           _:
-            title: Variant for testing
-            env_key: TEST_VARIANT
-            value_map:
-              _:
-                title: Variant for building
-                env_key: BUILD_VARIANT
-                value_map:
-                  _:
-                    config: default-android-config
+            config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR

@@ -27,11 +27,11 @@ func (Scanner) Name() string {
 
 // ExcludedScannerNames ...
 func (*Scanner) ExcludedScannerNames() []string {
-	return []string{}
+	return nil
 }
 
 // DetectPlatform ...
-func (scanner *Scanner) DetectPlatform(searchDir string) (b bool, err error) {
+func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	scanner.SearchDir = searchDir
 
 	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle")
@@ -54,14 +54,8 @@ func (*Scanner) DefaultOptions() models.OptionModel {
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	projectLocationOption.AddOption("_", moduleOption)
 
-	testVariantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
-	moduleOption.AddOption("_", testVariantOption)
-
-	buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
-	testVariantOption.AddOption("_", buildVariantOption)
-
 	configOption := models.NewConfigOption(DefaultConfigName)
-	buildVariantOption.AddConfig("_", configOption)
+	moduleOption.AddConfig("_", configOption)
 
 	return *projectLocationOption
 }

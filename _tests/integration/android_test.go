@@ -138,10 +138,22 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                 title: Variant for building
                 env_key: BUILD_VARIANT
                 value_map:
+                  "":
+                    title: Variant for testing
+                    env_key: TEST_VARIANT
+                    value_map:
+                      "":
+                        config: android-config
+                      Debug:
+                        config: android-config
+                      Release:
+                        config: android-config
                   AndroidTest:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -150,6 +162,8 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -158,6 +172,8 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -166,6 +182,8 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -174,6 +192,8 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -182,6 +202,8 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -339,10 +361,22 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                 title: Variant for building
                 env_key: BUILD_VARIANT
                 value_map:
+                  "":
+                    title: Variant for testing
+                    env_key: TEST_VARIANT
+                    value_map:
+                      "":
+                        config: android-config
+                      Debug:
+                        config: android-config
+                      Release:
+                        config: android-config
                   AndroidTest:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -351,6 +385,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -359,6 +395,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -367,6 +405,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -375,6 +415,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -383,6 +425,8 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -530,10 +574,22 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                 title: Variant for building
                 env_key: BUILD_VARIANT
                 value_map:
+                  "":
+                    title: Variant for testing
+                    env_key: TEST_VARIANT
+                    value_map:
+                      "":
+                        config: android-config
+                      Debug:
+                        config: android-config
+                      Release:
+                        config: android-config
                   AndroidTest:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -542,6 +598,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -550,6 +608,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -558,6 +618,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -566,6 +628,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
@@ -574,6 +638,8 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                     title: Variant for testing
                     env_key: TEST_VARIANT
                     value_map:
+                      "":
+                        config: android-config
                       Debug:
                         config: android-config
                       Release:
