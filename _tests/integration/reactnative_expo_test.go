@@ -43,6 +43,7 @@ var sampleAppsReactNativeExpoIosAndAndroidVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.NpmVersion,
+	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.GradleRunnerVersion,
 	steps.CertificateAndProfileInstallerVersion,
@@ -120,6 +121,9 @@ configs:
           - npm@%s:
               inputs:
               - command: install
+          - npm@%s:
+              inputs:
+              - command: run eject
           - install-missing-android-tools@%s: {}
           - gradle-runner@%s:
               inputs:
