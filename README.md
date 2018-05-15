@@ -33,14 +33,15 @@ Once new scanner is introduced there are at least 2 mandatory integration tests 
 - integration test for new scanner in manual config integration test.
 This one already exists and requires adjustments for new scanner.
 
-Standard integration for a scanner consists of verification of generated config with expected config on test project.
+Standard integration for a scanner consists of verification of generated config with expected config on a test project.
 Choose any project identifiable by a new scanner and create integration test for it under `_tests/integration/{SCANNER_NAME}_test.go`.
-Any existing integration test for other scanners can be used as a starting point and adjusted.
-Integration test should contain expected config YML and it will be compared to generated config YML by running `bitrise-init --ci config`.
+Any existing integration test for other scanners can be used as a starting point.
+Integration test should contain expected config YML and it will be compared with a generated config YML (`bitrise-init --ci config` command) .
 You can run this command on a test project on your local machine to understand test expectations.
 Steps versions in expected config YML should be replaced with format placeholders like `%s` (take `_tests/integration/ionic_test.go` as an example).
-If generated locally config on a test project doesn't match to expected config YML, then easiest way to fix this will be to use generated config YML file from integration test.
-`gitClone(t, dir, URL)` command prints into console the path to a temp folder where `result.yml` will be generated. Just copy paste the content of `result.yml` to integration test and use placeholders for steps versions.
+If generated locally config on a test project doesn't match with expected config YML, then easiest way to fix this will be to use generated config YML file from integration test.
+`gitClone(t, dir, URL)` command prints into console the path to a temp folder where `result.yml` will be generated.
+Just copy and paste the content of `result.yml` to integration test and use placeholders for steps versions.
 
 In case of a manual config integration test, the procedure is very similar: generate the config YML by running `bitrise-init --ci manual-config` command.
 Alternatively, copy generated config YML from failed manual config integration test and update `_tests/integration/manual_config_test.go`
