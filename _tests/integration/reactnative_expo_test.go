@@ -32,145 +32,9 @@ func TestReactNativeExpo(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsReactNativeIosAndAndroidResultYML), strings.TrimSpace(result))
+		require.Equal(t, strings.TrimSpace(sampleAppsReactNativeExpoIosAndAndroidResultYML), strings.TrimSpace(result))
 	}
-
-	// t.Log("sample-apps-react-native-expo-subdir")
-	// {
-	// 	sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-expo-subdir")
-	// 	sampleAppURL := "https://github.com/bitrise-samples/sample-apps-react-native-expo-subdir.git"
-	// 	gitClone(t, sampleAppDir, sampleAppURL)
-
-	// 	cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-	// 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-	// 	require.NoError(t, err, out)
-
-	// 	scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-	// 	result, err := fileutil.ReadStringFromFile(scanResultPth)
-	// 	require.NoError(t, err)
-	// 	require.Equal(t, strings.TrimSpace(sampleAppsReactNativeSubdirResultYML), strings.TrimSpace(result))
-	// }
 }
-
-var sampleAppsReactNativeExpoSubdirVersions = []interface{}{
-	models.FormatVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.NpmVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.NpmVersion,
-	steps.NpmVersion,
-	steps.DeployToBitriseIoVersion,
-}
-
-var sampleAppsReactNativeExpoSubdirResultYML = fmt.Sprintf(`options:
-  react-native:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
-    value_map:
-      project/android/build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
-        value_map:
-          project/android/gradlew:
-            title: Project (or Workspace) path
-            env_key: BITRISE_PROJECT_PATH
-            value_map:
-              project/ios/SampleAppsReactNativeAndroid.xcodeproj:
-                title: Scheme name
-                env_key: BITRISE_SCHEME
-                value_map:
-                  SampleAppsReactNativeAndroid:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
-                    value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
-                  SampleAppsReactNativeAndroid-tvOS:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
-                    value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
-configs:
-  react-native:
-    react-native-android-ios-test-config: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: react-native
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
-      workflows:
-        deploy:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - npm@%s:
-              inputs:
-              - workdir: project
-              - command: install
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
-              inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
-          - certificate-and-profile-installer@%s: {}
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - npm@%s:
-              inputs:
-              - workdir: project
-              - command: install
-          - npm@%s:
-              inputs:
-              - workdir: project
-              - command: test
-          - deploy-to-bitrise-io@%s: {}
-warnings:
-  react-native: []
-`, sampleAppsReactNativeExpoSubdirVersions...)
 
 var sampleAppsReactNativeExpoIosAndAndroidVersions = []interface{}{
 	models.FormatVersion,
@@ -194,7 +58,7 @@ var sampleAppsReactNativeExpoIosAndAndroidVersions = []interface{}{
 }
 
 var sampleAppsReactNativeExpoIosAndAndroidResultYML = fmt.Sprintf(`options:
-  react-native:
+  react-native-expo:
     title: Path to the gradle file to use
     env_key: GRADLE_BUILD_FILE_PATH
     value_map:
@@ -206,40 +70,40 @@ var sampleAppsReactNativeExpoIosAndAndroidResultYML = fmt.Sprintf(`options:
             title: Project (or Workspace) path
             env_key: BITRISE_PROJECT_PATH
             value_map:
-              ios/SampleAppsReactNativeAndroid.xcodeproj:
+              ios/sampleappsreactnativeexpo.xcodeproj:
                 title: Scheme name
                 env_key: BITRISE_SCHEME
                 value_map:
-                  SampleAppsReactNativeAndroid:
+                  sampleappsreactnativeexpo:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       app-store:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       development:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       enterprise:
-                        config: react-native-android-ios-test-config
-                  SampleAppsReactNativeAndroid-tvOS:
+                        config: react-native-expo-android-ios-test-config
+                  sampleappsreactnativeexpo-tvOS:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
                     value_map:
                       ad-hoc:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       app-store:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       development:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
                       enterprise:
-                        config: react-native-android-ios-test-config
+                        config: react-native-expo-android-ios-test-config
 configs:
-  react-native:
-    react-native-android-ios-test-config: |
+  react-native-expo:
+    react-native-expo-android-ios-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: react-native
+      project_type: react-native-expo
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -285,5 +149,5 @@ configs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
-  react-native: []
+  react-native-expo: []
 `, sampleAppsReactNativeExpoIosAndAndroidVersions...)
