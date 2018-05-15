@@ -45,7 +45,6 @@ func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
-
 	return *configBuilder
 }
 
