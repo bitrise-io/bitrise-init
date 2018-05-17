@@ -32,7 +32,7 @@ const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
-	GitCloneVersion = "4.0.10"
+	GitCloneVersion = "4.0.11"
 )
 
 const (
@@ -53,7 +53,7 @@ const (
 	// CertificateAndProfileInstallerID ...
 	CertificateAndProfileInstallerID = "certificate-and-profile-installer"
 	// CertificateAndProfileInstallerVersion ...
-	CertificateAndProfileInstallerVersion = "1.9.2"
+	CertificateAndProfileInstallerVersion = "1.9.3"
 )
 
 const (
@@ -67,7 +67,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.10"
+	DeployToBitriseIoVersion = "1.3.12"
 )
 
 const (
@@ -118,7 +118,7 @@ const (
 	// CarthageID ...
 	CarthageID = "carthage"
 	// CarthageVersion ...
-	CarthageVersion = "3.1.3"
+	CarthageVersion = "3.1.4"
 )
 
 const (
@@ -132,14 +132,14 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2.4.6"
+	XcodeArchiveVersion = "2.4.8"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "1.18.13"
+	XcodeTestVersion = "1.18.14"
 )
 
 const (
@@ -153,7 +153,7 @@ const (
 	// NugetRestoreID ...
 	NugetRestoreID = "nuget-restore"
 	// NugetRestoreVersion ...
-	NugetRestoreVersion = "1.0.5"
+	NugetRestoreVersion = "1.0.7"
 )
 
 const (
@@ -181,7 +181,7 @@ const (
 	// XcodeTestMacID ...
 	XcodeTestMacID = "xcode-test-mac"
 	// XcodeTestMacVersion ...
-	XcodeTestMacVersion = "1.1.2"
+	XcodeTestMacVersion = "1.2.1"
 )
 
 const (
@@ -195,7 +195,7 @@ const (
 	// IonicArchiveID ...
 	IonicArchiveID = "ionic-archive"
 	// IonicArchiveVersion ...
-	IonicArchiveVersion = "1.2.2"
+	IonicArchiveVersion = "1.2.4"
 )
 
 const (
