@@ -83,11 +83,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		var err error
 		dependencyFound, err = FindDependency(packageJSONPth, dependency)
 		if err != nil {
-			fmt.Printf("Error during finding dependency: %s", err.Error())
 			return false, err
 		}
 
-		fmt.Printf("%s found: %t\n", dependency, dependencyFound)
+		log.Debugf("\n%s found: %t\n", dependency, dependencyFound)
 		if dependencyFound {
 			break
 		}
