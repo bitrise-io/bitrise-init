@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "778f2e774c725116edbc3d039dc0dfc1cc62aae8"
+  revision = "0dad3b6953e73d351ec8ebfd8a8c6b088d320381"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "e7cf18e5464825f42323ad92b86a02341a2b8c9f"
+  revision = "ffd2f116ff7d2846613a8f01479f68ef05ee62da"
+  version = "1.16.1"
 
 [[projects]]
   name = "github.com/bitrise-io/envman"
@@ -37,7 +37,7 @@
     "sliceutil",
     "ziputil"
   ]
-  revision = "2d657206204605ce3b86124c33fea53c3e380d78"
+  revision = "d1de0dbcb811588e61362aff67bb700b93c13c17"
 
 [[projects]]
   branch = "master"
@@ -48,8 +48,14 @@
 [[projects]]
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "70596c8a17d5e8d429b1abd68222aae9733337d0"
-  version = "0.9.41"
+  revision = "b6cfe51c9e0bf5d7eab8ef048bf7b3d6174ae3f8"
+  version = "0.9.42"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/bitrise-steplib/steps-install-missing-android-tools"
+  packages = ["androidcomponents"]
+  revision = "59511231d49f9ba328fc4a512f0ba36e189b8989"
 
 [[projects]]
   branch = "master"
@@ -120,7 +126,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "2d027ae1dddd4694d54f7a8b6cbe78dca8720226"
+  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
 
 [[projects]]
   branch = "master"
@@ -129,7 +135,7 @@
     "unix",
     "windows"
   ]
-  revision = "7dfd1290c7917b7ba22824b9d24954ab3002fe24"
+  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -146,6 +152,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0f7fe6ba3ce1a03b0e916755ebda02d3defef52894c113c3b60b09f78e5c928f"
+  inputs-digest = "4c0fc80aa15da33393cc54d607511abdbfff1932ab7d7322c694616b0aa081b5"
   solver-name = "gps-cdcl"
   solver-version = 1
