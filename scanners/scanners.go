@@ -63,6 +63,7 @@ type ScannerInterface interface {
 
 // ActiveScanners ...
 var ActiveScanners = []ScannerInterface{
+	expo.NewScanner(),
 	reactnative.NewScanner(),
 	ionic.NewScanner(),
 	cordova.NewScanner(),
@@ -71,7 +72,6 @@ var ActiveScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	fastlane.NewScanner(),
-	expo.NewScanner(),
 }
 
 // CustomProjectType ...

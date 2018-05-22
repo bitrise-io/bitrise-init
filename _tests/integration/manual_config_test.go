@@ -178,7 +178,7 @@ var customConfigVersions = []interface{}{
 	steps.NpmVersion,
 	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidBuildVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -323,12 +323,12 @@ var customConfigResultYML = fmt.Sprintf(`options:
                       enterprise:
                         config: default-react-native-config
   react-native-expo:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
       _:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+        title: Module
+        env_key: MODULE
         value_map:
           _:
             title: Project (or Workspace) path
@@ -748,11 +748,11 @@ configs:
               inputs:
               - command: run eject
           - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - android-build@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $BUILD_VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:

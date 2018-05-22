@@ -1,9 +1,17 @@
 package expo
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"github.com/bitrise-core/bitrise-init/scanners/cordova"
+	"github.com/bitrise-io/go-utils/log"
+)
+
+// Constants ...
+const (
+	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
+	ProjectLocationInputTitle  = "The root directory of an Android project"
+
+	ModuleInputEnvKey = "MODULE"
+	ModuleInputTitle  = "Module"
 )
 
 func configName(hasAndroidProject, hasIosProject, hasNPMTest bool) string {
@@ -25,41 +33,33 @@ func defaultConfigName() string {
 	return "default-react-native-expo-config"
 }
 
-// FindDependency ...
-func FindDependency(filePath string, dependency string) (bool, error) {
-	rawJSON, err := readFile(filePath)
+// FindDependencies ...
+func FindDependencies(filePath, dep, scrt string) (bool, error) {
+	packages, err := cordova.ParsePackagesJSON(filePath)
 	if err != nil {
 		return false, err
 	}
 
-	value, err := getValueByUnmarshalToInterface(rawJSON["dependencies"], dependency)
-	return len(value) > 0, err
-}
+	log.TPrintf("Searching for %s", dep)
 
-func readFile(pth string) (map[string]*json.RawMessage, error) {
-	fmt.Printf("Reading file - %s", pth)
-	raw, err := ioutil.ReadFile(pth)
-	if err != nil {
-		return nil, err
+	dependencyFound := false
+	for dependency := range packages.Dependencies {
+		if dependency == dep {
+			dependencyFound = true
+		}
 	}
 
-	fmt.Printf("File content: %s", string(raw))
-
-	var objmap map[string]*json.RawMessage
-	err = json.Unmarshal(raw, &objmap)
-
-	return objmap, err
-}
-
-func getValueByUnmarshalToInterface(foo *json.RawMessage, key string) (string, error) {
-	var tmp map[string]interface{}
-	if err := json.Unmarshal(*foo, &tmp); err != nil {
-		return "", err
+	if !dependencyFound {
+		return false, nil
 	}
 
-	value, ok := tmp[key].(string)
-	if !ok {
-		return "", nil
+	log.TPrintf("Searching for %s", scrt)
+
+	dependencyFound = false
+	for script := range packages.Scripts {
+		if script == scrt {
+			dependencyFound = true
+		}
 	}
-	return value, nil
+	return dependencyFound, nil
 }

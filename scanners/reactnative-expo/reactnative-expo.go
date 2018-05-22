@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sync/atomic"
 	"time"
 
 	"github.com/bitrise-core/bitrise-init/models"
@@ -25,12 +24,12 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Name ...
-const Name = "react-native-expo"
-
 const (
 	workDirInputKey = "workdir"
 )
+
+// Name ...
+const Name = "react-native-expo"
 
 // Scanner ...
 type Scanner struct {
@@ -41,15 +40,6 @@ type Scanner struct {
 	hasNPMTest         bool
 	packageJSONPth     string
 }
-
-// LineModification ...
-type LineModification struct {
-	lastTime    time.Time
-	answerCount int
-}
-
-// LastLineModification ...
-var LastLineModification atomic.Value
 
 // NewScanner ...
 func NewScanner() *Scanner {
@@ -76,84 +66,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	dependencyFound := false
-	for _, packageJSONPth := range packageJSONPths {
-		dependency := "expo"
-
-		var err error
-		dependencyFound, err = FindDependency(packageJSONPth, dependency)
-		if err != nil {
-			return false, err
-		}
-
-		log.Debugf("\n%s found: %t\n", dependency, dependencyFound)
-		if dependencyFound {
-			break
-		}
-	}
-
-	if !dependencyFound {
-		return false, nil
-	}
-
-	log.TPrintf("%d package.json file detected", len(packageJSONPths))
-
-	log.TInfof("Filter relevant package.json files")
-
-	fmt.Printf("Returning true for expo")
-	iosScanner := ios.NewScanner()
-	androidScanner := android.NewScanner()
-	for _, packageJSONPth := range packageJSONPths {
-		log.TPrintf("checking: %s", packageJSONPth)
-
-		projectDir := filepath.Dir(packageJSONPth)
-
-		iosDir := filepath.Join(projectDir, "ios")
-		if exist, err := pathutil.IsDirExists(iosDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				return false, nil
-			}
-		}
-
-		androidDir := filepath.Join(projectDir, "android")
-		if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				return false, nil
-			}
-		}
-	}
-
-	if err := ensureNodeModules(); err != nil {
-		log.Errorf("ERROR DURING INSTALLING NPM: %s", err)
-		return false, nil
-	}
-
-	if err := ejectProject(searchDir); err != nil {
-		log.Errorf("ERROR DURING EJECTING THE PROJECT: %s", err)
-		return false, nil
-	}
-
-	return scanner.reactnativeScannerDetectPlatform(scanner.searchDir)
-}
-
-func (scanner *Scanner) reactnativeScannerDetectPlatform(searchDir string) (bool, error) {
-	scanner.searchDir = searchDir
-
-	log.TInfof("Collect package.json files")
-
-	packageJSONPths, err := reactnative.CollectPackageJSONFiles(searchDir)
-	if err != nil {
-		return false, err
-	}
-
 	log.TPrintf("%d package.json file detected", len(packageJSONPths))
 
 	log.TInfof("Filter relevant package.json files")
@@ -161,7 +73,27 @@ func (scanner *Scanner) reactnativeScannerDetectPlatform(searchDir string) (bool
 	relevantPackageJSONPths := []string{}
 	iosScanner := ios.NewScanner()
 	androidScanner := android.NewScanner()
+
 	for _, packageJSONPth := range packageJSONPths {
+		dependencyFound, err := FindDependencies(packageJSONPth, "expo", "eject")
+		if err != nil {
+			return false, err
+		}
+
+		// eject or expo script/dependency not found
+		if !dependencyFound {
+			continue
+		}
+
+		if err := ensureNodeModules(filepath.Dir(packageJSONPth)); err != nil {
+			log.Errorf("ERROR DURING INSTALLING NPM: %s", err)
+			return false, nil
+		}
+
+		if err := ejectProject(searchDir, filepath.Dir(packageJSONPth)); err != nil {
+			log.Errorf("ERROR DURING EJECTING THE PROJECT: %s", err)
+			return false, nil
+		}
 		log.TPrintf("checking: %s", packageJSONPth)
 
 		projectDir := filepath.Dir(packageJSONPth)
@@ -199,6 +131,9 @@ func (scanner *Scanner) reactnativeScannerDetectPlatform(searchDir string) (bool
 
 	if len(relevantPackageJSONPths) == 0 {
 		return false, nil
+	} else if len(relevantPackageJSONPths) > 1 {
+		log.Warnf("More package.json file found")
+		log.Warnf("Using the %s package.json file", relevantPackageJSONPths[0])
 	}
 
 	scanner.packageJSONPth = relevantPackageJSONPths[0]
@@ -238,6 +173,16 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionModel{}, warnings, err
 		} else if detected {
+			// only the first match we need
+			androidScanner.ExcludeTest = true
+			androidScanner.ProjectRoots = []string{androidScanner.ProjectRoots[0]}
+
+			npmCmd := command.New("npm", "install")
+			npmCmd.SetDir(projectDir)
+			if out, err := npmCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
+				return models.OptionModel{}, warnings, fmt.Errorf("failed to npm install react-native in: %s\noutput: %s\nerror: %s", projectDir, out, err)
+			}
+
 			options, warns, err := androidScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
@@ -330,26 +275,26 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(android.GradleFileInputTitle, android.GradleFileInputEnvKey)
+	androidOptions := android.NewScanner().DefaultOptions()
+	iosOptions := ios.NewScanner().DefaultOptions()
 
-	gradlewPthOption := models.NewOption(android.GradlewPathInputTitle, android.GradlewPathInputEnvKey)
-	gradleFileOption.AddOption("_", gradlewPthOption)
+	lastChilds := iosOptions.LastChilds()
+	for _, child := range lastChilds {
+		for _, child := range child.ChildOptionMap {
+			if child.Config == "" {
+				return models.OptionModel{}
+			}
 
-	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-	gradlewPthOption.AddOption("_", projectPathOption)
-
-	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
-	projectPathOption.AddOption("_", schemeOption)
-
-	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
-	schemeOption.AddOption("_", exportMethodOption)
-
-	for _, exportMethod := range ios.IosExportMethods {
-		configOption := models.NewConfigOption(defaultConfigName())
-		exportMethodOption.AddConfig(exportMethod, configOption)
+			child.Config = defaultConfigName()
+		}
 	}
 
-	return *gradleFileOption
+	androidOptions.RemoveConfigs()
+
+	rootOption := androidOptions
+	rootOption.AttachToLastChilds(&iosOptions)
+
+	return androidOptions
 }
 
 // Configs ...
@@ -389,11 +334,13 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 		// android cd
 		if scanner.androidScanner != nil {
+			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
+
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-				envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
+				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
+				envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
 			))
 		}
 
@@ -466,11 +413,13 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "run eject"}))
 
 		if scanner.androidScanner != nil {
+			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
+
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-				envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
+				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
+				envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
 			))
 		}
 
@@ -555,11 +504,13 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "run eject"}))
 
 	// android
+	projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
+
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradleFileInputKey: "$" + android.GradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.GradleTaskInputKey: "assembleRelease"},
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.GradlewPathInputEnvKey},
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
+		envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
 	))
 
 	// ios
@@ -592,93 +543,69 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 // ExcludedScannerNames ...
 func (Scanner) ExcludedScannerNames() []string {
-	return nil
+	return []string{
+		reactnative.Name,
+		string(ios.XcodeProjectTypeIOS),
+		string(ios.XcodeProjectTypeMacOS),
+		android.ScannerName,
+	}
 }
 
-func ensureNodeModules() error {
+func ensureNodeModules(cmdDir string) error {
 	log.Infof("Npm install")
 
 	cmd := command.New("npm", "install")
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
+	cmd.SetDir(cmdDir)
 	return cmd.Run()
 }
 
-func ejectProject(pth string) error {
+func ejectProject(pth string, cmdDir string) error {
 	log.Infof("Eject project")
 
-	lineModification := LineModification{lastTime: time.Now(), answerCount: 0}
-	LastLineModification.Store(lineModification)
-
 	cmd := exec.Command("npm", "run", "eject")
+	cmd.Dir = cmdDir
+
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	stdoutReader, err := cmd.StdoutPipe()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	scanner := bufio.NewScanner(stdoutReader)
+	var t *time.Timer
+
 	go func() {
+		counter := 0
 		for scanner.Scan() {
+			if t != nil {
+				t.Stop()
+			}
+
 			line := scanner.Text()
 			fmt.Println(line)
 
-			lineModification, ok := LastLineModification.Load().(LineModification)
-			if !ok {
-				log.Errorf("Error during casting LastLineModification to LineModification")
+			if counter > 2 {
 				break
 			}
-			lineModification.lastTime = time.Now()
-			LastLineModification.Store(lineModification)
+
+			t = time.AfterFunc(5*time.Second, func() {
+				if _, err := io.WriteString(stdin, "\n"); err != nil {
+					panic(err)
+				}
+				counter++
+
+			})
+		}
+		if err := scanner.Err(); err != nil {
+			panic(err)
 		}
 	}()
 
-	ch := make(chan bool)
-	stopWaiting := false
-	go func(ch *chan bool) {
-		for {
-			go checkLastLineTime(ch)
-			stopWaiting = <-*ch
-
-			if stopWaiting {
-				_, err = io.WriteString(stdin, "\n")
-				if err != nil {
-					log.Errorf("Error during wrinting to cmd, %s", err)
-					break
-				}
-
-				lineModification, ok := LastLineModification.Load().(LineModification)
-				if !ok {
-					log.Errorf("Error during casting LastLineModification to LineModification")
-					break
-				}
-
-				lineModification.answerCount++
-				lineModification.lastTime = time.Now()
-				LastLineModification.Store(lineModification)
-
-				answerCount := LastLineModification.Load().(LineModification).answerCount
-
-				if answerCount > 2 {
-					break
-				}
-			}
-			time.Sleep(time.Second * 5)
-		}
-	}(&ch)
-
 	return cmd.Run()
-}
-
-func checkLastLineTime(ch *chan bool) {
-	lastTime := LastLineModification.Load().(LineModification).lastTime
-	if !lastTime.Add(time.Second * 15).After(time.Now()) {
-		*ch <- true
-		return
-	}
-	*ch <- false
 }
