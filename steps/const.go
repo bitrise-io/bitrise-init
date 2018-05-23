@@ -11,21 +11,21 @@ const (
 	// AndroidLintID ...
 	AndroidLintID = "android-lint"
 	// AndroidLintVersion ...
-	AndroidLintVersion = "0.9.1"
+	AndroidLintVersion = "0.9.2"
 )
 
 const (
 	// AndroidUnitTestID ...
 	AndroidUnitTestID = "android-unit-test"
 	// AndroidUnitTestVersion ...
-	AndroidUnitTestVersion = "0.9.2"
+	AndroidUnitTestVersion = "0.9.3"
 )
 
 const (
 	// AndroidBuildID ...
 	AndroidBuildID = "android-build"
 	// AndroidBuildVersion ...
-	AndroidBuildVersion = "0.9.3"
+	AndroidBuildVersion = "0.9.4"
 )
 
 const (
