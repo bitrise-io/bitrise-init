@@ -49,7 +49,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionModel {
+	gradlewPathOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
+
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	gradlewPathOption.AddOption("_", projectLocationOption)
 
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	projectLocationOption.AddOption("_", moduleOption)
@@ -57,7 +60,7 @@ func (*Scanner) DefaultOptions() models.OptionModel {
 	configOption := models.NewConfigOption(DefaultConfigName)
 	moduleOption.AddConfig("_", configOption)
 
-	return *projectLocationOption
+	return *gradlewPathOption
 }
 
 // Configs ...
