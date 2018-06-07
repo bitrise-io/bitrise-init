@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "0dad3b6953e73d351ec8ebfd8a8c6b088d320381"
+  revision = "ea8897e79973357ba785ac2533559a6297e83c44"
 
 [[projects]]
+  branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "ffd2f116ff7d2846613a8f01479f68ef05ee62da"
-  version = "1.16.1"
+  revision = "95291f6b0dbb32b61a239048ed5e9ea132871496"
 
 [[projects]]
   name = "github.com/bitrise-io/envman"
@@ -52,10 +52,10 @@
   version = "0.9.42"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bitrise-steplib/steps-install-missing-android-tools"
   packages = ["androidcomponents"]
-  revision = "59511231d49f9ba328fc4a512f0ba36e189b8989"
+  revision = "b7c204200cc406d514a51efca9096d857f859f54"
+  version = "2.2.0"
 
 [[projects]]
   branch = "master"
@@ -66,7 +66,13 @@
     "sdkcomponent",
     "sdkmanager"
   ]
-  revision = "5e32d58739d3376ecd9e74fc1eee44c0f00984e5"
+  revision = "d76dcd0cbf2d6643f6b381751a20a153bcbfb55d"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/bitrise-tools/go-steputils"
+  packages = ["tools"]
+  revision = "d4d9e08cc4347e8784bb18419fcdceb932e17019"
 
 [[projects]]
   branch = "master"
@@ -126,7 +132,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
+  revision = "df8d4716b3472e4a531c33cedbe537dae921a1a9"
 
 [[projects]]
   branch = "master"
@@ -135,7 +141,7 @@
     "unix",
     "windows"
   ]
-  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
+  revision = "c11f84a56e43e20a78cee75a7c034031ecf57d1f"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -152,6 +158,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4c0fc80aa15da33393cc54d607511abdbfff1932ab7d7322c694616b0aa081b5"
+  inputs-digest = "f0c6d50dad027cc1244dea8da43aebf213b864c428d73376874ea5cc5b1c1c23"
   solver-name = "gps-cdcl"
   solver-version = 1
