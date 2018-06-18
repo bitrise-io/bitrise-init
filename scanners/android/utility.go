@@ -153,8 +153,9 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 			return models.OptionModel{}, warnings, err
 		}
 
-		if err := androidcomponents.Ensure(androidSdk, gradlewPath); err != nil {
-			return models.OptionModel{}, warnings, err
+		componentInstallErr := androidcomponents.Ensure(androidSdk, gradlewPath)
+		if componentInstallErr != nil {
+			warnings = append(warnings, fmt.Sprintf("failed to run install missing android components, error: %s", componentInstallErr))
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
@@ -167,28 +168,26 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 			return models.OptionModel{}, warnings, err
 		}
 
-		testVariantsMap, err := proj.GetTask("test").GetVariants()
-		if err != nil {
-			if !scanner.ExcludeTest {
-				buildVariantOption.AddOption("_", testVariantOption)
-				testVariantOption.AddOption("_", configOption)
-			} else {
-				buildVariantOption.AddOption("_", configOption)
-			}
-			projectLocationOption.AddOption(relProjectRoot, buildVariantOption)
-			return *projectLocationOption, append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, err)), nil
+		testVariantsMap, testVariantFetchErr := proj.GetTask("test").GetVariants()
+		if testVariantFetchErr != nil {
+			warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, testVariantFetchErr))
 		}
 
-		buildVariantsMap, err := proj.GetTask("assemble").GetVariants()
-		if err != nil {
+		buildVariantsMap, buildVariantFetchErr := proj.GetTask("assemble").GetVariants()
+		if buildVariantFetchErr != nil {
+			warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, buildVariantFetchErr))
+		}
+
+		if componentInstallErr != nil || testVariantFetchErr != nil || buildVariantFetchErr != nil {
 			if !scanner.ExcludeTest {
 				buildVariantOption.AddOption("_", testVariantOption)
 				testVariantOption.AddOption("_", configOption)
 			} else {
 				buildVariantOption.AddOption("_", configOption)
 			}
-			projectLocationOption.AddOption(relProjectRoot, buildVariantOption)
-			return *projectLocationOption, append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, err)), nil
+			moduleOption.AddOption("_", buildVariantOption)
+			projectLocationOption.AddOption(relProjectRoot, moduleOption)
+			return *projectLocationOption, warnings, nil
 		}
 
 		for module, variants := range buildVariantsMap {
