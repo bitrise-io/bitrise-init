@@ -5,19 +5,19 @@
   branch = "master"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "ea8897e79973357ba785ac2533559a6297e83c44"
+  revision = "75068beb13ada9c0ddde611f678523fda7352650"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "95291f6b0dbb32b61a239048ed5e9ea132871496"
+  revision = "60a178d4606ec61bfeb0a0309d0fd48a2816898e"
+  version = "1.17.0"
 
 [[projects]]
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  revision = "e607e3cb53ff51fe591f33739a36ea05356bf06c"
-  version = "1.1.13"
+  revision = "8a2e2f93c19399d1a62cc8f4bd6bb3c3d084fdf2"
+  version = "1.1.14"
 
 [[projects]]
   branch = "master"
@@ -46,10 +46,10 @@
   revision = "f451b19ba4d087d8272d411ad91af5f4218fd517"
 
 [[projects]]
+  branch = "master"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "b6cfe51c9e0bf5d7eab8ef048bf7b3d6174ae3f8"
-  version = "0.9.42"
+  revision = "87174f7e8fa372bac8a13d3f6ed762149bb1099d"
 
 [[projects]]
   name = "github.com/bitrise-steplib/steps-install-missing-android-tools"
@@ -81,7 +81,7 @@
     "plistutil",
     "xcodeproj"
   ]
-  revision = "2ebe49789dd410cae7f6dc54f0d2f5893e4fd1a0"
+  revision = "f0ff07f19851eb1a50164389635fe5659b647690"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -114,13 +114,13 @@
   revision = "256dc444b735e061061cf46c809487313d5b0065"
 
 [[projects]]
-  branch = "master"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require"
   ]
-  revision = "c679ae2cc0cb27ec3293fea7e254e47386f05d69"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
@@ -132,7 +132,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "df8d4716b3472e4a531c33cedbe537dae921a1a9"
+  revision = "027cca12c2d63e3d62b670d901e8a2c95854feec"
 
 [[projects]]
   branch = "master"
@@ -141,7 +141,7 @@
     "unix",
     "windows"
   ]
-  revision = "c11f84a56e43e20a78cee75a7c034031ecf57d1f"
+  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -153,7 +153,7 @@
   branch = "master"
   name = "howett.net/plist"
   packages = ["."]
-  revision = "3bf914ef8f3a8bec3df2721a531d3a693c0a3db9"
+  revision = "500bd5b9081b5957ac10389f86e069869f00c348"
 
 [solve-meta]
   analyzer-name = "dep"
