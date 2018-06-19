@@ -247,28 +247,28 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
-	moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
-	buildVariantOption := models.NewOption(android.BuildVariantInputTitle, android.BuildVariantInputEnvKey)
+	androidScanner := android.NewScanner()
+	androidScanner.ExcludeTest = true
+	androidOptions := androidScanner.DefaultOptions()
+	iosOptions := ios.NewScanner().DefaultOptions()
 
-	projectLocationOption.AddOption("_", moduleOption)
-	moduleOption.AddConfig("_", buildVariantOption)
+	lastChilds := iosOptions.LastChilds()
+	for _, child := range lastChilds {
+		for _, child := range child.ChildOptionMap {
+			if child.Config == "" {
+				return models.OptionModel{}
+			}
 
-	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-	buildVariantOption.AddOption("_", projectPathOption)
-
-	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
-	projectPathOption.AddOption("_", schemeOption)
-
-	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
-	schemeOption.AddOption("_", exportMethodOption)
-
-	for _, exportMethod := range ios.IosExportMethods {
-		configOption := models.NewConfigOption(defaultConfigName())
-		exportMethodOption.AddConfig(exportMethod, configOption)
+			child.Config = defaultConfigName()
+		}
 	}
 
-	return *projectLocationOption
+	androidOptions.RemoveConfigs()
+
+	rootOption := androidOptions
+	rootOption.AttachToLastChilds(&iosOptions)
+
+	return androidOptions
 }
 
 // Configs ...
