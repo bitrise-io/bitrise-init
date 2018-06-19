@@ -20,8 +20,8 @@ func binPath() string {
 	return os.Getenv("INTEGRATION_TEST_BINARY_PATH")
 }
 
-func extractFormat(str string, formats ...interface{}) (string, error) {
-	for _, f := range formats {
+func replaceVersions(str string, versions ...interface{}) (string, error) {
+	for _, f := range versions {
 		if format, ok := f.(string); ok {
 			beforeCount := strings.Count(str, format)
 			if beforeCount < 1 {
@@ -31,7 +31,7 @@ func extractFormat(str string, formats ...interface{}) (string, error) {
 
 			afterCount := strings.Count(str, format)
 			if beforeCount-1 != afterCount {
-				return "", fmt.Errorf("failed to extract all formats")
+				return "", fmt.Errorf("failed to extract all versions")
 			}
 		}
 	}
@@ -40,7 +40,7 @@ func extractFormat(str string, formats ...interface{}) (string, error) {
 
 func validateConfigExpectation(t *testing.T, ID, expected, actual string, versions ...interface{}) {
 	if !assert.ObjectsAreEqual(expected, actual) {
-		s, err := extractFormat(actual, versions...)
+		s, err := replaceVersions(actual, versions...)
 		require.NoError(t, err)
 		fmt.Println("---------------------")
 		fmt.Println("Expected config:")
@@ -66,8 +66,7 @@ func validateConfigExpectation(t *testing.T, ID, expected, actual string, versio
 			actPth := filepath.Join(tmpDir, ID+"-actual.yml")
 			require.NoError(t, fileutil.WriteStringToFile(expPth, expected))
 			require.NoError(t, fileutil.WriteStringToFile(actPth, actual))
-			err = exec.Command("opendiff", expPth, actPth).Start()
-			require.NoError(t, err)
+			require.NoError(t, exec.Command("opendiff", expPth, actPth).Start())
 			t.FailNow()
 			return
 		}

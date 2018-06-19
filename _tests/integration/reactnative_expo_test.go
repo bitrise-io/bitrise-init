@@ -321,7 +321,9 @@ configs:
           - npm@%s:
               inputs:
               - command: run eject
-          - install-missing-android-tools@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION

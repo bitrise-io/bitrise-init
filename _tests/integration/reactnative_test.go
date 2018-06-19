@@ -336,7 +336,9 @@ configs:
               inputs:
               - workdir: project
               - command: install
-          - install-missing-android-tools@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -650,7 +652,9 @@ configs:
           - npm@%s:
               inputs:
               - command: install
-          - install-missing-android-tools@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION

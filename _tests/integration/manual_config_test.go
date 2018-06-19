@@ -304,33 +304,37 @@ var customConfigResultYML = fmt.Sprintf(`options:
               none:
                 config: default-macos-config
   react-native:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
       _:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+        title: Module
+        env_key: MODULE
         value_map:
           _:
-            title: Project (or Workspace) path
-            env_key: BITRISE_PROJECT_PATH
+            title: Variant for building
+            env_key: BUILD_VARIANT
             value_map:
               _:
-                title: Scheme name
-                env_key: BITRISE_SCHEME
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
                 value_map:
                   _:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
-                      ad-hoc:
-                        config: default-react-native-config
-                      app-store:
-                        config: default-react-native-config
-                      development:
-                        config: default-react-native-config
-                      enterprise:
-                        config: default-react-native-config
+                      _:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: default-react-native-config
+                          app-store:
+                            config: default-react-native-config
+                          development:
+                            config: default-react-native-config
+                          enterprise:
+                            config: default-react-native-config
   react-native-expo:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
@@ -344,29 +348,25 @@ var customConfigResultYML = fmt.Sprintf(`options:
             env_key: BUILD_VARIANT
             value_map:
               _:
-                title: Variant for testing
-                env_key: TEST_VARIANT
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
                 value_map:
                   _:
-                    title: Project (or Workspace) path
-                    env_key: BITRISE_PROJECT_PATH
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
                       _:
-                        title: Scheme name
-                        env_key: BITRISE_SCHEME
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
                         value_map:
-                          _:
-                            title: ipa export method
-                            env_key: BITRISE_EXPORT_METHOD
-                            value_map:
-                              ad-hoc:
-                                config: default-react-native-expo-config
-                              app-store:
-                                config: default-react-native-expo-config
-                              development:
-                                config: default-react-native-expo-config
-                              enterprise:
-                                config: default-react-native-expo-config
+                          ad-hoc:
+                            config: default-react-native-expo-config
+                          app-store:
+                            config: default-react-native-expo-config
+                          development:
+                            config: default-react-native-expo-config
+                          enterprise:
+                            config: default-react-native-expo-config
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
@@ -716,7 +716,9 @@ configs:
           - npm@%s:
               inputs:
               - command: install
-          - install-missing-android-tools@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -768,7 +770,9 @@ configs:
           - npm@%s:
               inputs:
               - command: run eject
-          - install-missing-android-tools@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
