@@ -275,26 +275,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	androidScanner := android.NewScanner()
-	androidScanner.ExcludeTest = true
-	androidOptions := androidScanner.DefaultOptions()
-	iosOptions := ios.NewScanner().DefaultOptions()
+	androidOptions := (&android.Scanner{ExcludeTest: true}).DefaultOptions()
+	androidOptions.RemoveConfigs()
 
-	lastChilds := iosOptions.LastChilds()
-	for _, child := range lastChilds {
+	iosOptions := (&ios.Scanner{}).DefaultOptions()
+	for _, child := range iosOptions.LastChilds() {
 		for _, child := range child.ChildOptionMap {
-			if child.Config == "" {
-				return models.OptionModel{}
-			}
-
 			child.Config = defaultConfigName()
 		}
 	}
 
-	androidOptions.RemoveConfigs()
-
-	rootOption := androidOptions
-	rootOption.AttachToLastChilds(&iosOptions)
+	androidOptions.AttachToLastChilds(&iosOptions)
 
 	return androidOptions
 }
