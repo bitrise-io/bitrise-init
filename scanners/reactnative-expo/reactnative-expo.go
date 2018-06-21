@@ -275,24 +275,17 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
-	androidOptions := android.NewScanner().DefaultOptions()
-	iosOptions := ios.NewScanner().DefaultOptions()
+	androidOptions := (&android.Scanner{ExcludeTest: true}).DefaultOptions()
+	androidOptions.RemoveConfigs()
 
-	lastChilds := iosOptions.LastChilds()
-	for _, child := range lastChilds {
+	iosOptions := (&ios.Scanner{}).DefaultOptions()
+	for _, child := range iosOptions.LastChilds() {
 		for _, child := range child.ChildOptionMap {
-			if child.Config == "" {
-				return models.OptionModel{}
-			}
-
 			child.Config = defaultConfigName()
 		}
 	}
 
-	androidOptions.RemoveConfigs()
-
-	rootOption := androidOptions
-	rootOption.AttachToLastChilds(&iosOptions)
+	androidOptions.AttachToLastChilds(&iosOptions)
 
 	return androidOptions
 }
@@ -336,7 +329,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		if scanner.androidScanner != nil {
 			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
 
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
+			))
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
 				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
@@ -415,7 +410,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		if scanner.androidScanner != nil {
 			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
 
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
+			))
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
 				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
@@ -506,7 +503,9 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	// android
 	projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
+	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
 		envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
