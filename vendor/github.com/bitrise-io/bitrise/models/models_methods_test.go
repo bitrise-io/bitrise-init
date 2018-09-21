@@ -449,52 +449,29 @@ workflows:
 }
 
 func TestMatchWithParamsCodePushItem(t *testing.T) {
-	t.Log("code-push against code-push type item - MATCH")
+	t.Log("The following patterns are all matches")
 	{
-		pushBranch := "master"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
+		for aPattern, aPushBranch := range map[string]string{
+			"feature":   "feature",
+			"feature/*": "feature/login",
+			"feature**": "feature",
+			"*feature":  "feature",
+			"**feature": "feature",
+			"*":         "feature",
+		} {
+			pushBranch := aPushBranch
+			prSourceBranch := ""
+			prTargetBranch := ""
+			tag := ""
 
-		item := TriggerMapItemModel{
-			PushBranch: "master",
-			WorkflowID: "primary",
+			item := TriggerMapItemModel{
+				PushBranch: aPattern,
+				WorkflowID: "primary",
+			}
+			match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
+			require.NoError(t, err)
+			require.Equal(t, true, match, "(pattern: %s) (branch: %s)", aPattern, aPushBranch)
 		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
-	}
-
-	t.Log("code-push against code-push type item - MATCH")
-	{
-		pushBranch := "master"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
-
-		item := TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: "primary",
-		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
-	}
-
-	t.Log("code-push against code-push type item - MATCH")
-	{
-		pushBranch := "feature/login"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
-
-		item := TriggerMapItemModel{
-			PushBranch: "feature/*",
-			WorkflowID: "primary",
-		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
 	}
 
 	t.Log("code-push against code-push type item - NOT MATCH")
@@ -905,7 +882,7 @@ func TestValidateConfig(t *testing.T) {
 
 // Workflow
 func TestValidateWorkflow(t *testing.T) {
-	t.Log("before-afetr test")
+	t.Log("before-after test")
 	{
 		workflow := WorkflowModel{
 			BeforeRun: []string{"befor1", "befor2", "befor3"},
@@ -949,7 +926,7 @@ workflows:
 		require.Equal(t, 0, len(warnings))
 	}
 
-	t.Log("vali workflow - Warning: duplicated inputs")
+	t.Log("valid workflow - Warning: duplicated inputs")
 	{
 		configStr := `format_version: 1.4.0
 

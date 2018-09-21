@@ -10,7 +10,9 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	SearchDir string
+	SearchDir    string
+	ProjectRoots []string
+	ExcludeTest  bool
 }
 
 // NewScanner ...
@@ -25,42 +27,50 @@ func (Scanner) Name() string {
 
 // ExcludedScannerNames ...
 func (*Scanner) ExcludedScannerNames() []string {
-	return []string{}
+	return nil
 }
 
 // DetectPlatform ...
-func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	scanner.SearchDir = searchDir
 
-	buildGradleFiles, err := CollectRootBuildGradleFiles(searchDir)
+	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle")
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	return (len(buildGradleFiles) > 0), nil
+	return len(scanner.ProjectRoots) > 0, err
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return GenerateOptions(scanner.SearchDir)
+	return scanner.generateOptions(scanner.SearchDir)
 }
 
 // DefaultOptions ...
-func (*Scanner) DefaultOptions() models.OptionModel {
-	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
-
-	gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
-	gradleFileOption.AddOption("_", gradlewPthOption)
-
+func (scanner *Scanner) DefaultOptions() models.OptionModel {
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
+	testVariantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
+	buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
 	configOption := models.NewConfigOption(DefaultConfigName)
-	gradlewPthOption.AddConfig("_", configOption)
 
-	return *gradleFileOption
+	projectLocationOption.AddOption("_", moduleOption)
+	moduleOption.AddConfig("_", buildVariantOption)
+
+	if !scanner.ExcludeTest {
+		buildVariantOption.AddConfig("_", testVariantOption)
+		testVariantOption.AddConfig("_", configOption)
+		return *projectLocationOption
+	}
+
+	buildVariantOption.AddConfig("_", configOption)
+	return *projectLocationOption
 }
 
 // Configs ...
-func (*Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := GenerateConfigBuilder(true)
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+	configBuilder := scanner.generateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
@@ -78,8 +88,8 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := GenerateConfigBuilder(true)
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	configBuilder := scanner.generateConfigBuilder(true)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

@@ -32,7 +32,8 @@ func TestReactNative(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsReactNativeIosAndAndroidResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidVersions...)
 	}
 
 	t.Log("sample-apps-react-native-subdir")
@@ -49,7 +50,8 @@ func TestReactNative(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsReactNativeSubdirResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "sample-apps-react-native-subdir", strings.TrimSpace(sampleAppsReactNativeSubdirResultYML), strings.TrimSpace(result), sampleAppsReactNativeSubdirVersions...)
 	}
 }
 
@@ -61,7 +63,7 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidBuildVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -76,45 +78,241 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 
 var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
   react-native:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
-      project/android/build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+      project/android:
+        title: Module
+        env_key: MODULE
         value_map:
-          project/android/gradlew:
-            title: Project (or Workspace) path
-            env_key: BITRISE_PROJECT_PATH
+          app:
+            title: Variant for building
+            env_key: BUILD_VARIANT
             value_map:
-              project/ios/SampleAppsReactNativeAndroid.xcodeproj:
-                title: Scheme name
-                env_key: BITRISE_SCHEME
+              "":
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
                 value_map:
-                  SampleAppsReactNativeAndroid:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
-                  SampleAppsReactNativeAndroid-tvOS:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              AndroidTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              Debug:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              DebugAndroidTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              DebugUnitTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              Release:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              ReleaseUnitTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
 configs:
   react-native:
     react-native-android-ios-test-config: |
@@ -138,12 +336,14 @@ configs:
               inputs:
               - workdir: project
               - command: install
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $BUILD_VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -180,7 +380,7 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidBuildVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -195,45 +395,241 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
   react-native:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
-      android/build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+      android:
+        title: Module
+        env_key: MODULE
         value_map:
-          android/gradlew:
-            title: Project (or Workspace) path
-            env_key: BITRISE_PROJECT_PATH
+          app:
+            title: Variant for building
+            env_key: BUILD_VARIANT
             value_map:
-              ios/SampleAppsReactNativeAndroid.xcodeproj:
-                title: Scheme name
-                env_key: BITRISE_SCHEME
+              "":
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
                 value_map:
-                  SampleAppsReactNativeAndroid:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
-                  SampleAppsReactNativeAndroid-tvOS:
-                    title: ipa export method
-                    env_key: BITRISE_EXPORT_METHOD
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              AndroidTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
                     value_map:
-                      ad-hoc:
-                        config: react-native-android-ios-test-config
-                      app-store:
-                        config: react-native-android-ios-test-config
-                      development:
-                        config: react-native-android-ios-test-config
-                      enterprise:
-                        config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              Debug:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              DebugAndroidTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              DebugUnitTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              Release:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+              ReleaseUnitTest:
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
+                value_map:
+                  ios/SampleAppsReactNativeAndroid.xcodeproj:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      SampleAppsReactNativeAndroid:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
+                      SampleAppsReactNativeAndroid-tvOS:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-test-config
+                          app-store:
+                            config: react-native-android-ios-test-config
+                          development:
+                            config: react-native-android-ios-test-config
+                          enterprise:
+                            config: react-native-android-ios-test-config
 configs:
   react-native:
     react-native-android-ios-test-config: |
@@ -256,12 +652,14 @@ configs:
           - npm@%s:
               inputs:
               - command: install
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $BUILD_VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:

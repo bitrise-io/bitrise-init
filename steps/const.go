@@ -4,14 +4,35 @@ const (
 	// ActivateSSHKeyID ...
 	ActivateSSHKeyID = "activate-ssh-key"
 	// ActivateSSHKeyVersion ...
-	ActivateSSHKeyVersion = "3.1.1"
+	ActivateSSHKeyVersion = "4.0.3"
+)
+
+const (
+	// AndroidLintID ...
+	AndroidLintID = "android-lint"
+	// AndroidLintVersion ...
+	AndroidLintVersion = "0.9.4"
+)
+
+const (
+	// AndroidUnitTestID ...
+	AndroidUnitTestID = "android-unit-test"
+	// AndroidUnitTestVersion ...
+	AndroidUnitTestVersion = "0.9.3"
+)
+
+const (
+	// AndroidBuildID ...
+	AndroidBuildID = "android-build"
+	// AndroidBuildVersion ...
+	AndroidBuildVersion = "0.9.5"
 )
 
 const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
-	GitCloneVersion = "4.0.5"
+	GitCloneVersion = "4.0.11"
 )
 
 const (
@@ -25,21 +46,28 @@ const (
 	// CachePushID ...
 	CachePushID = "cache-push"
 	// CachePushVersion ...
-	CachePushVersion = "2.0.3"
+	CachePushVersion = "2.0.5"
 )
 
 const (
 	// CertificateAndProfileInstallerID ...
 	CertificateAndProfileInstallerID = "certificate-and-profile-installer"
 	// CertificateAndProfileInstallerVersion ...
-	CertificateAndProfileInstallerVersion = "1.9.2"
+	CertificateAndProfileInstallerVersion = "1.10.1"
+)
+
+const (
+	// ChangeAndroidVersionCodeAndVersionNameID ...
+	ChangeAndroidVersionCodeAndVersionNameID = "change-android-versioncode-and-versionname"
+	// ChangeAndroidVersionCodeAndVersionNameVersion ...
+	ChangeAndroidVersionCodeAndVersionNameVersion = "1.1.1"
 )
 
 const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.10"
+	DeployToBitriseIoVersion = "1.3.15"
 )
 
 const (
@@ -52,17 +80,24 @@ const (
 )
 
 const (
+	// SignAPKID ...
+	SignAPKID = "sign-apk"
+	// SignAPKVersion ...
+	SignAPKVersion = "1.2.3"
+)
+
+const (
 	// InstallMissingAndroidToolsID ...
 	InstallMissingAndroidToolsID = "install-missing-android-tools"
 	// InstallMissingAndroidToolsVersion ...
-	InstallMissingAndroidToolsVersion = "2.0.6"
+	InstallMissingAndroidToolsVersion = "2.2.0"
 )
 
 const (
 	// GradleRunnerID ...
 	GradleRunnerID = "gradle-runner"
 	// GradleRunnerVersion ...
-	GradleRunnerVersion = "1.8.0"
+	GradleRunnerVersion = "1.8.3"
 )
 
 const (
@@ -83,7 +118,7 @@ const (
 	// CarthageID ...
 	CarthageID = "carthage"
 	// CarthageVersion ...
-	CarthageVersion = "3.1.3"
+	CarthageVersion = "3.1.5"
 )
 
 const (
@@ -97,14 +132,14 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2.4.3"
+	XcodeArchiveVersion = "2.4.14"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "1.18.9"
+	XcodeTestVersion = "1.18.16"
 )
 
 const (
@@ -118,7 +153,7 @@ const (
 	// NugetRestoreID ...
 	NugetRestoreID = "nuget-restore"
 	// NugetRestoreVersion ...
-	NugetRestoreVersion = "1.0.5"
+	NugetRestoreVersion = "1.0.7"
 )
 
 const (
@@ -139,35 +174,35 @@ const (
 	// XcodeArchiveMacID ...
 	XcodeArchiveMacID = "xcode-archive-mac"
 	// XcodeArchiveMacVersion ...
-	XcodeArchiveMacVersion = "1.6.1"
+	XcodeArchiveMacVersion = "1.6.2"
 )
 
 const (
 	// XcodeTestMacID ...
 	XcodeTestMacID = "xcode-test-mac"
 	// XcodeTestMacVersion ...
-	XcodeTestMacVersion = "1.1.2"
+	XcodeTestMacVersion = "1.2.1"
 )
 
 const (
 	// CordovaArchiveID ...
 	CordovaArchiveID = "cordova-archive"
 	// CordovaArchiveVersion ...
-	CordovaArchiveVersion = "1.0.1"
+	CordovaArchiveVersion = "1.1.1"
 )
 
 const (
 	// IonicArchiveID ...
 	IonicArchiveID = "ionic-archive"
 	// IonicArchiveVersion ...
-	IonicArchiveVersion = "1.2.1"
+	IonicArchiveVersion = "1.2.5"
 )
 
 const (
 	// GenerateCordovaBuildConfigID ...
 	GenerateCordovaBuildConfigID = "generate-cordova-build-configuration"
 	// GenerateCordovaBuildConfigVersion ...
-	GenerateCordovaBuildConfigVersion = "0.9.3"
+	GenerateCordovaBuildConfigVersion = "0.9.6"
 )
 
 const (
@@ -188,5 +223,5 @@ const (
 	// NpmID ...
 	NpmID = "npm"
 	// NpmVersion ...
-	NpmVersion = "0.9.0"
+	NpmVersion = "0.9.1"
 )
