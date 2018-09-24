@@ -1,14 +1,10 @@
 package expo
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"time"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
@@ -323,7 +319,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 		// eject
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "run eject"}))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+			envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
+		))
 
 		// android cd
 		if scanner.androidScanner != nil {
@@ -405,7 +403,9 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 		// eject
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "run eject"}))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+			envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
+		))
 
 		if scanner.androidScanner != nil {
 			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
@@ -498,7 +498,9 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
 
 	// eject
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "run eject"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
+	))
 
 	// android
 	projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
@@ -560,51 +562,24 @@ func ensureNodeModules(cmdDir string) error {
 	return cmd.Run()
 }
 
+// InstallExpoCLI runs the install npm command to install the expo-cli
+func InstallExpoCLI() error {
+	args := []string{"install", "-g", "expo-cli"}
+	cmd := command.New("npm", args...)
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(os.Stderr)
+
+	log.Printf("$ " + cmd.PrintableCommandArgs())
+	return cmd.Run()
+}
+
 func ejectProject(pth string, cmdDir string) error {
+	// TODO: use the new expo detach step
 	log.Infof("Eject project")
 
-	cmd := exec.Command("npm", "run", "eject")
-	cmd.Dir = cmdDir
-
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		panic(err)
-	}
-
-	stdoutReader, err := cmd.StdoutPipe()
-	if err != nil {
-		panic(err)
-	}
-
-	scanner := bufio.NewScanner(stdoutReader)
-	var t *time.Timer
-
-	go func() {
-		counter := 0
-		for scanner.Scan() {
-			if t != nil {
-				t.Stop()
-			}
-
-			line := scanner.Text()
-			fmt.Println(line)
-
-			if counter > 2 {
-				break
-			}
-
-			t = time.AfterFunc(5*time.Second, func() {
-				if _, err := io.WriteString(stdin, "\n"); err != nil {
-					panic(err)
-				}
-				counter++
-
-			})
-		}
-		if err := scanner.Err(); err != nil {
-			panic(err)
-		}
-	}()
-
+	cmd := command.New("expo", "eject", "--non-interactive", "--eject-method", "plain")
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(os.Stderr)
+	cmd.SetDir(cmdDir)
 	return cmd.Run()
 }

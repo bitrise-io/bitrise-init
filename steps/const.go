@@ -225,3 +225,10 @@ const (
 	// NpmVersion ...
 	NpmVersion = "0.9.1"
 )
+
+const (
+	// ExpoDetachID ...
+	ExpoDetachID = "expo-detach"
+	// ExpoDetachVersion ...
+	ExpoDetachVersion = "0.9.0"
+)

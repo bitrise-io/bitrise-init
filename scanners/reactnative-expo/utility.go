@@ -8,6 +8,7 @@ import (
 // Constants ...
 const (
 	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
+	ProjectLocationInputKey    = "project_location"
 	ProjectLocationInputTitle  = "The root directory of an Android project"
 
 	ModuleInputEnvKey = "MODULE"

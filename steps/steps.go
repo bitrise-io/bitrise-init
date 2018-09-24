@@ -251,3 +251,9 @@ func NpmStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.
 	stepIDComposite := stepIDComposite(NpmID, NpmVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
+
+// ExpoDetachStepListItem ...
+func ExpoDetachStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ExpoDetachID, ExpoDetachVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
