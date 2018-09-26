@@ -67,61 +67,15 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TInfof("Filter relevant package.json files")
 
 	relevantPackageJSONPths := []string{}
-	iosScanner := ios.NewScanner()
-	androidScanner := android.NewScanner()
-
 	for _, packageJSONPth := range packageJSONPths {
-		dependencyFound, err := FindDependencies(packageJSONPth, "expo", "eject")
+		dependencyFound, err := FindDependencies(packageJSONPth, "expo")
 		if err != nil {
 			return false, err
 		}
 
-		// eject or expo script/dependency not found
+		// expo dependency not found
 		if !dependencyFound {
 			continue
-		}
-
-		if err := ensureNodeModules(filepath.Dir(packageJSONPth)); err != nil {
-			log.Errorf("ERROR DURING INSTALLING NPM: %s", err)
-			return false, nil
-		}
-
-		if err := ejectProject(searchDir, filepath.Dir(packageJSONPth)); err != nil {
-			log.Errorf("ERROR DURING EJECTING THE PROJECT: %s", err)
-			return false, nil
-		}
-		log.TPrintf("checking: %s", packageJSONPth)
-
-		projectDir := filepath.Dir(packageJSONPth)
-
-		iosProjectDetected := false
-		iosDir := filepath.Join(projectDir, "ios")
-		if exist, err := pathutil.IsDirExists(iosDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				iosProjectDetected = true
-			}
-		}
-
-		androidProjectDetected := false
-		androidDir := filepath.Join(projectDir, "android")
-		if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				androidProjectDetected = true
-			}
-		}
-
-		if iosProjectDetected || androidProjectDetected {
-			relevantPackageJSONPths = append(relevantPackageJSONPths, packageJSONPth)
-		} else {
-			log.TWarnf("no ios nor android project found, skipping package.json file")
 		}
 	}
 
@@ -133,7 +87,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	scanner.packageJSONPth = relevantPackageJSONPths[0]
-
 	return true, nil
 }
 

@@ -35,7 +35,7 @@ func defaultConfigName() string {
 }
 
 // FindDependencies ...
-func FindDependencies(filePath, dep, scrt string) (bool, error) {
+func FindDependencies(filePath, dep string) (bool, error) {
 	packages, err := cordova.ParsePackagesJSON(filePath)
 	if err != nil {
 		return false, err
@@ -46,19 +46,6 @@ func FindDependencies(filePath, dep, scrt string) (bool, error) {
 	dependencyFound := false
 	for dependency := range packages.Dependencies {
 		if dependency == dep {
-			dependencyFound = true
-		}
-	}
-
-	if !dependencyFound {
-		return false, nil
-	}
-
-	log.TPrintf("Searching for %s", scrt)
-
-	dependencyFound = false
-	for script := range packages.Scripts {
-		if script == scrt {
 			dependencyFound = true
 		}
 	}
