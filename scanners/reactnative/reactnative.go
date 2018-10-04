@@ -23,13 +23,8 @@ import (
 const Name = "react-native"
 
 const (
-	workDirInputKey = "workdir"
-
-	gradleFileInputKey    = "gradle_file"
-	gradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
-	gradleFileInputTitle  = "Path to the gradle file to use"
-
-	gradleTaskInputKey = "gradle_task"
+	// WorkDirInputKey ...
+	WorkDirInputKey = "workdir"
 )
 
 // Scanner ...
@@ -278,7 +273,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
 	if relPackageJSONDir != "" {
-		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
+		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{WorkDirInputKey: relPackageJSONDir})
 	}
 
 	if scanner.hasNPMTest {

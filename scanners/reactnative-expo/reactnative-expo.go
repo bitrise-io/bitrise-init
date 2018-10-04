@@ -1,10 +1,13 @@
 package expo
 
 import (
-	"errors"
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
@@ -14,14 +17,16 @@ import (
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-tools/xcode-project/serialized"
 	yaml "gopkg.in/yaml.v2"
 )
 
 const (
-	workDirInputKey = "workdir"
+	configName        = "react-native-expo-config"
+	defaultConfigName = "default-" + configName
 )
 
 // Name ...
@@ -29,12 +34,9 @@ const Name = "react-native-expo"
 
 // Scanner ...
 type Scanner struct {
-	searchDir          string
-	iosScanner         *ios.Scanner
-	androidScanner     *android.Scanner
-	reactnativeScanner *reactnative.Scanner
-	hasNPMTest         bool
-	packageJSONPth     string
+	searchDir      string
+	packageJSONPth string
+	usesExpoKit    bool
 }
 
 // NewScanner ...
@@ -63,27 +65,49 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	log.TPrintf("%d package.json file detected", len(packageJSONPths))
+	for _, pth := range packageJSONPths {
+		log.TPrintf("- %s", pth)
+	}
+	log.TPrintf("")
 
-	log.TInfof("Filter relevant package.json files")
+	log.TInfof("Filter package.json files with expo dependency")
 
 	relevantPackageJSONPths := []string{}
 	for _, packageJSONPth := range packageJSONPths {
-		dependencyFound, err := FindDependencies(packageJSONPth, "expo")
+		packages, err := cordova.ParsePackagesJSON(packageJSONPth)
 		if err != nil {
-			return false, err
-		}
-
-		// expo dependency not found
-		if !dependencyFound {
+			log.Warnf("Failed to parse package json file: %s, skipping...", packageJSONPth)
 			continue
 		}
+
+		_, found := packages.Dependencies["expo"]
+		if !found {
+			continue
+		}
+
+		// app.json file is a required part of react native projects and it exists next to the root package.json file
+		appJSONPth := filepath.Join(filepath.Dir(packageJSONPth), "app.json")
+		if exist, err := pathutil.IsPathExists(appJSONPth); err != nil {
+			log.Warnf("Failed to check if app.json file exist at: %s, skipping package json file: %s, error: %s", appJSONPth, packageJSONPth, err)
+			continue
+		} else if !exist {
+			log.Warnf("No app.json file exist at: %s, skipping package json file: %s", appJSONPth, packageJSONPth)
+			continue
+		}
+
+		relevantPackageJSONPths = append(relevantPackageJSONPths, packageJSONPth)
 	}
+
+	log.TPrintf("%d package.json file detected with expo dependency", len(relevantPackageJSONPths))
+	for _, pth := range relevantPackageJSONPths {
+		log.TPrintf("- %s", pth)
+	}
+	log.TPrintf("")
 
 	if len(relevantPackageJSONPths) == 0 {
 		return false, nil
 	} else if len(relevantPackageJSONPths) > 1 {
-		log.Warnf("More package.json file found")
-		log.Warnf("Using the %s package.json file", relevantPackageJSONPths[0])
+		log.TWarnf("Multiple package.json file found, using: %s\n", relevantPackageJSONPths[0])
 	}
 
 	scanner.packageJSONPth = relevantPackageJSONPths[0]
@@ -94,149 +118,151 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	warnings := models.Warnings{}
 
-	var rootOption models.OptionModel
+	// we need to know if the project uses the Expo Kit,
+	// since its usage differentiates the eject process
+	// and the config options
+	usesExpoKit := false
 
-	// react options
-	packages, err := cordova.ParsePackagesJSON(scanner.packageJSONPth)
+	fileList, err := utility.ListPathInDirSortedByComponents(scanner.searchDir, true)
 	if err != nil {
-		fmt.Printf("JAJA erre gondolt - %s\n\n", scanner.packageJSONPth)
 		return models.OptionModel{}, warnings, err
 	}
 
-	hasNPMTest := false
-	if _, found := packages.Scripts["test"]; found {
-		hasNPMTest = true
-		scanner.hasNPMTest = true
+	filters := []utility.FilterFunc{
+		utility.ExtensionFilter(".js", true),
+		utility.ComponentFilter("node_modules", false),
+	}
+	sourceFiles, err := utility.FilterPaths(fileList, filters...)
+	if err != nil {
+		return models.OptionModel{}, warnings, err
 	}
 
-	projectDir := filepath.Dir(scanner.packageJSONPth)
+	re := regexp.MustCompile(`import .* from 'expo'`)
 
-	// android options
-	var androidOptions *models.OptionModel
-	androidDir := filepath.Join(projectDir, "android")
-	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-		return models.OptionModel{}, warnings, err
-	} else if exist {
-		androidScanner := android.NewScanner()
-
-		if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
+SOURCE_FILE_LOOP:
+	for _, sourceFile := range sourceFiles {
+		f, err := os.Open(sourceFile)
+		if err != nil {
 			return models.OptionModel{}, warnings, err
-		} else if detected {
-			// only the first match we need
-			androidScanner.ExcludeTest = true
-			androidScanner.ProjectRoots = []string{androidScanner.ProjectRoots[0]}
+		}
+		defer f.Close()
 
-			npmCmd := command.New("npm", "install")
-			npmCmd.SetDir(projectDir)
-			if out, err := npmCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
-				return models.OptionModel{}, warnings, fmt.Errorf("failed to npm install react-native in: %s\noutput: %s\nerror: %s", projectDir, out, err)
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			if match := re.FindString(scanner.Text()); match != "" {
+				usesExpoKit = true
+				break SOURCE_FILE_LOOP
 			}
-
-			options, warns, err := androidScanner.Options()
-			warnings = append(warnings, warns...)
-			if err != nil {
-				return models.OptionModel{}, warnings, err
-			}
-
-			androidOptions = &options
-			scanner.androidScanner = androidScanner
+		}
+		if err := scanner.Err(); err != nil {
+			return models.OptionModel{}, warnings, err
 		}
 	}
+
+	scanner.usesExpoKit = usesExpoKit
+	log.TPrintf("Uses ExpoKit: %v", usesExpoKit)
+
+	// ensure app.json contains the required information (for non interactive eject)
+	// and determine the ejected project name
+	var projectName string
+
+	rootDir := filepath.Dir(scanner.packageJSONPth)
+	appJSONPth := filepath.Join(rootDir, "app.json")
+	appJSON, err := fileutil.ReadStringFromFile(appJSONPth)
+	if err != nil {
+		return models.OptionModel{}, warnings, err
+	}
+	var app serialized.Object
+	if err := json.Unmarshal([]byte(appJSON), &app); err != nil {
+		return models.OptionModel{}, warnings, err
+	}
+
+	if usesExpoKit {
+		// if the project uses Expo Kit app.json needs to contain expo/ios/bundleIdentifier and expo/android/package entries
+		// to be able to eject in non interactive mode
+		expoObj, err := app.Object("expo")
+		if err != nil {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo key", appJSONPth)
+		}
+		projectName, err = expoObj.String("name")
+		if err != nil {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo/name key", appJSONPth)
+		}
+
+		iosObj, err := expoObj.Object("ios")
+		if err != nil {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo/ios key", appJSONPth)
+		}
+		bundleID, err := iosObj.String("bundleIdentifier")
+		if err != nil || bundleID == "" {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo/ios/bundleIdentifier key or its value is empty", appJSONPth)
+		}
+
+		androidObj, err := expoObj.Object("android")
+		if err != nil {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo/android key", appJSONPth)
+		}
+		packageName, err := androidObj.String("package")
+		if err != nil || packageName == "" {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain expo/android/package key or its value is empty", appJSONPth)
+		}
+	} else {
+		// if the project does not use Expo Kit app.json needs to contain name and displayName entries
+		// to be able to eject in non interactive mode
+		projectName, err = app.String("name")
+		if err != nil || projectName == "" {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain name key", appJSONPth)
+		}
+		displayName, err := app.String("displayName")
+		if err != nil || displayName == "" {
+			return models.OptionModel{}, warnings, fmt.Errorf("app.json file (%s), does not contain displayName key", appJSONPth)
+		}
+	}
+
+	log.TPrintf("Project name: %v", projectName)
 
 	// ios options
-	var iosOptions *models.OptionModel
-	iosDir := filepath.Join(projectDir, "ios")
-	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
-		return models.OptionModel{}, warnings, err
-	} else if exist {
-		iosScanner := ios.NewScanner()
+	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
 
-		if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
-			return models.OptionModel{}, warnings, err
-		} else if detected {
-			options, warns, err := iosScanner.Options()
-			warnings = append(warnings, warns...)
-			if err != nil {
-				return models.OptionModel{}, warnings, err
-			}
-
-			iosOptions = &options
-			scanner.iosScanner = iosScanner
-		}
+	if usesExpoKit {
+		projectName = strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9_\-])`).ReplaceAllString(projectName, "-"))
+		projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
+	} else {
+		projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcodeproj"), schemeOption)
 	}
 
-	if androidOptions == nil && iosOptions == nil {
-		return models.OptionModel{}, warnings, errors.New("no ios nor android project detected")
-	}
-	// ---
+	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+	schemeOption.AddOption(projectName, exportMethodOption)
 
-	if androidOptions != nil {
-		if iosOptions == nil {
-			// we only found an android project
-			// we need to update the config names
-			lastChilds := androidOptions.LastChilds()
-			for _, child := range lastChilds {
-				for _, child := range child.ChildOptionMap {
-					if child.Config == "" {
-						return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
-					}
-
-					configName := configName(true, false, hasNPMTest)
-					child.Config = configName
-				}
-			}
-		} else {
-			// we have both ios and android projects
-			// we need to remove the android option's config names,
-			// since ios options will hold them
-			androidOptions.RemoveConfigs()
-		}
-
-		rootOption = *androidOptions
+	// android options
+	projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
+	for _, exportMethod := range ios.IosExportMethods {
+		exportMethodOption.AddOption(exportMethod, projectLocationOption)
 	}
 
-	if iosOptions != nil {
-		lastChilds := iosOptions.LastChilds()
-		for _, child := range lastChilds {
-			for _, child := range child.ChildOptionMap {
-				if child.Config == "" {
-					return models.OptionModel{}, warnings, fmt.Errorf("no config for option: %s", child.String())
-				}
+	moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
+	projectLocationOption.AddOption("./android", moduleOption)
 
-				configName := configName(scanner.androidScanner != nil, true, hasNPMTest)
-				child.Config = configName
-			}
-		}
+	buildVariantOption := models.NewOption(android.BuildVariantInputTitle, android.BuildVariantInputEnvKey)
+	moduleOption.AddOption("app", buildVariantOption)
 
-		if androidOptions == nil {
-			// we only found an ios project
-			rootOption = *iosOptions
-		} else {
-			// we have both ios and android projects
-			// we attach ios options to the android options
-			rootOption.AttachToLastChilds(iosOptions)
-		}
+	// expo options
+	if scanner.usesExpoKit {
+		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME")
+		buildVariantOption.AddOption("Release", userNameOption)
 
+		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
+		userNameOption.AddOption("_", passwordOption)
+
+		configOption := models.NewConfigOption(configName)
+		passwordOption.AddConfig("_", configOption)
+	} else {
+		configOption := models.NewConfigOption(configName)
+		buildVariantOption.AddConfig("Release", configOption)
 	}
 
-	return rootOption, warnings, nil
-}
-
-// DefaultOptions ...
-func (Scanner) DefaultOptions() models.OptionModel {
-	androidOptions := (&android.Scanner{ExcludeTest: true}).DefaultOptions()
-	androidOptions.RemoveConfigs()
-
-	iosOptions := (&ios.Scanner{}).DefaultOptions()
-	for _, child := range iosOptions.LastChilds() {
-		for _, child := range child.ChildOptionMap {
-			child.Config = defaultConfigName()
-		}
-	}
-
-	androidOptions.AttachToLastChilds(&iosOptions)
-
-	return androidOptions
+	return *projectPathOption, warnings, nil
 }
 
 // Configs ...
@@ -255,220 +281,49 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
 	if relPackageJSONDir != "" {
-		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
+		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{reactnative.WorkDirInputKey: relPackageJSONDir})
 	}
 
-	if scanner.hasNPMTest {
-		configBuilder := models.NewDefaultConfigBuilder()
-
-		// ci
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
-
-		// cd
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-
-		// eject
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-			envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
-		))
-
-		// android cd
-		if scanner.androidScanner != nil {
-			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
-
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
-			))
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
-				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
-				envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
-			))
-		}
-
-		// ios cd
-		if scanner.iosScanner != nil {
-			for _, descriptor := range scanner.iosScanner.ConfigDescriptors {
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-				if descriptor.MissingSharedSchemes {
-					configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
-						envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-					))
-				}
-
-				if descriptor.HasPodfile {
-					configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
-				}
-
-				if descriptor.CarthageCommand != "" {
-					configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CarthageStepListItem(
-						envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: descriptor.CarthageCommand},
-					))
-				}
-
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
-					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-				))
-
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-
-				bitriseDataModel, err := configBuilder.Generate(Name)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				data, err := yaml.Marshal(bitriseDataModel)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				configName := configName(scanner.androidScanner != nil, true, true)
-				configMap[configName] = string(data)
-			}
-		} else {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-
-			bitriseDataModel, err := configBuilder.Generate(Name)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			data, err := yaml.Marshal(bitriseDataModel)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			configName := configName(scanner.androidScanner != nil, false, true)
-			configMap[configName] = string(data)
-		}
-	} else {
-		configBuilder := models.NewDefaultConfigBuilder()
-
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-
-		// eject
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-			envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
-		))
-
-		if scanner.androidScanner != nil {
-			projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
-
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-				envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
-			))
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
-				envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
-				envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
-			))
-		}
-
-		if scanner.iosScanner != nil {
-			for _, descriptor := range scanner.iosScanner.ConfigDescriptors {
-				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-				if descriptor.MissingSharedSchemes {
-					configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RecreateUserSchemesStepListItem(
-						envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-					))
-				}
-
-				if descriptor.HasPodfile {
-					configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
-				}
-
-				if descriptor.CarthageCommand != "" {
-					configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CarthageStepListItem(
-						envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: descriptor.CarthageCommand},
-					))
-				}
-
-				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
-					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-				))
-
-				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
-
-				bitriseDataModel, err := configBuilder.Generate(Name)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				data, err := yaml.Marshal(bitriseDataModel)
-				if err != nil {
-					return models.BitriseConfigMap{}, err
-				}
-
-				configName := configName(scanner.androidScanner != nil, true, false)
-				configMap[configName] = string(data)
-			}
-		} else {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-
-			bitriseDataModel, err := configBuilder.Generate(Name)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			data, err := yaml.Marshal(bitriseDataModel)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			configName := configName(scanner.androidScanner != nil, false, false)
-			configMap[configName] = string(data)
-		}
-	}
-
-	return configMap, nil
-}
-
-// DefaultConfigs ...
-func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
-
-	// ci
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	// cd
+	// deploy workflow
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
-	// eject
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: "$" + ProjectLocationInputEnvKey},
-	))
+	if scanner.usesExpoKit {
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+			envmanModels.EnvironmentItemModel{"project_path": relPackageJSONDir},
+			envmanModels.EnvironmentItemModel{"user_name": "$EXPO_USERNAME"},
+			envmanModels.EnvironmentItemModel{"password": "$EXPO_PASSWORD"},
+		))
+	} else {
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+			envmanModels.EnvironmentItemModel{"project_path": relPackageJSONDir},
+		))
+	}
 
-	// android
-	projectLocationEnv, moduleEnv, buildVariantEnv := "$"+android.ProjectLocationInputEnvKey, "$"+android.ModuleInputEnvKey, "$"+android.BuildVariantInputEnvKey
-
+	// android build
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
 		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
-		envmanModels.EnvironmentItemModel{android.ModuleInputKey: moduleEnv},
-		envmanModels.EnvironmentItemModel{android.VariantInputKey: buildVariantEnv},
+		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.BuildVariantInputEnvKey},
 	))
 
-	// ios
+	// ios build
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+
+	if scanner.usesExpoKit {
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+	}
+
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
@@ -488,11 +343,19 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := defaultConfigName()
-	configMap := models.BitriseConfigMap{
-		configName: string(data),
-	}
+	configMap[configName] = string(data)
+
 	return configMap, nil
+}
+
+// DefaultOptions ...
+func (Scanner) DefaultOptions() models.OptionModel {
+	return models.OptionModel{}
+}
+
+// DefaultConfigs ...
+func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	return models.BitriseConfigMap{}, nil
 }
 
 // ExcludedScannerNames ...
@@ -503,36 +366,4 @@ func (Scanner) ExcludedScannerNames() []string {
 		string(ios.XcodeProjectTypeMacOS),
 		android.ScannerName,
 	}
-}
-
-func ensureNodeModules(cmdDir string) error {
-	log.Infof("Npm install")
-
-	cmd := command.New("npm", "install")
-	cmd.SetStdout(os.Stdout)
-	cmd.SetStderr(os.Stderr)
-	cmd.SetDir(cmdDir)
-	return cmd.Run()
-}
-
-// InstallExpoCLI runs the install npm command to install the expo-cli
-func InstallExpoCLI() error {
-	args := []string{"install", "-g", "expo-cli"}
-	cmd := command.New("npm", args...)
-	cmd.SetStdout(os.Stdout)
-	cmd.SetStderr(os.Stderr)
-
-	log.Printf("$ " + cmd.PrintableCommandArgs())
-	return cmd.Run()
-}
-
-func ejectProject(pth string, cmdDir string) error {
-	// TODO: use the new expo detach step
-	log.Infof("Eject project")
-
-	cmd := command.New("expo", "eject", "--non-interactive", "--eject-method", "plain")
-	cmd.SetStdout(os.Stdout)
-	cmd.SetStderr(os.Stderr)
-	cmd.SetDir(cmdDir)
-	return cmd.Run()
 }
