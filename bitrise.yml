@@ -37,7 +37,7 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
-            go get -u github.com/golang/lint/golint
+            go get -u golang.org/x/lint/golint
             while read -r line; do
               echo "-> Linting: $line"
               golint_out="$(golint $line)"
