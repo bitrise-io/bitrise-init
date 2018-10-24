@@ -129,13 +129,6 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.ScriptVersion,
-	steps.DeployToBitriseIoVersion,
-	steps.CachePushVersion,
 
 	// macos
 	models.FormatVersion,
@@ -652,26 +645,6 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        deploy:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - script@%s:
-              title: Install dependencies & build
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  # fail if any commands fails
-                  set -e
-                  # debug log
-                  set -x
-                  bundle install && bundle exec jekyll build
-          - deploy-to-bitrise-io@%s: {}
-          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:

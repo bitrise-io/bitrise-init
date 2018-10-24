@@ -39,12 +39,6 @@ func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem(jekyllInitialBuildScriptName,
-		envmanModels.EnvironmentItemModel{"content": jekyllInitialBuildCommand},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
-
 	return *configBuilder
 }
 

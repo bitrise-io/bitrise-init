@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
-	"github.com/bitrise-core/bitrise-init/models"
 )
 
 func TestJekyll(t *testing.T) {
@@ -45,13 +45,6 @@ var jekyllVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.ScriptVersion,
-	steps.DeployToBitriseIoVersion,
-	steps.CachePushVersion,
 }
 
 var jekyllResultYML = fmt.Sprintf(`options:
@@ -69,26 +62,6 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        deploy:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - script@%s:
-              title: Install dependencies & build
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  # fail if any commands fails
-                  set -e
-                  # debug log
-                  set -x
-                  bundle install && bundle exec jekyll build
-          - deploy-to-bitrise-io@%s: {}
-          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
