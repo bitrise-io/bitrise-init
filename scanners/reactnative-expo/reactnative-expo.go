@@ -207,7 +207,11 @@ SOURCE_FILE_LOOP:
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
-		defer f.Close()
+		defer func() {
+			if cerr := f.Close(); cerr != nil {
+				log.Warnf("Failed to close: %s, error: %s", f.Name(), err)
+			}
+		}()
 
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
