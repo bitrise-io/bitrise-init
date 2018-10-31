@@ -21,7 +21,7 @@ func TestReactNativeExpoWithExpoKit(t *testing.T) {
 	t.Log("BitriseExpoKit")
 	{
 		sampleAppDir := filepath.Join(tmpDir, "BitriseExpoKit")
-		sampleAppURL := "https://github.com/godrei/BitriseExpoKit.git"
+		sampleAppURL := "https://github.com/bitrise-samples/BitriseExpoKit.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
 
 		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
@@ -44,7 +44,7 @@ func TestReactNativeExpo(t *testing.T) {
 	t.Log("BitriseCRNA")
 	{
 		sampleAppDir := filepath.Join(tmpDir, "BitriseCRNA")
-		sampleAppURL := "https://github.com/godrei/BitriseCRNA.git"
+		sampleAppURL := "https://github.com/bitrise-samples/BitriseCRNA.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
 
 		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
