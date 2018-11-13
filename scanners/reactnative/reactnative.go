@@ -9,7 +9,6 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -116,7 +115,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	var rootOption models.OptionModel
 
 	// react options
-	packages, err := cordova.ParsePackagesJSON(scanner.packageJSONPth)
+	packages, err := utility.ParsePackagesJSON(scanner.packageJSONPth)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}

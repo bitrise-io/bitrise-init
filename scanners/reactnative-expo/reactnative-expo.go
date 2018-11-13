@@ -12,7 +12,6 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/scanners/reactnative"
 	"github.com/bitrise-core/bitrise-init/steps"
@@ -133,7 +132,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	relevantPackageJSONPths := []string{}
 	for _, packageJSONPth := range packageJSONPths {
-		packages, err := cordova.ParsePackagesJSON(packageJSONPth)
+		packages, err := utility.ParsePackagesJSON(packageJSONPth)
 		if err != nil {
 			log.Warnf("Failed to parse package json file: %s, skipping...", packageJSONPth)
 			continue
@@ -201,7 +200,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	re := regexp.MustCompile(`import .* from 'expo'`)
 
-SOURCE_FILE_LOOP:
+SourceFileLoop:
 	for _, sourceFile := range sourceFiles {
 		f, err := os.Open(sourceFile)
 		if err != nil {
@@ -217,7 +216,7 @@ SOURCE_FILE_LOOP:
 		for scanner.Scan() {
 			if match := re.FindString(scanner.Text()); match != "" {
 				usesExpoKit = true
-				break SOURCE_FILE_LOOP
+				break SourceFileLoop
 			}
 		}
 		if err := scanner.Err(); err != nil {
