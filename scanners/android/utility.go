@@ -155,7 +155,13 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 
 		componentInstallErr := androidcomponents.Ensure(androidSdk, gradlewPath)
 		if componentInstallErr != nil {
-			warnings = append(warnings, fmt.Sprintf("failed to run install missing android components, error: %s", componentInstallErr))
+			if err := os.Unsetenv("ANDROID_NDK_HOME"); err != nil {
+				return models.OptionModel{}, warnings, fmt.Errorf("Failed to unset environment variable, error: %s", err)
+			}
+			componentInstallErr = androidcomponents.Ensure(androidSdk, gradlewPath)
+			if componentInstallErr != nil {
+				warnings = append(warnings, fmt.Sprintf("failed to run install missing android components, error: %s", componentInstallErr))
+			}
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
