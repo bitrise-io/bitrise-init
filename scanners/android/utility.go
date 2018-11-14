@@ -176,12 +176,24 @@ func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, m
 
 		testVariantsMap, testVariantFetchErr := proj.GetTask("test").GetVariants()
 		if testVariantFetchErr != nil {
-			warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, testVariantFetchErr))
+			if err := os.Unsetenv("ANDROID_NDK_HOME"); err != nil {
+				return models.OptionModel{}, warnings, fmt.Errorf("Failed to unset environment variable, error: %s", err)
+			}
+			testVariantsMap, testVariantFetchErr = proj.GetTask("test").GetVariants()
+			if testVariantFetchErr != nil {
+				warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, testVariantFetchErr))
+			}
 		}
 
 		buildVariantsMap, buildVariantFetchErr := proj.GetTask("assemble").GetVariants()
 		if buildVariantFetchErr != nil {
-			warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, buildVariantFetchErr))
+			if err := os.Unsetenv("ANDROID_NDK_HOME"); err != nil {
+				return models.OptionModel{}, warnings, fmt.Errorf("Failed to unset environment variable, error: %s", err)
+			}
+			buildVariantsMap, buildVariantFetchErr = proj.GetTask("assemble").GetVariants()
+			if buildVariantFetchErr != nil {
+				warnings = append(warnings, fmt.Sprintf("failed to run command: $(%s tasks --all), error: %s", gradlewPath, buildVariantFetchErr))
+			}
 		}
 
 		if componentInstallErr != nil || testVariantFetchErr != nil || buildVariantFetchErr != nil {
