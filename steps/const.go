@@ -225,3 +225,17 @@ const (
 	// NpmVersion ...
 	NpmVersion = "0.9.1"
 )
+
+const (
+	// ExpoDetachID ...
+	ExpoDetachID = "expo-detach"
+	// ExpoDetachVersion ...
+	ExpoDetachVersion = "0.9.3"
+)
+
+const (
+	// YarnID ...
+	YarnID = "yarn"
+	// YarnVersion ...
+	YarnVersion = "0.0.7"
+)

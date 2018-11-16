@@ -9,7 +9,6 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -23,13 +22,8 @@ import (
 const Name = "react-native"
 
 const (
-	workDirInputKey = "workdir"
-
-	gradleFileInputKey    = "gradle_file"
-	gradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
-	gradleFileInputTitle  = "Path to the gradle file to use"
-
-	gradleTaskInputKey = "gradle_task"
+	// WorkDirInputKey ...
+	WorkDirInputKey = "workdir"
 )
 
 // Scanner ...
@@ -121,7 +115,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	var rootOption models.OptionModel
 
 	// react options
-	packages, err := cordova.ParsePackagesJSON(scanner.packageJSONPth)
+	packages, err := utility.ParsePackagesJSON(scanner.packageJSONPth)
 	if err != nil {
 		return models.OptionModel{}, warnings, err
 	}
@@ -278,7 +272,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
 	if relPackageJSONDir != "" {
-		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
+		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{WorkDirInputKey: relPackageJSONDir})
 	}
 
 	if scanner.hasNPMTest {

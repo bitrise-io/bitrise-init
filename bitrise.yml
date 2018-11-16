@@ -8,6 +8,16 @@ app:
 workflows:
   # ----------------------------------------------------------------
   # --- workflows for CI and testing
+  ci-docker:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/env bash
+            set -ex
+            docker-compose build
+            docker-compose run --rm app bitrise run ci
+
   ci:
     after_run:
     - go-test
