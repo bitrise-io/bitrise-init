@@ -231,19 +231,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       _:
-        title: Module
-        env_key: MODULE
-        value_map:
-          _:
-            title: Variant for building
-            env_key: BUILD_VARIANT
-            value_map:
-              _:
-                title: Variant for testing
-                env_key: TEST_VARIANT
-                value_map:
-                  _:
-                    config: default-android-config
+        config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR
@@ -313,7 +301,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
           _:
             title: |-
               Application export method
-              NOTE:`+" `none` "+`means: Export a copy of the application without re-signing.
+              NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               app-store:
@@ -329,33 +317,25 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       _:
-        title: Module
-        env_key: MODULE
+        title: Project (or Workspace) path
+        env_key: BITRISE_PROJECT_PATH
         value_map:
           _:
-            title: Variant for building
-            env_key: BUILD_VARIANT
+            title: Scheme name
+            env_key: BITRISE_SCHEME
             value_map:
               _:
-                title: Project (or Workspace) path
-                env_key: BITRISE_PROJECT_PATH
+                title: ipa export method
+                env_key: BITRISE_EXPORT_METHOD
                 value_map:
-                  _:
-                    title: Scheme name
-                    env_key: BITRISE_SCHEME
-                    value_map:
-                      _:
-                        title: ipa export method
-                        env_key: BITRISE_EXPORT_METHOD
-                        value_map:
-                          ad-hoc:
-                            config: default-react-native-config
-                          app-store:
-                            config: default-react-native-config
-                          development:
-                            config: default-react-native-config
-                          enterprise:
-                            config: default-react-native-config
+                  ad-hoc:
+                    config: default-react-native-config
+                  app-store:
+                    config: default-react-native-config
+                  development:
+                    config: default-react-native-config
+                  enterprise:
+                    config: default-react-native-config
   react-native-expo:
     title: Project uses Expo Kit (any js file imports expo dependency)?
     env_key: USES_EXPO_KIT
@@ -643,18 +623,12 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $TEST_VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $TEST_VARIANT
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $BUILD_VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -673,13 +647,9 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $TEST_VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $TEST_VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
   cordova:
@@ -923,8 +893,6 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $BUILD_VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:

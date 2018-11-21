@@ -50,21 +50,10 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-	testVariantOption := models.NewOption(TestVariantInputTitle, TestVariantInputEnvKey)
-	buildVariantOption := models.NewOption(BuildVariantInputTitle, BuildVariantInputEnvKey)
 	configOption := models.NewConfigOption(DefaultConfigName)
 
-	projectLocationOption.AddOption("_", moduleOption)
-	moduleOption.AddConfig("_", buildVariantOption)
+	projectLocationOption.AddOption("_", configOption)
 
-	if !scanner.ExcludeTest {
-		buildVariantOption.AddConfig("_", testVariantOption)
-		testVariantOption.AddConfig("_", configOption)
-		return *projectLocationOption
-	}
-
-	buildVariantOption.AddConfig("_", configOption)
 	return *projectLocationOption
 }
 
