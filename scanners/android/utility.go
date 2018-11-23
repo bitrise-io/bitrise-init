@@ -24,10 +24,6 @@ const (
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
-	ModuleInputKey    = "module"
-	ModuleInputEnvKey = "MODULE"
-	ModuleInputTitle  = "Module"
-
 	VariantInputKey         = "variant"
 	BuildVariantInputEnvKey = "BUILD_VARIANT"
 	BuildVariantInputTitle  = "Variant for building"
@@ -111,13 +107,13 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
-func (scanner *Scanner) generateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
+func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	projectLocationEnv, moduleEnv, gradlewPath := "$"+ProjectLocationInputEnvKey, "$"+ModuleInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew"
+	projectLocationEnv, gradlewPath := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew"
 
 	//-- primary
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
@@ -127,16 +123,16 @@ func (scanner *Scanner) generateConfigBuilder(isIncludeCache bool) models.Config
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
 		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
 	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
 	//-- deploy
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(true)...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
-		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
+		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, "app", "build.gradle")},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(
@@ -150,7 +146,7 @@ func (scanner *Scanner) generateConfigBuilder(isIncludeCache bool) models.Config
 		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
 
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 

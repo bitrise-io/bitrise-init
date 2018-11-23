@@ -76,7 +76,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(true)
+	configBuilder := scanner.generateConfigBuilder()
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
@@ -95,7 +95,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(true)
+	configBuilder := scanner.generateConfigBuilder()
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

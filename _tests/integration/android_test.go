@@ -189,7 +189,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -326,7 +326,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -453,7 +453,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
