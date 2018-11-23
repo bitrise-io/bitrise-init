@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 
@@ -44,7 +45,23 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	return scanner.generateOptions(scanner.SearchDir)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	configOption := models.NewConfigOption(ConfigName)
+	warnings := models.Warnings{}
+
+	for _, projectRoot := range scanner.ProjectRoots {
+		if err := checkGradlew(projectRoot); err != nil {
+			return models.OptionModel{}, warnings, err
+		}
+
+		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
+		if err != nil {
+			return models.OptionModel{}, warnings, err
+		}
+		projectLocationOption.AddOption(relProjectRoot, configOption)
+	}
+
+	return *projectLocationOption, warnings, nil
 }
 
 // DefaultOptions ...

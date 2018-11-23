@@ -111,26 +111,6 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
-func (scanner *Scanner) generateOptions(searchDir string) (models.OptionModel, models.Warnings, error) {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	configOption := models.NewConfigOption(ConfigName)
-	warnings := models.Warnings{}
-
-	for _, projectRoot := range scanner.ProjectRoots {
-		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionModel{}, warnings, err
-		}
-
-		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
-		if err != nil {
-			return models.OptionModel{}, warnings, err
-		}
-		projectLocationOption.AddOption(relProjectRoot, configOption)
-	}
-
-	return *projectLocationOption, warnings, nil
-}
-
 func (scanner *Scanner) generateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
