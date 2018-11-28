@@ -46,7 +46,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	configOption := models.NewConfigOption(ConfigName)
 	warnings := models.Warnings{}
 
 	for _, projectRoot := range scanner.ProjectRoots {
@@ -58,7 +57,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 		if err != nil {
 			return models.OptionModel{}, warnings, err
 		}
-		projectLocationOption.AddOption(relProjectRoot, configOption)
+
+		configOption := models.NewConfigOption(ConfigName)
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
+		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+
+		projectLocationOption.AddOption(relProjectRoot, moduleOption)
+		moduleOption.AddOption("app", variantOption)
+		variantOption.AddOption("_", configOption)
 	}
 
 	return *projectLocationOption, warnings, nil
@@ -67,9 +73,13 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
+	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
 	configOption := models.NewConfigOption(DefaultConfigName)
 
-	projectLocationOption.AddOption("_", configOption)
+	projectLocationOption.AddOption("_", moduleOption)
+	moduleOption.AddOption("_", variantOption)
+	variantOption.AddOption("_", configOption)
 
 	return *projectLocationOption
 }

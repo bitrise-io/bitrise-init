@@ -231,7 +231,15 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       _:
-        config: default-android-config
+        title: Module
+        env_key: MODULE
+        value_map:
+          _:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              _:
+                config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR
@@ -317,25 +325,33 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       _:
-        title: Project (or Workspace) path
-        env_key: BITRISE_PROJECT_PATH
+        title: Module
+        env_key: MODULE
         value_map:
           _:
-            title: Scheme name
-            env_key: BITRISE_SCHEME
+            title: Variant
+            env_key: VARIANT
             value_map:
               _:
-                title: ipa export method
-                env_key: BITRISE_EXPORT_METHOD
+                title: Project (or Workspace) path
+                env_key: BITRISE_PROJECT_PATH
                 value_map:
-                  ad-hoc:
-                    config: default-react-native-config
-                  app-store:
-                    config: default-react-native-config
-                  development:
-                    config: default-react-native-config
-                  enterprise:
-                    config: default-react-native-config
+                  _:
+                    title: Scheme name
+                    env_key: BITRISE_SCHEME
+                    value_map:
+                      _:
+                        title: ipa export method
+                        env_key: BITRISE_EXPORT_METHOD
+                        value_map:
+                          ad-hoc:
+                            config: default-react-native-config
+                          app-store:
+                            config: default-react-native-config
+                          development:
+                            config: default-react-native-config
+                          enterprise:
+                            config: default-react-native-config
   react-native-expo:
     title: Project uses Expo Kit (any js file imports expo dependency)?
     env_key: USES_EXPO_KIT
@@ -366,8 +382,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -385,8 +401,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -404,8 +420,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -423,8 +439,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -454,8 +470,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -481,8 +497,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -508,8 +524,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -535,8 +551,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -619,16 +635,22 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-build@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -646,10 +668,14 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
   cordova:
@@ -979,7 +1005,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - cocoapods-install@%s: {}
           - xcode-archive@%s:
@@ -1065,7 +1091,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:

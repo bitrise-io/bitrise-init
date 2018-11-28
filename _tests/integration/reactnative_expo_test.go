@@ -101,8 +101,8 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -115,8 +115,8 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -129,8 +129,8 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -143,8 +143,8 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -209,7 +209,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -273,8 +273,8 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 title: Expo username
@@ -295,8 +295,8 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 title: Expo username
@@ -317,8 +317,8 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 title: Expo username
@@ -339,8 +339,8 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         env_key: MODULE
                         value_map:
                           app:
-                            title: Variant for building
-                            env_key: BUILD_VARIANT
+                            title: Variant
+                            env_key: VARIANT
                             value_map:
                               Release:
                                 title: Expo username
@@ -416,7 +416,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - cocoapods-install@%s: {}
           - xcode-archive@%s:

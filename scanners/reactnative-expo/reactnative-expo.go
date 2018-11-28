@@ -27,10 +27,6 @@ import (
 const (
 	configName        = "react-native-expo-config"
 	defaultConfigName = "default-" + configName
-
-	moduleInputKey    = "module"
-	moduleInputEnvKey = "MODULE"
-	moduleInputTitle  = "Module"
 )
 
 const deployWorkflowDescription = `## Configure Android part of the deploy workflow
@@ -336,7 +332,7 @@ entries.`
 			exportMethodOption.AddOption(exportMethod, projectLocationOption)
 		}
 
-		moduleOption = models.NewOption(moduleInputTitle, moduleInputEnvKey)
+		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
 		projectLocationOption.AddOption("./android", moduleOption)
 	} else {
 		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file)", "WORKDIR")
@@ -347,11 +343,11 @@ entries.`
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption(relPackageJSONDir, projectLocationOption)
 
-		moduleOption = models.NewOption(moduleInputTitle, moduleInputEnvKey)
+		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
 		projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
 	}
 
-	buildVariantOption := models.NewOption(android.BuildVariantInputTitle, android.BuildVariantInputEnvKey)
+	buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
 	moduleOption.AddOption("app", buildVariantOption)
 
 	// expo options
@@ -460,8 +456,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		))
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidBuildStepListItem(
 			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-			envmanModels.EnvironmentItemModel{moduleInputKey: "$" + moduleInputEnvKey},
-			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.BuildVariantInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
 
 		// ios build
@@ -546,8 +542,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-		envmanModels.EnvironmentItemModel{moduleInputKey: "$" + moduleInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.BuildVariantInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 	))
 
 	// ios build
@@ -613,10 +609,10 @@ func (Scanner) DefaultOptions() models.OptionModel {
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption("_", projectLocationOption)
 
-		moduleOption := models.NewOption(moduleInputTitle, moduleInputEnvKey)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
 		projectLocationOption.AddOption("./android", moduleOption)
 
-		buildVariantOption := models.NewOption(android.BuildVariantInputTitle, android.BuildVariantInputEnvKey)
+		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
 		moduleOption.AddOption("app", buildVariantOption)
 
 		// Expo CLI options
@@ -651,10 +647,10 @@ func (Scanner) DefaultOptions() models.OptionModel {
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption("_", projectLocationOption)
 
-		moduleOption := models.NewOption(moduleInputTitle, moduleInputEnvKey)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
 		projectLocationOption.AddOption("./android", moduleOption)
 
-		buildVariantOption := models.NewOption(android.BuildVariantInputTitle, android.BuildVariantInputEnvKey)
+		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
 		moduleOption.AddOption("app", buildVariantOption)
 
 		configOption := models.NewConfigOption("react-native-expo-plain-default-config")
@@ -694,8 +690,8 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		))
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-			envmanModels.EnvironmentItemModel{moduleInputKey: "$" + moduleInputEnvKey},
-			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.BuildVariantInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
 
 		// ios build
@@ -745,8 +741,8 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		))
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-			envmanModels.EnvironmentItemModel{moduleInputKey: "$" + moduleInputEnvKey},
-			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.BuildVariantInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
 
 		// ios build

@@ -24,9 +24,13 @@ const (
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
-	VariantInputKey         = "variant"
-	BuildVariantInputEnvKey = "BUILD_VARIANT"
-	BuildVariantInputTitle  = "Variant for building"
+	VariantInputKey    = "variant"
+	VariantInputEnvKey = "VARIANT"
+	VariantInputTitle  = "Variant"
+
+	ModuleInputKey    = "module"
+	ModuleInputEnvKey = "MODULE"
+	ModuleInputTitle  = "Module"
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"
@@ -110,7 +114,7 @@ that the right Gradle version is installed and used for the build. More info/gui
 func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	projectLocationEnv, gradlewPath := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew"
+	projectLocationEnv, gradlewPath, moduleEnv, variantEnv := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew", "$"+ModuleInputEnvKey, "$"+VariantInputEnvKey
 
 	//-- primary
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
@@ -118,10 +122,18 @@ func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidLintStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+			ModuleInputKey:          moduleEnv,
+			VariantInputKey:         variantEnv,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+			ModuleInputKey:          moduleEnv,
+			VariantInputKey:         variantEnv,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
@@ -132,18 +144,30 @@ func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
-		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, "app", "build.gradle")},
+		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+			ModuleInputKey:          moduleEnv,
+			VariantInputKey:         variantEnv,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+			ModuleInputKey:          moduleEnv,
+			VariantInputKey:         variantEnv,
+		},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+			ModuleInputKey:          moduleEnv,
+			VariantInputKey:         variantEnv,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)

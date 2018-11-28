@@ -131,7 +131,15 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       src:
-        config: android-config
+        title: Module
+        env_key: MODULE
+        value_map:
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              _:
+                config: android-config
 configs:
   android:
     android-config: |
@@ -189,16 +197,22 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-build@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -216,10 +230,14 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
@@ -268,7 +286,15 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       .:
-        config: android-config
+        title: Module
+        env_key: MODULE
+        value_map:
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              _:
+                config: android-config
 configs:
   android:
     android-config: |
@@ -326,16 +352,22 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-build@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -353,10 +385,14 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
@@ -395,7 +431,15 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     value_map:
       .:
-        config: android-config
+        title: Module
+        env_key: MODULE
+        value_map:
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              _:
+                config: android-config
 configs:
   android:
     android-config: |
@@ -453,16 +497,22 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/app/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-build@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -480,10 +530,14 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
