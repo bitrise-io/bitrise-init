@@ -235,15 +235,11 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: MODULE
         value_map:
           _:
-            title: Variant for building
-            env_key: BUILD_VARIANT
+            title: Variant
+            env_key: VARIANT
             value_map:
               _:
-                title: Variant for testing
-                env_key: TEST_VARIANT
-                value_map:
-                  _:
-                    config: default-android-config
+                config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR
@@ -313,7 +309,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
           _:
             title: |-
               Application export method
-              NOTE:`+" `none` "+`means: Export a copy of the application without re-signing.
+              NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
             env_key: BITRISE_EXPORT_METHOD
             value_map:
               app-store:
@@ -333,8 +329,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: MODULE
         value_map:
           _:
-            title: Variant for building
-            env_key: BUILD_VARIANT
+            title: Variant
+            env_key: VARIANT
             value_map:
               _:
                 title: Project (or Workspace) path
@@ -386,8 +382,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -405,8 +401,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -424,8 +420,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -443,8 +439,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     config: react-native-expo-plain-default-config
@@ -474,8 +470,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -501,8 +497,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -528,8 +524,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -555,8 +551,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
                             env_key: MODULE
                             value_map:
                               app:
-                                title: Variant for building
-                                env_key: BUILD_VARIANT
+                                title: Variant
+                                env_key: VARIANT
                                 value_map:
                                   Release:
                                     title: Expo username
@@ -642,19 +638,19 @@ configs:
               - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $TEST_VARIANT
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $TEST_VARIANT
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-build@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -672,14 +668,14 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-lint@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $TEST_VARIANT
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - android-unit-test@%s:
               inputs:
-              - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $TEST_VARIANT
+                project_location: $PROJECT_LOCATION
+                variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
   cordova:
@@ -923,8 +919,6 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $BUILD_VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -1011,7 +1005,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - cocoapods-install@%s: {}
           - xcode-archive@%s:
@@ -1097,7 +1091,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
-              - variant: $BUILD_VARIANT
+              - variant: $VARIANT
           - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
