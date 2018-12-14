@@ -49,14 +49,11 @@ Alternatively, copy generated config YML from failed manual config integration t
 ## How to release new bitrise-init version
 
 - update the step versions in steps/const.go
-- bump `RELEASE_VERSION` in bitrise.yml
-- commit these changes
-- call `bitrise run create-release`
-- check and update the generated CHANGELOG.md
-- test the generated binaries in _bin/ directory
-- push these changes to the master branch
-- once `create-release` workflow finishes on bitrise.io test the build generated binaries
-- create a github release with the build generated binaries
+- bump `version` in version/version.go
+- commit these changes & open PR
+- merge to master
+- create tag with the new version
+- test the generated release and its binaries
 
 __Update manual config on website__
 
