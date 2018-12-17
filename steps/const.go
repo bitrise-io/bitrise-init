@@ -239,3 +239,24 @@ const (
 	// YarnVersion ...
 	YarnVersion = "0.0.8"
 )
+
+const (
+	// FlutterInstallID ...
+	FlutterInstallID = "flutter-installer"
+	// FlutterInstallVersion ...
+	FlutterInstallVersion = "0.9.2"
+)
+
+const (
+	// FlutterTestID ...
+	FlutterTestID = "flutter-test"
+	// FlutterTestVersion ...
+	FlutterTestVersion = "0.9.1"
+)
+
+const (
+	// FlutterBuildID ...
+	FlutterBuildID = "flutter-build"
+	// FlutterBuildVersion ...
+	FlutterBuildVersion = "0.9.1"
+)
