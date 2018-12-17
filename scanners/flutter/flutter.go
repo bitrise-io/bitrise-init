@@ -10,7 +10,6 @@ import (
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-tools/xcode-project/xcworkspace"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -30,9 +29,12 @@ const (
 
 // Scanner ...
 type Scanner struct {
-	projectLocations  []string
-	xcodeProjectPaths []string
-	sharedSchemes     map[string][]string
+	projects []project
+}
+
+type project struct {
+	path              string
+	xcodeProjectPaths map[string][]string
 }
 
 // NewScanner ...
@@ -45,109 +47,94 @@ func (Scanner) Name() string {
 	return scannerName
 }
 
+func findProjectLocations(searchDir string) ([]string, error) {
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	if err != nil {
+		return nil, err
+	}
+
+	filters := []utility.FilterFunc{
+		utility.BaseFilter("pubspec.yaml", true),
+	}
+
+	paths, err := utility.FilterPaths(fileList, filters...)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, path := range paths {
+		paths[i] = filepath.Dir(path)
+	}
+
+	return paths, nil
+}
+
+func findWorkspaceLocations(projectLocation string) ([]string, error) {
+	fileList, err := utility.ListPathInDirSortedByComponents(projectLocation, true)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, file := range fileList {
+		fileList[i] = filepath.Join(projectLocation, file)
+	}
+
+	filters := []utility.FilterFunc{
+		ios.AllowXCWorkspaceExtFilter,
+		ios.AllowIsDirectoryFilter,
+		ios.ForbidEmbeddedWorkspaceRegexpFilter,
+		ios.ForbidGitDirComponentFilter,
+		ios.ForbidPodsDirComponentFilter,
+		ios.ForbidCarthageDirComponentFilter,
+		ios.ForbidFramworkComponentWithExtensionFilter,
+		ios.ForbidCordovaLibDirComponentFilter,
+		ios.ForbidNodeModulesComponentFilter,
+	}
+
+	return utility.FilterPaths(fileList, filters...)
+}
+
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	log.TPrintf("Looking for pubspec.yaml files")
-	{
-		fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
-		if err != nil {
-			return false, err
-		}
-
-		filters := []utility.FilterFunc{
-			utility.BaseFilter("pubspec.yaml", true),
-		}
-
-		pubspecLocations, err := utility.FilterPaths(fileList, filters...)
-		if err != nil {
-			return false, err
-		}
-
-		for _, path := range pubspecLocations {
-			scanner.projectLocations = append(scanner.projectLocations, filepath.Dir(path))
-		}
-
-		if len(scanner.projectLocations) == 0 {
-			log.TErrorf("Couldn't find pubspec.yaml files")
-			return false, nil
-		}
-		log.TDonef("Found")
-		log.TPrintf("")
+	projectLocations, err := findProjectLocations(searchDir)
+	if err != nil {
+		return false, err
 	}
 
-	log.TPrintf("Looking for iOS workspace files")
-	{
-		fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	for _, projectLocation := range projectLocations {
+		workspaceLocations, err := findWorkspaceLocations(projectLocation)
 		if err != nil {
 			return false, err
 		}
 
-		filters := []utility.FilterFunc{
-			ios.AllowXCWorkspaceExtFilter,
-			ios.AllowIsDirectoryFilter,
-			ios.ForbidEmbeddedWorkspaceRegexpFilter,
-			ios.ForbidGitDirComponentFilter,
-			ios.ForbidPodsDirComponentFilter,
-			ios.ForbidCarthageDirComponentFilter,
-			ios.ForbidFramworkComponentWithExtensionFilter,
-			ios.ForbidCordovaLibDirComponentFilter,
-			ios.ForbidNodeModulesComponentFilter,
-		}
-
-		xcodeProjectPaths, err := utility.FilterPaths(fileList, filters...)
-		if err != nil {
-			return false, err
-		}
-
-		scanner.xcodeProjectPaths = xcodeProjectPaths
-
-		if len(scanner.xcodeProjectPaths) == 0 {
-			log.TErrorf("Couldn't find workspace files")
-			return false, nil
-		}
-		log.TDonef("Found")
-		log.TPrintf("")
-	}
-
-	log.TPrintf("Looking for iOS shared schemes")
-	{
-		scanner.sharedSchemes = map[string][]string{}
-		for _, workspacePath := range scanner.xcodeProjectPaths {
-			ws, err := xcworkspace.Open(workspacePath)
+		for _, workspaceLocation := range workspaceLocations {
+			ws, err := xcworkspace.Open(workspaceLocation)
 			if err != nil {
-				log.TErrorf("Couldn't open workspace(%s), error: %s", workspacePath, err)
 				return false, nil
 			}
 			schemeMap, err := ws.Schemes()
 			if err != nil {
-				log.TErrorf("Couldn't find schemes in workspace(%s), error: %s", workspacePath, err)
 				return false, nil
+			}
+
+			proj := project{
+				path:              projectLocation,
+				xcodeProjectPaths: map[string][]string{},
 			}
 
 			for _, schemes := range schemeMap {
 				for _, scheme := range schemes {
-					scanner.sharedSchemes[workspacePath] = append(scanner.sharedSchemes[workspacePath], scheme.Name)
+					proj.xcodeProjectPaths[workspaceLocation] = append(proj.xcodeProjectPaths[workspaceLocation], scheme.Name)
 				}
 			}
-		}
 
-		if len(scanner.sharedSchemes) == 0 {
-			log.TErrorf("Couldn't find schemes")
-			return false, nil
+			scanner.projects = append(scanner.projects, proj)
 		}
-
-		for wsPath, s := range scanner.sharedSchemes {
-			if len(s) == 0 {
-				log.TErrorf("Couldn't find scheme in: %s", wsPath)
-				return false, nil
-			}
-		}
-
-		log.TDonef("Found")
-		log.TPrintf("")
 	}
 
-	log.TDonef("Detected")
+	if len(scanner.projects) == 0 {
+		return false, nil
+	}
 
 	return true, nil
 }
@@ -166,15 +153,15 @@ func (Scanner) ExcludedScannerNames() []string {
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
-	for _, location := range scanner.projectLocations {
+	for _, project := range scanner.projects {
 		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-		flutterProjectLocationOption.AddOption(location, projectPathOption)
+		flutterProjectLocationOption.AddOption(project.path, projectPathOption)
 
-		for _, xcodeWorkspacePath := range scanner.xcodeProjectPaths {
+		for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
 			schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
 			projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
 
-			for _, scheme := range scanner.sharedSchemes[xcodeWorkspacePath] {
+			for _, scheme := range schemes {
 				exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme, exportMethodOption)
 
