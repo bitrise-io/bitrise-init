@@ -5,7 +5,6 @@ import (
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
 	"github.com/bitrise-core/bitrise-init/scanners/ios"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -16,7 +15,7 @@ import (
 
 const (
 	scannerName                = "flutter"
-	defaultConfigName          = "default-flutter-config"
+	configName                 = "flutter-config"
 	projectLocationInputKey    = "project_location"
 	defaultIOSConfiguration    = "Release"
 	projectLocationInputEnvKey = "BITRISE_FLUTTER_PROJECT_LOCATION"
@@ -143,8 +142,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 func (Scanner) ExcludedScannerNames() []string {
 	return []string{
 		string(ios.XcodeProjectTypeIOS),
-		string(ios.XcodeProjectTypeMacOS),
-		cordova.ScannerName,
 		android.ScannerName,
 	}
 }
@@ -166,7 +163,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				schemeOption.AddOption(scheme, exportMethodOption)
 
 				for _, exportMethod := range ios.IosExportMethods {
-					configOption := models.NewConfigOption(defaultConfigName)
+					configOption := models.NewConfigOption(configName)
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
 			}
@@ -190,7 +187,7 @@ func (Scanner) DefaultOptions() models.OptionModel {
 	schemeOption.AddOption("_", exportMethodOption)
 
 	for _, exportMethod := range ios.IosExportMethods {
-		configOption := models.NewConfigOption(defaultConfigName)
+		configOption := models.NewConfigOption(configName)
 		exportMethodOption.AddConfig(exportMethod, configOption)
 	}
 
@@ -256,6 +253,6 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}
 
 	return models.BitriseConfigMap{
-		defaultConfigName: string(data),
+		configName: string(data),
 	}, nil
 }
