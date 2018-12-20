@@ -75,16 +75,16 @@ var flutterSampleResultYML = fmt.Sprintf(`options:
                 env_key: BITRISE_EXPORT_METHOD
                 value_map:
                   ad-hoc:
-                    config: default-flutter-config
+                    config: flutter-config
                   app-store:
-                    config: default-flutter-config
+                    config: flutter-config
                   development:
-                    config: default-flutter-config
+                    config: flutter-config
                   enterprise:
-                    config: default-flutter-config
+                    config: flutter-config
 configs:
   flutter:
-    default-flutter-config: |
+    flutter-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter

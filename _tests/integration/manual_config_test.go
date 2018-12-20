@@ -300,13 +300,13 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 env_key: BITRISE_EXPORT_METHOD
                 value_map:
                   ad-hoc:
-                    config: default-flutter-config
+                    config: flutter-config
                   app-store:
-                    config: default-flutter-config
+                    config: flutter-config
                   development:
-                    config: default-flutter-config
+                    config: flutter-config
                   enterprise:
-                    config: default-flutter-config
+                    config: flutter-config
   ionic:
     title: Directory of Ionic Config.xml
     env_key: IONIC_WORK_DIR
@@ -779,7 +779,7 @@ configs:
               - work_dir: $FASTLANE_WORK_DIR
           - deploy-to-bitrise-io@%s: {}
   flutter:
-    default-flutter-config: |
+    flutter-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
