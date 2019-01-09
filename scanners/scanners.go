@@ -69,13 +69,6 @@ type ProjectScannerInterface interface {
 	GetProjectType() string
 }
 
-// ProjectTypeEnvKey is the name of the enviroment variable used to substitute the project type for
-// automation tool scanner's config
-const (
-	ProjectTypeUserTitle = "Project type"
-	ProjectTypeEnvKey    = "PROJECT_TYPE"
-)
-
 // // AutomationToolScannerInterface contains additional methods (relative to ScannerInterface)
 // // implemented by an AutomationToolScanner
 // type AutomationToolScannerInterface interface {
@@ -126,13 +119,4 @@ func CustomConfig() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{
 		CustomConfigName: string(data),
 	}, nil
-}
-
-// AddProjectTypeToToolScanner is used to add a project type for automation tool scanners's option map
-func AddProjectTypeToToolScanner(toolScannerOptionModel models.OptionModel, detectedProjectTypes []string) models.OptionModel {
-	projectTypeOption = models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
-	for _, projectType := range detectedProjectTypes {
-		projectTypeOption.AddOption(toolScannerOptionModel)
-	}
-	return projectTypeOption
 }

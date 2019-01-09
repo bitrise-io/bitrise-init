@@ -6,8 +6,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanner"
 	"github.com/bitrise-core/bitrise-init/steps"
+	"github.com/bitrise-core/bitrise-init/toolscanner"
 	"github.com/bitrise-core/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
@@ -174,7 +174,7 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	config, err := configBuilder.Generate("$"+scanner.ProjectTypeEnvKey, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+	config, err := configBuilder.Generate("$"+toolscanner.ProjectTypeEnvKey, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
