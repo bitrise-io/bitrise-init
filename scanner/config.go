@@ -81,8 +81,14 @@ func Config(searchDir string) models.ScanResultModel {
 			projectTypeOptionMap[detectorName] = scannerOutput.optionModel
 			projectTypeConfigMap[detectorName] = scannerOutput.configMap
 			excludedScannerNames = append(excludedScannerNames, scannerOutput.excludedScannerNames...)
-			projectTypeErrorMap[detectorName] = append(projectTypeErrorMap[detectorName], detectorErrors...)
+			if len(detectorErrors) > 0 {
+				projectTypeErrorMap[detectorName] = append(projectTypeErrorMap[detectorName], detectorErrors...)
+			}
 			projectTypeWarningMap[detectorName] = append(projectTypeWarningMap[detectorName], detectorWarnings...)
+		} else {
+			if len(detectorWarnings) > 0 {
+				projectTypeWarningMap[detectorName] = append(projectTypeWarningMap[detectorName], detectorWarnings...)
+			}
 		}
 	}
 	// ---
