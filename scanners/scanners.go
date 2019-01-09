@@ -16,18 +16,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// ScannerCategory describes the types of scanners
-type ScannerCategory int
-
-// A ProjectScanner detects a platform, and creates test and deploy workflows.
-// A ToolScanner only detects an used build tool, e.g. fastlane, and creates a minimal worklow.
-// A ToolScanner uses one of the platform types (e.g. ios, android) detected by the active
-// project scanners, or if none are, 'other'.
-const (
-	ProjectScanner        ScannerCategory = 0
-	AutomationToolScanner ScannerCategory = 1
-)
-
 // ScannerInterface ...
 type ScannerInterface interface {
 	// The name of the scanner is used for logging and
@@ -74,15 +62,29 @@ type ScannerInterface interface {
 	DefaultConfigs() (models.BitriseConfigMap, error)
 }
 
-// AutomationToolScannerInterface contains additional methods (relative to ScannerInterface)
-// implemented by an AutomationToolScanner
-type AutomationToolScannerInterface interface {
-	// AddProjectType adds the option branches to choose from the project type list (determined by project scanners)
-	AddProjectType([]string, models.OptionModel) error
+// ProjectScannerInterface contains additional methods (relative to ScannerInterface)
+// implemented by an ProjectToolScanner
+type ProjectScannerInterface interface {
+	// The project_type property contained in the bitrise config
+	GetProjectType() string
 }
 
-// ActiveScanners ...
-var ActiveScanners = []ScannerInterface{
+// ProjectTypeEnvKey is the name of the enviroment variable used to substitute the project type for
+// automation tool scanner's config
+const (
+	ProjectTypeUserTitle = "Project type"
+	ProjectTypeEnvKey    = "PROJECT_TYPE"
+)
+
+// // AutomationToolScannerInterface contains additional methods (relative to ScannerInterface)
+// // implemented by an AutomationToolScanner
+// type AutomationToolScannerInterface interface {
+// 	// AddProjectType adds the option branches to choose from the project type list (determined by project scanners)
+// 	AddProjectType(models.OptionModel, []string) (models.OptionModel, error)
+// }
+
+// ProjectScanners ...
+var ProjectScanners = []ScannerInterface{
 	expo.NewScanner(),
 	reactnative.NewScanner(),
 	flutter.NewScanner(),
@@ -92,6 +94,10 @@ var ActiveScanners = []ScannerInterface{
 	macos.NewScanner(),
 	android.NewScanner(),
 	xamarin.NewScanner(),
+}
+
+// AutomationToolScanners contains active automation tool scanners
+var AutomationToolScanners = []ScannerInterface{
 	fastlane.NewScanner(),
 }
 
@@ -120,4 +126,13 @@ func CustomConfig() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{
 		CustomConfigName: string(data),
 	}, nil
+}
+
+// AddProjectTypeToToolScanner is used to add a project type for automation tool scanners's option map
+func AddProjectTypeToToolScanner(toolScannerOptionModel models.OptionModel, detectedProjectTypes []string) models.OptionModel {
+	projectTypeOption = models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
+	for _, projectType := range detectedProjectTypes {
+		projectTypeOption.AddOption(toolScannerOptionModel)
+	}
+	return projectTypeOption
 }

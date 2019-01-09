@@ -9,7 +9,7 @@ import (
 
 // ManualConfig ...
 func ManualConfig() (models.ScanResultModel, error) {
-	projectScanners := scanners.ActiveScanners
+	projectScanners := scanners.ProjectScanners
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
