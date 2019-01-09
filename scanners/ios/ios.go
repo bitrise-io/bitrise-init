@@ -65,3 +65,8 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return GenerateDefaultConfig(XcodeProjectTypeIOS, true)
 }
+
+// GetProjectType returns the project_type property used in a bitrise config
+func (Scanner) GetProjectType() string {
+	return string(XcodeProjectTypeIOS)
+}

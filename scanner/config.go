@@ -12,6 +12,13 @@ import (
 	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
+type scannerOutput struct {
+	models.Errors
+	models.Warnings
+	models.OptionModel
+	models.BitriseConfigMap
+}
+
 // Config ...
 func Config(searchDir string) models.ScanResultModel {
 	result := models.ScanResultModel{}
@@ -50,7 +57,7 @@ func Config(searchDir string) models.ScanResultModel {
 
 	//
 	// Scan
-	projectScanners := scanners.ActiveScanners
+	projectScanners := scanners.ProjectScanners
 
 	projectTypeErrorMap := map[string]models.Errors{}
 	projectTypeWarningMap := map[string]models.Warnings{}
@@ -63,74 +70,7 @@ func Config(searchDir string) models.ScanResultModel {
 	fmt.Println()
 
 	for _, detector := range projectScanners {
-		detectorName := detector.Name()
-		detectorWarnings := []string{}
-		detectorErrors := []string{}
-
-		log.TInfof("Scanner: %s", colorstring.Blue(detectorName))
-
-		if sliceutil.IsStringInSlice(detectorName, excludedScannerNames) {
-			log.TWarnf("scanner is marked as excluded, skipping...")
-			fmt.Println()
-			continue
-		}
-
-		log.TPrintf("+------------------------------------------------------------------------------+")
-		log.TPrintf("|                                                                              |")
-
-		detected, err := detector.DetectPlatform(searchDir)
-		if err != nil {
-			log.TErrorf("Scanner failed, error: %s", err)
-			detectorWarnings = append(detectorWarnings, err.Error())
-			projectTypeWarningMap[detectorName] = detectorWarnings
-			detected = false
-		}
-
-		if !detected {
-			log.TPrintf("|                                                                              |")
-			log.TPrintf("+------------------------------------------------------------------------------+")
-			fmt.Println()
-			continue
-		}
-
-		options, projectWarnings, err := detector.Options()
-		detectorWarnings = append(detectorWarnings, projectWarnings...)
-
-		if err != nil {
-			log.TErrorf("Analyzer failed, error: %s", err)
-			detectorWarnings = append(detectorWarnings, err.Error())
-			projectTypeWarningMap[detectorName] = detectorWarnings
-
-			log.TPrintf("|                                                                              |")
-			log.TPrintf("+------------------------------------------------------------------------------+")
-			fmt.Println()
-			continue
-		}
-
-		projectTypeWarningMap[detectorName] = detectorWarnings
-		projectTypeOptionMap[detectorName] = options
-
-		// Generate configs
-		configs, err := detector.Configs()
-		if err != nil {
-			log.TErrorf("Failed to generate config, error: %s", err)
-			detectorErrors = append(detectorErrors, err.Error())
-			projectTypeErrorMap[detectorName] = detectorErrors
-			continue
-		}
-
-		projectTypeConfigMap[detectorName] = configs
-
-		log.TPrintf("|                                                                              |")
-		log.TPrintf("+------------------------------------------------------------------------------+")
-
-		exludedScanners := detector.ExcludedScannerNames()
-		if len(exludedScanners) > 0 {
-			log.TWarnf("Scanner will exclude scanners: %v", exludedScanners)
-			excludedScannerNames = append(excludedScannerNames, exludedScanners...)
-		}
-
-		fmt.Println()
+		checkScannerMatchAndReturnOutput(detector)
 	}
 	// ---
 
@@ -140,4 +80,84 @@ func Config(searchDir string) models.ScanResultModel {
 		PlatformWarningsMap:  projectTypeWarningMap,
 		PlatformErrorsMap:    projectTypeErrorMap,
 	}
+}
+
+func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface) scannerOutput {
+	detectorName := detector.Name()
+	detectorWarnings := []string{}
+	detectorErrors := []string{}
+
+	log.TInfof("Scanner: %s", colorstring.Blue(detectorName))
+
+	if sliceutil.IsStringInSlice(detectorName, excludedScannerNames) {
+		log.TWarnf("scanner is marked as excluded, skipping...")
+		fmt.Println()
+		continue
+	}
+
+	log.TPrintf("+------------------------------------------------------------------------------+")
+	log.TPrintf("|                                                                              |")
+
+	detected, err := detector.DetectPlatform(searchDir)
+	if err != nil {
+		log.TErrorf("Scanner failed, error: %s", err)
+		detectorWarnings = append(detectorWarnings, err.Error())
+		projectTypeWarningMap[detectorName] = detectorWarnings
+		detected = false
+	}
+
+	if !detected {
+		log.TPrintf("|                                                                              |")
+		log.TPrintf("+------------------------------------------------------------------------------+")
+		fmt.Println()
+		continue
+	}
+
+	options, projectWarnings, err := detector.Options()
+	detectorWarnings = append(detectorWarnings, projectWarnings...)
+
+	if err != nil {
+		log.TErrorf("Analyzer failed, error: %s", err)
+		detectorWarnings = append(detectorWarnings, err.Error())
+		projectTypeWarningMap[detectorName] = detectorWarnings
+
+		log.TPrintf("|                                                                              |")
+		log.TPrintf("+------------------------------------------------------------------------------+")
+		fmt.Println()
+		continue
+	}
+
+	projectTypeWarningMap[detectorName] = detectorWarnings
+	projectTypeOptionMap[detectorName] = options
+
+	// Generate configs
+	configs, err := detector.Configs()
+	if err != nil {
+		log.TErrorf("Failed to generate config, error: %s", err)
+		detectorErrors = append(detectorErrors, err.Error())
+		projectTypeErrorMap[detectorName] = detectorErrors
+		continue
+	}
+
+	projectTypeConfigMap[detectorName] = configs
+
+	log.TPrintf("|                                                                              |")
+	log.TPrintf("+------------------------------------------------------------------------------+")
+
+	exludedScanners := detector.ExcludedScannerNames()
+	if len(exludedScanners) > 0 {
+		log.TWarnf("Scanner will exclude scanners: %v", exludedScanners)
+		excludedScannerNames = append(excludedScannerNames, exludedScanners...)
+	}
+
+	fmt.Println()
+}
+
+// addProjectTypeToToolScanner is used to add a project type for automation tool scanners's option map
+func addProjectTypeToToolScanner(toolScannerOptionModel models.OptionModel, detectedProjectTypes []string) models.OptionModel {
+	projectTypeOption = models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
+	for _, projectType := range detectedProjectTypes {
+		projectTypeOption.AddOption(toolScannerOptionModel)
+	}
+	return projectTypeOption
 }
