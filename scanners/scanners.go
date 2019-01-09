@@ -16,6 +16,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// ScannerCategory describes the types of scanners
+type ScannerCategory int
+
+// A ProjectScanner detects a platform, and creates test and deploy workflows.
+// A ToolScanner only detects an used build tool, e.g. fastlane, and creates a minimal worklow.
+// A ToolScanner uses one of the platform types (e.g. ios, android) detected by the active
+// project scanners, or if none are, 'other'.
+const (
+	ProjectScanner        ScannerCategory = 0
+	AutomationToolScanner ScannerCategory = 1
+)
+
 // ScannerInterface ...
 type ScannerInterface interface {
 	// The name of the scanner is used for logging and
@@ -60,6 +72,13 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform default BitriseConfigMap
 	DefaultConfigs() (models.BitriseConfigMap, error)
+}
+
+// AutomationToolScannerInterface contains additional methods (relative to ScannerInterface)
+// implemented by an AutomationToolScanner
+type AutomationToolScannerInterface interface {
+	// AddProjectType adds the option branches to choose from the project type list (determined by project scanners)
+	AddProjectType([]string, models.OptionModel) error
 }
 
 // ActiveScanners ...
