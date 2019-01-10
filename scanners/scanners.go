@@ -87,7 +87,6 @@ var ProjectScanners = []ScannerInterface{
 	macos.NewScanner(),
 	android.NewScanner(),
 	xamarin.NewScanner(),
-	fastlane.NewScanner(),
 }
 
 // AutomationToolScanners contains active automation tool scanners
