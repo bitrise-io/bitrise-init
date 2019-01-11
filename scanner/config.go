@@ -4,34 +4,22 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bitrise-core/bitrise-init/toolscanner"
-
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-core/bitrise-init/toolscanner"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
-// type scannerWarnings struct {
-// 	Name     string
-// 	warnings models.Warnings
-// }
-
-type scannerMatchResult struct {
-	Name                 string
+type scannerDetectResult struct {
 	Warnings             models.Warnings
 	Errors               models.Errors
-	OptionModel          models.OptionModel
+	OptionModel          models.OptionNode
 	ConfigMap            models.BitriseConfigMap
 	ExcludedScannerNames []string
 }
-
-// type scannerOutput struct {
-// 	Warnings    *scannerWarnings
-// 	MatchResult *scannerMatchOutput
-// }
 
 // Config ...
 func Config(searchDir string) models.ScanResultModel {
@@ -71,73 +59,72 @@ func Config(searchDir string) models.ScanResultModel {
 
 	//
 	// Scan
-	projectTypeErrorMap := map[string]models.Errors{}
-	projectTypeWarningMap := map[string]models.Warnings{}
-	projectTypeOptionMap := map[string]models.OptionModel{}
-	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
-
-	var excludedScannerNames []string
-
 	log.TInfof(colorstring.Blue("Running scanners:"))
 	fmt.Println()
 
-	projectScannerWarnings, projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir, excludedScannerNames)
-	var matchingProjectTypes []string
-	for _, match := range projectScannerMatchResults {
-		matchingProjectTypes = append(matchingProjectTypes, match.Name)
+	var scannerToNoDetectWarnings map[string]models.Warnings
+	var scannerToDetectResults map[string]scannerDetectResult
+	{
+		var excludedScannerNames []string
+		projectScannerWarnings, projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir, excludedScannerNames)
+		var matchingProjectTypes []string
+		for scannerName := range projectScannerMatchResults {
+			matchingProjectTypes = append(matchingProjectTypes, scannerName)
+		}
+
+		toolScannerWarnings, toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir, excludedScannerNames)
+		// Add project_type property option to tool scanner's as they do not dertect project/platform
+		for _, detectResult := range toolScannerResults {
+			detectResult.OptionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.OptionModel, matchingProjectTypes)
+		}
+
+		for k, v := range toolScannerWarnings {
+			projectScannerWarnings[k] = v
+		}
+		scannerToNoDetectWarnings = projectScannerWarnings
+		for k, v := range toolScannerResults {
+			projectScannerMatchResults[k] = v
+		}
+		scannerToDetectResults = projectScannerMatchResults
 	}
 
-	toolScannerWarnings, toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir, excludedScannerNames)
-	// Add project_type property option to tool scanner's as they do not dertect project/platform
-	for _, match := range toolScannerResults {
-		match.OptionModel = addProjectTypeToToolScanner(match.OptionModel, matchingProjectTypes)
+	scannerToOptions := map[string]models.OptionNode{}
+	scannerToConfigMap := map[string]models.BitriseConfigMap{}
+	scannerToWarnings := scannerToNoDetectWarnings
+	scannerToErrors := map[string]models.Errors{}
+	for k, v := range scannerToDetectResults {
+		scannerToOptions[k] = v.OptionModel
+		scannerToConfigMap[k] = v.ConfigMap
+		scannerToWarnings[k] = v.Warnings
+		if v.Errors != nil {
+			scannerToErrors[k] = v.Errors
+		}
 	}
-
-	for k, warnings := range toolScannerWarnings {
-		projectTypeWarningMap[k] = warnings
-	}
-	// for {
-	// 	if scannerOutput != nil {
-	// 		projectTypeOptionMap[detectorName] = scannerOutput.optionModel
-	// 		projectTypeConfigMap[detectorName] = scannerOutput.configMap
-	// 		excludedScannerNames = append(excludedScannerNames, scannerOutput.excludedScannerNames...)
-	// 		if len(detectorErrors) > 0 {
-	// 			projectTypeErrorMap[detectorName] = append(projectTypeErrorMap[detectorName], detectorErrors...)
-	// 		}
-	// 		projectTypeWarningMap[detectorName] = append(projectTypeWarningMap[detectorName], detectorWarnings...)
-	// 	} else {
-	// 		if len(detectorWarnings) > 0 {
-	// 			projectTypeWarningMap[detectorName] = append(projectTypeWarningMap[detectorName], detectorWarnings...)
-	// 		}
-	// 	}
-	// }
-
-	// ---
-
 	return models.ScanResultModel{
-		PlatformOptionMap:    projectTypeOptionMap,
-		PlatformConfigMapMap: projectTypeConfigMap,
-		PlatformWarningsMap:  projectTypeWarningMap,
-		PlatformErrorsMap:    projectTypeErrorMap,
+		ScannerToOptionRoot:       scannerToOptions,
+		ScannerToBitriseConfigMap: scannerToConfigMap,
+		ScannerToWarnings:         scannerToWarnings,
+		ScannerToErrors:           scannerToErrors,
 	}
 }
 
-func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string, excludedScannerNames []string) (map[string]models.Warnings, map[string]scannerMatchResult) {
-	scannerToMatchResult := map[string]scannerMatchOutput{}
+func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string, excludedScannerNames []string) (map[string]models.Warnings, map[string]scannerDetectResult) {
+	scannerToMatchResult := map[string]scannerDetectResult{}
 	scannerToWarnings := map[string]models.Warnings{}
 	for _, scanner := range scannerList {
 		warnings, matchResult := checkScannerMatchAndReturnOutput(scanner, searchDir, excludedScannerNames)
-		if detectorWarnings != nil {
+		if warnings != nil {
 			scannerToWarnings[scanner.Name()] = *warnings
 		}
-		if scannerOutput != nil {
-			scannerToMatchResult[scanner.Name()] = matchResult
+		if matchResult != nil {
+			scannerToMatchResult[scanner.Name()] = *matchResult
+			excludedScannerNames = append(excludedScannerNames, (*matchResult).ExcludedScannerNames...)
 		}
 	}
 	return scannerToWarnings, scannerToMatchResult
 }
 
-func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, searchDir string, excludedScannerNamesPrevious []string) (*models.Warnings, *scannerMatchOutput) {
+func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, searchDir string, excludedScannerNamesPrevious []string) (*models.Warnings, *scannerDetectResult) {
 	detectorName := detector.Name()
 	var detectorWarnings models.Warnings
 	var detectorErrors []string
@@ -176,7 +163,10 @@ func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, search
 		log.TPrintf("|                                                                              |")
 		log.TPrintf("+------------------------------------------------------------------------------+")
 		fmt.Println()
-		return &detectorWarnings, nil
+		return nil, &scannerDetectResult{
+			Warnings: detectorWarnings,
+			Errors:   detectorErrors,
+		}
 	}
 
 	// Generate configs
@@ -184,7 +174,10 @@ func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, search
 	if err != nil {
 		log.TErrorf("Failed to generate config, error: %s", err)
 		detectorErrors = append(detectorErrors, err.Error())
-		return &detectorWarnings, nil
+		return nil, &scannerDetectResult{
+			Warnings: detectorWarnings,
+			Errors:   detectorErrors,
+		}
 	}
 
 	log.TPrintf("|                                                                              |")
@@ -197,21 +190,11 @@ func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, search
 	}
 
 	fmt.Println()
-	return &models.Warnings{}, &scannerMatchOutput{
-		Name:                 detectorName,
+	return &models.Warnings{}, &scannerDetectResult{
 		Warnings:             detectorWarnings,
 		Errors:               detectorErrors,
 		OptionModel:          options,
 		ConfigMap:            configs,
 		ExcludedScannerNames: excludedScannerNamesCurrent,
 	}
-}
-
-// addProjectTypeToToolScanner is used to add a project type for automation tool scanners's option map
-func addProjectTypeToToolScanner(toolScannerOptionModel models.OptionModel, detectedProjectTypes []string) models.OptionModel {
-	projectTypeOption := models.NewOption(toolscanner.ProjectTypeUserTitle, toolscanner.ProjectTypeEnvKey)
-	for _, projectType := range detectedProjectTypes {
-		projectTypeOption.AddOption(projectType, &toolScannerOptionModel)
-	}
-	return *projectTypeOption
 }

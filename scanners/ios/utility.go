@@ -244,28 +244,28 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 }
 
 // GenerateOptions ...
-func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionModel, []ConfigDescriptor, models.Warnings, error) {
+func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionNode, []ConfigDescriptor, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	// Separate workspaces and standalon projects
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	exportMethodInputTitle := ""
@@ -283,7 +283,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	podfiles, err := FilterRelevantPodfiles(fileList)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	log.TPrintf("%d Podfiles detected", len(podfiles))
@@ -316,7 +316,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	cartfiles, err := FilterRelevantCartFile(fileList)
 	if err != nil {
-		return models.OptionModel{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
 	}
 
 	log.TPrintf("%d Cartfiles detected", len(cartfiles))
@@ -440,14 +440,14 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	if len(configDescriptors) == 0 {
 		log.TErrorf("No valid %s config found", string(projectType))
-		return models.OptionModel{}, []ConfigDescriptor{}, warnings, fmt.Errorf("No valid %s config found", string(projectType))
+		return models.OptionNode{}, []ConfigDescriptor{}, warnings, fmt.Errorf("No valid %s config found", string(projectType))
 	}
 
 	return *projectPathOption, configDescriptors, warnings, nil
 }
 
 // GenerateDefaultOptions ...
-func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionModel {
+func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
 	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputEnvKey)
 
 	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)

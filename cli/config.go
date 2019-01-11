@@ -112,7 +112,7 @@ func initConfig(c *cli.Context) error {
 	scanResult := scanner.Config(searchDir)
 
 	platforms := []string{}
-	for platform := range scanResult.PlatformOptionMap {
+	for platform := range scanResult.ScannerToOptionRoot {
 		platforms = append(platforms, platform)
 	}
 

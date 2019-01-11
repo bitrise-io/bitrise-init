@@ -10,7 +10,7 @@ import (
 // ManualConfig ...
 func ManualConfig() (models.ScanResultModel, error) {
 	projectScanners := scanners.ProjectScanners
-	projectTypeOptionMap := map[string]models.OptionModel{}
+	projectTypeOptionMap := map[string]models.OptionNode{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
 	for _, detector := range projectScanners {
@@ -34,7 +34,7 @@ func ManualConfig() (models.ScanResultModel, error) {
 	projectTypeConfigMap[scanners.CustomProjectType] = customConfig
 
 	return models.ScanResultModel{
-		PlatformOptionMap:    projectTypeOptionMap,
-		PlatformConfigMapMap: projectTypeConfigMap,
+		ScannerToOptionRoot:       projectTypeOptionMap,
+		ScannerToBitriseConfigMap: projectTypeConfigMap,
 	}, nil
 }
