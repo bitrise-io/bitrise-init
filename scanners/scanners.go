@@ -45,11 +45,11 @@ type ScannerInterface interface {
 	// - OptionModel
 	// - Warnings (if any)
 	// - error if (if any)
-	Options() (models.OptionModel, models.Warnings, error)
+	Options() (models.OptionNode, models.Warnings, error)
 
 	// Returns:
 	// - default options for the platform.
-	DefaultOptions() models.OptionModel
+	DefaultOptions() models.OptionNode
 
 	// BitriseConfigMap's each element is a bitrise config template which will be fulfilled with the user selected options.
 	// Every config's key should be the last option one of the OptionModel branches.

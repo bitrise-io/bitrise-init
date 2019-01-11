@@ -95,7 +95,7 @@ func (*Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	isValidFastfileFound := false
@@ -141,14 +141,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	if !isValidFastfileFound {
 		log.TErrorf("No valid Fastfile found")
 		warnings = append(warnings, "No valid Fastfile found")
-		return models.OptionModel{}, warnings, nil
+		return models.OptionNode{}, warnings, nil
 	}
 
 	return *workDirOption, warnings, nil
 }
 
 // DefaultOptions ...
-func (*Scanner) DefaultOptions() models.OptionModel {
+func (*Scanner) DefaultOptions() models.OptionNode {
 	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
 	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
