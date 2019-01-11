@@ -65,23 +65,24 @@ func Config(searchDir string) models.ScanResultModel {
 	var scannerToNoDetectWarnings map[string]models.Warnings
 	var scannerToDetectResults map[string]scannerDetectResult
 	{
-		projectScannerWarnings, projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir)
-		var matchingProjectTypes []string
+		projectScannerWarnings, projectScannerMatchResults := mapScannerOutput(scanners.ProjectScanners, searchDir)
+		detectedProjectTypes := make([]string, 0, len(projectScannerMatchResults))
 		for scannerKey := range projectScannerMatchResults {
-			matchingProjectTypes = append(matchingProjectTypes, scannerKey)
+			detectedProjectTypes = append(detectedProjectTypes, scannerKey)
 		}
-		log.Printf("Detected project types: %s", matchingProjectTypes)
+		log.Printf("Detected project types: %s", detectedProjectTypes)
 		fmt.Println()
 
-		toolScannerWarnings, toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir)
-		// Add project_type property option to tool scanner's as they do not detect project/platform
-		var detectedAutomationToolScanners []string
-		for scannerKey, detectResult := range toolScannerResults {
-			detectResult.optionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, matchingProjectTypes)
+		toolScannerWarnings, toolScannerResults := mapScannerOutput(scanners.AutomationToolScanners, searchDir)
+		detectedAutomationToolScanners := make([]string, 0, len(toolScannerResults))
+		for scannerKey := range toolScannerResults {
 			detectedAutomationToolScanners = append(detectedAutomationToolScanners, scannerKey)
 		}
 		log.Printf("Detected automation tools: %s", detectedAutomationToolScanners)
 		fmt.Println()
+
+		// Add project_type property option to tool scanner's as they do not detect project/platform
+		toolScannerResults = mapAddProjectType(toolScannerResults, detectedProjectTypes)
 
 		for k, v := range toolScannerWarnings {
 			projectScannerWarnings[k] = v
@@ -113,7 +114,7 @@ func Config(searchDir string) models.ScanResultModel {
 	}
 }
 
-func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string) (map[string]models.Warnings, map[string]scannerDetectResult) {
+func mapScannerOutput(scannerList []scanners.ScannerInterface, searchDir string) (map[string]models.Warnings, map[string]scannerDetectResult) {
 	scannerToDetectResult := map[string]scannerDetectResult{}
 	scannerToNoDetectWarnings := map[string]models.Warnings{}
 	var excludedScannerNames []string
@@ -191,4 +192,13 @@ func checkScannerDetectAndReturnOutput(detector scanners.ScannerInterface, searc
 		configMap:        configs,
 		excludedScanners: scannerExcludedScanners,
 	}
+}
+
+func mapAddProjectType(toolScannerResults map[string]scannerDetectResult, detectedProjectTypes []string) map[string]scannerDetectResult {
+	toolScannerResultsWithProjectType := map[string]scannerDetectResult{}
+	for scannerKey, detectResult := range toolScannerResults {
+		detectResult.optionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, detectedProjectTypes)
+		toolScannerResultsWithProjectType[scannerKey] = detectResult
+	}
+	return toolScannerResultsWithProjectType
 }
