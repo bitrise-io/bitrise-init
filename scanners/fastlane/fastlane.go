@@ -15,6 +15,8 @@ import (
 
 const scannerName = "fastlane"
 
+const defaultProjectType = "other"
+
 const (
 	configName        = "fastlane-config"
 	defaultConfigName = "default-fastlane-config"
@@ -174,7 +176,12 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	config, err := configBuilder.Generate("$"+toolscanner.ProjectTypeEnvKey, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+	config, err := configBuilder.Generate(utility.TemplateWithKey(toolscanner.ProjectTypeTemplateKey),
+		envmanModels.EnvironmentItemModel{
+			laneInputEnvKey:                utility.TemplateWithKey(laneInputEnvKey),
+			workDirInputEnvKey:             utility.TemplateWithKey(workDirInputEnvKey),
+			fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
+		})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
