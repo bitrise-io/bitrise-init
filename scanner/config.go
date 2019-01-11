@@ -14,11 +14,11 @@ import (
 )
 
 type scannerDetectResult struct {
-	Warnings             models.Warnings
-	Errors               models.Errors
-	OptionModel          models.OptionNode
-	ConfigMap            models.BitriseConfigMap
-	ExcludedScannerNames []string
+	warnings         models.Warnings
+	errors           models.Errors
+	optionModel      models.OptionNode
+	configMap        models.BitriseConfigMap
+	excludedScanners []string
 }
 
 // Config ...
@@ -65,18 +65,23 @@ func Config(searchDir string) models.ScanResultModel {
 	var scannerToNoDetectWarnings map[string]models.Warnings
 	var scannerToDetectResults map[string]scannerDetectResult
 	{
-		var excludedScannerNames []string
-		projectScannerWarnings, projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir, excludedScannerNames)
+		projectScannerWarnings, projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir)
 		var matchingProjectTypes []string
-		for scannerName := range projectScannerMatchResults {
-			matchingProjectTypes = append(matchingProjectTypes, scannerName)
+		for scannerKey := range projectScannerMatchResults {
+			matchingProjectTypes = append(matchingProjectTypes, scannerKey)
 		}
+		log.Printf("Detected project types: %s", matchingProjectTypes)
+		fmt.Println()
 
-		toolScannerWarnings, toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir, excludedScannerNames)
-		// Add project_type property option to tool scanner's as they do not dertect project/platform
-		for _, detectResult := range toolScannerResults {
-			detectResult.OptionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.OptionModel, matchingProjectTypes)
+		toolScannerWarnings, toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir)
+		// Add project_type property option to tool scanner's as they do not detect project/platform
+		var detectedAutomationToolScanners []string
+		for scannerKey, detectResult := range toolScannerResults {
+			detectResult.optionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, matchingProjectTypes)
+			detectedAutomationToolScanners = append(detectedAutomationToolScanners, scannerKey)
 		}
+		log.Printf("Detected automation tools: %s", detectedAutomationToolScanners)
+		fmt.Println()
 
 		for k, v := range toolScannerWarnings {
 			projectScannerWarnings[k] = v
@@ -93,11 +98,11 @@ func Config(searchDir string) models.ScanResultModel {
 	scannerToWarnings := scannerToNoDetectWarnings
 	scannerToErrors := map[string]models.Errors{}
 	for k, v := range scannerToDetectResults {
-		scannerToOptions[k] = v.OptionModel
-		scannerToConfigMap[k] = v.ConfigMap
-		scannerToWarnings[k] = v.Warnings
-		if v.Errors != nil {
-			scannerToErrors[k] = v.Errors
+		scannerToOptions[k] = v.optionModel
+		scannerToConfigMap[k] = v.configMap
+		scannerToWarnings[k] = v.warnings
+		if v.errors != nil {
+			scannerToErrors[k] = v.errors
 		}
 	}
 	return models.ScanResultModel{
@@ -108,48 +113,46 @@ func Config(searchDir string) models.ScanResultModel {
 	}
 }
 
-func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string, excludedScannerNames []string) (map[string]models.Warnings, map[string]scannerDetectResult) {
-	scannerToMatchResult := map[string]scannerDetectResult{}
-	scannerToWarnings := map[string]models.Warnings{}
+func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string) (map[string]models.Warnings, map[string]scannerDetectResult) {
+	scannerToDetectResult := map[string]scannerDetectResult{}
+	scannerToNoDetectWarnings := map[string]models.Warnings{}
+	var excludedScannerNames []string
 	for _, scanner := range scannerList {
-		warnings, matchResult := checkScannerMatchAndReturnOutput(scanner, searchDir, excludedScannerNames)
+		log.TInfof("Scanner: %s", colorstring.Blue(scanner.Name()))
+		if sliceutil.IsStringInSlice(scanner.Name(), excludedScannerNames) {
+			log.TWarnf("scanner is marked as excluded, skipping...")
+			fmt.Println()
+			continue
+		}
+
+		log.TPrintf("+------------------------------------------------------------------------------+")
+		log.TPrintf("|                                                                              |")
+
+		warnings, matchResult := checkScannerDetectAndReturnOutput(scanner, searchDir)
+
+		log.TPrintf("|                                                                              |")
+		log.TPrintf("+------------------------------------------------------------------------------+")
+		fmt.Println()
+
 		if warnings != nil {
-			scannerToWarnings[scanner.Name()] = *warnings
+			scannerToNoDetectWarnings[scanner.Name()] = *warnings
 		}
 		if matchResult != nil {
-			scannerToMatchResult[scanner.Name()] = *matchResult
-			excludedScannerNames = append(excludedScannerNames, (*matchResult).ExcludedScannerNames...)
+			scannerToDetectResult[scanner.Name()] = *matchResult
+			excludedScannerNames = append(excludedScannerNames, (*matchResult).excludedScanners...)
 		}
 	}
-	return scannerToWarnings, scannerToMatchResult
+	return scannerToNoDetectWarnings, scannerToDetectResult
 }
 
-func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, searchDir string, excludedScannerNamesPrevious []string) (*models.Warnings, *scannerDetectResult) {
-	detectorName := detector.Name()
+func checkScannerDetectAndReturnOutput(detector scanners.ScannerInterface, searchDir string) (*models.Warnings, *scannerDetectResult) {
 	var detectorWarnings models.Warnings
 	var detectorErrors []string
 
-	log.TInfof("Scanner: %s", colorstring.Blue(detectorName))
-
-	if sliceutil.IsStringInSlice(detectorName, excludedScannerNamesPrevious) {
-		log.TWarnf("scanner is marked as excluded, skipping...")
-		fmt.Println()
-		return nil, nil
-	}
-
-	log.TPrintf("+------------------------------------------------------------------------------+")
-	log.TPrintf("|                                                                              |")
-
 	if detected, err := detector.DetectPlatform(searchDir); err != nil {
 		log.TErrorf("Scanner failed, error: %s", err)
-		log.TPrintf("|                                                                              |")
-		log.TPrintf("+------------------------------------------------------------------------------+")
-		fmt.Println()
 		return &models.Warnings{err.Error()}, nil
 	} else if !detected {
-		log.TPrintf("|                                                                              |")
-		log.TPrintf("+------------------------------------------------------------------------------+")
-		fmt.Println()
 		return nil, nil
 	}
 
@@ -159,13 +162,9 @@ func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, search
 	if err != nil {
 		log.TErrorf("Analyzer failed, error: %s", err)
 		detectorWarnings = append(detectorWarnings, err.Error())
-
-		log.TPrintf("|                                                                              |")
-		log.TPrintf("+------------------------------------------------------------------------------+")
-		fmt.Println()
 		return nil, &scannerDetectResult{
-			Warnings: detectorWarnings,
-			Errors:   detectorErrors,
+			warnings: detectorWarnings,
+			errors:   detectorErrors,
 		}
 	}
 
@@ -175,26 +174,21 @@ func checkScannerMatchAndReturnOutput(detector scanners.ScannerInterface, search
 		log.TErrorf("Failed to generate config, error: %s", err)
 		detectorErrors = append(detectorErrors, err.Error())
 		return nil, &scannerDetectResult{
-			Warnings: detectorWarnings,
-			Errors:   detectorErrors,
+			warnings: detectorWarnings,
+			errors:   detectorErrors,
 		}
 	}
 
-	log.TPrintf("|                                                                              |")
-	log.TPrintf("+------------------------------------------------------------------------------+")
-
-	excludedScannerNamesCurrent := detector.ExcludedScannerNames()
-	if len(excludedScannerNamesCurrent) > 0 {
-		log.TWarnf("Scanner will exclude scanners: %v", excludedScannerNamesCurrent)
-		excludedScannerNamesCurrent = append(excludedScannerNamesPrevious, excludedScannerNamesCurrent...)
+	scannerExcludedScanners := detector.ExcludedScannerNames()
+	if len(scannerExcludedScanners) > 0 {
+		log.TWarnf("Scanner will exclude scanners: %v", scannerExcludedScanners)
 	}
 
-	fmt.Println()
 	return &models.Warnings{}, &scannerDetectResult{
-		Warnings:             detectorWarnings,
-		Errors:               detectorErrors,
-		OptionModel:          options,
-		ConfigMap:            configs,
-		ExcludedScannerNames: excludedScannerNamesCurrent,
+		warnings:         detectorWarnings,
+		errors:           detectorErrors,
+		optionModel:      options,
+		configMap:        configs,
+		excludedScanners: scannerExcludedScanners,
 	}
 }

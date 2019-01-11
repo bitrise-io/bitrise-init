@@ -1,6 +1,8 @@
 package toolscanner
 
 import (
+	"log"
+
 	"github.com/bitrise-core/bitrise-init/models"
 )
 
@@ -12,10 +14,14 @@ const (
 )
 
 // AddProjectTypeToToolScanner is used to add a project type for automation tool scanners's option map
-func AddProjectTypeToToolScanner(toolScannerOptionModel models.OptionNode, detectedProjectTypes []string) models.OptionNode {
-	projectTypeOption := models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
+func AddProjectTypeToToolScanner(toolScannerOptionTree models.OptionNode, detectedProjectTypes []string) models.OptionNode {
+	log.Printf("toolScannerOptionTree: %s, detectedProjectTypes: %s", toolScannerOptionTree, detectedProjectTypes)
+
+	optionsTreeWithProjectTypeRoot := models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
 	for _, projectType := range detectedProjectTypes {
-		projectTypeOption.AddOption(projectType, &toolScannerOptionModel)
+		optionsTreeWithProjectTypeRoot.AddOption(projectType, &toolScannerOptionTree)
 	}
-	return *projectTypeOption
+
+	log.Printf("New options root: %s", optionsTreeWithProjectTypeRoot)
+	return *optionsTreeWithProjectTypeRoot
 }
