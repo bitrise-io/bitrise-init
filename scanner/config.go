@@ -99,8 +99,10 @@ func Config(searchDir string) models.ScanResultModel {
 	scannerToWarnings := scannerToNoDetectWarnings
 	scannerToErrors := map[string]models.Errors{}
 	for k, v := range scannerToDetectResults {
-		scannerToOptions[k] = v.optionModel
-		scannerToConfigMap[k] = v.configMap
+		if v.configMap != nil {
+			scannerToOptions[k] = v.optionModel
+			scannerToConfigMap[k] = v.configMap
+		}
 		scannerToWarnings[k] = v.warnings
 		if v.errors != nil {
 			scannerToErrors[k] = v.errors
