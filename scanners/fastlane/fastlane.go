@@ -177,11 +177,10 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	config, err := configBuilder.Generate(utility.TemplateWithKey(toolscanner.ProjectTypeTemplateKey),
-		envmanModels.EnvironmentItemModel{
-			laneInputEnvKey:                utility.TemplateWithKey(laneInputEnvKey),
-			workDirInputEnvKey:             utility.TemplateWithKey(workDirInputEnvKey),
-			fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
-		})
+		envmanModels.EnvironmentItemModel{laneInputEnvKey: utility.TemplateWithKey(laneInputEnvKey)},
+		envmanModels.EnvironmentItemModel{workDirInputEnvKey: utility.TemplateWithKey(workDirInputEnvKey)},
+		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
+	)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

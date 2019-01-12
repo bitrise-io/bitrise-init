@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"html/template"
 
-	yaml "gopkg.in/yaml.v2"
-
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/goinp/goinp"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func askForOptionValue(option models.OptionNode) (string, string, error) {
@@ -146,39 +146,31 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 func substituteChosenOptionsInConfig(configStr string, substitutions map[string]string) (bitriseModels.BitriseDataModel, error) {
 	log.Printf("substituteChosenOptionsInConfig configStr: %s", configStr)
 
-	var config bitriseModels.BitriseDataModel
-	if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
-		return bitriseModels.BitriseDataModel{}, fmt.Errorf("failed to unmarshal config, error: %s", err)
-	}
-
-	executeTemplate := func(property string) (string, error) {
-		tmpl, err := template.New("bitrise.yml scanner options").Parse(property)
+	executeTemplate := func(text string) (string, error) {
+		tmpl, err := template.New("bitrise.yml with scanner defined options").
+			Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
+			Parse(text)
 		if err != nil {
-			return property, fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
+			return text, fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
 		}
 		var byteBuffer bytes.Buffer
 		err = tmpl.Execute(&byteBuffer, substitutions)
 		if err != nil {
-			return property, fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
+			return text, fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
 		}
 		return byteBuffer.String(), nil
 	}
-	// Apply project type template (if any)
+
+	// Parse bitrise.yml as a templated text, and substitute options
 	var err error
-	config.ProjectType, err = executeTemplate(config.ProjectType)
+	configStr, err = executeTemplate(configStr)
 	if err != nil {
 		return bitriseModels.BitriseDataModel{}, err
 	}
-	// Apply app enviroment templates (if any)
-	for _, item := range config.App.Environments {
-		for k, v := range item {
-			item[k], err = executeTemplate(v.(string))
-			if err != nil {
-				return bitriseModels.BitriseDataModel{}, err
-			}
-		}
-	}
 
-	// config.App.Environments = append(config.App.Environments, appEnvs...)
+	var config bitriseModels.BitriseDataModel
+	if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
+		return bitriseModels.BitriseDataModel{}, fmt.Errorf("failed to unmarshal config, error: %s", err)
+	}
 	return config, nil
 }
