@@ -1,17 +1,15 @@
 package scanner
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
+
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
-	"github.com/bitrise-io/go-utils/log"
+	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/goinp/goinp"
-	yaml "gopkg.in/yaml.v2"
 )
 
 func askForOptionValue(option models.OptionNode) (string, string, error) {
@@ -47,10 +45,9 @@ func askForOptionValue(option models.OptionNode) (string, string, error) {
 }
 
 // AskForOptions ...
-func AskForOptions(options models.OptionNode) (string, map[string]string, error) {
-	log.Printf("AskForOptions options: %s", options)
+func AskForOptions(options models.OptionNode) (string, []envmanModels.EnvironmentItemModel, error) {
 	configPth := ""
-	substitutions := map[string]string{}
+	appEnvs := []envmanModels.EnvironmentItemModel{}
 
 	var walkDepth func(models.OptionNode) error
 	walkDepth = func(opt models.OptionNode) error {
@@ -65,7 +62,9 @@ func AskForOptions(options models.OptionNode) (string, map[string]string, error)
 			return nil
 		} else if optionEnvKey != "" {
 			// env's value selected
-			substitutions[optionEnvKey] = selectedValue
+			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
+				optionEnvKey: selectedValue,
+			})
 		}
 
 		var nestedOptions *models.OptionNode
@@ -88,15 +87,14 @@ func AskForOptions(options models.OptionNode) (string, map[string]string, error)
 	}
 
 	if err := walkDepth(options); err != nil {
-		return "", map[string]string{}, err
+		return "", []envmanModels.EnvironmentItemModel{}, err
 	}
 
 	if configPth == "" {
 		return "", nil, errors.New("no config selected")
 	}
 
-	log.Printf("AskForOptions configPth: %s, appEnvs: %s", configPth, substitutions)
-	return configPth, substitutions, nil
+	return configPth, appEnvs, nil
 }
 
 // AskForConfig ...
@@ -130,7 +128,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("invalid platform selected: %s", platform)
 	}
 
-	configPth, substitutions, err := AskForOptions(options)
+	configPth, appEnvs, err := AskForOptions(options)
 	if err != nil {
 		return bitriseModels.BitriseDataModel{}, err
 	}
@@ -140,37 +138,14 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	// Build config
 	configMap := scanResult.ScannerToBitriseConfigMap[platform]
 	configStr := configMap[configPth]
-	return substituteChosenOptionsInConfig(configStr, substitutions)
-}
-
-func substituteChosenOptionsInConfig(configStr string, substitutions map[string]string) (bitriseModels.BitriseDataModel, error) {
-	log.Printf("substituteChosenOptionsInConfig configStr: %s", configStr)
-
-	executeTemplate := func(text string) (string, error) {
-		tmpl, err := template.New("bitrise.yml with scanner defined options").
-			Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
-			Parse(text)
-		if err != nil {
-			return text, fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
-		}
-		var byteBuffer bytes.Buffer
-		err = tmpl.Execute(&byteBuffer, substitutions)
-		if err != nil {
-			return text, fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
-		}
-		return byteBuffer.String(), nil
-	}
-
-	// Parse bitrise.yml as a templated text, and substitute options
-	var err error
-	configStr, err = executeTemplate(configStr)
-	if err != nil {
-		return bitriseModels.BitriseDataModel{}, err
-	}
 
 	var config bitriseModels.BitriseDataModel
 	if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("failed to unmarshal config, error: %s", err)
 	}
+
+	config.App.Environments = append(config.App.Environments, appEnvs...)
+	// ---
+
 	return config, nil
 }

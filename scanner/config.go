@@ -13,6 +13,8 @@ import (
 	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
+const otherProjectType = "other"
+
 type scannerDetectResult struct {
 	warnings         models.Warnings
 	errors           models.Errors
@@ -82,7 +84,13 @@ func Config(searchDir string) models.ScanResultModel {
 		fmt.Println()
 
 		// Add project_type property option to tool scanner's as they do not detect project/platform
-		toolScannerResults = mapAddProjectType(toolScannerResults, detectedProjectTypes)
+		if len(detectedProjectTypes) == 0 {
+			detectedProjectTypes = []string{otherProjectType}
+		}
+		toolScannerResults, err = mapAddProjectType(toolScannerResults, detectedProjectTypes)
+		if err != nil {
+
+		}
 
 		for k, v := range toolScannerWarnings {
 			projectScannerWarnings[k] = v
@@ -130,9 +138,7 @@ func mapScannerOutput(scannerList []scanners.ScannerInterface, searchDir string)
 
 		log.TPrintf("+------------------------------------------------------------------------------+")
 		log.TPrintf("|                                                                              |")
-
 		warnings, matchResult := checkScannerDetectAndReturnOutput(scanner, searchDir)
-
 		log.TPrintf("|                                                                              |")
 		log.TPrintf("+------------------------------------------------------------------------------+")
 		fmt.Println()
@@ -196,11 +202,15 @@ func checkScannerDetectAndReturnOutput(detector scanners.ScannerInterface, searc
 	}
 }
 
-func mapAddProjectType(toolScannerResults map[string]scannerDetectResult, detectedProjectTypes []string) map[string]scannerDetectResult {
+func mapAddProjectType(toolScannerResults map[string]scannerDetectResult, detectedProjectTypes []string) (map[string]scannerDetectResult, error) {
 	toolScannerResultsWithProjectType := map[string]scannerDetectResult{}
 	for scannerKey, detectResult := range toolScannerResults {
-		detectResult.optionModel = toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, detectedProjectTypes)
+		var err error
+		if detectResult.optionModel, detectResult.configMap, err =
+			toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, detectResult.configMap, detectedProjectTypes); err != nil {
+			return toolScannerResultsWithProjectType, err
+		}
 		toolScannerResultsWithProjectType[scannerKey] = detectResult
 	}
-	return toolScannerResultsWithProjectType
+	return toolScannerResultsWithProjectType, nil
 }
