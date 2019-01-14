@@ -70,15 +70,19 @@ var fastlaneVersions = []interface{}{
 
 var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
-    title: Working directory
-    env_key: FASTLANE_WORK_DIR
+    title: Project type
+    env_key: PROJECT_TYPE
     value_map:
-      BitriseFastlaneSample:
-        title: Fastlane lane
-        env_key: FASTLANE_LANE
+      ios:
+        title: Working directory
+        env_key: FASTLANE_WORK_DIR
         value_map:
-          ios test:
-            config: fastlane-config
+          BitriseFastlaneSample:
+            title: Fastlane lane
+            env_key: FASTLANE_LANE
+            value_map:
+              ios test:
+                config: fastlane-config_ios
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
@@ -101,10 +105,10 @@ var fastlaneResultYML = fmt.Sprintf(`options:
                 config: ios-test-config
 configs:
   fastlane:
-    fastlane-config: |
+    fastlane-config_ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: $PROJECT_TYPE
+      project_type: 'ios'
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
