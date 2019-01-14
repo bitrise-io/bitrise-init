@@ -17,9 +17,10 @@ const (
 	ProjectTypeTemplateKey = "PROJECT_TYPE"
 )
 
-// AddProjectTypeToToolScanner is used to add a project type for automation tool scanners's option tree and config map
-func AddProjectTypeToToolScanner(scannerOptionTree models.OptionNode, scannerConfigMap models.BitriseConfigMap, detectedProjectTypes []string) (models.OptionNode, models.BitriseConfigMap, error) {
-	log.Printf("AddProjectTypeToToolScanner old toolScannerOptionTree: %s, detectedProjectTypes: %s", scannerOptionTree, detectedProjectTypes)
+// AddProjectType is used to add a project type for automation tool scanners's option tree and config map
+func AddProjectType(scannerOptionTree models.OptionNode, scannerConfigMap models.BitriseConfigMap, detectedProjectTypes []string) (models.OptionNode, models.BitriseConfigMap, error) {
+	log.Printf("AddProjectTypeToToolScanner old toolScannerOptionTree: %s, \n scannerConfigMap %s, \n detectedProjectTypes: %s",
+		scannerOptionTree, scannerConfigMap, detectedProjectTypes)
 
 	// For each tool scanner generated config, multiply it to get all combinations of 'Existing config' X 'Detected project type'
 	configMapWithProjecTypes := map[string]string{}
@@ -29,7 +30,7 @@ func AddProjectTypeToToolScanner(scannerOptionTree models.OptionNode, scannerCon
 			if err != nil {
 				return scannerOptionTree, scannerConfigMap, fmt.Errorf("failed to add project type to tool scanner bitrise.yml, error: %s", err)
 			}
-			configMapWithProjecTypes[configName+"_"+projectType] = configWithProjectType
+			configMapWithProjecTypes[appendProjectTypeToConfigName(configName, projectType)] = configWithProjectType
 		}
 	}
 
@@ -39,12 +40,12 @@ func AddProjectTypeToToolScanner(scannerOptionTree models.OptionNode, scannerCon
 		optionsTreeWithProjectTypeRoot.AddOption(projectType, appendProjectTypeToConfig(scannerOptionTree, projectType))
 	}
 
-	log.Printf("AddProjectTypeToToolScanner new options root: %s", optionsTreeWithProjectTypeRoot)
+	log.Printf("AddProjectTypeToToolScanner new options root: %s, \n new config map: %s",
+		optionsTreeWithProjectTypeRoot, configMapWithProjecTypes)
 	return *optionsTreeWithProjectTypeRoot, configMapWithProjecTypes, nil
 }
 
 func evaluateConfigTemplate(configStr string, substitutions map[string]string) (string, error) {
-	log.Printf("substituteChosenOptionsInConfig configStr: %s", configStr)
 	// Parse bitrise.yml as a templated text, and substitute options
 	tmpl, err := template.New("bitrise.yml with scanner defined options").
 		Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
@@ -65,10 +66,16 @@ func appendProjectTypeToConfigName(configName string, projectType string) string
 }
 
 func appendProjectTypeToConfig(options models.OptionNode, projectType string) *models.OptionNode {
-	for _, leafNode := range options.LastChilds() {
-		if leafNode.Config != "" {
-			leafNode.Config = appendProjectTypeToConfigName(options.Config, projectType)
+	var appendToConfigNames func(*models.OptionNode)
+	appendToConfigNames = func(node *models.OptionNode) {
+		if (*node).IsConfigOption() || (*node).ChildOptionMap == nil {
+			(*node).Config = appendProjectTypeToConfigName((*node).Config, projectType)
+			return
+		}
+		for _, child := range (*node).ChildOptionMap {
+			appendToConfigNames(child)
 		}
 	}
+	appendToConfigNames(&options)
 	return &options
 }

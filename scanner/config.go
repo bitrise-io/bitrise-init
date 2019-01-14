@@ -87,7 +87,7 @@ func Config(searchDir string) models.ScanResultModel {
 		if len(detectedProjectTypes) == 0 {
 			detectedProjectTypes = []string{otherProjectType}
 		}
-		toolScannerResults, err = mapAddProjectType(toolScannerResults, detectedProjectTypes)
+		toolScannerResults, err = addProjectType(toolScannerResults, detectedProjectTypes)
 		if err != nil {
 
 		}
@@ -202,12 +202,12 @@ func checkScannerDetectAndReturnOutput(detector scanners.ScannerInterface, searc
 	}
 }
 
-func mapAddProjectType(toolScannerResults map[string]scannerDetectResult, detectedProjectTypes []string) (map[string]scannerDetectResult, error) {
+func addProjectType(toolScannerResults map[string]scannerDetectResult, detectedProjectTypes []string) (map[string]scannerDetectResult, error) {
 	toolScannerResultsWithProjectType := map[string]scannerDetectResult{}
 	for scannerKey, detectResult := range toolScannerResults {
 		var err error
 		if detectResult.optionModel, detectResult.configMap, err =
-			toolscanner.AddProjectTypeToToolScanner(detectResult.optionModel, detectResult.configMap, detectedProjectTypes); err != nil {
+			toolscanner.AddProjectType(detectResult.optionModel, detectResult.configMap, detectedProjectTypes); err != nil {
 			return toolScannerResultsWithProjectType, err
 		}
 		toolScannerResultsWithProjectType[scannerKey] = detectResult
