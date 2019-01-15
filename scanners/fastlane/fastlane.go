@@ -15,7 +15,10 @@ import (
 
 const scannerName = "fastlane"
 
-const unknownProjectType = "other"
+const (
+	unknownProjectType = "other"
+	fastlaneWorkflowID = scannerName
+)
 
 const (
 	configName        = "fastlane-config"
@@ -164,17 +167,17 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 
 // Configs ...
 func (*Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder := models.NewCustomTriggerWorkflowIDConfigBuilder(fastlaneWorkflowID)
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.FastlaneStepListItem(
 		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// Fill in project type later, from the list of detected project types
 	config, err := configBuilder.Generate(utility.TemplateWithKey(toolscanner.ProjectTypeTemplateKey),
@@ -197,16 +200,16 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder := models.NewCustomTriggerWorkflowIDConfigBuilder(fastlaneWorkflowID)
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.FastlaneStepListItem(
 		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	config, err := configBuilder.Generate(unknownProjectType, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
