@@ -89,7 +89,9 @@ func Config(searchDir string) models.ScanResultModel {
 		}
 		toolScannerResults, err = addProjectType(toolScannerResults, detectedProjectTypes)
 		if err != nil {
-
+			errorResult := models.ScanResultModel{}
+			errorResult.AddError("general", "Failed to add project types to tool scanners.")
+			return errorResult
 		}
 
 		for k, v := range toolScannerWarnings {
@@ -206,10 +208,11 @@ func addProjectType(toolScannerResults map[string]scannerDetectResult, detectedP
 	toolScannerResultsWithProjectType := map[string]scannerDetectResult{}
 	for scannerKey, detectResult := range toolScannerResults {
 		var err error
-		if detectResult.optionModel, detectResult.configMap, err =
-			toolscanner.AddProjectType(detectResult.optionModel, detectResult.configMap, detectedProjectTypes); err != nil {
-			return toolScannerResultsWithProjectType, err
+		detectResult.configMap, err = toolscanner.AddProjectTypeToConfig(detectResult.configMap, detectedProjectTypes)
+		if err != nil {
+			return nil, err
 		}
+		detectResult.optionModel = toolscanner.AddProjectTypeToOptions(detectResult.optionModel, detectedProjectTypes)
 		toolScannerResultsWithProjectType[scannerKey] = detectResult
 	}
 	return toolScannerResultsWithProjectType, nil

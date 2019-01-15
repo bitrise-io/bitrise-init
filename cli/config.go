@@ -138,7 +138,7 @@ func initConfig(c *cli.Context) error {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 		}
 
-		log.TPrintf(" 0 scan result: %s", outputPth)
+		log.TPrintf("scan result: %s", outputPth)
 		return fmt.Errorf("No known platform detected")
 	}
 
