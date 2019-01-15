@@ -37,7 +37,8 @@ func AddProjectTypeToConfig(scannerConfigMap models.BitriseConfigMap, detectedPr
 func AddProjectTypeToOptions(scannerOptionTree models.OptionNode, detectedProjectTypes []string) models.OptionNode {
 	optionsTreeWithProjectTypeRoot := models.NewOption(ProjectTypeUserTitle, ProjectTypeTemplateKey)
 	for _, projectType := range detectedProjectTypes {
-		optionsTreeWithProjectTypeRoot.AddOption(projectType, appendProjectTypeToConfig(scannerOptionTree, projectType))
+		optionsTreeWithProjectTypeRoot.AddOption(projectType,
+			appendProjectTypeToConfig(scannerOptionTree, projectType))
 	}
 	return *optionsTreeWithProjectTypeRoot
 }

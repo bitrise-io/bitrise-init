@@ -69,13 +69,6 @@ type ProjectScannerInterface interface {
 	GetProjectType() string
 }
 
-// // AutomationToolScannerInterface contains additional methods (relative to ScannerInterface)
-// // implemented by an AutomationToolScanner
-// type AutomationToolScannerInterface interface {
-// 	// AddProjectType adds the option branches to choose from the project type list (determined by project scanners)
-// 	AddProjectType(models.OptionModel, []string) (models.OptionModel, error)
-// }
-
 // ProjectScanners ...
 var ProjectScanners = []ScannerInterface{
 	expo.NewScanner(),
