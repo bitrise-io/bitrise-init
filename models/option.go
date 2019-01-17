@@ -18,6 +18,13 @@ const (
 	// - if there are more than one keys then the selection must be asked in a list to select from
 	TypeSelector Type = "selector"
 	// Originally:
+	// - if there was only one key then this question was not asked
+	// - if there was more than one keys then it was asked in a list to select from
+	// Now, if this type is selected:
+	// - if there is only one key then the view should let the user select of the only item the list has or manual input
+	// - if there are more than one keys then the selection must be asked in a list to select from or have a manual button to let the user to input anything else
+	TypeOptionalSelector Type = "selector_optional"
+	// Originally:
 	// - if there was only one key and it's name was `_` then we shown an input field to the user to type his value in and it was a requirement to have an input value
 	// Now, if this type is selected:
 	// - we must show an input field to the user and it is required to fill, any name for the key will be the placeholder value for the input field
