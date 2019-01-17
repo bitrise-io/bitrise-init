@@ -48,9 +48,11 @@ type Scanner struct {
 }
 
 type project struct {
-	path              string              `yaml:"-"`
-	xcodeProjectPaths map[string][]string `yaml:"-"`
-	hasTest           bool                `yaml:"-"`
+	path              string
+	xcodeProjectPaths map[string][]string
+	hasTest           bool
+	hasIosProject     bool
+	hasAndroidProject bool
 }
 
 type pubspec struct {
@@ -128,7 +130,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 	log.TPrintf("")
 
-	log.TInfof("Fetching .metadata and pubspec.yaml files")
+	log.TInfof("Fetching pubspec.yaml files")
 projects:
 	for _, projectLocation := range projectLocations {
 		var proj project
@@ -147,13 +149,8 @@ projects:
 		}
 
 		testsDirPath := filepath.Join(projectLocation, "test")
-		if exists, err := pathutil.IsDirExists(testsDirPath); err != nil || !exists {
-			proj.hasTest = false
-		} else if err == nil && exists {
-			files, err := ioutil.ReadDir(testsDirPath)
-			if err != nil {
-				proj.hasTest = false
-			} else {
+		if exists, err := pathutil.IsDirExists(testsDirPath); err == nil && exists {
+			if files, err := ioutil.ReadDir(testsDirPath); err == nil && len(files) > 0 {
 				for _, file := range files {
 					if strings.HasSuffix(file.Name(), "_test.dart") {
 						proj.hasTest = true
@@ -162,39 +159,52 @@ projects:
 			}
 		}
 
+		iosProjPath := filepath.Join(projectLocation, "ios", "Runner.xcworkspace")
+		if exists, err := pathutil.IsPathExists(iosProjPath); err == nil && exists {
+			proj.hasIosProject = true
+		}
+
+		androidProjPath := filepath.Join(projectLocation, "android", "build.gradle")
+		if exists, err := pathutil.IsPathExists(androidProjPath); err == nil && exists {
+			proj.hasAndroidProject = true
+		}
+
 		log.TPrintf("- Project name: %s", ps.Name)
 		log.TPrintf("  Path: %s", projectLocation)
 		log.TPrintf("  HasTest: %t", proj.hasTest)
+		log.TPrintf("  HasAndroidProject: %t", proj.hasAndroidProject)
+		log.TPrintf("  HasIosProject: %t", proj.hasIosProject)
 
 		proj.path = projectLocation
 
-		workspaceLocations, err := findWorkspaceLocations(filepath.Join(projectLocation, "ios"))
-		if err != nil {
-			continue
-		}
+		if proj.hasIosProject {
+			if workspaceLocations, err := findWorkspaceLocations(filepath.Join(projectLocation, "ios")); err != nil {
+				log.TWarnf("Failed to check path at: %s, error: %s", filepath.Join(projectLocation, "ios"), err)
+			} else {
+				log.TPrintf("  XCWorkspaces(%d):", len(workspaceLocations))
 
-		log.TPrintf("  XCWorkspaces(%d):", len(workspaceLocations))
+				for _, workspaceLocation := range workspaceLocations {
+					log.TPrintf("    Path: %s", workspaceLocation)
+					ws, err := xcworkspace.Open(workspaceLocation)
+					if err != nil {
+						continue projects
+					}
+					schemeMap, err := ws.Schemes()
+					if err != nil {
+						continue projects
+					}
 
-		for _, workspaceLocation := range workspaceLocations {
-			log.TPrintf("    Path: %s", workspaceLocation)
-			ws, err := xcworkspace.Open(workspaceLocation)
-			if err != nil {
-				continue projects
-			}
-			schemeMap, err := ws.Schemes()
-			if err != nil {
-				continue projects
-			}
+					proj.xcodeProjectPaths = map[string][]string{}
 
-			proj.xcodeProjectPaths = map[string][]string{}
-
-			for _, schemes := range schemeMap {
-				if len(schemes) > 0 {
-					log.TPrintf("    Schemes(%d):", len(schemes))
-				}
-				for _, scheme := range schemes {
-					log.TPrintf("    - %s", scheme.Name)
-					proj.xcodeProjectPaths[workspaceLocation] = append(proj.xcodeProjectPaths[workspaceLocation], scheme.Name)
+					for _, schemes := range schemeMap {
+						if len(schemes) > 0 {
+							log.TPrintf("    Schemes(%d):", len(schemes))
+						}
+						for _, scheme := range schemes {
+							log.TPrintf("    - %s", scheme.Name)
+							proj.xcodeProjectPaths[workspaceLocation] = append(proj.xcodeProjectPaths[workspaceLocation], scheme.Name)
+						}
+					}
 				}
 			}
 		}
@@ -222,17 +232,53 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
 	for _, project := range scanner.projects {
-		flutterProjectHasTestOption := models.NewOption("has tests?", "HAS_TESTS")
-		flutterProjectLocationOption.AddOption(project.path, flutterProjectHasTestOption)
+		if project.hasTest {
+			flutterProjectHasTestOption := models.NewOption("found tests, want to run them?", "_")
+			flutterProjectLocationOption.AddOption(project.path, flutterProjectHasTestOption)
 
-		for _, v := range []string{"yes", "no"} {
-			flutterProjectTypeOption := models.NewOption("type?", "pType")
-			flutterProjectHasTestOption.AddOption(v, flutterProjectTypeOption)
+			for _, v := range []string{"yes", "no"} {
+				cfg := configName
+				if v == "yes" {
+					cfg += "-test"
+				}
+				flutterProjectTypeOption := models.NewOption("proj type?", "_")
+				flutterProjectHasTestOption.AddOption(v, flutterProjectTypeOption)
+
+				for _, pType := range projectTypes {
+					if pType == "app" && (project.hasAndroidProject || project.hasIosProject) {
+
+						projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+
+						flutterProjectTypeOption.AddOption(pType, projectPathOption)
+
+						for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
+							schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
+							projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
+
+							for _, scheme := range schemes {
+								exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+								schemeOption.AddOption(scheme, exportMethodOption)
+
+								for _, exportMethod := range ios.IosExportMethods {
+									configOption := models.NewConfigOption(cfg + "-app")
+									exportMethodOption.AddConfig(exportMethod, configOption)
+								}
+							}
+						}
+					} else {
+						configOption := models.NewConfigOption(cfg)
+						flutterProjectTypeOption.AddConfig(pType, configOption)
+					}
+				}
+			}
+		} else {
+			cfg := configName
+			flutterProjectTypeOption := models.NewOption("proj type?", "_")
+			flutterProjectLocationOption.AddOption(project.path, flutterProjectTypeOption)
 
 			for _, pType := range projectTypes {
-				if pType == "app" {
+				if pType == "app" && (project.hasAndroidProject || project.hasIosProject) {
 					projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-
 					flutterProjectTypeOption.AddOption(pType, projectPathOption)
 
 					for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
@@ -244,13 +290,13 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 							schemeOption.AddOption(scheme, exportMethodOption)
 
 							for _, exportMethod := range ios.IosExportMethods {
-								configOption := models.NewConfigOption(configName + "-app")
+								configOption := models.NewConfigOption(cfg + "-app")
 								exportMethodOption.AddConfig(exportMethod, configOption)
 							}
 						}
 					}
 				} else {
-					configOption := models.NewConfigOption(configName)
+					configOption := models.NewConfigOption(cfg)
 					flutterProjectTypeOption.AddConfig(pType, configOption)
 				}
 			}
@@ -293,74 +339,85 @@ func (Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+	//config -> primary with analyze
+	//config+app -> primary with analyze + deploy
+	//config+test -> primary with analyze and test
+	//config+test+app -> primary with analyze and test + deploy
 	return scanner.DefaultConfigs()
 }
 
 // DefaultConfigs ...
 func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
 
-	// primary
+	configs := models.BitriseConfigMap{}
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	for _, variant := range []struct {
+		configID string
+		test     bool
+		deploy   bool
+	}{
+		{test: false, deploy: false, configID: configName},
+		{test: true, deploy: false, configID: configName + "-test"},
+		{test: false, deploy: true, configID: configName + "-app"},
+		{test: true, deploy: true, configID: configName + "-test-app"},
+	} {
+		configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem())
+		// primary
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
-		envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-	))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem())
 
-	config, err := configBuilder.Generate(scannerName)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
+		if variant.test {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
+				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			))
+		}
+
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+
+		// deploy
+
+		if variant.deploy {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem())
+
+			if variant.test {
+				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
+					envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+				))
+			}
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(
+				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			))
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
+				envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+				envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+				envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+				envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: defaultIOSConfiguration},
+			))
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
+		}
+
+		config, err := configBuilder.Generate(scannerName)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		configs[variant.configID] = string(data)
 	}
 
-	primaryData, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	// deploy
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem())
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
-		envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(
-		envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
-		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: defaultIOSConfiguration},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-
-	//
-
-	config, err = configBuilder.Generate(scannerName)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	return models.BitriseConfigMap{
-		configName:          string(primaryData),
-		configName + "-app": string(data),
-	}, nil
+	return configs, nil
 }
