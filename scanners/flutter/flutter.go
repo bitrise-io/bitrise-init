@@ -23,11 +23,14 @@ const (
 	scannerName                = "flutter"
 	configName                 = "flutter-config"
 	projectLocationInputKey    = "project_location"
+	platformInputKey           = "platform"
 	defaultIOSConfiguration    = "Release"
 	projectLocationInputEnvKey = "BITRISE_FLUTTER_PROJECT_LOCATION"
 	projectLocationInputTitle  = "Project Location"
 	projectTypeInputEnvKey     = "BITRISE_FLUTTER_PROJECT_TYPE"
 	projectTypeInputTitle      = "Project Type"
+	testsInputTitle            = "Run tests found in the project"
+	platformInputTitle         = "Platform"
 )
 
 var (
@@ -35,6 +38,11 @@ var (
 		"app",
 		"plugin",
 		"package",
+	}
+	platforms = []string{
+		"both",
+		"android",
+		"ios",
 	}
 )
 
@@ -233,7 +241,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	for _, project := range scanner.projects {
 		if project.hasTest {
-			flutterProjectHasTestOption := models.NewOption("found tests, want to run them?", "_")
+			flutterProjectHasTestOption := models.NewOption(testsInputTitle, "_")
 			flutterProjectLocationOption.AddOption(project.path, flutterProjectHasTestOption)
 
 			for _, v := range []string{"yes", "no"} {
@@ -241,14 +249,50 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 				if v == "yes" {
 					cfg += "-test"
 				}
-				flutterProjectTypeOption := models.NewOption("proj type?", "_")
+				flutterProjectTypeOption := models.NewOption(projectTypeInputTitle, "_")
 				flutterProjectHasTestOption.AddOption(v, flutterProjectTypeOption)
 
 				for _, pType := range projectTypes {
-					if pType == "app" && (project.hasAndroidProject || project.hasIosProject) {
+					if pType == "app" && (project.hasIosProject || project.hasAndroidProject) {
+						if project.hasIosProject {
 
+							projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+
+							flutterProjectTypeOption.AddOption(pType, projectPathOption)
+
+							for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
+								schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
+								projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
+
+								for _, scheme := range schemes {
+									exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+									schemeOption.AddOption(scheme, exportMethodOption)
+
+									for _, exportMethod := range ios.IosExportMethods {
+										configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+										exportMethodOption.AddConfig(exportMethod, configOption)
+									}
+								}
+							}
+						} else {
+							configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+							flutterProjectTypeOption.AddConfig(pType, configOption)
+						}
+					} else {
+						configOption := models.NewConfigOption(cfg)
+						flutterProjectTypeOption.AddConfig(pType, configOption)
+					}
+				}
+			}
+		} else {
+			cfg := configName
+			flutterProjectTypeOption := models.NewOption(projectTypeInputTitle, "_")
+			flutterProjectLocationOption.AddOption(project.path, flutterProjectTypeOption)
+
+			for _, pType := range projectTypes {
+				if pType == "app" && (project.hasIosProject || project.hasAndroidProject) {
+					if project.hasIosProject {
 						projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-
 						flutterProjectTypeOption.AddOption(pType, projectPathOption)
 
 						for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
@@ -260,40 +304,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 								schemeOption.AddOption(scheme, exportMethodOption)
 
 								for _, exportMethod := range ios.IosExportMethods {
-									configOption := models.NewConfigOption(cfg + "-app")
+									configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
 									exportMethodOption.AddConfig(exportMethod, configOption)
 								}
 							}
 						}
 					} else {
-						configOption := models.NewConfigOption(cfg)
+						configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
 						flutterProjectTypeOption.AddConfig(pType, configOption)
-					}
-				}
-			}
-		} else {
-			cfg := configName
-			flutterProjectTypeOption := models.NewOption("proj type?", "_")
-			flutterProjectLocationOption.AddOption(project.path, flutterProjectTypeOption)
-
-			for _, pType := range projectTypes {
-				if pType == "app" && (project.hasAndroidProject || project.hasIosProject) {
-					projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-					flutterProjectTypeOption.AddOption(pType, projectPathOption)
-
-					for xcodeWorkspacePath, schemes := range project.xcodeProjectPaths {
-						schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
-						projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
-
-						for _, scheme := range schemes {
-							exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
-							schemeOption.AddOption(scheme, exportMethodOption)
-
-							for _, exportMethod := range ios.IosExportMethods {
-								configOption := models.NewConfigOption(cfg + "-app")
-								exportMethodOption.AddConfig(exportMethod, configOption)
-							}
-						}
 					}
 				} else {
 					configOption := models.NewConfigOption(cfg)
@@ -306,31 +324,60 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	return *flutterProjectLocationOption, nil, nil
 }
 
+func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
+	switch {
+	case hasAndroidProject && !hasIosProject:
+		return "android"
+	case !hasAndroidProject && hasIosProject:
+		return "ios"
+	default:
+		return "both"
+	}
+}
+
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionModel {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
-	typeOption := models.NewOption(projectTypeInputTitle, projectTypeInputEnvKey)
-	flutterProjectLocationOption.AddOption("_", typeOption)
+	flutterProjectHasTestOption := models.NewOption(testsInputTitle, "_")
+	flutterProjectLocationOption.AddOption("_", flutterProjectHasTestOption)
 
-	for _, pType := range projectTypes {
-		if pType == "app" {
-			projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
-			typeOption.AddOption(pType, projectPathOption)
+	for _, v := range []string{"yes", "no"} {
+		cfg := configName
+		if v == "yes" {
+			cfg += "-test"
+		}
+		flutterProjectTypeOption := models.NewOption(projectTypeInputTitle, "_")
+		flutterProjectHasTestOption.AddOption(v, flutterProjectTypeOption)
 
-			schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
-			projectPathOption.AddOption("_", schemeOption)
+		for _, pType := range projectTypes {
+			flutterPlatformOption := models.NewOption(platformInputTitle, "_")
+			flutterProjectTypeOption.AddOption(pType, flutterPlatformOption)
+			if pType == "app" {
+				for _, platform := range platforms {
+					if platform != "android" {
+						projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+						flutterPlatformOption.AddOption(platform, projectPathOption)
 
-			exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
-			schemeOption.AddOption("_", exportMethodOption)
+						schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
+						projectPathOption.AddOption("_", schemeOption)
 
-			for _, exportMethod := range ios.IosExportMethods {
-				configOption := models.NewConfigOption(configName + "-app")
-				exportMethodOption.AddConfig(exportMethod, configOption)
+						exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+						schemeOption.AddOption("_", exportMethodOption)
+
+						for _, exportMethod := range ios.IosExportMethods {
+							configOption := models.NewConfigOption(cfg + "-app-" + platform)
+							exportMethodOption.AddConfig(exportMethod, configOption)
+						}
+					} else {
+						configOption := models.NewConfigOption(cfg + "-app-" + platform)
+						flutterPlatformOption.AddConfig(platform, configOption)
+					}
+				}
+			} else {
+				configOption := models.NewConfigOption(cfg)
+				flutterProjectTypeOption.AddConfig(pType, configOption)
 			}
-		} else {
-			configOption := models.NewConfigOption(configName)
-			typeOption.AddConfig(pType, configOption)
 		}
 	}
 
@@ -339,27 +386,27 @@ func (Scanner) DefaultOptions() models.OptionModel {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	//config -> primary with analyze
-	//config+app -> primary with analyze + deploy
-	//config+test -> primary with analyze and test
-	//config+test+app -> primary with analyze and test + deploy
 	return scanner.DefaultConfigs()
 }
 
 // DefaultConfigs ...
 func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-
 	configs := models.BitriseConfigMap{}
 
 	for _, variant := range []struct {
 		configID string
 		test     bool
 		deploy   bool
+		platform string
 	}{
 		{test: false, deploy: false, configID: configName},
 		{test: true, deploy: false, configID: configName + "-test"},
-		{test: false, deploy: true, configID: configName + "-app"},
-		{test: true, deploy: true, configID: configName + "-test-app"},
+		{test: false, deploy: true, platform: "both", configID: configName + "-app-both"},
+		{test: true, deploy: true, platform: "both", configID: configName + "-test-app-both"},
+		{test: false, deploy: true, platform: "android", configID: configName + "-app-android"},
+		{test: true, deploy: true, platform: "android", configID: configName + "-test-app-android"},
+		{test: false, deploy: true, platform: "ios", configID: configName + "-app-ios"},
+		{test: true, deploy: true, platform: "ios", configID: configName + "-test-app-ios"},
 	} {
 		configBuilder := models.NewDefaultConfigBuilder()
 
@@ -368,6 +415,10 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem())
+
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
+			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		))
 
 		if variant.test {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
@@ -382,9 +433,15 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		if variant.deploy {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+			if variant.platform != "android" {
+				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+			}
 
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem())
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
+				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			))
 
 			if variant.test {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
@@ -394,14 +451,17 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(
 				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+				envmanModels.EnvironmentItemModel{platformInputKey: variant.platform},
 			))
 
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
-				envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-				envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-				envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-				envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: defaultIOSConfiguration},
-			))
+			if variant.platform != "android" {
+				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
+					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: defaultIOSConfiguration},
+				))
+			}
 
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 		}
