@@ -141,6 +141,59 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + detectedProjectType,
+									}}}}},
+				},
+			},
+		},
+		{
+			name: "2 project types",
+			args: args{
+				scannerOptionTree: models.OptionNode{
+					Title:  "Working directory",
+					EnvKey: "FASTLANE_WORK_DIR",
+					ChildOptionMap: map[string]*models.OptionNode{
+						"BitriseFastlaneSample": &models.OptionNode{
+							Title:  "Fastlane lane",
+							EnvKey: "FASTLANE_LANE",
+							ChildOptionMap: map[string]*models.OptionNode{
+								"ios test": &models.OptionNode{
+									Config: "fastlane-config",
+								},
+							},
+						},
+					},
+				},
+				detectedProjectTypes: []string{"ios", "android"},
+			},
+			want: models.OptionNode{
+				Title:  "Project type",
+				EnvKey: "PROJECT_TYPE",
+				ChildOptionMap: map[string]*models.OptionNode{
+					"ios": &models.OptionNode{
+						Title:  "Working directory",
+						EnvKey: "FASTLANE_WORK_DIR",
+						ChildOptionMap: map[string]*models.OptionNode{
+							"BitriseFastlaneSample": &models.OptionNode{
+								Title:  "Fastlane lane",
+								EnvKey: "FASTLANE_LANE",
+								ChildOptionMap: map[string]*models.OptionNode{
+									"ios test": &models.OptionNode{
+										Config: "fastlane-config" + "_" + "ios",
+									},
+								},
+							},
+						},
+					},
+					"android": &models.OptionNode{
+						Title:  "Working directory",
+						EnvKey: "FASTLANE_WORK_DIR",
+						ChildOptionMap: map[string]*models.OptionNode{
+							"BitriseFastlaneSample": &models.OptionNode{
+								Title:  "Fastlane lane",
+								EnvKey: "FASTLANE_LANE",
+								ChildOptionMap: map[string]*models.OptionNode{
+									"ios test": &models.OptionNode{
+										Config: "fastlane-config" + "_" + "android",
 									},
 								},
 							},
@@ -153,7 +206,8 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := AddProjectTypeToOptions(tt.args.scannerOptionTree, tt.args.detectedProjectTypes); !reflect.DeepEqual(got.String(), tt.want.String()) {
-				t.Errorf("AddProjectTypeToOptions() = %+v, want %v", got, tt.want)
+				t.Errorf("AddProjectTypeToOptions() = %v, want %v", got.ChildOptionMap, tt.want.ChildOptionMap)
+				// t.Errorf("%s", cmp.Diff(got.ChildOptionMap, tt.want.ChildOptionMap))
 			}
 		})
 	}

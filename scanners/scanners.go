@@ -37,12 +37,12 @@ type ScannerInterface interface {
 	// ExcludedScannerNames is used to mark, which scanners should be excluded, if the current scanner detects platform.
 	ExcludedScannerNames() []string
 
-	// OptionModel is the model, used to store the available configuration combintaions.
-	// It defines option branches which leads different bitrise configurations.
+	// OptionNode is the model, an n-ary tree, used to store the available configuration combintaions.
+	// It defines an option decision tree whose every branch maps to a bitrise configuration.
 	// Each branch should define a complete and valid options to build the final bitrise config model.
-	// Every OptionModel branch's last options has to be the key of the workflow (in the BitriseConfigMap), which will be fulfilled with the selected options.
+	// Every leaf node has to be the key of the workflow (in the BitriseConfigMap), which will be fulfilled with the selected options.
 	// Returns:
-	// - OptionModel
+	// - OptionNode
 	// - Warnings (if any)
 	// - error if (if any)
 	Options() (models.OptionNode, models.Warnings, error)
@@ -52,7 +52,7 @@ type ScannerInterface interface {
 	DefaultOptions() models.OptionNode
 
 	// BitriseConfigMap's each element is a bitrise config template which will be fulfilled with the user selected options.
-	// Every config's key should be the last option one of the OptionModel branches.
+	// Every config's key should be the last option one of the OptionNode branches.
 	// Returns:
 	// - platform BitriseConfigMap
 	Configs() (models.BitriseConfigMap, error)
@@ -60,13 +60,6 @@ type ScannerInterface interface {
 	// Returns:
 	// - platform default BitriseConfigMap
 	DefaultConfigs() (models.BitriseConfigMap, error)
-}
-
-// ProjectScannerInterface contains additional methods (relative to ScannerInterface)
-// implemented by an ProjectToolScanner
-type ProjectScannerInterface interface {
-	// The project_type property contained in the bitrise config
-	GetProjectType() string
 }
 
 // ProjectScanners ...

@@ -74,6 +74,7 @@ func appendProjectTypeToConfig(options models.OptionNode, projectType string) *m
 			appendToConfigNames(child)
 		}
 	}
-	appendToConfigNames(&options)
-	return &options
+	optionsWithProjectType := options.Copy()
+	appendToConfigNames(optionsWithProjectType)
+	return optionsWithProjectType
 }
