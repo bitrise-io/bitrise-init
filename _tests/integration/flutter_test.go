@@ -220,61 +220,45 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
         env_key: _
         value_map:
           "no":
-            title: Project Type
-            env_key: _
+            title: Project (or Workspace) path
+            env_key: BITRISE_PROJECT_PATH
             value_map:
-              app:
-                title: Project (or Workspace) path
-                env_key: BITRISE_PROJECT_PATH
+              ios/Runner.xcworkspace:
+                title: Scheme name
+                env_key: BITRISE_SCHEME
                 value_map:
-                  ios/Runner.xcworkspace:
-                    title: Scheme name
-                    env_key: BITRISE_SCHEME
+                  Runner:
+                    title: ipa export method
+                    env_key: BITRISE_EXPORT_METHOD
                     value_map:
-                      Runner:
-                        title: ipa export method
-                        env_key: BITRISE_EXPORT_METHOD
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-app-both
-                          app-store:
-                            config: flutter-config-app-both
-                          development:
-                            config: flutter-config-app-both
-                          enterprise:
-                            config: flutter-config-app-both
-              package:
-                config: flutter-config
-              plugin:
-                config: flutter-config
+                      ad-hoc:
+                        config: flutter-config-app-both
+                      app-store:
+                        config: flutter-config-app-both
+                      development:
+                        config: flutter-config-app-both
+                      enterprise:
+                        config: flutter-config-app-both
           "yes":
-            title: Project Type
-            env_key: _
+            title: Project (or Workspace) path
+            env_key: BITRISE_PROJECT_PATH
             value_map:
-              app:
-                title: Project (or Workspace) path
-                env_key: BITRISE_PROJECT_PATH
+              ios/Runner.xcworkspace:
+                title: Scheme name
+                env_key: BITRISE_SCHEME
                 value_map:
-                  ios/Runner.xcworkspace:
-                    title: Scheme name
-                    env_key: BITRISE_SCHEME
+                  Runner:
+                    title: ipa export method
+                    env_key: BITRISE_EXPORT_METHOD
                     value_map:
-                      Runner:
-                        title: ipa export method
-                        env_key: BITRISE_EXPORT_METHOD
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-test-app-both
-                          app-store:
-                            config: flutter-config-test-app-both
-                          development:
-                            config: flutter-config-test-app-both
-                          enterprise:
-                            config: flutter-config-test-app-both
-              package:
-                config: flutter-config-test
-              plugin:
-                config: flutter-config-test
+                      ad-hoc:
+                        config: flutter-config-test-app-both
+                      app-store:
+                        config: flutter-config-test-app-both
+                      development:
+                        config: flutter-config-test-app-both
+                      enterprise:
+                        config: flutter-config-test-app-both
 configs:
   flutter:
     flutter-config: |
@@ -749,25 +733,9 @@ var flutterSamplePackageResultYML = fmt.Sprintf(`options:
         env_key: _
         value_map:
           "no":
-            title: Project Type
-            env_key: _
-            value_map:
-              app:
-                config: flutter-config
-              package:
-                config: flutter-config
-              plugin:
-                config: flutter-config
+            config: flutter-config
           "yes":
-            title: Project Type
-            env_key: _
-            value_map:
-              app:
-                config: flutter-config-test
-              package:
-                config: flutter-config-test
-              plugin:
-                config: flutter-config-test
+            config: flutter-config-test
 configs:
   flutter:
     flutter-config: |
@@ -1238,76 +1206,51 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     value_map:
       .:
-        title: Project Type
-        env_key: _
-        value_map:
-          app:
-            title: Project (or Workspace) path
-            env_key: BITRISE_PROJECT_PATH
-          package:
-            config: flutter-config
-          plugin:
-            config: flutter-config
+        config: flutter-config-app-android
       example:
         title: Run tests found in the project
         env_key: _
         value_map:
           "no":
-            title: Project Type
-            env_key: _
+            title: Project (or Workspace) path
+            env_key: BITRISE_PROJECT_PATH
             value_map:
-              app:
-                title: Project (or Workspace) path
-                env_key: BITRISE_PROJECT_PATH
+              example/ios/Runner.xcworkspace:
+                title: Scheme name
+                env_key: BITRISE_SCHEME
                 value_map:
-                  example/ios/Runner.xcworkspace:
-                    title: Scheme name
-                    env_key: BITRISE_SCHEME
+                  Runner:
+                    title: ipa export method
+                    env_key: BITRISE_EXPORT_METHOD
                     value_map:
-                      Runner:
-                        title: ipa export method
-                        env_key: BITRISE_EXPORT_METHOD
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-app-both
-                          app-store:
-                            config: flutter-config-app-both
-                          development:
-                            config: flutter-config-app-both
-                          enterprise:
-                            config: flutter-config-app-both
-              package:
-                config: flutter-config
-              plugin:
-                config: flutter-config
+                      ad-hoc:
+                        config: flutter-config-app-both
+                      app-store:
+                        config: flutter-config-app-both
+                      development:
+                        config: flutter-config-app-both
+                      enterprise:
+                        config: flutter-config-app-both
           "yes":
-            title: Project Type
-            env_key: _
+            title: Project (or Workspace) path
+            env_key: BITRISE_PROJECT_PATH
             value_map:
-              app:
-                title: Project (or Workspace) path
-                env_key: BITRISE_PROJECT_PATH
+              example/ios/Runner.xcworkspace:
+                title: Scheme name
+                env_key: BITRISE_SCHEME
                 value_map:
-                  example/ios/Runner.xcworkspace:
-                    title: Scheme name
-                    env_key: BITRISE_SCHEME
+                  Runner:
+                    title: ipa export method
+                    env_key: BITRISE_EXPORT_METHOD
                     value_map:
-                      Runner:
-                        title: ipa export method
-                        env_key: BITRISE_EXPORT_METHOD
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-test-app-both
-                          app-store:
-                            config: flutter-config-test-app-both
-                          development:
-                            config: flutter-config-test-app-both
-                          enterprise:
-                            config: flutter-config-test-app-both
-              package:
-                config: flutter-config-test
-              plugin:
-                config: flutter-config-test
+                      ad-hoc:
+                        config: flutter-config-test-app-both
+                      app-store:
+                        config: flutter-config-test-app-both
+                      development:
+                        config: flutter-config-test-app-both
+                      enterprise:
+                        config: flutter-config-test-app-both
 configs:
   flutter:
     flutter-config: |
