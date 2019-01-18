@@ -7,8 +7,6 @@ import (
 
 	"path/filepath"
 
-	"strings"
-
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
@@ -90,24 +88,6 @@ func NewConfigDescriptor(hasPodfile bool, carthageCommand string, hasXCTest bool
 		HasTest:              hasXCTest,
 		MissingSharedSchemes: missingSharedSchemes,
 	}
-}
-
-// NewConfigDescriptorWithName ...
-func NewConfigDescriptorWithName(name string) ConfigDescriptor {
-	descriptor := ConfigDescriptor{}
-	if strings.Contains(name, "-pod") {
-		descriptor.HasPodfile = true
-	}
-	if strings.Contains(name, "-carthage") {
-		descriptor.CarthageCommand = "bootstrap"
-	}
-	if strings.Contains(name, "-test") {
-		descriptor.HasTest = true
-	}
-	if strings.Contains(name, "-missing-shared-schemes") {
-		descriptor.MissingSharedSchemes = true
-	}
-	return descriptor
 }
 
 // ConfigName ...

@@ -94,13 +94,6 @@ const (
 )
 
 const (
-	// GradleRunnerID ...
-	GradleRunnerID = "gradle-runner"
-	// GradleRunnerVersion ...
-	GradleRunnerVersion = "1.8.3"
-)
-
-const (
 	// FastlaneID ...
 	FastlaneID = "fastlane"
 	// FastlaneVersion ...
