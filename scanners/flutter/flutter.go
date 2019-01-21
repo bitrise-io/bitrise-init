@@ -243,7 +243,7 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 	for _, project := range scanner.projects {
 		if project.hasTest {
-			flutterProjectHasTestOption := models.NewOption(testsInputTitle, "_")
+			flutterProjectHasTestOption := models.NewOption(testsInputTitle, "")
 			flutterProjectLocationOption.AddOption(project.path, flutterProjectHasTestOption)
 
 			for _, v := range []string{"yes", "no"} {
@@ -331,7 +331,7 @@ func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
 func (Scanner) DefaultOptions() models.OptionModel {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
-	flutterProjectHasTestOption := models.NewOption(testsInputTitle, "_")
+	flutterProjectHasTestOption := models.NewOption(testsInputTitle, "")
 	flutterProjectLocationOption.AddOption("_", flutterProjectHasTestOption)
 
 	for _, v := range []string{"yes", "no"} {
@@ -339,7 +339,7 @@ func (Scanner) DefaultOptions() models.OptionModel {
 		if v == "yes" {
 			cfg += "-test"
 		}
-		flutterPlatformOption := models.NewOption(platformInputTitle, "_")
+		flutterPlatformOption := models.NewOption(platformInputTitle, "")
 		flutterProjectHasTestOption.AddOption(v, flutterPlatformOption)
 
 		for _, platform := range platforms {
