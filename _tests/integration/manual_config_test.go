@@ -366,7 +366,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
             title: Variant
             env_key: VARIANT
             value_map:
-              _:
+              "":
                 config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
@@ -564,7 +564,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
             title: Variant
             env_key: VARIANT
             value_map:
-              _:
+              "":
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
                 value_map:
