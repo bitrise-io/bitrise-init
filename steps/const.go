@@ -255,6 +255,13 @@ const (
 )
 
 const (
+	// FlutterAnalyzeID ...
+	FlutterAnalyzeID = "flutter-analyze"
+	// FlutterAnalyzeVersion ...
+	FlutterAnalyzeVersion = "0.1.0"
+)
+
+const (
 	// FlutterBuildID ...
 	FlutterBuildID = "flutter-build"
 	// FlutterBuildVersion ...
