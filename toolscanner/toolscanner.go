@@ -33,22 +33,6 @@ func AddProjectTypeToOptions(scannerOptionTree models.OptionNode, detectedProjec
 	return *optionsTreeWithProjectTypeRoot
 }
 
-// func evaluateConfigTemplate(configStr string, substitutions map[string]string) (string, error) {
-// 	// Parse bitrise.yml as a templated text, and substitute options
-// 	tmpl, err := template.New("bitrise.yml with scanner defined options").
-// 		Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
-// 		Parse(configStr)
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
-// 	}
-// 	var byteBuffer bytes.Buffer
-// 	err = tmpl.Execute(&byteBuffer, substitutions)
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
-// 	}
-// 	return byteBuffer.String(), nil
-// }
-
 func appendProjectTypeToConfigName(configName string, projectType string) string {
 	return configName + "_" + projectType
 }
