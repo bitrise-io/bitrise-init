@@ -258,7 +258,7 @@ const (
 	// FlutterAnalyzeID ...
 	FlutterAnalyzeID = "flutter-analyze"
 	// FlutterAnalyzeVersion ...
-	FlutterAnalyzeVersion = "0.9.0"
+	FlutterAnalyzeVersion = "0.1.0"
 )
 
 const (
