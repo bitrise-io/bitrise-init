@@ -71,7 +71,6 @@ var fastlaneVersions = []interface{}{
 var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Project type
-    env_key: _
     value_map:
       ios:
         title: Working directory

@@ -5,11 +5,13 @@ import (
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 )
 
-// ProjectTypeTemplateKey is the name of the enviroment variable used to substitute the project type for
+// ProjectTypeEnvKey is the name of the enviroment variable used to substitute the project type for
 // automation tool scanner's config
 const (
-	ProjectTypeUserTitle   = "Project type"
-	ProjectTypeTemplateKey = "_"
+	ProjectTypeUserTitle = "Project type"
+	// The key is used in the options decision tree model.
+	// If empty, it will not be inserted into the bitrise.yml
+	ProjectTypeEnvKey = ""
 )
 
 // AddProjectTypeToConfig returns the config filled in with every detected project type, that could be selected
@@ -25,7 +27,7 @@ func AddProjectTypeToConfig(configName string, config bitriseModels.BitriseDataM
 
 // AddProjectTypeToOptions adds a project type question to automation tool scanners's option tree
 func AddProjectTypeToOptions(scannerOptionTree models.OptionNode, detectedProjectTypes []string) models.OptionNode {
-	optionsTreeWithProjectTypeRoot := models.NewOption(ProjectTypeUserTitle, ProjectTypeTemplateKey)
+	optionsTreeWithProjectTypeRoot := models.NewOption(ProjectTypeUserTitle, ProjectTypeEnvKey)
 	for _, projectType := range detectedProjectTypes {
 		optionsTreeWithProjectTypeRoot.AddOption(projectType,
 			appendProjectTypeToConfig(scannerOptionTree, projectType))

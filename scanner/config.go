@@ -87,15 +87,12 @@ func Config(searchDir string) models.ScanResultModel {
 	scannerToOutput := map[string]scannerOutput{}
 	{
 		projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir)
-		detectedProjectTypes := make([]string, 0, len(projectScannerMatchResults))
-		for scannerKey, scannerOutput := range projectScannerMatchResults {
-			if scannerOutput.scanResult == scanResultDetected {
-				detectedProjectTypes = append(detectedProjectTypes, scannerKey)
-			}
-		}
+		detectedProjectTypes := getDetectedScannerNames(projectScannerMatchResults)
 		log.Printf("Detected project types: %s", detectedProjectTypes)
 		fmt.Println()
 
+		// Project types are needed by tool scanners, to create decision tree on which project type
+		// to actually use in bitrise.yml
 		if len(detectedProjectTypes) == 0 {
 			detectedProjectTypes = []string{otherProjectType}
 		}
@@ -104,12 +101,7 @@ func Config(searchDir string) models.ScanResultModel {
 		}
 
 		toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir)
-		detectedAutomationToolScanners := make([]string, 0, len(toolScannerResults))
-		for scannerKey, scannerOutput := range toolScannerResults {
-			if scannerOutput.scanResult == scanResultDetected {
-				detectedAutomationToolScanners = append(detectedAutomationToolScanners, scannerKey)
-			}
-		}
+		detectedAutomationToolScanners := getDetectedScannerNames(toolScannerResults)
 		log.Printf("Detected automation tools: %s", detectedAutomationToolScanners)
 		fmt.Println()
 
@@ -228,4 +220,14 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		configMap:        configs,
 		excludedScanners: scannerExcludedScanners,
 	}
+}
+
+func getDetectedScannerNames(scannerOutputs map[string]scannerOutput) []string {
+	var detectedScannerNames []string
+	for scannerKey, scannerOutput := range scannerOutputs {
+		if scannerOutput.scanResult == scanResultDetected {
+			detectedScannerNames = append(detectedScannerNames, scannerKey)
+		}
+	}
+	return detectedScannerNames
 }
