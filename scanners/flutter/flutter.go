@@ -163,6 +163,7 @@ projects:
 				for _, file := range files {
 					if strings.HasSuffix(file.Name(), "_test.dart") {
 						proj.hasTest = true
+						break
 					}
 				}
 			}
