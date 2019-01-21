@@ -217,7 +217,6 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
     value_map:
       .:
         title: Run tests found in the project
-        env_key: _
         value_map:
           "no":
             title: Project (or Workspace) path
@@ -730,7 +729,6 @@ var flutterSamplePackageResultYML = fmt.Sprintf(`options:
     value_map:
       .:
         title: Run tests found in the project
-        env_key: _
         value_map:
           "no":
             config: flutter-config
@@ -1209,7 +1207,6 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
         config: flutter-config-app-android
       example:
         title: Run tests found in the project
-        env_key: _
         value_map:
           "no":
             title: Project (or Workspace) path

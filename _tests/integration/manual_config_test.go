@@ -398,11 +398,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
     value_map:
       _:
         title: Run tests found in the project
-        env_key: _
         value_map:
           "no":
             title: Platform
-            env_key: _
             value_map:
               android:
                 config: flutter-config-app-android
@@ -450,7 +448,6 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: flutter-config
           "yes":
             title: Platform
-            env_key: _
             value_map:
               android:
                 config: flutter-config-test-app-android
