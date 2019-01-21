@@ -42,7 +42,7 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 			},
 			want: models.OptionNode{
 				Title:  "Project type",
-				EnvKey: ProjectTypeTemplateKey,
+				EnvKey: ProjectTypeEnvKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					detectedProjectType: &models.OptionNode{
 						Title:  "Working directory",
@@ -80,7 +80,7 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 			},
 			want: models.OptionNode{
 				Title:  "Project type",
-				EnvKey: ProjectTypeTemplateKey,
+				EnvKey: ProjectTypeEnvKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					"ios": &models.OptionNode{
 						Title:  "Working directory",
