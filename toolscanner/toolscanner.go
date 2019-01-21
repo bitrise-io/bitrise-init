@@ -1,36 +1,26 @@
 package toolscanner
 
 import (
-	"bytes"
-	"fmt"
-	"html/template"
-
 	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/utility"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
 )
 
 // ProjectTypeTemplateKey is the name of the enviroment variable used to substitute the project type for
 // automation tool scanner's config
 const (
 	ProjectTypeUserTitle   = "Project type"
-	ProjectTypeTemplateKey = "PROJECT_TYPE"
+	ProjectTypeTemplateKey = "_"
 )
 
-// AddProjectTypeToConfig get cartesian product: 'Existing tool scanner generated config' X 'Detected project type'
-func AddProjectTypeToConfig(scannerConfigMap models.BitriseConfigMap, detectedProjectTypes []string) (models.BitriseConfigMap, error) {
-	configMapWithProjecTypes := map[string]string{}
+// AddProjectTypeToConfig returns the config filled in with every detected project type, that could be selected
+func AddProjectTypeToConfig(configName string, config bitriseModels.BitriseDataModel, detectedProjectTypes []string) map[string]bitriseModels.BitriseDataModel {
+	configMapWithProjecTypes := map[string]bitriseModels.BitriseDataModel{}
 	for _, projectType := range detectedProjectTypes {
-		for configName, config := range scannerConfigMap {
-			configWithProjectType, err := evaluateConfigTemplate(config,
-				map[string]string{ProjectTypeTemplateKey: projectType})
-			if err != nil {
-				return nil,
-					fmt.Errorf("failed to add project type to tool scanner bitrise.yml, error: %s", err)
-			}
-			configMapWithProjecTypes[appendProjectTypeToConfigName(configName, projectType)] = configWithProjectType
-		}
+		configWithProjectType := config
+		configWithProjectType.ProjectType = projectType
+		configMapWithProjecTypes[appendProjectTypeToConfigName(configName, projectType)] = configWithProjectType
 	}
-	return configMapWithProjecTypes, nil
+	return configMapWithProjecTypes
 }
 
 // AddProjectTypeToOptions adds a project type question to automation tool scanners's option tree
@@ -43,21 +33,21 @@ func AddProjectTypeToOptions(scannerOptionTree models.OptionNode, detectedProjec
 	return *optionsTreeWithProjectTypeRoot
 }
 
-func evaluateConfigTemplate(configStr string, substitutions map[string]string) (string, error) {
-	// Parse bitrise.yml as a templated text, and substitute options
-	tmpl, err := template.New("bitrise.yml with scanner defined options").
-		Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
-		Parse(configStr)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
-	}
-	var byteBuffer bytes.Buffer
-	err = tmpl.Execute(&byteBuffer, substitutions)
-	if err != nil {
-		return "", fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
-	}
-	return byteBuffer.String(), nil
-}
+// func evaluateConfigTemplate(configStr string, substitutions map[string]string) (string, error) {
+// 	// Parse bitrise.yml as a templated text, and substitute options
+// 	tmpl, err := template.New("bitrise.yml with scanner defined options").
+// 		Delims(utility.TemplateDelimiterLeft, utility.TemplateDelimiterRight).
+// 		Parse(configStr)
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to parse bitrise.yml template, error: %s", err)
+// 	}
+// 	var byteBuffer bytes.Buffer
+// 	err = tmpl.Execute(&byteBuffer, substitutions)
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to execute bitrise.yml tempalte, error: %s", err)
+// 	}
+// 	return byteBuffer.String(), nil
+// }
 
 func appendProjectTypeToConfigName(configName string, projectType string) string {
 	return configName + "_" + projectType

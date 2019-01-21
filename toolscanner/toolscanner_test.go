@@ -5,96 +5,9 @@ import (
 	"testing"
 
 	"github.com/bitrise-core/bitrise-init/models"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+	"github.com/google/go-cmp/cmp"
 )
-
-func TestAddProjectTypeToConfig(t *testing.T) {
-	const detectedProject = "ios"
-	const configName = "fastlane-config"
-	type args struct {
-		scannerConfigMap     models.BitriseConfigMap
-		detectedProjectTypes []string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    models.BitriseConfigMap
-		wantErr bool
-	}{
-		{
-			name: "Ok case",
-			args: args{
-				scannerConfigMap: models.BitriseConfigMap{
-					"fastlane-config": `format_version: "6" 
-					default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-					project_type: '` + "[[.PROJECT_TYPE]]" + `'
-					app:
-					envs:
-					- FASTLANE_XCODE_LIST_TIMEOUT: "120"
-					trigger_map:
-					- push_branch: '*'
-					workflow: primary
-					- pull_request_source_branch: '*'
-					workflow: primary
-					workflows:
-					primary:
-						steps:
-						- activate-ssh-key@4.0.3:
-							run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-						- git-clone@4.0.14: {}
-						- script@1.1.5:
-							title: Do anything with Script step
-						- certificate-and-profile-installer@1.10.1: {}
-						- fastlane@2.3.12:
-							inputs:
-							- lane: $FASTLANE_LANE
-							- work_dir: $FASTLANE_WORK_DIR
-						- deploy-to-bitrise-io@1.3.19: {}`,
-				},
-				detectedProjectTypes: []string{detectedProject},
-			},
-			want: models.BitriseConfigMap{
-				configName + "_" + detectedProject: `format_version: "6" 
-					default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-					project_type: '` + detectedProject + `'
-					app:
-					envs:
-					- FASTLANE_XCODE_LIST_TIMEOUT: "120"
-					trigger_map:
-					- push_branch: '*'
-					workflow: primary
-					- pull_request_source_branch: '*'
-					workflow: primary
-					workflows:
-					primary:
-						steps:
-						- activate-ssh-key@4.0.3:
-							run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-						- git-clone@4.0.14: {}
-						- script@1.1.5:
-							title: Do anything with Script step
-						- certificate-and-profile-installer@1.10.1: {}
-						- fastlane@2.3.12:
-							inputs:
-							- lane: $FASTLANE_LANE
-							- work_dir: $FASTLANE_WORK_DIR
-						- deploy-to-bitrise-io@1.3.19: {}`,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := AddProjectTypeToConfig(tt.args.scannerConfigMap, tt.args.detectedProjectTypes)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("AddProjectTypeToConfig() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("AddProjectTypeToConfig() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestAddProjectTypeToOptions(t *testing.T) {
 	const detectedProjectType = "ios"
@@ -108,7 +21,7 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 		want models.OptionNode
 	}{
 		{
-			name: "Ok case",
+			name: "1 project type",
 			args: args{
 				scannerOptionTree: models.OptionNode{
 					Title:  "Working directory",
@@ -129,7 +42,7 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 			},
 			want: models.OptionNode{
 				Title:  "Project type",
-				EnvKey: "PROJECT_TYPE",
+				EnvKey: ProjectTypeTemplateKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					detectedProjectType: &models.OptionNode{
 						Title:  "Working directory",
@@ -167,7 +80,7 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 			},
 			want: models.OptionNode{
 				Title:  "Project type",
-				EnvKey: "PROJECT_TYPE",
+				EnvKey: ProjectTypeTemplateKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					"ios": &models.OptionNode{
 						Title:  "Working directory",
@@ -206,8 +119,51 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := AddProjectTypeToOptions(tt.args.scannerOptionTree, tt.args.detectedProjectTypes); !reflect.DeepEqual(got.String(), tt.want.String()) {
-				t.Errorf("AddProjectTypeToOptions() = %v, want %v", got.ChildOptionMap, tt.want.ChildOptionMap)
-				// t.Errorf("%s", cmp.Diff(got.ChildOptionMap, tt.want.ChildOptionMap))
+				t.Errorf("AddProjectTypeToOptions() = %v, want %v", got, tt.want)
+				t.Errorf("%s", cmp.Diff(got, tt.want))
+			}
+		})
+	}
+}
+
+func TestAddProjectTypeToConfig(t *testing.T) {
+	const title = "abcd"
+	type args struct {
+		configName           string
+		config               bitriseModels.BitriseDataModel
+		detectedProjectTypes []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]bitriseModels.BitriseDataModel
+	}{
+		{
+			name: "2 project types",
+			args: args{
+				configName: "fastlane-config",
+				config: bitriseModels.BitriseDataModel{
+					Title:       title,
+					ProjectType: "other",
+				},
+				detectedProjectTypes: []string{"ios", "android"},
+			},
+			want: map[string]bitriseModels.BitriseDataModel{
+				"fastlane-config_ios": bitriseModels.BitriseDataModel{
+					Title:       title,
+					ProjectType: "ios",
+				},
+				"fastlane-config_android": bitriseModels.BitriseDataModel{
+					Title:       title,
+					ProjectType: "android",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := AddProjectTypeToConfig(tt.args.configName, tt.args.config, tt.args.detectedProjectTypes); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("AddProjectTypeToConfig() = %v, want %v", got, tt.want)
 			}
 		})
 	}

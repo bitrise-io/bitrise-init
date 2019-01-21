@@ -71,7 +71,7 @@ var fastlaneVersions = []interface{}{
 var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Project type
-    env_key: PROJECT_TYPE
+    env_key: _
     value_map:
       ios:
         title: Working directory
@@ -108,7 +108,7 @@ configs:
     fastlane-config_ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: 'ios'
+      project_type: ios
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"

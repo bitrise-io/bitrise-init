@@ -49,7 +49,8 @@ const (
 
 // Scanner ...
 type Scanner struct {
-	Fastfiles []string
+	Fastfiles    []string
+	projectTypes []string
 }
 
 // NewScanner ...
@@ -149,7 +150,10 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 		return models.OptionNode{}, warnings, nil
 	}
 
-	return *workDirOption, warnings, nil
+	// Add project_type property option to decision tree
+	optionWithProjectType := toolscanner.AddProjectTypeToOptions(*workDirOption, scanner.projectTypes)
+
+	return optionWithProjectType, warnings, nil
 }
 
 // DefaultOptions ...
@@ -166,7 +170,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 }
 
 // Configs ...
-func (*Scanner) Configs() (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewCustomTriggerWorkflowIDConfigBuilder(fastlaneWorkflowID)
 	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultPrepareStepList(false)...)
 
@@ -180,7 +184,7 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// Fill in project type later, from the list of detected project types
-	config, err := configBuilder.Generate(utility.TemplateWithKey(toolscanner.ProjectTypeTemplateKey),
+	config, err := configBuilder.Generate(unknownProjectType,
 		envmanModels.EnvironmentItemModel{
 			fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
 		})
@@ -188,14 +192,18 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 		return models.BitriseConfigMap{}, err
 	}
 
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
+	// Create list of possible configs with project types
+	nameToConfigModel := toolscanner.AddProjectTypeToConfig(configName, config, scanner.projectTypes)
 
-	return models.BitriseConfigMap{
-		configName: string(data),
-	}, nil
+	nameToConfigString := map[string]string{}
+	for configName, config := range nameToConfigModel {
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		nameToConfigString[configName] = string(data)
+	}
+	return nameToConfigString, nil
 }
 
 // DefaultConfigs ...
@@ -224,4 +232,11 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{
 		defaultConfigName: string(data),
 	}, nil
+}
+
+// AutomationToolScannerInterface
+
+// SetDetectedProjectTypes ...
+func (scanner *Scanner) SetDetectedProjectTypes(detectedProjectTypes []string) {
+	scanner.projectTypes = detectedProjectTypes
 }

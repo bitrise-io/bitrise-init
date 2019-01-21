@@ -62,6 +62,13 @@ type ScannerInterface interface {
 	DefaultConfigs() (models.BitriseConfigMap, error)
 }
 
+// AutomationToolScanner contains additional methods (relative to ScannerInterface)
+// implemented by an AutomationToolScanner
+type AutomationToolScanner interface {
+	// Set the project types detected
+	SetDetectedProjectTypes(projectTypes []string)
+}
+
 // ProjectScanners ...
 var ProjectScanners = []ScannerInterface{
 	expo.NewScanner(),
