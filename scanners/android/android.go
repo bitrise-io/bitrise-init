@@ -64,7 +64,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
-		variantOption.AddOption("_", configOption)
+		variantOption.AddConfig("", configOption)
 	}
 
 	return *projectLocationOption, warnings, nil
@@ -79,7 +79,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 
 	projectLocationOption.AddOption("_", moduleOption)
 	moduleOption.AddOption("_", variantOption)
-	variantOption.AddOption("_", configOption)
+	variantOption.AddConfig("", configOption)
 
 	return *projectLocationOption
 }
