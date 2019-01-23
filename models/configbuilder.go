@@ -25,7 +25,6 @@ const (
 // ConfigBuilderModel ...
 type ConfigBuilderModel struct {
 	workflowBuilderMap map[WorkflowID]*workflowBuilderModel
-	triggerWorkflowID  WorkflowID
 }
 
 // NewDefaultConfigBuilder ...
@@ -34,17 +33,6 @@ func NewDefaultConfigBuilder() *ConfigBuilderModel {
 		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
 			PrimaryWorkflowID: newDefaultWorkflowBuilder(),
 		},
-		triggerWorkflowID: PrimaryWorkflowID,
-	}
-}
-
-// NewCustomTriggerWorkflowIDConfigBuilder ...
-func NewCustomTriggerWorkflowIDConfigBuilder(triggerWorkflowID WorkflowID) *ConfigBuilderModel {
-	return &ConfigBuilderModel{
-		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
-			triggerWorkflowID: newDefaultWorkflowBuilder(),
-		},
-		triggerWorkflowID: triggerWorkflowID,
 	}
 }
 
@@ -70,9 +58,9 @@ func (builder *ConfigBuilderModel) SetWorkflowDescriptionTo(workflow WorkflowID,
 
 // Generate ...
 func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
-	triggerWorkflowBuilder, ok := builder.workflowBuilderMap[builder.triggerWorkflowID]
-	if !ok || triggerWorkflowBuilder == nil || len(triggerWorkflowBuilder.Steps) == 0 {
-		return bitriseModels.BitriseDataModel{}, errors.New("primary trigger workflow not defined")
+	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
+	if !ok || primaryWorkflowBuilder == nil || len(primaryWorkflowBuilder.Steps) == 0 {
+		return bitriseModels.BitriseDataModel{}, errors.New("primary workflow not defined")
 	}
 
 	workflows := map[string]bitriseModels.WorkflowModel{}
@@ -83,11 +71,11 @@ func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envma
 	triggerMap := []bitriseModels.TriggerMapItemModel{
 		bitriseModels.TriggerMapItemModel{
 			PushBranch: "*",
-			WorkflowID: string(builder.triggerWorkflowID),
+			WorkflowID: string(PrimaryWorkflowID),
 		},
 		bitriseModels.TriggerMapItemModel{
 			PullRequestSourceBranch: "*",
-			WorkflowID:              string(builder.triggerWorkflowID),
+			WorkflowID:              string(PrimaryWorkflowID),
 		},
 	}
 

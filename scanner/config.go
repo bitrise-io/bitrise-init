@@ -14,19 +14,19 @@ import (
 
 const otherProjectType = "other"
 
-type scanResultStatus string
+type status int
 
 const (
 	// in case DetectPlatform() returned error, or false
-	scanResultNotDetected scanResultStatus = "scanResultNotDetected"
+	notDetected status = iota
 	// in case DetectPlatform() returned true, but Options() or Config() returned an error
-	scanResultDetectedWithErrors scanResultStatus = "scanResultDetectedWithErrors"
+	detectedWithErrors
 	// in case DetectPlatform() returned true, Options() and Config() returned no error
-	scanResultDetected scanResultStatus = "scanResultDetected"
+	detected
 )
 
 type scannerOutput struct {
-	scanResult scanResultStatus
+	status status
 
 	// can always be set
 	// warnings returned by DetectPlatform(), Options()
@@ -37,8 +37,8 @@ type scannerOutput struct {
 	errors models.Errors
 
 	// set if scanResultStatus is scanResultDetected
-	optionModel      models.OptionNode
-	configMap        models.BitriseConfigMap
+	options          models.OptionNode
+	configs          models.BitriseConfigMap
 	excludedScanners []string
 }
 
@@ -86,8 +86,8 @@ func Config(searchDir string) models.ScanResultModel {
 	// Collect scanner outputs, by scanner name
 	scannerToOutput := map[string]scannerOutput{}
 	{
-		projectScannerMatchResults := mapScannersToOutput(scanners.ProjectScanners, searchDir)
-		detectedProjectTypes := getDetectedScannerNames(projectScannerMatchResults)
+		projectScannerToOutputs := runScanners(scanners.ProjectScanners, searchDir)
+		detectedProjectTypes := getDetectedScannerNames(projectScannerToOutputs)
 		log.Printf("Detected project types: %s", detectedProjectTypes)
 		fmt.Println()
 
@@ -100,15 +100,15 @@ func Config(searchDir string) models.ScanResultModel {
 			toolScanner.(scanners.AutomationToolScanner).SetDetectedProjectTypes(detectedProjectTypes)
 		}
 
-		toolScannerResults := mapScannersToOutput(scanners.AutomationToolScanners, searchDir)
-		detectedAutomationToolScanners := getDetectedScannerNames(toolScannerResults)
+		toolScannerToOutputs := runScanners(scanners.AutomationToolScanners, searchDir)
+		detectedAutomationToolScanners := getDetectedScannerNames(toolScannerToOutputs)
 		log.Printf("Detected automation tools: %s", detectedAutomationToolScanners)
 		fmt.Println()
 
 		// Merge project and tool scanner outputs
-		scannerToOutput = toolScannerResults
-		for k, v := range projectScannerMatchResults {
-			scannerToOutput[k] = v
+		scannerToOutput = toolScannerToOutputs
+		for scanner, scannerOutput := range projectScannerToOutputs {
+			scannerToOutput[scanner] = scannerOutput
 		}
 	}
 
@@ -116,21 +116,20 @@ func Config(searchDir string) models.ScanResultModel {
 	scannerToErrors := map[string]models.Errors{}
 	scannerToOptions := map[string]models.OptionNode{}
 	scannerToConfigMap := map[string]models.BitriseConfigMap{}
-	for k, v := range scannerToOutput {
-		if v.scanResult == scanResultNotDetected && v.warnings != nil ||
-			v.scanResult != scanResultNotDetected {
-			scannerToWarnings[k] = v.warnings
+	for scanner, scannerOutput := range scannerToOutput {
+		// Currently the tests except an empty warning list if no warnings
+		// are created in the not detect case.
+		if scannerOutput.status == notDetected && len(scannerOutput.warnings) > 0 ||
+			scannerOutput.status != notDetected {
+			scannerToWarnings[scanner] = scannerOutput.warnings
 		}
-		if v.scanResult == scanResultDetected || v.scanResult == scanResultDetectedWithErrors {
-			if v.errors != nil {
-				scannerToErrors[k] = v.errors
-			}
+		if len(scannerOutput.errors) > 0 &&
+			(scannerOutput.status == detected || scannerOutput.status == detectedWithErrors) {
+			scannerToErrors[scanner] = scannerOutput.errors
 		}
-		if v.scanResult == scanResultDetected {
-			if v.configMap != nil {
-				scannerToOptions[k] = v.optionModel
-				scannerToConfigMap[k] = v.configMap
-			}
+		if len(scannerOutput.configs) > 0 && scannerOutput.status == detected {
+			scannerToOptions[scanner] = scannerOutput.options
+			scannerToConfigMap[scanner] = scannerOutput.configs
 		}
 	}
 	return models.ScanResultModel{
@@ -141,7 +140,7 @@ func Config(searchDir string) models.ScanResultModel {
 	}
 }
 
-func mapScannersToOutput(scannerList []scanners.ScannerInterface, searchDir string) map[string]scannerOutput {
+func runScanners(scannerList []scanners.ScannerInterface, searchDir string) map[string]scannerOutput {
 	scannerOutputs := map[string]scannerOutput{}
 	var excludedScannerNames []string
 	for _, scanner := range scannerList {
@@ -170,15 +169,15 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	var detectorWarnings models.Warnings
 	var detectorErrors []string
 
-	if detected, err := detector.DetectPlatform(searchDir); err != nil {
+	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
 		log.TErrorf("Scanner failed, error: %s", err)
 		return scannerOutput{
-			scanResult: scanResultNotDetected,
-			warnings:   models.Warnings{err.Error()},
+			status:   notDetected,
+			warnings: models.Warnings{err.Error()},
 		}
-	} else if !detected {
+	} else if !isDetect {
 		return scannerOutput{
-			scanResult: scanResultNotDetected,
+			status: notDetected,
 		}
 	}
 
@@ -190,8 +189,8 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		// Error returned as a warning
 		detectorWarnings = append(detectorWarnings, err.Error())
 		return scannerOutput{
-			scanResult: scanResultDetectedWithErrors,
-			warnings:   detectorWarnings,
+			status:   detectedWithErrors,
+			warnings: detectorWarnings,
 		}
 	}
 
@@ -201,9 +200,9 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		log.TErrorf("Failed to generate config, error: %s", err)
 		detectorErrors = append(detectorErrors, err.Error())
 		return scannerOutput{
-			scanResult: scanResultDetectedWithErrors,
-			warnings:   detectorWarnings,
-			errors:     detectorErrors,
+			status:   detectedWithErrors,
+			warnings: detectorWarnings,
+			errors:   detectorErrors,
 		}
 	}
 
@@ -213,21 +212,20 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	}
 
 	return scannerOutput{
-		scanResult:       scanResultDetected,
+		status:           detected,
 		warnings:         detectorWarnings,
 		errors:           detectorErrors,
-		optionModel:      options,
-		configMap:        configs,
+		options:          options,
+		configs:          configs,
 		excludedScanners: scannerExcludedScanners,
 	}
 }
 
-func getDetectedScannerNames(scannerOutputs map[string]scannerOutput) []string {
-	var detectedScannerNames []string
-	for scannerKey, scannerOutput := range scannerOutputs {
-		if scannerOutput.scanResult == scanResultDetected {
-			detectedScannerNames = append(detectedScannerNames, scannerKey)
+func getDetectedScannerNames(scannerOutputs map[string]scannerOutput) (names []string) {
+	for scanner, scannerOutput := range scannerOutputs {
+		if scannerOutput.status == detected {
+			names = append(names, scanner)
 		}
 	}
-	return detectedScannerNames
+	return
 }

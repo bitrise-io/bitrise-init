@@ -171,17 +171,17 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewCustomTriggerWorkflowIDConfigBuilder(fastlaneWorkflowID)
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.FastlaneStepListItem(
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
 		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
 
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// Fill in project type later, from the list of detected project types
 	config, err := configBuilder.Generate(unknownProjectType,
@@ -208,16 +208,16 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultConfigs ...
 func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewCustomTriggerWorkflowIDConfigBuilder(fastlaneWorkflowID)
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.FastlaneStepListItem(
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
 		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 	))
-	configBuilder.AppendStepListItemsTo(fastlaneWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	config, err := configBuilder.Generate(unknownProjectType, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {

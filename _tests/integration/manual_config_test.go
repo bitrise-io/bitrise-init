@@ -947,11 +947,11 @@ configs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
       trigger_map:
       - push_branch: '*'
-        workflow: fastlane
+        workflow: primary
       - pull_request_source_branch: '*'
-        workflow: fastlane
+        workflow: primary
       workflows:
-        fastlane:
+        primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
