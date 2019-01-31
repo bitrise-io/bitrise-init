@@ -90,7 +90,7 @@ const (
 	// InstallMissingAndroidToolsID ...
 	InstallMissingAndroidToolsID = "install-missing-android-tools"
 	// InstallMissingAndroidToolsVersion ...
-	InstallMissingAndroidToolsVersion = "2.3.4"
+	InstallMissingAndroidToolsVersion = "2.3.5"
 )
 
 const (
@@ -132,7 +132,7 @@ const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "2.1.0"
+	XcodeTestVersion = "2.1.1"
 )
 
 const (
@@ -258,5 +258,5 @@ const (
 	// FlutterBuildID ...
 	FlutterBuildID = "flutter-build"
 	// FlutterBuildVersion ...
-	FlutterBuildVersion = "0.9.1"
+	FlutterBuildVersion = "0.9.2"
 )
