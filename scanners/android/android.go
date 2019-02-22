@@ -40,18 +40,14 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	isRecognized := len(scanner.ProjectRoots) > 0
-
-	if !isRecognized {
-		scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle.kts", "settings.gradle.kts")
-		if err != nil {
-			return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
-		}
-
-		isRecognized = len(scanner.ProjectRoots) > 0
+	kotlinRoots, err := walkMultipleFiles(searchDir, "build.gradle.kts", "settings.gradle.kts")
+	if err != nil {
+		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	return isRecognized, err
+	scanner.ProjectRoots = append(scanner.ProjectRoots, kotlinRoots...)
+
+	return len(scanner.ProjectRoots) > 0, err
 }
 
 // Options ...
