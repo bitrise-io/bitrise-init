@@ -179,7 +179,6 @@ projects:
 			proj.hasAndroidProject = true
 		}
 
-		// todo: duplicate code; factor into detectAndroidProjectPath function?
 		if !proj.hasAndroidProject {
 			androidProjPath := filepath.Join(projectLocation, "android", "build.gradle.kts")
 			if exists, err := pathutil.IsPathExists(androidProjPath); err == nil && exists {
