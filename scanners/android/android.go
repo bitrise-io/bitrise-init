@@ -48,7 +48,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 			return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 		}
 
-		isRecognized = len(scanner.ProjectRoots) > 0 // todo: make isRecognized a method of scanner?
+		isRecognized = len(scanner.ProjectRoots) > 0
 	}
 
 	return isRecognized, err
