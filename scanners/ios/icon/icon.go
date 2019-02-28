@@ -1,4 +1,4 @@
-package ios
+package icon
 
 import (
 	"fmt"
@@ -8,17 +8,32 @@ import (
 )
 
 func getIcon(projectPath string, scheme string) (string, error) {
-	assetCatalogName, err := getAssetCatalogPath(projectPath, scheme)
+	project, err := xcodeproj.Open(projectPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
+	}
+
+	log.Printf("name: %s", project.Name)
+
+	scheme, found := project.Scheme(schemeName)
+	if !found {
+		return "", fmt.Errorf("scheme (%s) not found in project", schemeName)
+	}
+
+	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
+	log.Printf("main target: %s", mainTarget.Name)
+
+	assetCatalogPath, err := getAssetCatalogPath(projectPath, scheme)
 	if err != nil {
 		return "", fmt.Errorf("failed to get asset catalog path, error: %s", err)
 	}
 
-	openAssetCatalog(assetCatalogName, projectPath)
+	openAssetCatalog(assetCatalogPath, projectPath)
 	return "", nil
 }
 
 func openAssetCatalog(assetCatalogName string, projectPath string) (string, error) {
-
+	return "", nil
 }
 
 // mainTargetOfScheme return the main target
@@ -47,43 +62,39 @@ func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Targ
 	return xcodeproj.Target{}, fmt.Errorf("failed to find the project's main target for scheme (%s)", scheme)
 }
 
-const assetCatalogKey = "ASSETCATALOG_COMPILER_APPICON_NAME"
+const appIconSetNameKey = "ASSETCATALOG_COMPILER_APPICON_NAME"
 
-func getAssetCatalogPath(projectPath string, schemeName string) (string, error) {
-	project, err := xcodeproj.Open(projectPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
-	}
-
-	log.Printf("name: %s", project.Name)
-
-	scheme, found := project.Scheme(schemeName)
+func getAppIconSetName(project xcodeproj.XcodeProj, target xcodeproj.Target) (string, error) {
+	found, defaultConfiguration := defaultConfiguration(target)
 	if !found {
-		return "", fmt.Errorf("scheme (%s) not found in project", schemeName)
-	}
-
-	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
-
-	log.Printf("main target: %s", mainTarget.Name)
-
-	found, defaultConfiguration := defaultConfiguration(mainTarget)
-	if !found {
-		return "", fmt.Errorf("default configuraion not founf for target: %s", mainTarget)
+		return "", fmt.Errorf("default configuraion not founf for target: %s", target)
 	}
 
 	log.Printf("%s", defaultConfiguration)
 
-	assetCatalogValue, ok := defaultConfiguration.BuildSettings[assetCatalogKey]
+	appIconSetNameRaw, ok := defaultConfiguration.BuildSettings[appIconSetNameKey]
 	if !ok {
 		return "", nil
 	}
 
-	assetCatalogName, ok := assetCatalogValue.(string)
+	appIconSetName, ok := appIconSetNameRaw.(string)
 	if !ok {
-		return "", fmt.Errorf("type assertion failed for value of key %s", assetCatalogKey)
+		return "", fmt.Errorf("type assertion failed for value of key %s", appIconSetNameKey)
 	}
-	log.Printf("asstets: %s", assetCatalogName)
-	return assetCatalogName, nil
+	log.Printf("asstets: %s", appIconSetName)
+	return appIconSetName, nil
+}
+
+func getAssetCatalogPaths(project xcodeproj.XcodeProj, target xcodeproj.Target) ([]string, error) {
+	log.Printf("assets in project: %v+", project.Proj.TargetToAssetCatalogs)
+	log.Printf("target ID: %s", target.ID)
+	assetCatalogs, ok := project.Proj.TargetToAssetCatalogs[target.ID]
+	if !ok {
+		return nil, fmt.Errorf("asset catalog path not found in project")
+	}
+
+	log.Printf("asset catalog path: %s", assetCatalogs)
+	return assetCatalogs, nil
 }
 
 func defaultConfiguration(target xcodeproj.Target) (bool, xcodeproj.BuildConfiguration) {
