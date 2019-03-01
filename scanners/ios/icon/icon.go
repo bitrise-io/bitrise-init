@@ -1,13 +1,19 @@
 package icon
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-tools/xcode-project/xcodeproj"
 )
 
-func getIcon(projectPath string, scheme string) (string, error) {
+func getIcon(projectPath string, schemeName string) (string, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
@@ -23,17 +29,137 @@ func getIcon(projectPath string, scheme string) (string, error) {
 	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
 	log.Printf("main target: %s", mainTarget.Name)
 
-	assetCatalogPath, err := getAssetCatalogPath(projectPath, scheme)
+	appIconSetName, err := getAppIconSetName(project, mainTarget)
 	if err != nil {
-		return "", fmt.Errorf("failed to get asset catalog path, error: %s", err)
+		return "", fmt.Errorf("app icon set name not found in project, error: %s", err)
 	}
 
-	openAssetCatalog(assetCatalogPath, projectPath)
-	return "", nil
+	assetCatalogPaths, err := getAssetCatalogPaths(project, mainTarget)
+	if err != nil {
+		return "", fmt.Errorf("failed to get asset catalog paths, error: %s", err)
+	}
+
+	appIconPath, found, err := lookupAppIconPath(projectPath, assetCatalogPaths, appIconSetName)
+	if err != nil {
+		return "", err
+	} else if !found {
+		return "", err
+	}
+
+	log.Printf("%s", appIconPath)
+	icon, err := parseAppIconSet(appIconPath)
+	if err != nil {
+		return "", fmt.Errorf("could not get icon: ")
+	}
+
+	iconPath := filepath.Join(appIconPath, icon.Filename)
+	_, err = os.Open(iconPath)
+	if err != nil {
+		return "", fmt.Errorf("Can not open icon file: %s, error: %err", iconPath, err)
+	}
+
+	return icon.Filename, nil
 }
 
-func openAssetCatalog(assetCatalogName string, projectPath string) (string, error) {
-	return "", nil
+type assetIcon struct {
+	Size     string
+	Filename string
+}
+
+type assetInfo struct {
+	Version int
+	Author  string
+}
+type assetMetadata struct {
+	Images []assetIcon
+	Info   assetInfo
+}
+
+type appIcon struct {
+	Size     int
+	Filename string
+}
+
+func parseAppIconSet(appIconPath string) (appIcon, error) {
+	const metaDataFileName = "Contents.json"
+	file, err := os.Open(filepath.Join(appIconPath, metaDataFileName))
+	if err != nil {
+		return appIcon{}, fmt.Errorf("failed to open file, error: %s", err)
+	}
+
+	appIcons, err := parseAppIconMetadata(file)
+	if err != nil {
+		return appIcon{}, fmt.Errorf("failed to parse asset metadata, error: %s", err)
+	}
+
+	var largestIcon appIcon
+	for _, icon := range appIcons {
+		if icon.Size > largestIcon.Size {
+			largestIcon = icon
+		}
+	}
+	return largestIcon, nil
+}
+
+func parseAppIconMetadata(input io.Reader) ([]appIcon, error) {
+	decoder := json.NewDecoder(input)
+	var decoded assetMetadata
+	decoder.Decode(&decoded)
+	// log.Printf("%s", decoded)
+
+	if decoded.Info.Version != 1 {
+		return nil, fmt.Errorf("Unsupported asset metadata version")
+	}
+	var icons []appIcon
+	for _, icon := range decoded.Images {
+		fmt.Printf("%s", icon)
+		fmt.Println()
+		sizeParts := strings.Split(icon.Size, "x")
+		if len(sizeParts) != 2 {
+			return nil, fmt.Errorf("Invalid image size format")
+		}
+		iconSize, err := strconv.ParseFloat(sizeParts[0], 32)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid image size, error: %s", err)
+		}
+		// If icon is not set for a given usage, filaname key is missing
+		if icon.Filename != "" {
+			icons = append(icons, appIcon{
+				Size:     int(iconSize),
+				Filename: icon.Filename,
+			})
+		}
+	}
+	return icons, nil
+}
+
+// ToDo: use file paths based on xcode project
+func lookupAppIconPath(projectPath string, assetCatalogPaths []string, appIconSetName string) (string, bool, error) {
+	projectDir := strings.TrimSuffix(projectPath, ".xcodeproj")
+	for _, assetCatalogPath := range assetCatalogPaths {
+		var matches []string
+		err := filepath.Walk(projectDir, func(path string, f os.FileInfo, err error) error {
+			if _, name := filepath.Split(path); name == assetCatalogPath {
+				matches = append(matches, path)
+			}
+			return nil
+		})
+		if err != nil {
+			return "", false, err
+		}
+
+		log.Printf("%s %s", assetCatalogPath, matches)
+		if len(matches) > 0 {
+			iconSetMatches, err := filepath.Glob(filepath.Join(matches[0], appIconSetName+".appiconset"))
+			if err != nil {
+				return "", false, err
+			}
+			if len(iconSetMatches) > 0 {
+				return iconSetMatches[0], true, nil
+			}
+		}
+	}
+	return "", false, nil
 }
 
 // mainTargetOfScheme return the main target
@@ -62,9 +188,9 @@ func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Targ
 	return xcodeproj.Target{}, fmt.Errorf("failed to find the project's main target for scheme (%s)", scheme)
 }
 
-const appIconSetNameKey = "ASSETCATALOG_COMPILER_APPICON_NAME"
-
 func getAppIconSetName(project xcodeproj.XcodeProj, target xcodeproj.Target) (string, error) {
+	const appIconSetNameKey = "ASSETCATALOG_COMPILER_APPICON_NAME"
+
 	found, defaultConfiguration := defaultConfiguration(target)
 	if !found {
 		return "", fmt.Errorf("default configuraion not founf for target: %s", target)
