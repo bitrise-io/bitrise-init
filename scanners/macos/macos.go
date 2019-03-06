@@ -34,6 +34,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
+	detected, err = Detect(searchDir)
+	if err != nil {
+		return false, err
+	}
+
 	return detected, nil
 }
 
