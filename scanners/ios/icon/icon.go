@@ -104,11 +104,13 @@ func parseAppIconSet(appIconPath string) (appIcon, error) {
 func parseAppIconMetadata(input io.Reader) ([]appIcon, error) {
 	decoder := json.NewDecoder(input)
 	var decoded assetMetadata
-	decoder.Decode(&decoded)
-	// log.Printf("%s", decoded)
+	err := decoder.Decode(&decoded)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode asset metadata file, error: %s", err)
+	}
 
 	if decoded.Info.Version != 1 {
-		return nil, fmt.Errorf("Unsupported asset metadata version")
+		return nil, fmt.Errorf("unsupported asset metadata version")
 	}
 	var icons []appIcon
 	for _, icon := range decoded.Images {
@@ -116,11 +118,11 @@ func parseAppIconMetadata(input io.Reader) ([]appIcon, error) {
 		fmt.Println()
 		sizeParts := strings.Split(icon.Size, "x")
 		if len(sizeParts) != 2 {
-			return nil, fmt.Errorf("Invalid image size format")
+			return nil, fmt.Errorf("invalid image size format")
 		}
 		iconSize, err := strconv.ParseFloat(sizeParts[0], 32)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid image size, error: %s", err)
+			return nil, fmt.Errorf("invalid image size, error: %s", err)
 		}
 		// If icon is not set for a given usage, filaname key is missing
 		if icon.Filename != "" {
