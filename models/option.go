@@ -5,10 +5,20 @@ import (
 	"fmt"
 )
 
+// Selector is the type of the selectable object (text, icon)
+type Selector string
+
+// If not specified, TextSelector is used.
+const (
+	TextSelector Selector = "text"
+	IconSelector Selector = "icon"
+)
+
 // OptionNode ...
 type OptionNode struct {
-	Title  string `json:"title,omitempty" yaml:"title,omitempty"`
-	EnvKey string `json:"env_key,omitempty" yaml:"env_key,omitempty"`
+	Title    string   `json:"title,omitempty" yaml:"title,omitempty"`
+	EnvKey   string   `json:"env_key,omitempty" yaml:"env_key,omitempty"`
+	Selector Selector `json:"selector_type,omitempty" yaml:"selector_type,omitempty"`
 
 	ChildOptionMap map[string]*OptionNode `json:"value_map,omitempty" yaml:"value_map,omitempty"`
 	Config         string                 `json:"config,omitempty" yaml:"config,omitempty"`
@@ -57,6 +67,12 @@ func (option *OptionNode) IsValueOption() bool {
 // IsEmpty ...
 func (option *OptionNode) IsEmpty() bool {
 	return !option.IsValueOption() && !option.IsConfigOption()
+}
+
+// SetSelectorType sets the used form type e.g. text entry or image selector
+func (option *OptionNode) SetSelectorType(selectorType Selector) *OptionNode {
+	option.Selector = selectorType
+	return option
 }
 
 // AddOption ...
