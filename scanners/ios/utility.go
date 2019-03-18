@@ -2,10 +2,9 @@ package ios
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
-
-	"path/filepath"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
@@ -48,6 +47,10 @@ const (
 	IosExportMethodInputTitle = "ipa export method"
 	// MacExportMethodInputTitle ...
 	MacExportMethodInputTitle = "Application export method\nNOTE: `none` means: Export a copy of the application without re-signing."
+)
+
+const (
+	appIconTitle = "Application icon"
 )
 
 // IosExportMethods ...
@@ -318,6 +321,13 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
 		projectPathOption.AddOption(project.Pth, schemeOption)
 
+		appIcons, err := icon.GetAllIcons(project.Pth)
+		if err != nil {
+			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
+			log.Warnf(warningMsg)
+			warnings = append(warnings, warningMsg)
+		}
+
 		carthageCommand, warning := detectCarthageCommand(project.Pth)
 		if warning != "" {
 			warnings = append(warnings, warning)
@@ -339,9 +349,17 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
-
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-					exportMethodOption.AddConfig(exportMethod, configOption)
+
+					if len(appIcons) == 0 {
+						exportMethodOption.AddConfig(exportMethod, configOption)
+					} else {
+						iconOption := models.NewOption(appIconTitle, "")
+						exportMethodOption.AddOption(exportMethod, iconOption)
+						for _, appIcon := range appIcons {
+							iconOption.AddConfig(appIcon, configOption)
+						}
+					}
 				}
 			}
 		} else {
@@ -354,10 +372,17 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, false)
 					configDescriptors = append(configDescriptors, configDescriptor)
-
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-					exportMethodOption.AddConfig(exportMethod, configOption)
 
+					if len(appIcons) == 0 {
+						exportMethodOption.AddConfig(exportMethod, configOption)
+					} else {
+						iconOption := models.NewOption(appIconTitle, "")
+						exportMethodOption.AddOption(exportMethod, iconOption)
+						for _, appIcon := range appIcons {
+							iconOption.AddConfig(appIcon, configOption)
+						}
+					}
 				}
 			}
 		}
@@ -373,6 +398,13 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		carthageCommand, warning := detectCarthageCommand(workspace.Pth)
 		if warning != "" {
 			warnings = append(warnings, warning)
+		}
+
+		appIcons, err := icon.GetAllIcons(workspace.Pth)
+		if err != nil {
+			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", workspace.Pth, err)
+			log.Warnf(warningMsg)
+			warnings = append(warnings, warningMsg)
 		}
 
 		sharedSchemes := workspace.GetSharedSchemes()
@@ -393,9 +425,17 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
-
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-					exportMethodOption.AddConfig(exportMethod, configOption)
+
+					if len(appIcons) == 0 {
+						exportMethodOption.AddConfig(exportMethod, configOption)
+					} else {
+						iconOption := models.NewOption(appIconTitle, "")
+						exportMethodOption.AddOption(exportMethod, iconOption)
+						for _, appIcon := range appIcons {
+							iconOption.AddConfig(appIcon, configOption)
+						}
+					}
 				}
 			}
 		} else {
@@ -408,9 +448,17 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
 					configDescriptors = append(configDescriptors, configDescriptor)
-
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
-					exportMethodOption.AddConfig(exportMethod, configOption)
+
+					if len(appIcons) == 0 {
+						exportMethodOption.AddConfig(exportMethod, configOption)
+					} else {
+						iconOption := models.NewOption(appIconTitle, "")
+						exportMethodOption.AddOption(exportMethod, iconOption)
+						for _, appIcon := range appIcons {
+							iconOption.AddConfig(appIcon, configOption)
+						}
+					}
 				}
 			}
 		}
