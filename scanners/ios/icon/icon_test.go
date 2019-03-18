@@ -198,3 +198,31 @@ var jsonRawMissingSize = []byte(`
 	}
 	}
 `)
+
+func Test_getAllIcons(t *testing.T) {
+	tests := []struct {
+		name    string
+		path    string
+		want    []string
+		wantErr bool
+	}{
+		{
+			name:    "test",
+			path:    "/Users/lpusok/Develop/keybase-client/shared/react-native/ios/",
+			want:    []string{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getAllIcons(tt.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getAllIcons() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getAllIcons() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

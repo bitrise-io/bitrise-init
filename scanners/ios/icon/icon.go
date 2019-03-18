@@ -13,6 +13,49 @@ import (
 	"github.com/bitrise-tools/xcode-project/xcodeproj"
 )
 
+func getAllIcons(path string) ([]string, error) {
+	appIconSets, err := getAppIconSetDirs(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var appIconPaths []string
+	for _, appIconSetPath := range appIconSets {
+		log.Printf("%s", appIconSetPath)
+		icon, err := parseAppIconSet(appIconSetPath)
+		if err != nil {
+			return nil, fmt.Errorf("could not get icon, error: %s", err)
+		} else if icon == nil {
+			continue
+		}
+
+		iconPath := filepath.Join(appIconSetPath, icon.Filename)
+
+		if _, err := os.Stat(iconPath); os.IsNotExist(err) {
+			log.Errorf("Can not open icon file: %s, error: %err", iconPath, err)
+			continue
+		}
+		appIconPaths = append(appIconPaths, iconPath)
+	}
+	return appIconPaths, nil
+}
+
+func getAppIconSetDirs(path string) ([]string, error) {
+	appIconSets := []string{}
+	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() && strings.HasSuffix(path, ".appiconset") {
+			appIconSets = append(appIconSets, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to walk path %s, error: %s", path, err)
+	}
+	log.Debugf("%s", appIconSets)
+
+	return appIconSets, nil
+}
+
 func getIcon(projectPath string, schemeName string) (string, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
@@ -80,25 +123,28 @@ type appIcon struct {
 	Filename string
 }
 
-func parseAppIconSet(appIconPath string) (appIcon, error) {
+func parseAppIconSet(appIconPath string) (*appIcon, error) {
 	const metaDataFileName = "Contents.json"
 	file, err := os.Open(filepath.Join(appIconPath, metaDataFileName))
 	if err != nil {
-		return appIcon{}, fmt.Errorf("failed to open file, error: %s", err)
+		return nil, fmt.Errorf("failed to open file, error: %s", err)
 	}
 
 	appIcons, err := parseAppIconMetadata(file)
 	if err != nil {
-		return appIcon{}, fmt.Errorf("failed to parse asset metadata, error: %s", err)
+		return nil, fmt.Errorf("failed to parse asset metadata, error: %s", err)
 	}
 
-	var largestIcon appIcon
+	if len(appIcons) == 0 {
+		return nil, nil
+	}
+	largestIcon := appIcons[0]
 	for _, icon := range appIcons {
 		if icon.Size > largestIcon.Size {
 			largestIcon = icon
 		}
 	}
-	return largestIcon, nil
+	return &largestIcon, nil
 }
 
 func parseAppIconMetadata(input io.Reader) ([]appIcon, error) {
