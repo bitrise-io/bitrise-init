@@ -245,7 +245,7 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
 	for _, project := range scanner.projects {
@@ -320,7 +320,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 		}
 	}
 
-	return *flutterProjectLocationOption, nil, nil
+	return *flutterProjectLocationOption, models.Warnings{}, models.Icons{}, nil
 }
 
 func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {

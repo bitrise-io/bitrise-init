@@ -122,7 +122,7 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	log.TInfof("Searching for NuGet packages & Xamarin Components")
 
 	warnings := models.Warnings{}
@@ -191,7 +191,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 
 	if len(validSolutionMap) == 0 {
 		log.TErrorf("No valid solution file found")
-		return models.OptionNode{}, warnings, errors.New("No valid solution file found")
+		return models.OptionNode{}, warnings, models.Icons{}, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
@@ -212,7 +212,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 		}
 	}
 
-	return *xamarinSolutionOption, warnings, nil
+	return *xamarinSolutionOption, warnings, models.Icons{}, nil
 }
 
 // DefaultOptions ...

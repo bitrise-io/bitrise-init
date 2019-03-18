@@ -9,6 +9,9 @@ type Warnings []string
 // Errors ...
 type Errors []string
 
+// Icons are potential selectable app icons
+type Icons []string
+
 // ScanResultModel ...
 type ScanResultModel struct {
 	ScannerToOptionRoot       map[string]OptionNode       `json:"options,omitempty" yaml:"options,omitempty"`

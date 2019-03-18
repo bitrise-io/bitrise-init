@@ -40,15 +40,15 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	options, configDescriptors, warnings, err := GenerateOptions(XcodeProjectTypeIOS, scanner.SearchDir)
 	if err != nil {
-		return models.OptionNode{}, warnings, err
+		return models.OptionNode{}, warnings, models.Icons{}, err
 	}
 
 	scanner.ConfigDescriptors = configDescriptors
 
-	return options, warnings, nil
+	return options, warnings, models.Icons{}, nil
 }
 
 // DefaultOptions ...

@@ -51,18 +51,18 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	warnings := models.Warnings{}
 
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
 		if err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
 		configOption := models.NewConfigOption(ConfigName)
@@ -74,7 +74,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 		variantOption.AddConfig("", configOption)
 	}
 
-	return *projectLocationOption, warnings, nil
+	return *projectLocationOption, warnings, models.Icons{}, nil
 }
 
 // DefaultOptions ...

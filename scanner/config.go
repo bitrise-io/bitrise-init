@@ -181,7 +181,7 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		}
 	}
 
-	options, projectWarnings, err := detector.Options()
+	options, projectWarnings, _, err := detector.Options()
 	detectorWarnings = append(detectorWarnings, projectWarnings...)
 
 	if err != nil {
