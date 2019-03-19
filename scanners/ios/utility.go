@@ -227,28 +227,28 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 }
 
 // GenerateOptions ...
-func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionNode, []ConfigDescriptor, models.Warnings, error) {
+func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	// Separate workspaces and standalon projects
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	exportMethodInputTitle := ""
@@ -266,7 +266,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	podfiles, err := FilterRelevantPodfiles(fileList)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	log.TPrintf("%d Podfiles detected", len(podfiles))
@@ -299,7 +299,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	cartfiles, err := FilterRelevantCartFile(fileList)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, models.Warnings{}, err
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, models.Warnings{}, err
 	}
 
 	log.TPrintf("%d Cartfiles detected", len(cartfiles))
@@ -314,6 +314,9 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputEnvKey)
 
+	// App icons, merged from every project
+	iconsForAllProjects := models.Icons{}
+
 	// Standalon Projects
 	for _, project := range standaloneProjects {
 		log.TInfof("Inspecting standalone project file: %s", project.Pth)
@@ -326,6 +329,9 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
 			log.Warnf(warningMsg)
 			warnings = append(warnings, warningMsg)
+		}
+		for iconID, iconPath := range appIcons {
+			iconsForAllProjects[iconID] = iconPath
 		}
 
 		carthageCommand, warning := detectCarthageCommand(project.Pth)
@@ -356,8 +362,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
 						exportMethodOption.AddOption(exportMethod, iconOption)
-						for _, appIcon := range appIcons {
-							iconOption.AddConfig(appIcon, configOption)
+						for iconID := range appIcons {
+							iconOption.AddConfig(iconID, configOption)
 						}
 					}
 				}
@@ -379,8 +385,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
 						exportMethodOption.AddOption(exportMethod, iconOption)
-						for _, appIcon := range appIcons {
-							iconOption.AddConfig(appIcon, configOption)
+						for iconID := range appIcons {
+							iconOption.AddConfig(iconID, configOption)
 						}
 					}
 				}
@@ -405,6 +411,9 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", workspace.Pth, err)
 			log.Warnf(warningMsg)
 			warnings = append(warnings, warningMsg)
+		}
+		for iconID, iconPath := range appIcons {
+			iconsForAllProjects[iconID] = iconPath
 		}
 
 		sharedSchemes := workspace.GetSharedSchemes()
@@ -432,8 +441,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
 						exportMethodOption.AddOption(exportMethod, iconOption)
-						for _, appIcon := range appIcons {
-							iconOption.AddConfig(appIcon, configOption)
+						for iconID := range appIcons {
+							iconOption.AddConfig(iconID, configOption)
 						}
 					}
 				}
@@ -455,8 +464,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
 						exportMethodOption.AddOption(exportMethod, iconOption)
-						for _, appIcon := range appIcons {
-							iconOption.AddConfig(appIcon, configOption)
+						for iconID := range appIcons {
+							iconOption.AddConfig(iconID, configOption)
 						}
 					}
 				}
@@ -468,10 +477,10 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 
 	if len(configDescriptors) == 0 {
 		log.TErrorf("No valid %s config found", string(projectType))
-		return models.OptionNode{}, []ConfigDescriptor{}, warnings, fmt.Errorf("No valid %s config found", string(projectType))
+		return models.OptionNode{}, []ConfigDescriptor{}, models.Icons{}, warnings, fmt.Errorf("No valid %s config found", string(projectType))
 	}
 
-	return *projectPathOption, configDescriptors, warnings, nil
+	return *projectPathOption, configDescriptors, iconsForAllProjects, warnings, nil
 }
 
 // GenerateDefaultOptions ...

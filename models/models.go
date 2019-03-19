@@ -10,7 +10,8 @@ type Warnings []string
 type Errors []string
 
 // Icons are potential selectable app icons
-type Icons []string
+// the key is a id (sha256 hash converted to string), value is the icon path
+type Icons map[string]string
 
 // ScanResultModel ...
 type ScanResultModel struct {
