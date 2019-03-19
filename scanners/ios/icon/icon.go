@@ -1,6 +1,7 @@
 package icon
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,11 +10,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-tools/xcode-project/xcodeproj"
 )
 
-func getAllIcons(path string) ([]string, error) {
+// GetAllIcons returns a map with key of a id (sha256 hash converted to string), value of icon path
+func GetAllIcons(path string) (models.Icons, error) {
 	appIconSets, err := getAppIconSetDirs(path)
 	if err != nil {
 		return nil, err
@@ -37,7 +40,14 @@ func getAllIcons(path string) ([]string, error) {
 		}
 		appIconPaths = append(appIconPaths, iconPath)
 	}
-	return appIconPaths, nil
+
+	iconIDToPath := models.Icons{}
+	for _, appIconPath := range appIconPaths {
+		hash := sha256.Sum256([]byte(appIconPath))
+		hashStr := fmt.Sprintf("%x", hash)
+		iconIDToPath[hashStr] = appIconPath
+	}
+	return iconIDToPath, nil
 }
 
 func getAppIconSetDirs(path string) ([]string, error) {

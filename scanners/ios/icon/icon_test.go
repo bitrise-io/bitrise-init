@@ -215,7 +215,7 @@ func Test_getAllIcons(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getAllIcons(tt.path)
+			got, err := GetAllIcons(tt.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getAllIcons() error = %v, wantErr %v", err, tt.wantErr)
 				return
