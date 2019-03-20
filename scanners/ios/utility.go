@@ -317,16 +317,25 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 	// App icons, merged from every project
 	iconsForAllProjects := models.Icons{}
 
-	// Standalon Projects
+	// Standalone Projects
 	for _, project := range standaloneProjects {
 		log.TInfof("Inspecting standalone project file: %s", project.Pth)
 
 		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
 		projectPathOption.AddOption(project.Pth, schemeOption)
 
-		appIcons, err := icon.GetAllIcons(project.Pth)
+		absPath, err := filepath.Abs(filepath.Join(searchDir, project.Pth, ".."))
 		if err != nil {
-			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
+			return models.OptionNode{},
+				[]ConfigDescriptor{},
+				models.Icons{},
+				warnings,
+				fmt.Errorf("failed to get project path, error: %s", err)
+		}
+		log.TPrintf("Looking for app icons at: %s", absPath)
+		appIcons, err := icon.GetAllIcons(absPath)
+		if err != nil {
+			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)
 			warnings = append(warnings, warningMsg)
 		}
@@ -361,6 +370,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
+						iconOption.SetSelectorType(models.IconSelector)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -384,6 +394,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
+						iconOption.SetSelectorType(models.IconSelector)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -406,9 +417,18 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			warnings = append(warnings, warning)
 		}
 
-		appIcons, err := icon.GetAllIcons(workspace.Pth)
+		absPath, err := filepath.Abs(filepath.Join(searchDir, workspace.Pth, ".."))
 		if err != nil {
-			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", workspace.Pth, err)
+			return models.OptionNode{},
+				[]ConfigDescriptor{},
+				models.Icons{},
+				warnings,
+				fmt.Errorf("failed to get workspace path, error: %s", err)
+		}
+		log.TPrintf("Looking for app icons at: %s", absPath)
+		appIcons, err := icon.GetAllIcons(absPath)
+		if err != nil {
+			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)
 			warnings = append(warnings, warningMsg)
 		}
@@ -440,6 +460,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
+						iconOption.SetSelectorType(models.IconSelector)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -463,6 +484,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
+						iconOption.SetSelectorType(models.IconSelector)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)

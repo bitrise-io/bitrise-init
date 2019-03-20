@@ -8,13 +8,14 @@ import (
 // Selector is the type of the selectable object (text, icon)
 type Selector string
 
-// If not specified, TextSelector is used.
+// Can choose from predefined or free entry text, or from icons
 const (
 	TextSelector Selector = "text"
 	IconSelector Selector = "icon"
 )
 
 // OptionNode ...
+// If Selector is not specified, TextSelector is assumed.
 type OptionNode struct {
 	Title    string   `json:"title,omitempty" yaml:"title,omitempty"`
 	EnvKey   string   `json:"env_key,omitempty" yaml:"env_key,omitempty"`
