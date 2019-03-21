@@ -1,6 +1,11 @@
 package icon
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+
+	"github.com/bitrise-core/bitrise-init/models"
+)
 
 func TestFetchIcon(t *testing.T) {
 	type args struct {
@@ -30,6 +35,34 @@ func TestFetchIcon(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("FetchIcon() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getAllIcons(t *testing.T) {
+	tests := []struct {
+		name       string
+		projectDir string
+		want       models.Icons
+		wantErr    bool
+	}{
+		{
+			name:       "normal",
+			projectDir: "/Users/lpusok/Develop/AndroidStudioProjects/AppIconTest",
+			want:       nil,
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getAllIcons(tt.projectDir)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getAllIcons() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getAllIcons() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -2,12 +2,16 @@ package icon
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/bitrise-core/bitrise-init/utility"
+
 	"github.com/beevik/etree"
+	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -96,4 +100,29 @@ func FetchIcon(appPath string) (string, error) {
 	xmlPth := path.Join(appPath, "AndroidManifest.xml")
 	resPth := path.Join(appPath, "res")
 	return findIcon(xmlPth, resPth)
+}
+
+func getAllIcons(projectDir string) (models.Icons, error) {
+	children, err := ioutil.ReadDir(projectDir)
+	if err != nil {
+		return nil, err
+	}
+
+	var iconPaths []string
+	for _, object := range children {
+		if object.IsDir() {
+			manifestPth := filepath.Join(projectDir, object.Name(), "src", "main", "AndroidManifest.xml")
+			resourcesPth := filepath.Join(projectDir, object.Name(), "src", "main", "res")
+			if exist, err := pathutil.IsPathExists(manifestPth); err != nil {
+				return nil, err
+			} else if exist {
+				iconPath, err := findIcon(manifestPth, resourcesPth)
+				if err != nil {
+					return nil, err
+				}
+				iconPaths = append(iconPaths, iconPath)
+			}
+		}
+	}
+	return utility.ConvertPathsToUniqueFileNames(iconPaths), nil
 }
