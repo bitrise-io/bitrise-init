@@ -68,7 +68,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
-		appIcons, err := icon.GetAllIcons(projectRoot, scanner.SearchDir)
+		appIcons, err := icon.LookupPossibleMatches(projectRoot, scanner.SearchDir)
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
@@ -87,7 +87,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			variantOption.AddConfig("", configOption)
 		} else {
 			iconOption := models.NewOption(appIconTitle, "")
-			iconOption.SetSelectorType(models.IconSelector)
+			iconOption.SetChildOptionType(models.Icon)
 			variantOption.AddOption("", iconOption)
 			for iconID := range appIcons {
 				iconOption.AddConfig(iconID, configOption)
@@ -95,7 +95,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 	}
 
-	return *projectLocationOption, warnings, models.Icons{}, nil
+	return *projectLocationOption, warnings, appIconsAllProjects, nil
 }
 
 // DefaultOptions ...

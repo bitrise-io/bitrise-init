@@ -13,9 +13,9 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-func findIcon(manifestPth, resPth string) (string, error) {
+func lookupResourceBasedOnManifest(manifestPth, resPth string) (string, error) {
 	// Fetch icon name from AndroidManifest.xml
-	var iconName string
+	var filenameBase string
 	{
 		doc := etree.NewDocument()
 		if err := doc.ReadFromFile(manifestPth); err != nil {
@@ -37,36 +37,25 @@ func findIcon(manifestPth, resPth string) (string, error) {
 			log.TPrintf("Attribute not found in manifest file")
 			return "", nil
 		}
-		iconName = strings.TrimPrefix(ic.Value, `@mipmap/`)
+		filenameBase = strings.TrimPrefix(ic.Value, `@mipmap/`)
 	}
 	{
-		mipmapDirs := []string{"mipmap-anydpi*", "mipmap-xxxhdpi", "mipmap-xxhdpi", "mipmap-xhdpi", "mipmap-hdpi", "mipmap-mdpi", "mipmap-ldpi"}
+		mipmapDirs := []string{"mipmap-xxxhdpi", "mipmap-xxhdpi", "mipmap-xhdpi", "mipmap-hdpi", "mipmap-mdpi", "mipmap-ldpi"}
 
 		for _, dir := range mipmapDirs {
-			pths, err := pathsByPattern(resPth, dir)
-			if err != nil {
+			filePath := path.Join(dir, filenameBase+".png")
+			if exists, err := pathutil.IsPathExists(filePath); err != nil {
 				return "", err
-			}
-
-			for _, pth := range pths {
-				if exists, err := pathutil.IsPathExists(path.Join(pth, iconName+".png")); err != nil {
-					continue
-				} else if exists {
-					return path.Join(pth, iconName+".png"), nil
-				}
+			} else if exists {
+				return filePath, nil
 			}
 		}
 	}
 	return "", nil
 }
 
-func pathsByPattern(paths ...string) ([]string, error) {
-	pattern := filepath.Join(paths...)
-	return filepath.Glob(pattern)
-}
-
-// GetAllIcons returns all potential android icons
-func GetAllIcons(projectDir string, basepath string) (models.Icons, error) {
+// LookupPossibleMatches returns all potential android icons
+func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, error) {
 	children, err := ioutil.ReadDir(projectDir)
 	if err != nil {
 		return nil, err
@@ -80,7 +69,7 @@ func GetAllIcons(projectDir string, basepath string) (models.Icons, error) {
 			if exist, err := pathutil.IsPathExists(manifestPth); err != nil {
 				return nil, err
 			} else if exist {
-				iconPath, err := findIcon(manifestPth, resourcesPth)
+				iconPath, err := lookupResourceBasedOnManifest(manifestPth, resourcesPth)
 				if err != nil {
 					return nil, err
 				}

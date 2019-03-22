@@ -333,7 +333,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				fmt.Errorf("failed to get project path, error: %s", err)
 		}
 		log.TPrintf("Looking for app icons at: %s", iconLookupPath)
-		appIcons, err := icon.GetAllIcons(iconLookupPath, searchDir)
+		appIcons, err := icon.LookupPossibleMatches(iconLookupPath, searchDir)
 		if err != nil {
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)
@@ -371,7 +371,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
-						iconOption.SetSelectorType(models.IconSelector)
+						iconOption.SetChildOptionType(models.Icon)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -395,7 +395,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
-						iconOption.SetSelectorType(models.IconSelector)
+						iconOption.SetChildOptionType(models.Icon)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -427,7 +427,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				fmt.Errorf("failed to get workspace path, error: %s", err)
 		}
 		log.TPrintf("Looking for app icons at: %s", iconLookupPath)
-		appIcons, err := icon.GetAllIcons(iconLookupPath, searchDir)
+		appIcons, err := icon.LookupPossibleMatches(iconLookupPath, searchDir)
 		if err != nil {
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)
@@ -461,7 +461,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
-						iconOption.SetSelectorType(models.IconSelector)
+						iconOption.SetChildOptionType(models.Icon)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)
@@ -485,7 +485,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
-						iconOption.SetSelectorType(models.IconSelector)
+						iconOption.SetChildOptionType(models.Icon)
 						exportMethodOption.AddOption(exportMethod, iconOption)
 						for iconID := range appIcons {
 							iconOption.AddConfig(iconID, configOption)

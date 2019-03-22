@@ -5,24 +5,24 @@ import (
 	"fmt"
 )
 
-// Selector is the type of the selectable object (text, icon)
-type Selector string
+// ValueType is the type of the selectable object (text, icon)
+type ValueType string
 
 // Can choose from predefined or free entry text, or from icons
 const (
-	TextSelector Selector = "text"
-	IconSelector Selector = "icon"
+	Text ValueType = "text"
+	Icon ValueType = "icon"
 )
 
 // OptionNode ...
 // If Selector is not specified, TextSelector is assumed.
 type OptionNode struct {
-	Title    string   `json:"title,omitempty" yaml:"title,omitempty"`
-	EnvKey   string   `json:"env_key,omitempty" yaml:"env_key,omitempty"`
-	Selector Selector `json:"selector_type,omitempty" yaml:"selector_type,omitempty"`
+	Title  string `json:"title,omitempty" yaml:"title,omitempty"`
+	EnvKey string `json:"env_key,omitempty" yaml:"env_key,omitempty"`
 
-	ChildOptionMap map[string]*OptionNode `json:"value_map,omitempty" yaml:"value_map,omitempty"`
-	Config         string                 `json:"config,omitempty" yaml:"config,omitempty"`
+	ChildOptionType ValueType              `json:"value_type,omitempty" yaml:"value_type,omitempty"`
+	ChildOptionMap  map[string]*OptionNode `json:"value_map,omitempty" yaml:"value_map,omitempty"`
+	Config          string                 `json:"config,omitempty" yaml:"config,omitempty"`
 
 	Components []string    `json:"-" yaml:"-"`
 	Head       *OptionNode `json:"-" yaml:"-"`
@@ -70,9 +70,9 @@ func (option *OptionNode) IsEmpty() bool {
 	return !option.IsValueOption() && !option.IsConfigOption()
 }
 
-// SetSelectorType sets the used form type e.g. text entry or image selector
-func (option *OptionNode) SetSelectorType(selectorType Selector) *OptionNode {
-	option.Selector = selectorType
+// SetChildOptionType sets the used form type e.g. text entry or image selector
+func (option *OptionNode) SetChildOptionType(childOptionType ValueType) *OptionNode {
+	option.ChildOptionType = childOptionType
 	return option
 }
 

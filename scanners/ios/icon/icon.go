@@ -14,10 +14,10 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-// GetAllIcons returns possible ios app icons,
+// LookupPossibleMatches returns possible ios app icons,
 // in a map with key of a id (sha256 hash converted to string), value of icon path
-func GetAllIcons(searchPath string, basepath string) (models.Icons, error) {
-	appIconSets, err := getAppIconSetDirs(searchPath)
+func LookupPossibleMatches(searchPath string, basepath string) (models.Icons, error) {
+	appIconSets, err := getResourceSetDirs(searchPath)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func GetAllIcons(searchPath string, basepath string) (models.Icons, error) {
 	var appIconPaths []string
 	for _, appIconSetPath := range appIconSets {
 		log.Printf("%s", appIconSetPath)
-		icon, err := parseAppIconSet(appIconSetPath)
+		icon, err := parseResourceSet(appIconSetPath)
 		if err != nil {
 			return nil, fmt.Errorf("could not get icon, error: %s", err)
 		} else if icon == nil {
@@ -48,7 +48,7 @@ func GetAllIcons(searchPath string, basepath string) (models.Icons, error) {
 	return iconIDToPath, nil
 }
 
-func getAppIconSetDirs(path string) ([]string, error) {
+func getResourceSetDirs(path string) ([]string, error) {
 	appIconSets := []string{}
 	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() && strings.HasSuffix(path, ".appiconset") {
@@ -83,7 +83,7 @@ type appIcon struct {
 	Filename string
 }
 
-func parseAppIconSet(appIconPath string) (*appIcon, error) {
+func parseResourceSet(appIconPath string) (*appIcon, error) {
 	const metaDataFileName = "Contents.json"
 	file, err := os.Open(filepath.Join(appIconPath, metaDataFileName))
 	if err != nil {
