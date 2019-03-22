@@ -1,39 +1,19 @@
 package icon
 
 import (
-	"fmt"
 	"io/ioutil"
-	"log"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/bitrise-core/bitrise-init/utility"
-
 	"github.com/beevik/etree"
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-// // UsesPermission ...
-// type UsesPermission struct {
-// 	Name string `xml:"name,attr"`
-// }
-
-// // Application ...
-// type Application struct {
-// 	Icon string `xml:"android:icon,attr"`
-// }
-
-// // Manifest ...
-// type Manifest struct {
-// 	UsesPermission UsesPermission
-// 	Application    Application `xml:"application"`
-// }
-
-// FindIcon ...
 func findIcon(manifestPth, resPth string) (string, error) {
-	//
 	// Fetch icon name from AndroidManifest.xml
 	var iconName string
 	{
@@ -42,19 +22,20 @@ func findIcon(manifestPth, resPth string) (string, error) {
 			return "", err
 		}
 
-		log.Printf("XML: %+v", doc)
-
 		man := doc.SelectElement("manifest")
 		if man == nil {
-			return "", fmt.Errorf("key manifest not found in manifest file")
+			log.TPrintf("Key manifest not found in manifest file")
+			return "", nil
 		}
 		app := man.SelectElement("application")
 		if app == nil {
-			return "", fmt.Errorf("key application not found in manifest file")
+			log.TPrintf("Key application not found in manifest file")
+			return "", nil
 		}
 		ic := app.SelectAttr("android:icon")
 		if ic == nil {
-			return "", fmt.Errorf("attribute not found in manifest file")
+			log.TPrintf("Attribute not found in manifest file")
+			return "", nil
 		}
 		iconName = strings.TrimPrefix(ic.Value, `@mipmap/`)
 	}
@@ -76,18 +57,12 @@ func findIcon(manifestPth, resPth string) (string, error) {
 			}
 		}
 	}
-	return "", fmt.Errorf("could not found any .png icon")
+	return "", nil
 }
 
 func pathsByPattern(paths ...string) ([]string, error) {
 	pattern := filepath.Join(paths...)
 	return filepath.Glob(pattern)
-}
-
-func fetchIcon(appPath string) (string, error) {
-	xmlPth := path.Join(appPath, "AndroidManifest.xml")
-	resPth := path.Join(appPath, "res")
-	return findIcon(xmlPth, resPth)
 }
 
 // GetAllIcons returns all potential android icons
@@ -109,7 +84,9 @@ func GetAllIcons(projectDir string) (models.Icons, error) {
 				if err != nil {
 					return nil, err
 				}
-				iconPaths = append(iconPaths, iconPath)
+				if iconPath != "" {
+					iconPaths = append(iconPaths, iconPath)
+				}
 			}
 		}
 	}
