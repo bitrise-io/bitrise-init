@@ -324,7 +324,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
 		projectPathOption.AddOption(project.Pth, schemeOption)
 
-		absPath, err := filepath.Abs(filepath.Join(searchDir, project.Pth, ".."))
+		iconLookupPath, err := filepath.Abs(filepath.Join(searchDir, project.Pth, ".."))
 		if err != nil {
 			return models.OptionNode{},
 				[]ConfigDescriptor{},
@@ -332,8 +332,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				warnings,
 				fmt.Errorf("failed to get project path, error: %s", err)
 		}
-		log.TPrintf("Looking for app icons at: %s", absPath)
-		appIcons, err := icon.GetAllIcons(absPath)
+		log.TPrintf("Looking for app icons at: %s", iconLookupPath)
+		appIcons, err := icon.GetAllIcons(iconLookupPath, searchDir)
 		if err != nil {
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)
@@ -342,6 +342,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 		for iconID, iconPath := range appIcons {
 			iconsForAllProjects[iconID] = iconPath
 		}
+		log.Debugf("icons: %s", appIcons)
 
 		carthageCommand, warning := detectCarthageCommand(project.Pth)
 		if warning != "" {
@@ -417,7 +418,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 			warnings = append(warnings, warning)
 		}
 
-		absPath, err := filepath.Abs(filepath.Join(searchDir, workspace.Pth, ".."))
+		iconLookupPath, err := filepath.Abs(filepath.Join(searchDir, workspace.Pth, ".."))
 		if err != nil {
 			return models.OptionNode{},
 				[]ConfigDescriptor{},
@@ -425,8 +426,8 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 				warnings,
 				fmt.Errorf("failed to get workspace path, error: %s", err)
 		}
-		log.TPrintf("Looking for app icons at: %s", absPath)
-		appIcons, err := icon.GetAllIcons(absPath)
+		log.TPrintf("Looking for app icons at: %s", iconLookupPath)
+		appIcons, err := icon.GetAllIcons(iconLookupPath, searchDir)
 		if err != nil {
 			warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", searchDir, err)
 			log.Warnf(warningMsg)

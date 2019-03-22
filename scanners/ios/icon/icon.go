@@ -16,8 +16,8 @@ import (
 
 // GetAllIcons returns possible ios app icons,
 // in a map with key of a id (sha256 hash converted to string), value of icon path
-func GetAllIcons(path string) (models.Icons, error) {
-	appIconSets, err := getAppIconSetDirs(path)
+func GetAllIcons(searchPath string, basepath string) (models.Icons, error) {
+	appIconSets, err := getAppIconSetDirs(searchPath)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,10 @@ func GetAllIcons(path string) (models.Icons, error) {
 		appIconPaths = append(appIconPaths, iconPath)
 	}
 
-	iconIDToPath := utility.ConvertPathsToUniqueFileNames(appIconPaths)
+	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames(appIconPaths, basepath)
+	if err != nil {
+		return nil, err
+	}
 	return iconIDToPath, nil
 }
 

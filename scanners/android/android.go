@@ -67,7 +67,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
-		appIcons, err := icon.GetAllIcons(projectRoot)
+		appIcons, err := icon.GetAllIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}

@@ -66,7 +66,7 @@ func pathsByPattern(paths ...string) ([]string, error) {
 }
 
 // GetAllIcons returns all potential android icons
-func GetAllIcons(projectDir string) (models.Icons, error) {
+func GetAllIcons(projectDir string, basepath string) (models.Icons, error) {
 	children, err := ioutil.ReadDir(projectDir)
 	if err != nil {
 		return nil, err
@@ -90,5 +90,9 @@ func GetAllIcons(projectDir string) (models.Icons, error) {
 			}
 		}
 	}
-	return utility.ConvertPathsToUniqueFileNames(iconPaths), nil
+	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
+	if err != nil {
+		return nil, err
+	}
+	return icons, nil
 }
