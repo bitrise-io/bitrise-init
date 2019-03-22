@@ -43,7 +43,7 @@ func lookupResourceBasedOnManifest(manifestPth, resPth string) (string, error) {
 		mipmapDirs := []string{"mipmap-xxxhdpi", "mipmap-xxhdpi", "mipmap-xhdpi", "mipmap-hdpi", "mipmap-mdpi", "mipmap-ldpi"}
 
 		for _, dir := range mipmapDirs {
-			filePath := path.Join(dir, filenameBase+".png")
+			filePath := path.Join(resPth, dir, filenameBase+".png")
 			if exists, err := pathutil.IsPathExists(filePath); err != nil {
 				return "", err
 			} else if exists {

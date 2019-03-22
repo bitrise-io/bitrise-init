@@ -158,7 +158,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
             value_map:
               "":
                 title: Application icon
-                selector_type: icon
+                value_type: icon
                 value_map:
                   5d50523f459dfaf760b7adeb5113216474b5d659a5ef66695239626376be7c89:
                     config: android-config
@@ -317,7 +317,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
             value_map:
               "":
                 title: Application icon
-                selector_type: icon
+                value_type: icon
                 value_map:
                   81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12:
                     config: android-config
@@ -466,7 +466,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
             value_map:
               "":
                 title: Application icon
-                selector_type: icon
+                value_type: icon
                 value_map:
                   81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12:
                     config: android-config
