@@ -12,9 +12,10 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	SearchDir    string
-	ProjectRoots []string
-	ExcludeTest  bool
+	SearchDir      string
+	ProjectRoots   []string
+	ExcludeTest    bool
+	ExcludeAppIcon bool
 }
 
 // NewScanner ...
@@ -81,14 +82,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
-		variantOption.AddConfig("", configOption)
 
-		if len(appIcons) == 0 {
+		if scanner.ExcludeAppIcon || len(appIcons) == 0 {
 			variantOption.AddConfig("", configOption)
 		} else {
 			iconOption := models.NewOption(appIconTitle, "")
 			iconOption.SetSelectorType(models.IconSelector)
-			variantOption.AddConfig("", iconOption)
+			variantOption.AddOption("", iconOption)
 			for iconID := range appIcons {
 				iconOption.AddConfig(iconID, configOption)
 			}

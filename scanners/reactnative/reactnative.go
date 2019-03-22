@@ -141,6 +141,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		} else if detected {
 			// only the first match we need
 			androidScanner.ExcludeTest = true
+			androidScanner.ExcludeAppIcon = true
 			androidScanner.ProjectRoots = []string{androidScanner.ProjectRoots[0]}
 
 			npmCmd := command.New("npm", "install")
@@ -170,6 +171,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		return models.OptionNode{}, warnings, models.Icons{}, err
 	} else if exist {
 		iosScanner := ios.NewScanner()
+		iosScanner.ExcludeAppIcon = true
 
 		if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err

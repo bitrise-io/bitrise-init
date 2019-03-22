@@ -227,7 +227,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 }
 
 // GenerateOptions ...
-func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
+func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppIcon bool) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
@@ -367,7 +367,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					configDescriptors = append(configDescriptors, configDescriptor)
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 
-					if len(appIcons) == 0 {
+					if excludeAppIcon || len(appIcons) == 0 {
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
@@ -391,7 +391,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					configDescriptors = append(configDescriptors, configDescriptor)
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 
-					if len(appIcons) == 0 {
+					if excludeAppIcon || len(appIcons) == 0 {
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
@@ -457,7 +457,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					configDescriptors = append(configDescriptors, configDescriptor)
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 
-					if len(appIcons) == 0 {
+					if excludeAppIcon || len(appIcons) == 0 {
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
@@ -481,7 +481,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string) (models.Opt
 					configDescriptors = append(configDescriptors, configDescriptor)
 					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
 
-					if len(appIcons) == 0 {
+					if excludeAppIcon || len(appIcons) == 0 {
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					} else {
 						iconOption := models.NewOption(appIconTitle, "")
