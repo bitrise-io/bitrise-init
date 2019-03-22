@@ -1,4 +1,4 @@
-format_version: "5"
+format_version: "7"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 workflows:
@@ -16,10 +16,10 @@ workflows:
 
   ci:
     after_run:
-    - go-test
+    - test
     - integration-test
 
-  go-test:
+  test:
     steps:
     - go-list:
     - golint:
