@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners/android/icon"
 )
 
 // Scanner ...
@@ -54,6 +55,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	warnings := models.Warnings{}
+	appIconsAllProjects := models.Icons{}
 
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
@@ -65,6 +67,14 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
+		appIcons, err := icon.GetAllIcons(projectRoot)
+		if err != nil {
+			return models.OptionNode{}, warnings, models.Icons{}, err
+		}
+		for iconID, iconPath := range appIcons {
+			appIconsAllProjects[iconID] = iconPath
+		}
+
 		configOption := models.NewConfigOption(ConfigName)
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
@@ -72,6 +82,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
+
+		if len(appIcons) == 0 {
+			variantOption.AddConfig("", configOption)
+		} else {
+			iconOption := models.NewOption(appIconTitle, "")
+			iconOption.SetSelectorType(models.IconSelector)
+			variantOption.AddConfig("", iconOption)
+			for iconID := range appIcons {
+				iconOption.AddConfig(iconID, configOption)
+			}
+		}
 	}
 
 	return *projectLocationOption, warnings, models.Icons{}, nil

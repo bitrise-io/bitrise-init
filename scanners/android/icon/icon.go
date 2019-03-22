@@ -31,24 +31,6 @@ import (
 // 	Application    Application `xml:"application"`
 // }
 
-// // Version ...
-// type Version struct {
-// 	ID string
-// }
-
-// // Versions ...
-// type Versions []Version
-
-// func (v Versions) Len() int {
-// 	return len(v)
-// }
-// func (v Versions) Swap(i, j int) {
-// 	v[i], v[j] = v[j], v[i]
-// }
-// func (v Versions) Less(i, j int) bool {
-// 	return len(v[i].ID) < len(v[j].ID)
-// }
-
 // FindIcon ...
 func findIcon(manifestPth, resPth string) (string, error) {
 	//
@@ -57,18 +39,25 @@ func findIcon(manifestPth, resPth string) (string, error) {
 	{
 		doc := etree.NewDocument()
 		if err := doc.ReadFromFile(manifestPth); err != nil {
-			panic(err)
+			return "", err
 		}
 
 		log.Printf("XML: %+v", doc)
 
 		man := doc.SelectElement("manifest")
+		if man == nil {
+			return "", fmt.Errorf("key manifest not found in manifest file")
+		}
 		app := man.SelectElement("application")
+		if app == nil {
+			return "", fmt.Errorf("key application not found in manifest file")
+		}
 		ic := app.SelectAttr("android:icon")
+		if ic == nil {
+			return "", fmt.Errorf("attribute not found in manifest file")
+		}
 		iconName = strings.TrimPrefix(ic.Value, `@mipmap/`)
 	}
-
-	//
 	{
 		mipmapDirs := []string{"mipmap-anydpi*", "mipmap-xxxhdpi", "mipmap-xxhdpi", "mipmap-xhdpi", "mipmap-hdpi", "mipmap-mdpi", "mipmap-ldpi"}
 
@@ -95,14 +84,14 @@ func pathsByPattern(paths ...string) ([]string, error) {
 	return filepath.Glob(pattern)
 }
 
-// FetchIcon ...
-func FetchIcon(appPath string) (string, error) {
+func fetchIcon(appPath string) (string, error) {
 	xmlPth := path.Join(appPath, "AndroidManifest.xml")
 	resPth := path.Join(appPath, "res")
 	return findIcon(xmlPth, resPth)
 }
 
-func getAllIcons(projectDir string) (models.Icons, error) {
+// GetAllIcons returns all potential android icons
+func GetAllIcons(projectDir string) (models.Icons, error) {
 	children, err := ioutil.ReadDir(projectDir)
 	if err != nil {
 		return nil, err
