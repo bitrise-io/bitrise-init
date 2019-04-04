@@ -97,6 +97,24 @@ func TestAndroid(t *testing.T) {
 
 		validateConfigExpectation(t, "android-sdk22-subdir", strings.TrimSpace(sampleAppsAndroidSDK22SubdirResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
 	}
+
+	t.Log("android-gradle-kotlin-dsl")
+	{
+		sampleAppDir := filepath.Join(tmpDir, "android-gradle-kotlin-dsl")
+		sampleAppURL := "https://github.com/bitrise-samples/android-gradle-kotlin-dsl"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+		_, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err)
+
+		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+
+		result, err := fileutil.ReadStringFromFile(scanResultPth)
+		require.NoError(t, err)
+
+		validateConfigExpectation(t, "android-gradle-kotlin-dsl", strings.TrimSpace(sampleAppsAndroid22ResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
+	}
 }
 
 var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
@@ -138,7 +156,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
             title: Variant
             env_key: VARIANT
             value_map:
-              _:
+              "":
                 config: android-config
 configs:
   android:
@@ -293,7 +311,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
             title: Variant
             env_key: VARIANT
             value_map:
-              _:
+              "":
                 config: android-config
 configs:
   android:
@@ -438,7 +456,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
             title: Variant
             env_key: VARIANT
             value_map:
-              _:
+              "":
                 config: android-config
 configs:
   android:

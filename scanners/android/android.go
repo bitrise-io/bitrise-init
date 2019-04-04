@@ -40,22 +40,29 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
+	kotlinRoots, err := walkMultipleFiles(searchDir, "build.gradle.kts", "settings.gradle.kts")
+	if err != nil {
+		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
+	}
+
+	scanner.ProjectRoots = append(scanner.ProjectRoots, kotlinRoots...)
+
 	return len(scanner.ProjectRoots) > 0, err
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	warnings := models.Warnings{}
 
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionModel{}, warnings, err
+			return models.OptionNode{}, warnings, err
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
 		if err != nil {
-			return models.OptionModel{}, warnings, err
+			return models.OptionNode{}, warnings, err
 		}
 
 		configOption := models.NewConfigOption(ConfigName)
@@ -64,14 +71,14 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
-		variantOption.AddOption("_", configOption)
+		variantOption.AddConfig("", configOption)
 	}
 
 	return *projectLocationOption, warnings, nil
 }
 
 // DefaultOptions ...
-func (scanner *Scanner) DefaultOptions() models.OptionModel {
+func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
@@ -79,7 +86,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionModel {
 
 	projectLocationOption.AddOption("_", moduleOption)
 	moduleOption.AddOption("_", variantOption)
-	variantOption.AddOption("_", configOption)
+	variantOption.AddConfig("", configOption)
 
 	return *projectLocationOption
 }

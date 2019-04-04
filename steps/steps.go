@@ -137,12 +137,6 @@ func InstallMissingAndroidToolsStepListItem(inputs ...envmanModels.EnvironmentIt
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
-// GradleRunnerStepListItem ...
-func GradleRunnerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(GradleRunnerID, GradleRunnerVersion)
-	return stepListItem(stepIDComposite, "", "", inputs...)
-}
-
 // FastlaneStepListItem ...
 func FastlaneStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(FastlaneID, FastlaneVersion)
@@ -261,5 +255,29 @@ func ExpoDetachStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitrise
 // YarnStepListItem ...
 func YarnStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(YarnID, YarnVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterInstallStepListItem ...
+func FlutterInstallStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterInstallID, FlutterInstallVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterTestStepListItem ...
+func FlutterTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterTestID, FlutterTestVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterAnalyzeStepListItem ...
+func FlutterAnalyzeStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterAnalyzeID, FlutterAnalyzeVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterBuildStepListItem ...
+func FlutterBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterBuildID, FlutterBuildVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }

@@ -32,7 +32,7 @@ const (
 	// GitCloneID ...
 	GitCloneID = "git-clone"
 	// GitCloneVersion ...
-	GitCloneVersion = "4.0.13"
+	GitCloneVersion = "4.0.14"
 )
 
 const (
@@ -67,7 +67,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.18"
+	DeployToBitriseIoVersion = "1.3.19"
 )
 
 const (
@@ -90,14 +90,7 @@ const (
 	// InstallMissingAndroidToolsID ...
 	InstallMissingAndroidToolsID = "install-missing-android-tools"
 	// InstallMissingAndroidToolsVersion ...
-	InstallMissingAndroidToolsVersion = "2.3.3"
-)
-
-const (
-	// GradleRunnerID ...
-	GradleRunnerID = "gradle-runner"
-	// GradleRunnerVersion ...
-	GradleRunnerVersion = "1.8.3"
+	InstallMissingAndroidToolsVersion = "2.3.5"
 )
 
 const (
@@ -118,7 +111,7 @@ const (
 	// CarthageID ...
 	CarthageID = "carthage"
 	// CarthageVersion ...
-	CarthageVersion = "3.1.5"
+	CarthageVersion = "3.1.7"
 )
 
 const (
@@ -132,14 +125,14 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2.4.16"
+	XcodeArchiveVersion = "2.4.20"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "2.0.0"
+	XcodeTestVersion = "2.1.1"
 )
 
 const (
@@ -188,14 +181,14 @@ const (
 	// CordovaArchiveID ...
 	CordovaArchiveID = "cordova-archive"
 	// CordovaArchiveVersion ...
-	CordovaArchiveVersion = "1.2.1"
+	CordovaArchiveVersion = "2.0.0"
 )
 
 const (
 	// IonicArchiveID ...
 	IonicArchiveID = "ionic-archive"
 	// IonicArchiveVersion ...
-	IonicArchiveVersion = "1.2.6"
+	IonicArchiveVersion = "2.0.0"
 )
 
 const (
@@ -238,4 +231,32 @@ const (
 	YarnID = "yarn"
 	// YarnVersion ...
 	YarnVersion = "0.0.8"
+)
+
+const (
+	// FlutterInstallID ...
+	FlutterInstallID = "flutter-installer"
+	// FlutterInstallVersion ...
+	FlutterInstallVersion = "0.9.2"
+)
+
+const (
+	// FlutterTestID ...
+	FlutterTestID = "flutter-test"
+	// FlutterTestVersion ...
+	FlutterTestVersion = "0.9.1"
+)
+
+const (
+	// FlutterAnalyzeID ...
+	FlutterAnalyzeID = "flutter-analyze"
+	// FlutterAnalyzeVersion ...
+	FlutterAnalyzeVersion = "0.1.0"
+)
+
+const (
+	// FlutterBuildID ...
+	FlutterBuildID = "flutter-build"
+	// FlutterBuildVersion ...
+	FlutterBuildVersion = "0.9.2"
 )
