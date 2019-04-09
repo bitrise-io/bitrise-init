@@ -13,7 +13,7 @@ import (
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-xcode/xcodeproj"
+	"github.com/bitrise-io/go-xcode/xcodeproj"
 )
 
 const (

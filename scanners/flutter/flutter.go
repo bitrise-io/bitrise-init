@@ -15,7 +15,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-tools/xcode-project/xcworkspace"
+	"github.com/bitrise-io/xcode-project/xcworkspace"
 	yaml "gopkg.in/yaml.v2"
 )
 
