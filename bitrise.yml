@@ -128,7 +128,7 @@ workflows:
             DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
             echo "  Create final Darwin binary at: $DEPLOY_PATH"
 
-            version_package="github.com/bitrise-core/bitrise-init/version"
+            version_package="github.com/bitrise-io/bitrise-init/version"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \

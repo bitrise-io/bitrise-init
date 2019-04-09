@@ -1,6 +1,6 @@
 package ios
 
-import "github.com/bitrise-core/bitrise-init/models"
+import "github.com/bitrise-io/bitrise-init/models"
 
 //------------------
 // ScannerInterface

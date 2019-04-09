@@ -3,8 +3,8 @@ package scanner
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners"
 )
 
 // ManualConfig ...

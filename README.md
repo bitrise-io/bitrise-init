@@ -46,7 +46,7 @@ __Update the [project-scanner step](https://github.com/bitrise-steplib/steps-pro
 - update bitrise-init dependency
 - share a new version into the steplib (check the [README.md](https://github.com/bitrise-steplib/steps-project-scanner/blob/master/README.md))
 
-__Update the [bitrise init plugin]((https://github.com/bitrise-core/bitrise-plugins-init))__
+__Update the [bitrise init plugin]((https://github.com/bitrise-io/bitrise-plugins-init))__
 
 - update bitrise-init dependency
-- release a new version (check the [README.md](https://github.com/bitrise-core/bitrise-plugins-init/blob/master/README.md))
+- release a new version (check the [README.md](https://github.com/bitrise-io/bitrise-plugins-init/blob/master/README.md))

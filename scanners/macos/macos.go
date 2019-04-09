@@ -1,8 +1,8 @@
 package macos
 
 import (
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners/ios"
 )
 
 //------------------

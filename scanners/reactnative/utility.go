@@ -1,7 +1,7 @@
 package reactnative
 
 import (
-	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/bitrise-init/utility"
 )
 
 // CollectPackageJSONFiles - Collects package.json files, with react-native dependency
