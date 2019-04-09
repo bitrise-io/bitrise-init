@@ -1,18 +1,18 @@
 package scanners
 
 import (
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/cordova"
-	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
-	"github.com/bitrise-core/bitrise-init/scanners/flutter"
-	"github.com/bitrise-core/bitrise-init/scanners/ionic"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/macos"
-	"github.com/bitrise-core/bitrise-init/scanners/reactnative"
-	expo "github.com/bitrise-core/bitrise-init/scanners/reactnative-expo"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	"github.com/bitrise-core/bitrise-init/steps"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners/android"
+	"github.com/bitrise-io/bitrise-init/scanners/cordova"
+	"github.com/bitrise-io/bitrise-init/scanners/fastlane"
+	"github.com/bitrise-io/bitrise-init/scanners/flutter"
+	"github.com/bitrise-io/bitrise-init/scanners/ionic"
+	"github.com/bitrise-io/bitrise-init/scanners/ios"
+	"github.com/bitrise-io/bitrise-init/scanners/macos"
+	"github.com/bitrise-io/bitrise-init/scanners/reactnative"
+	expo "github.com/bitrise-io/bitrise-init/scanners/reactnative-expo"
+	"github.com/bitrise-io/bitrise-init/scanners/xamarin"
+	"github.com/bitrise-io/bitrise-init/steps"
 	"gopkg.in/yaml.v2"
 )
 

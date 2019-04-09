@@ -1,7 +1,7 @@
 package toolscanner
 
 import (
-	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 )
 

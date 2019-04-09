@@ -8,10 +8,10 @@ import (
 
 	"encoding/json"
 
-	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-xcode/xcodeproj"
+	"github.com/bitrise-io/go-xcode/xcodeproj"
 )
 
 const podfileBase = "Podfile"

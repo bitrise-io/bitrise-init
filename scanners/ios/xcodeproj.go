@@ -5,10 +5,10 @@ import (
 
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/bitrise-init/scanners/xamarin"
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-xcode/xcodeproj"
+	"github.com/bitrise-io/go-xcode/xcodeproj"
 )
 
 const (

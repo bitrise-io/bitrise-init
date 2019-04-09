@@ -6,7 +6,7 @@ import (
 	"path"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-init/version"
+	"github.com/bitrise-io/bitrise-init/version"
 	"github.com/urfave/cli"
 )
 
