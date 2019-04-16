@@ -5,6 +5,8 @@ import (
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/bitrise-core/bitrise-init/models"
 )
 
 func Test_parseAppIconMetadata(t *testing.T) {
@@ -43,7 +45,7 @@ func Test_parseAppIconMetadata(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseAppIconMetadata(tt.input)
+			got, err := parseResourceSetMetadata(tt.input)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseAppIconMetadata() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -99,3 +101,34 @@ var jsonRawMissingSize = []byte(`
 	}
 	}
 `)
+
+func TestLookupPossibleMatches(t *testing.T) {
+	path := "/Users/lpusok/Develop/_ios_github/Telegram-public"
+	tests := []struct {
+		name       string
+		searchPath string
+		basepath   string
+		want       models.Icons
+		wantErr    bool
+	}{
+		{
+			name:       "test",
+			searchPath: path,
+			basepath:   path,
+			want:       nil,
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := LookupPossibleMatches(tt.searchPath, tt.basepath)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("LookupPossibleMatches() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -19,7 +19,7 @@ func ConvertPathsToUniqueFileNames(absoluteIconPaths []string, basepath string) 
 		}
 		hash := sha256.Sum256([]byte(relativePath))
 		hashStr := fmt.Sprintf("%x", hash)
-		iconIDToPath[hashStr] = appIconPath
+		iconIDToPath[hashStr] = relativePath
 	}
 	return iconIDToPath, nil
 }

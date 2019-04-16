@@ -51,6 +51,9 @@ func LookupPossibleMatches(searchPath string, basepath string) (models.Icons, er
 func getResourceSetDirs(path string) ([]string, error) {
 	appIconSets := []string{}
 	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 		if f.IsDir() && strings.HasSuffix(path, ".appiconset") {
 			appIconSets = append(appIconSets, path)
 		}
@@ -90,7 +93,7 @@ func parseResourceSet(appIconPath string) (*appIcon, error) {
 		return nil, fmt.Errorf("failed to open file, error: %s", err)
 	}
 
-	appIcons, err := parseAppIconMetadata(file)
+	appIcons, err := parseResourceSetMetadata(file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse asset metadata, error: %s", err)
 	}
@@ -107,7 +110,7 @@ func parseResourceSet(appIconPath string) (*appIcon, error) {
 	return &largestIcon, nil
 }
 
-func parseAppIconMetadata(input io.Reader) ([]appIcon, error) {
+func parseResourceSetMetadata(input io.Reader) ([]appIcon, error) {
 	decoder := json.NewDecoder(input)
 	var decoded assetMetadata
 	err := decoder.Decode(&decoded)

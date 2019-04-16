@@ -1,7 +1,7 @@
 package icon
 
 import (
-	"io/ioutil"
+	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
@@ -13,72 +13,98 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-func lookupResourceBasedOnManifest(manifestPth, resPth string) (string, error) {
-	// Fetch icon name from AndroidManifest.xml
-	var filenameBase string
-	{
-		doc := etree.NewDocument()
-		if err := doc.ReadFromFile(manifestPth); err != nil {
-			return "", err
-		}
+type icon struct {
+	prefix       string
+	fileNameBase string
+}
 
-		man := doc.SelectElement("manifest")
-		if man == nil {
-			log.TPrintf("Key manifest not found in manifest file")
-			return "", nil
-		}
-		app := man.SelectElement("application")
-		if app == nil {
-			log.TPrintf("Key application not found in manifest file")
-			return "", nil
-		}
-		ic := app.SelectAttr("android:icon")
-		if ic == nil {
-			log.TPrintf("Attribute not found in manifest file")
-			return "", nil
-		}
-		filenameBase = strings.TrimPrefix(ic.Value, `@mipmap/`)
+func lookupIcon(manifestPth, resPth string) (string, error) {
+	doc := etree.NewDocument()
+	if err := doc.ReadFromFile(manifestPth); err != nil {
+		return "", err
 	}
-	{
-		mipmapDirs := []string{"mipmap-xxxhdpi", "mipmap-xxhdpi", "mipmap-xhdpi", "mipmap-hdpi", "mipmap-mdpi", "mipmap-ldpi"}
 
-		for _, dir := range mipmapDirs {
-			filePath := path.Join(resPth, dir, filenameBase+".png")
-			if exists, err := pathutil.IsPathExists(filePath); err != nil {
-				return "", err
-			} else if exists {
-				return filePath, nil
-			}
+	icon, err := parseIconName(doc, resPth)
+	if err != nil {
+		return "", err
+	}
+
+	var resourceSuffixes = [...]string{"xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi", "ldpi"}
+	resourceDirs := make([]string, len(resourceSuffixes))
+	for _, mipmapSuffix := range resourceSuffixes {
+		resourceDirs = append(resourceDirs, icon.prefix+"-"+mipmapSuffix)
+	}
+
+	for _, dir := range resourceDirs {
+		filePath := path.Join(resPth, dir, icon.fileNameBase+".png")
+		if exists, err := pathutil.IsPathExists(filePath); err != nil {
+			return "", err
+		} else if exists {
+			return filePath, nil
 		}
 	}
 	return "", nil
 }
 
-// LookupPossibleMatches returns all potential android icons
+// parseIconName fetches icon name from AndroidManifest.xml
+func parseIconName(doc *etree.Document, resPth string) (icon, error) {
+	man := doc.SelectElement("manifest")
+	if man == nil {
+		log.TPrintf("Key manifest not found in manifest file")
+		return icon{}, nil
+	}
+	app := man.SelectElement("application")
+	if app == nil {
+		log.TPrintf("Key application not found in manifest file")
+		return icon{}, nil
+	}
+	ic := app.SelectAttr("android:icon")
+	if ic == nil {
+		log.TPrintf("Attribute not found in manifest file")
+		return icon{}, nil
+	}
+
+	iconPathParts := strings.Split(strings.TrimPrefix(ic.Value, "@"), "/")
+	if len(iconPathParts) != 2 {
+		return icon{}, fmt.Errorf("unsupported icon key")
+	}
+
+	return icon{
+		prefix:       iconPathParts[0],
+		fileNameBase: iconPathParts[1],
+	}, nil
+}
+
+// LookupPossibleMatches returns the largest resolution for all potential android icons
+// It does look up all possible files project_dir/*/src/*/AndroidManifest.xml,
+// then looks up the icon referenced in the res directory
 func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, error) {
-	children, err := ioutil.ReadDir(projectDir)
+	manifestPaths, err := filepath.Glob(filepath.Join(projectDir, "*", "src", "*", "AndroidManifest.xml"))
 	if err != nil {
 		return nil, err
 	}
 
 	var iconPaths []string
-	for _, object := range children {
-		if object.IsDir() {
-			manifestPth := filepath.Join(projectDir, object.Name(), "src", "main", "AndroidManifest.xml")
-			resourcesPth := filepath.Join(projectDir, object.Name(), "src", "main", "res")
-			if exist, err := pathutil.IsPathExists(manifestPth); err != nil {
-				return nil, err
-			} else if exist {
-				iconPath, err := lookupResourceBasedOnManifest(manifestPth, resourcesPth)
-				if err != nil {
-					return nil, err
-				}
-				if iconPath != "" {
-					iconPaths = append(iconPaths, iconPath)
-				}
-			}
+	for _, manifestPath := range manifestPaths {
+		resourcesPath, err := filepath.Abs(filepath.Join(manifestPath, "..", "res"))
+		if err != nil {
+			return nil, err
+		}
+		if exist, err := pathutil.IsPathExists(resourcesPath); err != nil {
+			return nil, err
+		} else if !exist {
+			log.Debugf("Resource path %s does not exist.", resourcesPath)
+		}
+
+		iconPath, err := lookupIcon(manifestPath, resourcesPath)
+		if err != nil {
+			return nil, err
+		}
+		if iconPath != "" {
+			iconPaths = append(iconPaths, iconPath)
 		}
 	}
+
 	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
 	if err != nil {
 		return nil, err
