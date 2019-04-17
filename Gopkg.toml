@@ -27,12 +27,12 @@
   branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/bitrise-io/go-xcode"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/bitrise-io/xcode-project"
+  branch = "feature/asset-catalog"
 
 [[constraint]]
   name = "github.com/google/go-cmp"
