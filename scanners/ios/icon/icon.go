@@ -12,7 +12,56 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-tools/xcode-project/xcodeproj"
 )
+
+func getIcon(projectPath string, schemeName string) (string, error) {
+	project, err := xcodeproj.Open(projectPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
+	}
+
+	log.Printf("name: %s", project.Name)
+
+	scheme, found := project.Scheme(schemeName)
+	if !found {
+		return "", fmt.Errorf("scheme (%s) not found in project", schemeName)
+	}
+
+	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
+	log.Printf("main target: %s", mainTarget.Name)
+
+	appIconSetName, err := getAppIconSetName(project, mainTarget)
+	if err != nil {
+		return "", fmt.Errorf("app icon set name not found in project, error: %s", err)
+	}
+
+	assetCatalogPaths, err := getAssetCatalogPaths(project, mainTarget)
+	if err != nil {
+		return "", fmt.Errorf("failed to get asset catalog paths, error: %s", err)
+	}
+
+	appIconPath, found, err := lookupAppIconPath(projectPath, assetCatalogPaths, appIconSetName)
+	if err != nil {
+		return "", err
+	} else if !found {
+		return "", err
+	}
+
+	log.Printf("%s", appIconPath)
+	icon, err := parseResourceSet(appIconPath)
+	if err != nil {
+		return "", fmt.Errorf("could not get icon: ")
+	}
+
+	iconPath := filepath.Join(appIconPath, icon.Filename)
+	_, err = os.Open(iconPath)
+	if err != nil {
+		return "", fmt.Errorf("Can not open icon file: %s, error: %err", iconPath, err)
+	}
+
+	return icon.Filename, nil
+}
 
 // LookupPossibleMatches returns possible ios app icons,
 // in a map with key of a id (sha256 hash converted to string), value of icon path
