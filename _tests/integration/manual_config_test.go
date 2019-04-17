@@ -80,6 +80,13 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
+	steps.FastlaneVersion,
+	steps.DeployToBitriseIoVersion,
+
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FastlaneVersion,
 	steps.DeployToBitriseIoVersion,
@@ -391,7 +398,12 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: FASTLANE_LANE
         value_map:
           _:
-            config: default-fastlane-config
+            title: Project type
+            value_map:
+              android:
+                config: default-fastlane-android-config
+              ios:
+                config: default-fastlane-ios-config
   flutter:
     title: Project Location
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
@@ -938,10 +950,35 @@ configs:
               - target: emulator
           - deploy-to-bitrise-io@%s: {}
   fastlane:
-    default-fastlane-config: |
+    default-fastlane-android-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: other
+      project_type: android
+      app:
+        envs:
+        - FASTLANE_XCODE_LIST_TIMEOUT: "120"
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Do anything with Script step
+          - fastlane@%s:
+              inputs:
+              - lane: $FASTLANE_LANE
+              - work_dir: $FASTLANE_WORK_DIR
+          - deploy-to-bitrise-io@%s: {}
+    default-fastlane-ios-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
