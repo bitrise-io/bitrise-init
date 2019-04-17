@@ -12,7 +12,7 @@ import (
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-tools/xcode-project/xcodeproj"
+	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
 func getIcon(projectPath string, schemeName string) (string, error) {

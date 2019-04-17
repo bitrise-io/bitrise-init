@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-tools/xcode-project/xcodeproj"
+	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
 // ToDo: use file paths based on xcode project
