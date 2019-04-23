@@ -68,7 +68,6 @@ func parseIconName(doc *etree.Document, resPth string) (icon, error) {
 	if len(iconPathParts) != 2 {
 		return icon{}, fmt.Errorf("unsupported icon key")
 	}
-
 	return icon{
 		prefix:       iconPathParts[0],
 		fileNameBase: iconPathParts[1],

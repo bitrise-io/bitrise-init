@@ -36,8 +36,10 @@ func TestLookupPossibleMatches(t *testing.T) {
 	if err != nil {
 		t.Errorf("setup: failed to create temp dir")
 	}
-	defer func() error {
-		return os.RemoveAll(projectDir)
+	defer func() {
+		if err := os.RemoveAll(projectDir); err != nil {
+			t.Logf("Failed to clean up after test, error: %s", err)
+		}
 	}()
 
 	app1Dir := filepath.Join(projectDir, "app", "src", "main")
