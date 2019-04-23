@@ -5,8 +5,6 @@ import (
 	"io"
 	"reflect"
 	"testing"
-
-	"github.com/bitrise-core/bitrise-init/models"
 )
 
 func Test_parseAppIconMetadata(t *testing.T) {
@@ -102,33 +100,42 @@ var jsonRawMissingSize = []byte(`
 	}
 `)
 
-func TestLookupPossibleMatches(t *testing.T) {
-	path := "/Users/lpusok/Develop/_ios_github/Telegram-public"
-	tests := []struct {
-		name       string
-		searchPath string
-		basepath   string
-		want       models.Icons
-		wantErr    bool
-	}{
-		{
-			name:       "test",
-			searchPath: path,
-			basepath:   path,
-			want:       nil,
-			wantErr:    false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := LookupPossibleMatches(tt.searchPath, tt.basepath)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("LookupPossibleMatches() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// func TestLookupPossibleMatches(t *testing.T) {
+// 	tests := []struct {
+// 		name       string
+// 		searchPath string
+// 		schemeName string
+// 		basepath   string
+// 		want       models.Icons
+// 		wantErr    bool
+// 	}{
+// 		// {
+// 		// 	name:       "test",
+// 		// 	searchPath: "/Users/lpusok/Develop/_ios_github/Telegram-public/Telegraph.xcodeproj",
+// 		// 	schemeName: "Telegraph",
+// 		// 	basepath:   "/Users/lpusok/Develop/_ios_github/Telegram-public",
+// 		// 	want:       nil,
+// 		// 	wantErr:    false,
+// 		// },
+// 		{
+// 			name:       "test",
+// 			searchPath: "/Users/lpusok/Develop/keybase-client/osx/Keybase.xcodeproj",
+// 			schemeName: "Keybase",
+// 			basepath:   "/Users/lpusok/Develop/keybase-client/osx/",
+// 			want:       nil,
+// 			wantErr:    false,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := LookupPossibleMatches(tt.searchPath, tt.schemeName, tt.basepath)
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("LookupPossibleMatches() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }

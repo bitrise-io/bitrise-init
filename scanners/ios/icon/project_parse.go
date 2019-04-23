@@ -44,7 +44,7 @@ func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Targ
 	projTargets := proj.Proj.Targets
 	sch, ok := proj.Scheme(scheme)
 	if !ok {
-		return xcodeproj.Target{}, fmt.Errorf("Failed to found scheme (%s) in project", scheme)
+		return xcodeproj.Target{}, fmt.Errorf("Failed to find scheme (%s) in project", scheme)
 	}
 
 	var blueIdent string
@@ -86,18 +86,6 @@ func getAppIconSetName(project xcodeproj.XcodeProj, target xcodeproj.Target) (st
 	}
 	log.Printf("asstets: %s", appIconSetName)
 	return appIconSetName, nil
-}
-
-func getAssetCatalogPaths(project xcodeproj.XcodeProj, target xcodeproj.Target) ([]string, error) {
-	log.Printf("assets in project: %v+", project.Proj.TargetToAssetCatalogs)
-	log.Printf("target ID: %s", target.ID)
-	assetCatalogs, ok := project.Proj.TargetToAssetCatalogs[target.ID]
-	if !ok {
-		return nil, fmt.Errorf("asset catalog path not found in project")
-	}
-
-	log.Printf("asset catalog path: %s", assetCatalogs)
-	return assetCatalogs, nil
 }
 
 func defaultConfiguration(target xcodeproj.Target) (bool, xcodeproj.BuildConfiguration) {

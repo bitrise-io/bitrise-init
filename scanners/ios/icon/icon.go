@@ -15,17 +15,19 @@ import (
 	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
-func getIcon(projectPath string, schemeName string) (string, error) {
+// LookupPossibleMatches returns possible ios app icons,
+// in a map with key of a id (sha256 hash converted to string), value of icon path
+func LookupPossibleMatches(projectPath string, schemeName string, basepath string) (models.Icons, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
+		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
 	}
 
 	log.Printf("name: %s", project.Name)
 
 	scheme, found := project.Scheme(schemeName)
 	if !found {
-		return "", fmt.Errorf("scheme (%s) not found in project", schemeName)
+		return nil, fmt.Errorf("scheme (%s) not found in project", schemeName)
 	}
 
 	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
@@ -33,87 +35,44 @@ func getIcon(projectPath string, schemeName string) (string, error) {
 
 	appIconSetName, err := getAppIconSetName(project, mainTarget)
 	if err != nil {
-		return "", fmt.Errorf("app icon set name not found in project, error: %s", err)
+		return nil, fmt.Errorf("app icon set name not found in project, error: %s", err)
 	}
 
-	assetCatalogPaths, err := getAssetCatalogPaths(project, mainTarget)
+	targetsToAssetCatalogs, err := xcodeproj.AssetCatalogs(projectPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to get asset catalog paths, error: %s", err)
+		return nil, fmt.Errorf("failed to get asset catalogs for project: %s, error: %s", projectPath, err)
+	}
+	assetCatalogPaths, ok := targetsToAssetCatalogs[mainTarget.ID]
+	if !ok {
+		return nil, fmt.Errorf("target not found in project")
 	}
 
 	appIconPath, found, err := lookupAppIconPath(projectPath, assetCatalogPaths, appIconSetName)
 	if err != nil {
-		return "", err
+		return nil, err
 	} else if !found {
-		return "", err
-	}
-
-	log.Printf("%s", appIconPath)
-	icon, err := parseResourceSet(appIconPath)
-	if err != nil {
-		return "", fmt.Errorf("could not get icon: ")
-	}
-
-	iconPath := filepath.Join(appIconPath, icon.Filename)
-	_, err = os.Open(iconPath)
-	if err != nil {
-		return "", fmt.Errorf("Can not open icon file: %s, error: %err", iconPath, err)
-	}
-
-	return icon.Filename, nil
-}
-
-// LookupPossibleMatches returns possible ios app icons,
-// in a map with key of a id (sha256 hash converted to string), value of icon path
-func LookupPossibleMatches(searchPath string, basepath string) (models.Icons, error) {
-	appIconSets, err := getResourceSetDirs(searchPath)
-	if err != nil {
 		return nil, err
 	}
 
-	var appIconPaths []string
-	for _, appIconSetPath := range appIconSets {
-		log.Printf("%s", appIconSetPath)
-		icon, err := parseResourceSet(appIconSetPath)
-		if err != nil {
-			return nil, fmt.Errorf("could not get icon, error: %s", err)
-		} else if icon == nil {
-			continue
-		}
-
-		iconPath := filepath.Join(appIconSetPath, icon.Filename)
-
-		if _, err := os.Stat(iconPath); os.IsNotExist(err) {
-			log.Errorf("Can not open icon file: %s, error: %err", iconPath, err)
-			continue
-		}
-		appIconPaths = append(appIconPaths, iconPath)
+	log.Printf("%s", appIconPath)
+	icon, found, err := parseResourceSet(appIconPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not get iconm path: %s, error: %s", appIconPath, err)
+	} else if !found {
+		return nil, fmt.Errorf("icon not found, path: %s", appIconPath)
 	}
 
-	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames(appIconPaths, basepath)
+	iconPath := filepath.Join(appIconPath, icon.Filename)
+
+	if _, err := os.Stat(iconPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("icon file does not exist: %s, error: %err", iconPath, err)
+	}
+
+	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames([]string{iconPath}, basepath)
 	if err != nil {
 		return nil, err
 	}
 	return iconIDToPath, nil
-}
-
-func getResourceSetDirs(path string) ([]string, error) {
-	appIconSets := []string{}
-	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if f.IsDir() && strings.HasSuffix(path, ".appiconset") {
-			appIconSets = append(appIconSets, path)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to walk path %s, error: %s", path, err)
-	}
-	log.Debugf("%s", appIconSets)
-
-	return appIconSets, nil
 }
 
 type assetIcon struct {
@@ -135,20 +94,20 @@ type appIcon struct {
 	Filename string
 }
 
-func parseResourceSet(appIconPath string) (*appIcon, error) {
-	const metaDataFileName = "Contents.json"
-	file, err := os.Open(filepath.Join(appIconPath, metaDataFileName))
+func parseResourceSet(resourceSetPath string) (appIcon, bool, error) {
+	const resourceMetadataFileName = "Contents.json"
+	file, err := os.Open(filepath.Join(resourceSetPath, resourceMetadataFileName))
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file, error: %s", err)
+		return appIcon{}, false, fmt.Errorf("failed to open file, error: %s", err)
 	}
 
 	appIcons, err := parseResourceSetMetadata(file)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse asset metadata, error: %s", err)
+		return appIcon{}, false, fmt.Errorf("failed to parse asset metadata, error: %s", err)
 	}
 
 	if len(appIcons) == 0 {
-		return nil, nil
+		return appIcon{}, false, nil
 	}
 	largestIcon := appIcons[0]
 	for _, icon := range appIcons {
@@ -156,7 +115,7 @@ func parseResourceSet(appIconPath string) (*appIcon, error) {
 			largestIcon = icon
 		}
 	}
-	return &largestIcon, nil
+	return largestIcon, true, nil
 }
 
 func parseResourceSetMetadata(input io.Reader) ([]appIcon, error) {
