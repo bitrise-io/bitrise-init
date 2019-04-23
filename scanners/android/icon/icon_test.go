@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	"github.com/bitrise-core/bitrise-init/models"
 )
 
 const appManifest = `
@@ -72,23 +70,23 @@ func TestLookupPossibleMatches(t *testing.T) {
 		name       string
 		projectDir string
 		basepath   string
-		want       models.Icons
+		want       []string
 		wantErr    bool
 	}{
 		{
 			name:       "android sample app",
 			projectDir: projectDir,
 			basepath:   projectDir,
-			want: models.Icons{
-				"81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12": "app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
-				"d8b2bc85101d0f95a731b120e96bd4e179969d66213d08921f62c839d49fd9c8": "another_app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+			want: []string{
+				filepath.Join(projectDir, "another_app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
+				filepath.Join(projectDir, "app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := LookupPossibleMatches(tt.projectDir, tt.basepath)
+			got, err := lookupPossibleMatches(tt.projectDir, tt.basepath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
 				return

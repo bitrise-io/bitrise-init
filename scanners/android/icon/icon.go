@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/beevik/etree"
@@ -74,11 +75,8 @@ func parseIconName(doc *etree.Document, resPth string) (icon, error) {
 	}, nil
 }
 
-// LookupPossibleMatches returns the largest resolution for all potential android icons
-// It does look up all possible files project_dir/*/src/*/AndroidManifest.xml,
-// then looks up the icon referenced in the res directory
-func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, error) {
-	manifestPaths, err := filepath.Glob(filepath.Join(projectDir, "*", "src", "*", "AndroidManifest.xml"))
+func lookupPossibleMatches(projectDir string, basepath string) ([]string, error) {
+	manifestPaths, err := filepath.Glob(filepath.Join(regexp.QuoteMeta(projectDir), "*", "src", "*", "AndroidManifest.xml"))
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +100,17 @@ func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, er
 		if iconPath != "" {
 			iconPaths = append(iconPaths, iconPath)
 		}
+	}
+	return iconPaths, nil
+}
+
+// LookupPossibleMatches returns the largest resolution for all potential android icons
+// It does look up all possible files project_dir/*/src/*/AndroidManifest.xml,
+// then looks up the icon referenced in the res directory
+func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, error) {
+	iconPaths, err := lookupPossibleMatches(projectDir, basepath)
+	if err != nil {
+		return nil, err
 	}
 
 	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
