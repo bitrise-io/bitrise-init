@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/models"
 )
 
 // ConvertPathsToUniqueFileNames returns a map whose values are the input array elements
