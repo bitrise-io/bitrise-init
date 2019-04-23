@@ -19,11 +19,39 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:59664077e5eba703425d438e1c9d6f4aeaaf485814cedcae5d9c05cd093f0664"
+  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
+  revision = "2ec917b478fe766c026ba3e78954db0f6b3954d4"
+
+[[projects]]
+  digest = "1:1932d7ef95c53a6faf5b1e2d7857fee96bb0e2a55560d5356cf8682be01dd19a"
+  name = "github.com/bitrise-io/bitrise-init"
+  packages = [
+    "cli",
+    "models",
+    "output",
+    "scanner",
+    "scanners",
+    "scanners/android",
+    "scanners/cordova",
+    "scanners/fastlane",
+    "scanners/flutter",
+    "scanners/ionic",
+    "scanners/ios",
+    "scanners/macos",
+    "scanners/reactnative",
+    "scanners/reactnative-expo",
+    "scanners/xamarin",
+    "steps",
+    "toolscanner",
+    "utility",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "d6aa6f1cda28db0d09861f8d36794f4ad00b885c"
+  version = "1.9.0"
 
 [[projects]]
   branch = "master"
@@ -82,7 +110,7 @@
 
 [[projects]]
   branch = "feature/asset-catalog"
-  digest = "1:d09681f132e7b039230d449e05ee6d09c8a75e64e9be4af5ad4b5962c73ed0a0"
+  digest = "1:8af8b80037a09b0339a79001d1eba1e3919f0f66a2c560ed9eef9f3b7aad4fde"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
@@ -92,7 +120,26 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "d2f527b81a827f825507d429c07bb52fffff4931"
+  revision = "1ac68d29bf79b23d213ead990fc45e77665f1bc8"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e0fcb058757b8801210d05b0ec6ccf1881c0d36b27a4ada40bffa6d580acc8f1"
+  name = "github.com/bitrise-tools/go-xcode"
+  packages = ["xcodeproj"]
+  pruneopts = "UT"
+  revision = "a49d262bd2151997b9b18f882654eae3aab31a9d"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2388f944f2e2b10827ab7cf00fabd5949fc3e1d154370c233cec5885a6f4137a"
+  name = "github.com/bitrise-tools/xcode-project"
+  packages = [
+    "serialized",
+    "xcworkspace",
+  ]
+  pruneopts = "UT"
+  revision = "b724e9a2dda0585b6ceb6dbf9eb84ddbbf135335"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -169,11 +216,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:28d862f4f9bf2d1976d1d320481bff661b7565eb876d4df2a981f79e7f40e4cd"
+  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "12500544f89f9420afe9529ba8940bf72d294972"
+  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -212,6 +259,25 @@
   input-imports = [
     "github.com/Sirupsen/logrus",
     "github.com/beevik/etree",
+    "github.com/bitrise-io/bitrise-init/cli",
+    "github.com/bitrise-io/bitrise-init/models",
+    "github.com/bitrise-io/bitrise-init/output",
+    "github.com/bitrise-io/bitrise-init/scanner",
+    "github.com/bitrise-io/bitrise-init/scanners",
+    "github.com/bitrise-io/bitrise-init/scanners/android",
+    "github.com/bitrise-io/bitrise-init/scanners/cordova",
+    "github.com/bitrise-io/bitrise-init/scanners/fastlane",
+    "github.com/bitrise-io/bitrise-init/scanners/flutter",
+    "github.com/bitrise-io/bitrise-init/scanners/ionic",
+    "github.com/bitrise-io/bitrise-init/scanners/ios",
+    "github.com/bitrise-io/bitrise-init/scanners/macos",
+    "github.com/bitrise-io/bitrise-init/scanners/reactnative",
+    "github.com/bitrise-io/bitrise-init/scanners/reactnative-expo",
+    "github.com/bitrise-io/bitrise-init/scanners/xamarin",
+    "github.com/bitrise-io/bitrise-init/steps",
+    "github.com/bitrise-io/bitrise-init/toolscanner",
+    "github.com/bitrise-io/bitrise-init/utility",
+    "github.com/bitrise-io/bitrise-init/version",
     "github.com/bitrise-io/bitrise/models",
     "github.com/bitrise-io/envman/models",
     "github.com/bitrise-io/go-utils/colorstring",
