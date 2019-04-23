@@ -160,7 +160,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
                 title: Application icon
                 value_type: icon
                 value_map:
-                  5d50523f459dfaf760b7adeb5113216474b5d659a5ef66695239626376be7c89:
+                  5d50523f459dfaf760b7adeb5113216474b5d659a5ef66695239626376be7c89.png:
                     config: android-config
 configs:
   android:
@@ -319,7 +319,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
                 title: Application icon
                 value_type: icon
                 value_map:
-                  81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12:
+                  81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png:
                     config: android-config
 configs:
   android:
@@ -468,7 +468,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
                 title: Application icon
                 value_type: icon
                 value_map:
-                  81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12:
+                  81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png:
                     config: android-config
 configs:
   android:
@@ -588,7 +588,11 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
             env_key: VARIANT
             value_map:
               "":
-                config: android-config
+                title: Application icon
+                value_type: icon
+                value_map:
+                  81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png:
+                    config: android-config
 configs:
   android:
     android-config: |

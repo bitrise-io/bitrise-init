@@ -57,9 +57,9 @@ func LookupPossibleMatches(projectPath string, schemeName string, basepath strin
 	log.Printf("%s", appIconPath)
 	icon, found, err := parseResourceSet(appIconPath)
 	if err != nil {
-		return nil, fmt.Errorf("could not get iconm path: %s, error: %s", appIconPath, err)
+		return nil, fmt.Errorf("could not get icon, error: %s", err)
 	} else if !found {
-		return nil, fmt.Errorf("icon not found, path: %s", appIconPath)
+		return nil, nil
 	}
 
 	iconPath := filepath.Join(appIconPath, icon.Filename)

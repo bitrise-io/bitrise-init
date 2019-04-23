@@ -366,14 +366,17 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
-				appIcons, err := icon.LookupPossibleMatches(projectPath, scheme.Name, searchDir)
-				if err != nil {
-					warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
-					log.Warnf(warningMsg)
-					warnings = append(warnings, warningMsg)
-				}
-				for iconID, iconPath := range appIcons {
-					iconsForAllProjects[iconID] = iconPath
+				var appIcons models.Icons
+				if !excludeAppIcon {
+					appIcons, err = icon.LookupPossibleMatches(projectPath, scheme.Name, searchDir)
+					if err != nil {
+						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
+						log.Warnf(warningMsg)
+						warnings = append(warnings, warningMsg)
+					}
+					for iconID, iconPath := range appIcons {
+						iconsForAllProjects[iconID] = iconPath
+					}
 				}
 
 				for _, exportMethod := range exportMethods {

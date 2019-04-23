@@ -70,7 +70,7 @@ func getAppIconSetName(project xcodeproj.XcodeProj, target xcodeproj.Target) (st
 
 	found, defaultConfiguration := defaultConfiguration(target)
 	if !found {
-		return "", fmt.Errorf("default configuraion not founf for target: %s", target)
+		return "", fmt.Errorf("default configuration not found for target: %s", target)
 	}
 
 	log.Printf("%s", defaultConfiguration)
