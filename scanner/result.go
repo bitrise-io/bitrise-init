@@ -27,8 +27,7 @@ func printDirTree() {
 	}
 }
 
-// WriteScanResult saves results as files
-func WriteScanResult(scanResult models.ScanResultModel, outputDir string, format output.Format) (string, error) {
+func writeScanResult(scanResult models.ScanResultModel, outputDir string, format output.Format) (string, error) {
 	if len(scanResult.Icons) != 0 {
 		const iconDirName = "icons"
 		iconsOutputDir := filepath.Join(outputDir, iconDirName)

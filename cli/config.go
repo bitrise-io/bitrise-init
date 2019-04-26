@@ -130,7 +130,7 @@ func initConfig(c *cli.Context) error {
 		log.TInfof("Saving outputs:")
 		scanResult.AddError("general", "No known platform detected")
 
-		outputPth, err := WriteScanResult(scanResult, outputDir, format)
+		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 		}
@@ -143,7 +143,7 @@ func initConfig(c *cli.Context) error {
 	if isCI {
 		log.TInfof("Saving outputs:")
 
-		outputPth, err := WriteScanResult(scanResult, outputDir, format)
+		outputPth, err := writeScanResult(scanResult, outputDir, format)
 		if err != nil {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 >>>>>>> Export WriteScanResult so it can be used if bitrise-init is imported from steps-project-scanner
