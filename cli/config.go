@@ -103,6 +103,7 @@ func initConfig(c *cli.Context) error {
 	log.TInfof(colorstring.Yellowf("output format: %s", format))
 	fmt.Println()
 
+<<<<<<< HEAD
 	result, err := scanner.GenerateAndWriteResults(searchDir, outputDir, format)
 	if err != nil {
 		return err
@@ -111,6 +112,41 @@ func initConfig(c *cli.Context) error {
 	if !isCI {
 		if err := getInteractiveAnswers(result, outputDir, format); err != nil {
 			return nil
+=======
+	if len(platforms) == 0 {
+		cmd := command.New("which", "tree")
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		if err != nil || out == "" {
+			log.TErrorf("tree not installed, can not list files")
+		} else {
+			fmt.Println()
+			cmd := command.NewWithStandardOuts("tree", ".", "-L", "3")
+			log.TPrintf("$ %s", cmd.PrintableCommandArgs())
+			if err := cmd.Run(); err != nil {
+				log.TErrorf("Failed to list files in current directory, error: %s", err)
+			}
+		}
+
+		log.TInfof("Saving outputs:")
+		scanResult.AddError("general", "No known platform detected")
+
+		outputPth, err := WriteScanResult(scanResult, outputDir, format)
+		if err != nil {
+			return fmt.Errorf("Failed to write output, error: %s", err)
+		}
+
+		log.TPrintf("scan result: %s", outputPth)
+		return fmt.Errorf("No known platform detected")
+	}
+
+	// Write output to files
+	if isCI {
+		log.TInfof("Saving outputs:")
+
+		outputPth, err := WriteScanResult(scanResult, outputDir, format)
+		if err != nil {
+			return fmt.Errorf("Failed to write output, error: %s", err)
+>>>>>>> Export WriteScanResult so it can be used if bitrise-init is imported from steps-project-scanner
 		}
 	}
 	return nil
