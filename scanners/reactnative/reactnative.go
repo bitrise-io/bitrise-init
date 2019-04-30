@@ -202,7 +202,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			lastChilds := androidOptions.LastChilds()
 			for _, child := range lastChilds {
 				for _, child := range child.ChildOptionMap {
-					if child.Config == "" {
+					if child.Config == nil {
 						return models.OptionNode{},
 							warnings,
 							models.Icons{},
@@ -210,7 +210,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 					}
 
 					configName := configName(true, false, hasNPMTest)
-					child.Config = configName
+					child.Config.Name = configName
 				}
 			}
 		} else {
@@ -227,7 +227,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		lastChilds := iosOptions.LastChilds()
 		for _, child := range lastChilds {
 			for _, child := range child.ChildOptionMap {
-				if child.Config == "" {
+				if child.Config == nil {
 					return models.OptionNode{},
 						warnings,
 						models.Icons{},
@@ -235,7 +235,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 				}
 
 				configName := configName(scanner.androidScanner != nil, true, hasNPMTest)
-				child.Config = configName
+				child.Config.Name = configName
 			}
 		}
 
@@ -261,7 +261,10 @@ func (Scanner) DefaultOptions() models.OptionNode {
 	iosOptions := (&ios.Scanner{}).DefaultOptions()
 	for _, child := range iosOptions.LastChilds() {
 		for _, child := range child.ChildOptionMap {
-			child.Config = defaultConfigName()
+			child.Config = &models.Config{
+				Name:  defaultConfigName(),
+				Icons: []string{},
+			}
 		}
 	}
 

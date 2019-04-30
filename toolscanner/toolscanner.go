@@ -43,7 +43,7 @@ func appendProjectTypeToConfig(options models.OptionNode, projectType string) *m
 	var appendToConfigNames func(*models.OptionNode)
 	appendToConfigNames = func(node *models.OptionNode) {
 		if (*node).IsConfigOption() || (*node).ChildOptionMap == nil {
-			(*node).Config = appendProjectTypeToConfigName((*node).Config, projectType)
+			(*node).Config.Name = appendProjectTypeToConfigName((*node).Config.Name, projectType)
 			return
 		}
 		for _, child := range (*node).ChildOptionMap {

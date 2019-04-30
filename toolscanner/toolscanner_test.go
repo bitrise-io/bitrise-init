@@ -32,7 +32,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 							EnvKey: "FASTLANE_LANE",
 							ChildOptionMap: map[string]*models.OptionNode{
 								"ios test": &models.OptionNode{
-									Config: "fastlane-config",
+									Config: &models.Config{
+										Name:  "fastlane-config",
+										Icons: []string{},
+									},
 								},
 							},
 						},
@@ -53,7 +56,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								EnvKey: "FASTLANE_LANE",
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
-										Config: "fastlane-config" + "_" + detectedProjectType,
+										Config: &models.Config{
+											Name:  "fastlane-config" + "_" + detectedProjectType,
+											Icons: []string{},
+										},
 									}}}}},
 				},
 			},
@@ -70,7 +76,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 							EnvKey: "FASTLANE_LANE",
 							ChildOptionMap: map[string]*models.OptionNode{
 								"ios test": &models.OptionNode{
-									Config: "fastlane-config",
+									Config: &models.Config{
+										Name:  "fastlane-config",
+										Icons: []string{},
+									},
 								},
 							},
 						},
@@ -91,7 +100,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								EnvKey: "FASTLANE_LANE",
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
-										Config: "fastlane-config" + "_" + "ios",
+										Config: &models.Config{
+											Name:  "fastlane-config" + "_" + "ios",
+											Icons: []string{},
+										},
 									},
 								},
 							},
@@ -106,7 +118,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								EnvKey: "FASTLANE_LANE",
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
-										Config: "fastlane-config" + "_" + "android",
+										Config: &models.Config{
+											Name:  "fastlane-config" + "_" + "android",
+											Icons: []string{},
+										},
 									},
 								},
 							},
