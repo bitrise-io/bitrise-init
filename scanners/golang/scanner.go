@@ -3,9 +3,8 @@ package golang
 import (
 	"path/filepath"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/steps"
-	"github.com/pkg/errors"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -33,7 +32,7 @@ func (Scanner) Name() string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	matches, err := filepath.Glob(filepath.Clean(searchDir) + "/*.go")
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 	anyGoFileFound := matches != nil
 	return anyGoFileFound, nil
@@ -45,13 +44,13 @@ func (*Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	return scanner.DefaultOptions(), models.Warnings{}, nil
 }
 
 // DefaultOptions ...
-func (*Scanner) DefaultOptions() models.OptionModel {
-	return models.OptionModel{
+func (*Scanner) DefaultOptions() models.OptionNode {
+	return models.OptionNode{
 		Title:  "_",
 		EnvKey: "_",
 		Config: configName,
