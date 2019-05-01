@@ -6,8 +6,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/bitrise-core/bitrise-init/output"
-	"github.com/bitrise-core/bitrise-init/scanner"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"

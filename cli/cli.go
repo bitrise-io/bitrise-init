@@ -6,7 +6,7 @@ import (
 	"path"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-init/version"
+	"github.com/bitrise-io/bitrise-init/version"
 	"github.com/urfave/cli"
 )
 
@@ -14,7 +14,7 @@ import (
 func Run() {
 	// Parse cl
 	cli.VersionPrinter = func(c *cli.Context) {
-		fmt.Fprintf(c.App.Writer, "%v\n", c.App.Version)
+		fmt.Println(c.App.Version)
 	}
 
 	app := cli.NewApp()

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/steps"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/command/git"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -40,7 +40,8 @@ func TestAndroid(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsAndroid22ResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "sample-apps-android-sdk22", strings.TrimSpace(sampleAppsAndroid22ResultYML), strings.TrimSpace(result), sampleAppsAndroid22Versions...)
 	}
 
 	t.Log("android-non-executable-gradlew")
@@ -57,7 +58,8 @@ func TestAndroid(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(androidNonExecutableGradlewResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "android-non-executable-gradlew", strings.TrimSpace(androidNonExecutableGradlewResultYML), strings.TrimSpace(result), androidNonExecutableGradlewVersions...)
 	}
 
 	t.Log("android-sdk22-no-gradlew")
@@ -74,7 +76,8 @@ func TestAndroid(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsSDK22NoGradlewResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "android-sdk22-no-gradlew", strings.TrimSpace(sampleAppsSDK22NoGradlewResultYML), strings.TrimSpace(result))
 	}
 
 	t.Log("android-sdk22-subdir")
@@ -91,7 +94,26 @@ func TestAndroid(t *testing.T) {
 
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsAndroidSDK22SubdirResultYML), strings.TrimSpace(result))
+
+		validateConfigExpectation(t, "android-sdk22-subdir", strings.TrimSpace(sampleAppsAndroidSDK22SubdirResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
+	}
+
+	t.Log("android-gradle-kotlin-dsl")
+	{
+		sampleAppDir := filepath.Join(tmpDir, "android-gradle-kotlin-dsl")
+		sampleAppURL := "https://github.com/bitrise-samples/android-gradle-kotlin-dsl"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+		_, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err)
+
+		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+
+		result, err := fileutil.ReadStringFromFile(scanResultPth)
+		require.NoError(t, err)
+
+		validateConfigExpectation(t, "android-gradle-kotlin-dsl", strings.TrimSpace(sampleAppsAndroid22ResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
 	}
 }
 
@@ -102,7 +124,11 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 
@@ -111,22 +137,27 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 }
 
 var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
-      src/build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+      src:
+        title: Module
+        env_key: MODULE
         value_map:
-          src/gradlew:
-            config: android-config
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              "":
+                config: android-config
 configs:
   android:
     android-config: |
@@ -140,6 +171,38 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            ## How to get a signed APK
+
+            This workflow contains the **Sign APK** step. To sign your APK all you have to do is to:
+
+            1. Click on **Code Signing** tab
+            1. Find the **ANDROID KEYSTORE FILE** section
+            1. Click or drop your file on the upload file field
+            1. Fill the displayed 3 input fields:
+             1. **Keystore password**
+             1. **Keystore alias**
+             1. **Private key password**
+            1. Click on **[Save metadata]** button
+
+            That's it! From now on, **Sign APK** step will receive your uploaded files.
+
+            ## To run this workflow
+
+            If you want to run this workflow manually:
+
+            1. Open the app's build list page
+            2. Click on **[Start/Schedule a Build]** button
+            3. Select **deploy** in **Workflow** dropdown input
+            4. Click **[Start Build]** button
+
+            Or if you need this workflow to be started by a GIT event:
+
+            1. Click on **Triggers** tab
+            2. Setup your desired event (push/tag/pull) and select **deploy** workflow
+            3. Click on **[Done]** and then **[Save]** buttons
+
+            The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -147,12 +210,29 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - change-android-versioncode-and-versionname@%s:
+              inputs:
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -163,12 +243,19 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleDebug
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
@@ -192,7 +279,11 @@ var sampleAppsAndroid22Versions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 
@@ -201,22 +292,27 @@ var sampleAppsAndroid22Versions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 }
 
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
-      build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+      .:
+        title: Module
+        env_key: MODULE
         value_map:
-          ./gradlew:
-            config: android-config
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              "":
+                config: android-config
 configs:
   android:
     android-config: |
@@ -230,6 +326,38 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            ## How to get a signed APK
+
+            This workflow contains the **Sign APK** step. To sign your APK all you have to do is to:
+
+            1. Click on **Code Signing** tab
+            1. Find the **ANDROID KEYSTORE FILE** section
+            1. Click or drop your file on the upload file field
+            1. Fill the displayed 3 input fields:
+             1. **Keystore password**
+             1. **Keystore alias**
+             1. **Private key password**
+            1. Click on **[Save metadata]** button
+
+            That's it! From now on, **Sign APK** step will receive your uploaded files.
+
+            ## To run this workflow
+
+            If you want to run this workflow manually:
+
+            1. Open the app's build list page
+            2. Click on **[Start/Schedule a Build]** button
+            3. Select **deploy** in **Workflow** dropdown input
+            4. Click **[Start Build]** button
+
+            Or if you need this workflow to be started by a GIT event:
+
+            1. Click on **Triggers** tab
+            2. Setup your desired event (push/tag/pull) and select **deploy** workflow
+            3. Click on **[Done]** and then **[Save]** buttons
+
+            The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -237,12 +365,29 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - change-android-versioncode-and-versionname@%s:
+              inputs:
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -253,12 +398,19 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleDebug
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
@@ -272,7 +424,11 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 
@@ -281,22 +437,27 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.GradleRunnerVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
 }
 
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
-    title: Path to the gradle file to use
-    env_key: GRADLE_BUILD_FILE_PATH
+    title: The root directory of an Android project
+    env_key: PROJECT_LOCATION
     value_map:
-      build.gradle:
-        title: Gradlew file path
-        env_key: GRADLEW_PATH
+      .:
+        title: Module
+        env_key: MODULE
         value_map:
-          ./gradlew:
-            config: android-config
+          app:
+            title: Variant
+            env_key: VARIANT
+            value_map:
+              "":
+                config: android-config
 configs:
   android:
     android-config: |
@@ -310,6 +471,38 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            ## How to get a signed APK
+
+            This workflow contains the **Sign APK** step. To sign your APK all you have to do is to:
+
+            1. Click on **Code Signing** tab
+            1. Find the **ANDROID KEYSTORE FILE** section
+            1. Click or drop your file on the upload file field
+            1. Fill the displayed 3 input fields:
+             1. **Keystore password**
+             1. **Keystore alias**
+             1. **Private key password**
+            1. Click on **[Save metadata]** button
+
+            That's it! From now on, **Sign APK** step will receive your uploaded files.
+
+            ## To run this workflow
+
+            If you want to run this workflow manually:
+
+            1. Open the app's build list page
+            2. Click on **[Start/Schedule a Build]** button
+            3. Select **deploy** in **Workflow** dropdown input
+            4. Click **[Start Build]** button
+
+            Or if you need this workflow to be started by a GIT event:
+
+            1. Click on **Triggers** tab
+            2. Setup your desired event (push/tag/pull) and select **deploy** workflow
+            3. Click on **[Done]** and then **[Save]** buttons
+
+            The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -317,12 +510,29 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleRelease
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - change-android-versioncode-and-versionname@%s:
+              inputs:
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -333,12 +543,19 @@ configs:
           - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - install-missing-android-tools@%s: {}
-          - gradle-runner@%s:
+          - install-missing-android-tools@%s:
               inputs:
-              - gradle_file: $GRADLE_BUILD_FILE_PATH
-              - gradle_task: assembleDebug
-              - gradlew_path: $GRADLEW_PATH
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-lint@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+          - android-unit-test@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:

@@ -1,13 +1,19 @@
 format_version: "5"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
-app:
-  envs:
-  - RELEASE_VERSION: 1.6.4
-
 workflows:
   # ----------------------------------------------------------------
   # --- workflows for CI and testing
+  ci-docker:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/env bash
+            set -ex
+            docker-compose build
+            docker-compose run --rm app bitrise run ci
+
   ci:
     after_run:
     - go-test
@@ -15,42 +21,10 @@ workflows:
 
   go-test:
     steps:
-    - script:
-        title: Export go files to test
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            set -ex
-            no_vendor_paths="$(go list ./... | grep -v vendor)"
-            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
-    - script:
-        title: Err check
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            set -ex
-            go get -u github.com/kisielk/errcheck
-            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
-    - script:
-        title: Go lint
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            go get -u github.com/golang/lint/golint
-            while read -r line; do
-              echo "-> Linting: $line"
-              golint_out="$(golint $line)"
-              if [[ "${golint_out}" != "" ]] ; then
-                echo "=> Golint issues found:"
-                echo "${golint_out}"
-                exit 1
-              fi
-            done <<< "$GOLIST_WITHOUT_VENDOR"
-    - script:
-        title: Go test
-        inputs:
-        - content: go test ./...
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
 
   integration-test:
     steps:
@@ -93,30 +67,6 @@ workflows:
             dep ensure -v
             dep ensure -v -update
 
-  # ----------------------------------------------------------------
-  # --- workflows for Releasing
-  create-release:
-    title: Create Release version
-    description: |
-        Creates new version with specified $RELEASE_VERSION environment
-
-        1, Create CHANGELOG
-        2, Create binaries
-    after_run:
-    - create-binaries
-    steps:
-    - script:
-        title: Create CHANGELOG
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            go get -u github.com/bitrise-tools/releaseman
-            export CI=true
-            releaseman create-changelog \
-              --version "$RELEASE_VERSION" \
-              --set-version-script "bash _scripts/set_version.sh version/version.go"
-
   create-binaries:
     title: Create binaries
     description: |
@@ -146,7 +96,7 @@ workflows:
             DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
             echo "  Create final Darwin binary at: $DEPLOY_PATH"
 
-            version_package="github.com/bitrise-core/bitrise-init/version"
+            version_package="github.com/bitrise-io/bitrise-init/version"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \

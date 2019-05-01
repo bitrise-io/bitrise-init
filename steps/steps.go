@@ -65,6 +65,24 @@ func ActivateSSHKeyStepListItem() bitriseModels.StepListItemModel {
 	return stepListItem(stepIDComposite, "", runIf)
 }
 
+// AndroidLintStepListItem ...
+func AndroidLintStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidLintID, AndroidLintVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// AndroidUnitTestStepListItem ...
+func AndroidUnitTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidUnitTestID, AndroidUnitTestVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// AndroidBuildStepListItem ...
+func AndroidBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AndroidBuildID, AndroidBuildVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // GitCloneStepListItem ...
 func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(GitCloneID, GitCloneVersion)
@@ -89,6 +107,12 @@ func CertificateAndProfileInstallerStepListItem() bitriseModels.StepListItemMode
 	return stepListItem(stepIDComposite, "", "")
 }
 
+// ChangeAndroidVersionCodeAndVersionNameStepListItem ...
+func ChangeAndroidVersionCodeAndVersionNameStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ChangeAndroidVersionCodeAndVersionNameID, ChangeAndroidVersionCodeAndVersionNameVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // DeployToBitriseIoStepListItem ...
 func DeployToBitriseIoStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(DeployToBitriseIoID, DeployToBitriseIoVersion)
@@ -101,15 +125,15 @@ func ScriptSteplistItem(title string, inputs ...envmanModels.EnvironmentItemMode
 	return stepListItem(stepIDComposite, title, "", inputs...)
 }
 
-// InstallMissingAndroidToolsStepListItem ....
-func InstallMissingAndroidToolsStepListItem() bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(InstallMissingAndroidToolsID, InstallMissingAndroidToolsVersion)
-	return stepListItem(stepIDComposite, "", "")
+// SignAPKStepListItem ...
+func SignAPKStepListItem() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(SignAPKID, SignAPKVersion)
+	return stepListItem(stepIDComposite, "", `{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}`)
 }
 
-// GradleRunnerStepListItem ...
-func GradleRunnerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(GradleRunnerID, GradleRunnerVersion)
+// InstallMissingAndroidToolsStepListItem ....
+func InstallMissingAndroidToolsStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(InstallMissingAndroidToolsID, InstallMissingAndroidToolsVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
@@ -219,5 +243,41 @@ func KarmaJasmineTestRunnerStepListItem(inputs ...envmanModels.EnvironmentItemMo
 // NpmStepListItem ...
 func NpmStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(NpmID, NpmVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// ExpoDetachStepListItem ...
+func ExpoDetachStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ExpoDetachID, ExpoDetachVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// YarnStepListItem ...
+func YarnStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(YarnID, YarnVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterInstallStepListItem ...
+func FlutterInstallStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterInstallID, FlutterInstallVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterTestStepListItem ...
+func FlutterTestStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterTestID, FlutterTestVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterAnalyzeStepListItem ...
+func FlutterAnalyzeStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterAnalyzeID, FlutterAnalyzeVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// FlutterBuildStepListItem ...
+func FlutterBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(FlutterBuildID, FlutterBuildVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }

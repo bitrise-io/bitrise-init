@@ -3,27 +3,25 @@ package scanner
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners"
 )
 
 // ManualConfig ...
 func ManualConfig() (models.ScanResultModel, error) {
-	projectScanners := scanners.ActiveScanners
-	projectTypeOptionMap := map[string]models.OptionModel{}
-	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
+	scannerList := append(scanners.ProjectScanners, scanners.AutomationToolScanners...)
+	scannerToOptionRoot := map[string]models.OptionNode{}
+	scannerToBitriseConfigMap := map[string]models.BitriseConfigMap{}
 
-	for _, detector := range projectScanners {
-		detectorName := detector.Name()
+	for _, scanner := range scannerList {
+		option := scanner.DefaultOptions()
+		scannerToOptionRoot[scanner.Name()] = option
 
-		option := detector.DefaultOptions()
-		projectTypeOptionMap[detectorName] = option
-
-		configs, err := detector.DefaultConfigs()
+		configs, err := scanner.DefaultConfigs()
 		if err != nil {
 			return models.ScanResultModel{}, fmt.Errorf("Failed create default configs, error: %s", err)
 		}
-		projectTypeConfigMap[detectorName] = configs
+		scannerToBitriseConfigMap[scanner.Name()] = configs
 	}
 
 	customConfig, err := scanners.CustomConfig()
@@ -31,10 +29,10 @@ func ManualConfig() (models.ScanResultModel, error) {
 		return models.ScanResultModel{}, fmt.Errorf("Failed create default custom configs, error: %s", err)
 	}
 
-	projectTypeConfigMap[scanners.CustomProjectType] = customConfig
+	scannerToBitriseConfigMap[scanners.CustomProjectType] = customConfig
 
 	return models.ScanResultModel{
-		PlatformOptionMap:    projectTypeOptionMap,
-		PlatformConfigMapMap: projectTypeConfigMap,
+		ScannerToOptionRoot:       scannerToOptionRoot,
+		ScannerToBitriseConfigMap: scannerToBitriseConfigMap,
 	}, nil
 }

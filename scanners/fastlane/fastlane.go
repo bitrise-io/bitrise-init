@@ -5,9 +5,10 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/steps"
-	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
+	"github.com/bitrise-io/bitrise-init/toolscanner"
+	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -15,9 +16,18 @@ import (
 const scannerName = "fastlane"
 
 const (
-	configName        = "fastlane-config"
-	defaultConfigName = "default-fastlane-config"
+	unknownProjectType = "other"
+	fastlaneWorkflowID = scannerName
 )
+
+const (
+	configName              = "fastlane-config"
+	defaultConfigNameFormat = "default-fastlane-%s-config"
+)
+
+const iosPlatform = "ios"
+
+var platforms = []string{iosPlatform, "android"}
 
 // Step Inputs
 const (
@@ -43,7 +53,8 @@ const (
 
 // Scanner ...
 type Scanner struct {
-	Fastfiles []string
+	Fastfiles    []string
+	projectTypes []string
 }
 
 // NewScanner ...
@@ -94,7 +105,7 @@ func (*Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	warnings := models.Warnings{}
 
 	isValidFastfileFound := false
@@ -140,27 +151,35 @@ func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
 	if !isValidFastfileFound {
 		log.TErrorf("No valid Fastfile found")
 		warnings = append(warnings, "No valid Fastfile found")
-		return models.OptionModel{}, warnings, nil
+		return models.OptionNode{}, warnings, nil
 	}
 
-	return *workDirOption, warnings, nil
+	// Add project_type property option to decision tree
+	optionWithProjectType := toolscanner.AddProjectTypeToOptions(*workDirOption, scanner.projectTypes)
+
+	return optionWithProjectType, warnings, nil
 }
 
 // DefaultOptions ...
-func (*Scanner) DefaultOptions() models.OptionModel {
+func (*Scanner) DefaultOptions() models.OptionNode {
 	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
 	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
 	workDirOption.AddOption("_", laneOption)
 
-	configOption := models.NewConfigOption(defaultConfigName)
-	laneOption.AddConfig("_", configOption)
+	projectTypeOption := models.NewOption("Project type", "")
+	laneOption.AddOption("_", projectTypeOption)
+
+	for _, p := range platforms {
+		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, p))
+		projectTypeOption.AddConfig(p, configOption)
+	}
 
 	return *workDirOption
 }
 
 // Configs ...
-func (*Scanner) Configs() (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
@@ -173,45 +192,66 @@ func (*Scanner) Configs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+	// Fill in project type later, from the list of detected project types
+	config, err := configBuilder.Generate(unknownProjectType,
+		envmanModels.EnvironmentItemModel{
+			fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
+		})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
+	// Create list of possible configs with project types
+	nameToConfigModel := toolscanner.AddProjectTypeToConfig(configName, config, scanner.projectTypes)
 
-	return models.BitriseConfigMap{
-		configName: string(data),
-	}, nil
+	nameToConfigString := map[string]string{}
+	for configName, config := range nameToConfigModel {
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		nameToConfigString[configName] = string(data)
+	}
+	return nameToConfigString, nil
 }
 
 // DefaultConfigs ...
 func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configMap := models.BitriseConfigMap{}
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	for _, p := range platforms {
+		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
-		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
-		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
-	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+		if p == iosPlatform {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+		}
 
-	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
-	if err != nil {
-		return models.BitriseConfigMap{}, err
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
+			envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+			envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+		))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+
+		config, err := configBuilder.Generate(p, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		configMap[fmt.Sprintf(defaultConfigNameFormat, p)] = string(data)
 	}
 
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
+	return configMap, nil
+}
 
-	return models.BitriseConfigMap{
-		defaultConfigName: string(data),
-	}, nil
+// AutomationToolScannerInterface
+
+// SetDetectedProjectTypes ...
+func (scanner *Scanner) SetDetectedProjectTypes(detectedProjectTypes []string) {
+	scanner.projectTypes = detectedProjectTypes
 }

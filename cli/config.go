@@ -6,9 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/output"
-	"github.com/bitrise-core/bitrise-init/scanner"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
@@ -112,7 +112,7 @@ func initConfig(c *cli.Context) error {
 	scanResult := scanner.Config(searchDir)
 
 	platforms := []string{}
-	for platform := range scanResult.PlatformOptionMap {
+	for platform := range scanResult.ScannerToOptionRoot {
 		platforms = append(platforms, platform)
 	}
 
@@ -138,7 +138,7 @@ func initConfig(c *cli.Context) error {
 			return fmt.Errorf("Failed to write output, error: %s", err)
 		}
 
-		log.TPrintf("  scan result: %s", outputPth)
+		log.TPrintf("scan result: %s", outputPth)
 		return fmt.Errorf("No known platform detected")
 	}
 

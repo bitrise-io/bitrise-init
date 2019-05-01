@@ -2,189 +2,186 @@ package android
 
 import (
 	"errors"
-	"fmt"
+	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 
-	"github.com/bitrise-core/bitrise-init/models"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
-	"github.com/bitrise-core/bitrise-init/steps"
-	"github.com/bitrise-core/bitrise-init/utility"
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
+// Constants ...
 const (
-	// ScannerName ...
-	ScannerName = "android"
-	// ConfigName ...
-	ConfigName = "android-config"
-	// DefaultConfigName ...
+	ScannerName       = "android"
+	ConfigName        = "android-config"
 	DefaultConfigName = "default-android-config"
 
-	// GradlewPathInputKey ...
-	GradlewPathInputKey = "gradlew_path"
-	// GradlewPathInputEnvKey ...
+	ProjectLocationInputKey    = "project_location"
+	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
+	ProjectLocationInputTitle  = "The root directory of an Android project"
+
+	ModuleBuildGradlePathInputKey = "build_gradle_path"
+
+	VariantInputKey    = "variant"
+	VariantInputEnvKey = "VARIANT"
+	VariantInputTitle  = "Variant"
+
+	ModuleInputKey    = "module"
+	ModuleInputEnvKey = "MODULE"
+	ModuleInputTitle  = "Module"
+
+	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"
-	// GradlewPathInputTitle ...
-	GradlewPathInputTitle = "Gradlew file path"
-
-	// GradleFileInputKey ...
-	GradleFileInputKey = "gradle_file"
-	// GradleFileInputEnvKey ...
-	GradleFileInputEnvKey = "GRADLE_BUILD_FILE_PATH"
-	// GradleFileInputTitle ...
-	GradleFileInputTitle = "Path to the gradle file to use"
-
-	// GradleTaskInputKey ...
-	GradleTaskInputKey = "gradle_task"
-
-	buildGradleBasePath = "build.gradle"
+	GradlewPathInputTitle  = "Gradlew file path"
 )
 
-// CollectRootBuildGradleFiles - Collects the most root (mint path depth) build.gradle files
-// May the searchDir contains multiple android projects, this case it return multiple builde.gradle path
-// searchDir/android-project1/build.gradle, searchDir/android-project2/build.gradle, ...
-func CollectRootBuildGradleFiles(searchDir string) ([]string, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+func walk(src string, fn func(path string, info os.FileInfo) error) error {
+	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if path == src {
+			return nil
+		}
+		return fn(path, info)
+	})
+}
+
+func checkFiles(path string, files ...string) (bool, error) {
+	for _, file := range files {
+		exists, err := pathutil.IsPathExists(filepath.Join(path, file))
+		if err != nil {
+			return false, err
+		}
+		if !exists {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func walkMultipleFiles(searchDir string, files ...string) (matches []string, err error) {
+	match, err := checkFiles(searchDir, files...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
+		return nil, err
 	}
-
-	return FilterRootBuildGradleFiles(fileList)
+	if match {
+		matches = append(matches, searchDir)
+	}
+	return matches, walk(searchDir, func(path string, info os.FileInfo) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			match, err := checkFiles(path, files...)
+			if err != nil {
+				return err
+			}
+			if match {
+				matches = append(matches, path)
+			}
+		}
+		return nil
+	})
 }
 
-// CheckLocalProperties - Returns warning if local.properties exists
-// Local properties may contains absolute paths (sdk.dir=/Users/xyz/Library/Android/sdk),
-// it should be gitignored
-func CheckLocalProperties(buildGradleFile string) string {
-	projectDir := filepath.Dir(buildGradleFile)
-	localPropertiesPth := filepath.Join(projectDir, "local.properties")
-	exist, err := pathutil.IsPathExists(localPropertiesPth)
-	if err == nil && exist {
-		return fmt.Sprintf(`The local.properties file must NOT be checked into Version Control Systems, as it contains information specific to your local configuration.
-The location of the file is: %s`, localPropertiesPth)
-	}
-	return ""
-}
-
-// EnsureGradlew - Retuns the gradle wrapper path, or error if not exists
-func EnsureGradlew(buildGradleFile string) (string, error) {
-	projectDir := filepath.Dir(buildGradleFile)
+func checkGradlew(projectDir string) error {
 	gradlewPth := filepath.Join(projectDir, "gradlew")
-	if exist, err := pathutil.IsPathExists(gradlewPth); err != nil {
-		return "", err
-	} else if !exist {
-		return "", errors.New(`<b>No Gradle Wrapper (gradlew) found.</b> 
+	exist, err := pathutil.IsPathExists(gradlewPth)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b> 
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
-
-	return FixedGradlewPath(gradlewPth), nil
+	return nil
 }
 
-// GenerateOptions ...
-func GenerateOptions(searchDir string) (models.OptionModel, models.Warnings, error) {
-	warnings := models.Warnings{}
-
-	buildGradlePths, err := CollectRootBuildGradleFiles(searchDir)
-	if err != nil {
-		return models.OptionModel{}, warnings, err
-	}
-
-	gradleFileOption := models.NewOption(GradleFileInputTitle, GradleFileInputEnvKey)
-
-	for _, buildGradlePth := range buildGradlePths {
-		if warning := CheckLocalProperties(buildGradlePth); warning != "" {
-			warnings = append(warnings, warning)
-		}
-
-		gradlewPth, err := EnsureGradlew(buildGradlePth)
-		if err != nil {
-			return models.OptionModel{}, warnings, err
-		}
-
-		gradlewPthOption := models.NewOption(GradlewPathInputTitle, GradlewPathInputEnvKey)
-		gradleFileOption.AddOption(buildGradlePth, gradlewPthOption)
-
-		configOption := models.NewConfigOption(ConfigName)
-		gradlewPthOption.AddConfig(gradlewPth, configOption)
-	}
-
-	return *gradleFileOption, warnings, nil
-}
-
-// GenerateConfigBuilder ...
-func GenerateConfigBuilder(isIncludeCache bool) models.ConfigBuilderModel {
+func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{GradleFileInputKey: "$" + GradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{GradleTaskInputKey: "assembleDebug"},
-		envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
-	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
+	projectLocationEnv, gradlewPath, moduleEnv, variantEnv := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew", "$"+ModuleInputEnvKey, "$"+VariantInputEnvKey
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(isIncludeCache)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{GradleFileInputKey: "$" + GradleFileInputEnvKey},
-		envmanModels.EnvironmentItemModel{GradleTaskInputKey: "assembleRelease"},
-		envmanModels.EnvironmentItemModel{GradlewPathInputKey: "$" + GradlewPathInputEnvKey},
+	//-- primary
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidLintStepListItem(
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			ModuleInputKey: moduleEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			VariantInputKey: variantEnv,
+		},
+	))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			ModuleInputKey: moduleEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			VariantInputKey: variantEnv,
+		},
+	))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
+
+	//-- deploy
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(true)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
+	))
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
+		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
+	))
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			ModuleInputKey: moduleEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			VariantInputKey: variantEnv,
+		},
+	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			ModuleInputKey: moduleEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			VariantInputKey: variantEnv,
+		},
+	))
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+		envmanModels.EnvironmentItemModel{
+			ProjectLocationInputKey: projectLocationEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			ModuleInputKey: moduleEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			VariantInputKey: variantEnv,
+		},
+	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
+
+	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 
 	return *configBuilder
-}
-
-// FixedGradlewPath ...
-func FixedGradlewPath(gradlewPth string) string {
-	split := strings.Split(gradlewPth, "/")
-	if len(split) != 1 {
-		return gradlewPth
-	}
-
-	if !strings.HasPrefix(gradlewPth, "./") {
-		return "./" + gradlewPth
-	}
-	return gradlewPth
-}
-
-// FilterRootBuildGradleFiles ...
-func FilterRootBuildGradleFiles(fileList []string) ([]string, error) {
-	allowBuildGradleBaseFilter := utility.BaseFilter(buildGradleBasePath, true)
-	denyNodeModulesComponent := utility.ComponentFilter(xamarin.NodeModulesDirName, false)
-	gradleFiles, err := utility.FilterPaths(fileList, allowBuildGradleBaseFilter, denyNodeModulesComponent)
-	if err != nil {
-		return []string{}, err
-	}
-
-	if len(gradleFiles) == 0 {
-		return []string{}, nil
-	}
-
-	sortableFiles := []utility.SortablePath{}
-	for _, pth := range gradleFiles {
-		sortable, err := utility.NewSortablePath(pth)
-		if err != nil {
-			return []string{}, err
-		}
-		sortableFiles = append(sortableFiles, sortable)
-	}
-
-	sort.Sort(utility.BySortablePathComponents(sortableFiles))
-	mindDepth := len(sortableFiles[0].Components)
-
-	rootGradleFiles := []string{}
-	for _, sortable := range sortableFiles {
-		depth := len(sortable.Components)
-		if depth == mindDepth {
-			rootGradleFiles = append(rootGradleFiles, sortable.Pth)
-		}
-	}
-
-	return rootGradleFiles, nil
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-init/output"
-	"github.com/bitrise-core/bitrise-init/version"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/version"
 	"github.com/urfave/cli"
 )
 
