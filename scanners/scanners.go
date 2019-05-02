@@ -82,6 +82,7 @@ var ProjectScanners = []ScannerInterface{
 	android.NewScanner(),
 	xamarin.NewScanner(),
 	golang.NewScanner(),
+	// nodejs.NewScanner(),
 }
 
 // AutomationToolScanners contains active automation tool scanners

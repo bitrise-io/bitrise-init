@@ -96,9 +96,9 @@ func CachePullStepListItem() bitriseModels.StepListItemModel {
 }
 
 // CachePushStepListItem ...
-func CachePushStepListItem() bitriseModels.StepListItemModel {
+func CachePushStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(CachePushID, CachePushVersion)
-	return stepListItem(stepIDComposite, "", "")
+	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
 // CertificateAndProfileInstallerStepListItem ...
