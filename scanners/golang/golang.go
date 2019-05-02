@@ -1,10 +1,15 @@
 package golang
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
+	envmanModels "github.com/bitrise-io/envman/models"
+	giturls "github.com/whilp/git-urls"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -50,11 +55,23 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionNode {
-	return models.OptionNode{
-		Title:  "_",
-		EnvKey: "_",
-		Config: configName,
+	options := models.OptionNode{
+		Title:  "Working directory (Some tools work best if your project is cloned into the GOPATH)",
+		EnvKey: "GO_WORK_DIR",
+		ChildOptionMap: map[string]*models.OptionNode{
+			goWorkDir(): &models.OptionNode{
+				Title: "Do you want to include a linter in the workflow? (You can modify the linter settings later in the Workflow Editor.)",
+				ChildOptionMap: map[string]*models.OptionNode{
+					"yes": &models.OptionNode{Config: configName},
+					"no":  &models.OptionNode{Config: configName},
+				},
+			},
+		},
 	}
+
+	// options.AddConfig("yes", &models.OptionNode{Config: configName})
+	// options.AddConfig("no", &models.OptionNode{Config: configName})
+	return options
 }
 
 // Configs ...
@@ -70,7 +87,16 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 func confGen() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID,
+		steps.ChangeWorkdirStepListItem(
+			envmanModels.EnvironmentItemModel{"path": "$GO_WORK_DIR"},
+		),
+		steps.ActivateSSHKeyStepListItem(),
+		steps.GitCloneStepListItem(),
+		steps.GoLintBuildStepListItem(),
+		steps.GoTestBuildStepListItem(),
+		steps.DeployToBitriseIoStepListItem(),
+	)
 
 	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
@@ -85,4 +111,23 @@ func confGen() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{
 		configName: string(data),
 	}, nil
+}
+
+func goWorkDir() string {
+	basePath := "$GOPATH/src"
+	repoURL := os.Getenv("GIT_REPOSITORY_URL")
+	if repoURL == "" {
+		return ""
+	}
+
+	uri, err := giturls.Parse(repoURL)
+	if err != nil {
+		return ""
+	}
+
+	// Sometimes the path has opening and trailing slash
+	path := strings.TrimPrefix(strings.TrimSuffix(uri.Path, "/"), "/")
+	path = strings.TrimSuffix(path, ".git")
+
+	return fmt.Sprintf("%s/%s/%s", basePath, uri.Host, path)
 }

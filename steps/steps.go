@@ -281,3 +281,21 @@ func FlutterBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitri
 	stepIDComposite := stepIDComposite(FlutterBuildID, FlutterBuildVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
+
+// GoLintBuildStepListItem ...
+func GoLintBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := "git::https://github.com/bitvirago/steps-golint.git@master"
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// GoTestBuildStepListItem ...
+func GoTestBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := "git::https://github.com/bitvirago/steps-go-test.git@master"
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+// ChangeWorkdirStepListItem ...
+func ChangeWorkdirStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ChangeWorkdirID, ChangeWorkdirVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
