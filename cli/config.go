@@ -92,10 +92,10 @@ func initConfig(c *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
 	}
-
 	if searchDir == "" {
 		searchDir = currentDir
 	}
+
 	searchDir, err = pathutil.AbsPath(searchDir)
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
@@ -124,34 +124,41 @@ func initConfig(c *cli.Context) error {
 	log.TInfof(colorstring.Yellowf("output format: %s", format))
 	fmt.Println()
 
-	result, detected, err := generateConfig(searchDir, format)
+	result, err := GenerateAndWriteResults(searchDir, outputDir, format)
 	if err != nil {
 		return err
-	}
-
-	// Write output to files
-	log.TInfof("Saving outputs:")
-	outputPth, err := writeScanResult(result, outputDir, format)
-	if err != nil {
-		return fmt.Errorf("Failed to write output, error: %s", err)
-	}
-	log.TPrintf("scan result: %s", outputPth)
-
-	if !detected {
-		printDirTree()
-		return fmt.Errorf("No known platform detected")
 	}
 
 	if !isCI {
 		if err := getInteractiveAnswers(result, outputDir, format); err != nil {
 			return nil
 		}
-		return nil
 	}
 	return nil
 }
 
-// GenerateConfig creates
+// GenerateAndWriteResults runs the scanner and saves results to the given output dir
+func GenerateAndWriteResults(searchDir string, outputDir string, format output.Format) (models.ScanResultModel, error) {
+	result, detected, err := generateConfig(searchDir, format)
+	if err != nil {
+		return result, err
+	}
+
+	// Write output to files
+	log.TInfof("Saving outputs:")
+	outputPth, err := writeScanResult(result, outputDir, format)
+	if err != nil {
+		return result, fmt.Errorf("Failed to write output, error: %s", err)
+	}
+	log.TPrintf("scan result: %s", outputPth)
+
+	if !detected {
+		printDirTree()
+		return result, fmt.Errorf("No known platform detected")
+	}
+	return result, nil
+}
+
 func generateConfig(searchDir string, format output.Format) (models.ScanResultModel, bool, error) {
 	scanResult := scanner.Config(searchDir)
 
@@ -170,18 +177,9 @@ func generateConfig(searchDir string, format output.Format) (models.ScanResultMo
 func getInteractiveAnswers(scanResult models.ScanResultModel, outputDir string, format output.Format) error {
 	// Select options
 	log.TInfof("Collecting inputs:")
-
 	config, err := scanner.AskForConfig(scanResult)
 	if err != nil {
 		return err
-	}
-
-	if exist, err := pathutil.IsDirExists(outputDir); err != nil {
-		return err
-	} else if !exist {
-		if err := os.MkdirAll(outputDir, 0700); err != nil {
-			return fmt.Errorf("Failed to create (%s), error: %s", outputDir, err)
-		}
 	}
 
 	pth := path.Join(outputDir, "bitrise.yml")
