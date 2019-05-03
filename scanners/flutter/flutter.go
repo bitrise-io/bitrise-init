@@ -273,17 +273,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 								schemeOption.AddOption(scheme, exportMethodOption)
 
 								for _, exportMethod := range ios.IosExportMethods {
-									configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+									configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), []string{})
 									exportMethodOption.AddConfig(exportMethod, configOption)
 								}
 							}
 						}
 					} else {
-						configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+						configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), []string{})
 						flutterProjectHasTestOption.AddOption(v, configOption)
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg)
+					configOption := models.NewConfigOption(cfg, []string{})
 					flutterProjectHasTestOption.AddOption(v, configOption)
 				}
 			}
@@ -304,17 +304,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 							schemeOption.AddOption(scheme, exportMethodOption)
 
 							for _, exportMethod := range ios.IosExportMethods {
-								configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+								configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), []string{})
 								exportMethodOption.AddConfig(exportMethod, configOption)
 							}
 						}
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+					configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), []string{})
 					flutterProjectLocationOption.AddOption(project.path, configOption)
 				}
 			} else {
-				configOption := models.NewConfigOption(cfg)
+				configOption := models.NewConfigOption(cfg, []string{})
 				flutterProjectLocationOption.AddOption(project.path, configOption)
 			}
 		}
@@ -362,15 +362,15 @@ func (Scanner) DefaultOptions() models.OptionNode {
 					schemeOption.AddOption("_", exportMethodOption)
 
 					for _, exportMethod := range ios.IosExportMethods {
-						configOption := models.NewConfigOption(cfg + "-app-" + platform)
+						configOption := models.NewConfigOption(cfg+"-app-"+platform, []string{})
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg + "-app-" + platform)
+					configOption := models.NewConfigOption(cfg+"-app-"+platform, []string{})
 					flutterPlatformOption.AddConfig(platform, configOption)
 				}
 			} else {
-				configOption := models.NewConfigOption(cfg)
+				configOption := models.NewConfigOption(cfg, []string{})
 				flutterPlatformOption.AddConfig(platform, configOption)
 			}
 		}

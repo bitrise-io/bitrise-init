@@ -248,14 +248,14 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		rootOption.AddOption(relCordovaConfigDir, projectTypeOption)
 
 		for _, platform := range platforms {
-			configOption := models.NewConfigOption(configName)
+			configOption := models.NewConfigOption(configName, []string{})
 			projectTypeOption.AddConfig(platform, configOption)
 		}
 	} else {
 		rootOption = models.NewOption(platformInputTitle, platformInputEnvKey)
 
 		for _, platform := range platforms {
-			configOption := models.NewConfigOption(configName)
+			configOption := models.NewConfigOption(configName, []string{})
 			rootOption.AddConfig(platform, configOption)
 		}
 	}
@@ -277,7 +277,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 		"ios,android",
 	}
 	for _, platform := range platforms {
-		configOption := models.NewConfigOption(defaultConfigName)
+		configOption := models.NewConfigOption(defaultConfigName, []string{})
 		projectTypeOption.AddConfig(platform, configOption)
 	}
 

@@ -72,27 +72,19 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
+		iconIDs := []string{}
 		for iconID, iconPath := range appIcons {
 			appIconsAllProjects[iconID] = iconPath
+			iconIDs = append(iconIDs, iconID)
 		}
 
-		configOption := models.NewConfigOption(ConfigName)
+		configOption := models.NewConfigOption(ConfigName, iconIDs)
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
-
-		if scanner.ExcludeAppIcon || len(appIcons) == 0 {
-			variantOption.AddConfig("", configOption)
-		} else {
-			iconOption := models.NewOption(appIconTitle, "")
-			iconOption.SetChildOptionType(models.Icon)
-			variantOption.AddOption("", iconOption)
-			for iconID := range appIcons {
-				iconOption.AddConfig(iconID, configOption)
-			}
-		}
+		variantOption.AddConfig("", configOption)
 	}
 
 	return *projectLocationOption, warnings, appIconsAllProjects, nil
@@ -103,7 +95,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
-	configOption := models.NewConfigOption(DefaultConfigName)
+	configOption := models.NewConfigOption(DefaultConfigName, []string{})
 
 	projectLocationOption.AddOption("_", moduleOption)
 	moduleOption.AddOption("_", variantOption)

@@ -355,7 +355,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
 
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
@@ -367,9 +367,9 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme.Name, exportMethodOption)
 
-				var appIcons models.Icons
+				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err = icon.LookupPossibleMatches(projectPath, scheme.Name, searchDir)
+					appIcons, err := icon.LookupPossibleMatches(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
@@ -377,24 +377,16 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 					}
 					for iconID, iconPath := range appIcons {
 						iconsForAllProjects[iconID] = iconPath
+						iconIDs = append(iconIDs, iconID)
 					}
 				}
 
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, false)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
 
-					if excludeAppIcon || len(appIcons) == 0 {
-						exportMethodOption.AddConfig(exportMethod, configOption)
-					} else {
-						iconOption := models.NewOption(appIconTitle, "")
-						iconOption.SetChildOptionType(models.Icon)
-						exportMethodOption.AddOption(exportMethod, iconOption)
-						for iconID := range appIcons {
-							iconOption.AddConfig(iconID, configOption)
-						}
-					}
+					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
 			}
 		}
@@ -430,7 +422,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
 
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
@@ -445,7 +437,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType))
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
 
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
@@ -484,7 +476,7 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
 	schemeOption.AddOption("_", exportMethodOption)
 
 	for _, exportMethod := range exportMethods {
-		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)))
+		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)), []string{})
 		exportMethodOption.AddConfig(exportMethod, configOption)
 	}
 
