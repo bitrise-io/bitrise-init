@@ -22,16 +22,10 @@ type OptionNode struct {
 
 	ChildOptionType ValueType              `json:"value_type,omitempty" yaml:"value_type,omitempty"`
 	ChildOptionMap  map[string]*OptionNode `json:"value_map,omitempty" yaml:"value_map,omitempty"`
-	Config          *Config                //`json:"config,omitempty" yaml:"config,omitempty"`
+	Config          string                 `json:"config,omitempty" yaml:"config,omitempty"`
 
 	Components []string    `json:"-" yaml:"-"`
 	Head       *OptionNode `json:"-" yaml:"-"`
-}
-
-// Config ...
-type Config struct {
-	Name  string   `json:"name,omitempty" yaml:"name,omitempty"`
-	Icons []string `json:"icons,omitempty" yaml:"icons,omitempty"`
 }
 
 // NewOption ...
@@ -48,11 +42,8 @@ func NewOption(title, envKey string) *OptionNode {
 func NewConfigOption(name string) *OptionNode {
 	return &OptionNode{
 		ChildOptionMap: map[string]*OptionNode{},
-		Config: &Config{
-			Name:  name,
-			Icons: []string{},
-		},
-		Components: []string{},
+		Config:         name,
+		Components:     []string{},
 	}
 }
 
@@ -66,10 +57,7 @@ func (option *OptionNode) String() string {
 
 // IsConfigOption ...
 func (option *OptionNode) IsConfigOption() bool {
-	if option.Config != nil {
-		return option.Config.Name != ""
-	}
-	return false
+	return option.Config != ""
 }
 
 // IsValueOption ...
@@ -189,7 +177,7 @@ func (option *OptionNode) RemoveConfigs() {
 	lastChilds := option.LastChilds()
 	for _, child := range lastChilds {
 		for _, child := range child.ChildOptionMap {
-			child.Config = nil
+			child.Config = ""
 		}
 	}
 }
@@ -222,8 +210,8 @@ func (option *OptionNode) Copy() *OptionNode {
 
 // GetValues ...
 func (option *OptionNode) GetValues() []string {
-	if option.Config != nil {
-		return []string{option.Config.Name}
+	if option.Config != "" {
+		return []string{option.Config}
 	}
 
 	values := []string{}

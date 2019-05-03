@@ -86,16 +86,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		if scanner.ExcludeAppIcon || len(appIcons) == 0 {
 			variantOption.AddConfig("", configOption)
 		} else {
-			// iconOption := models.NewOption(appIconTitle, "")
-			// iconOption.SetChildOptionType(models.Icon)
-			// variantOption.AddOption("", iconOption)
-			icons := []string{}
+			iconOption := models.NewOption(appIconTitle, "")
+			iconOption.SetChildOptionType(models.Icon)
+			variantOption.AddOption("", iconOption)
 			for iconID := range appIcons {
-				icons = append(icons, iconID)
-				// iconOption.AddConfig(iconID, configOption)
+				iconOption.AddConfig(iconID, configOption)
 			}
-			configOption.Config.Icons = icons
-			variantOption.AddConfig("", configOption)
 		}
 	}
 

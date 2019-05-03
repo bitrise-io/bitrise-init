@@ -229,16 +229,13 @@ func TestCopy(t *testing.T) {
 	require.Equal(t, 1, len(opt01Copy.ChildOptionMap))
 	_, ok := opt01Copy.ChildOptionMap["value01"]
 	require.Equal(t, true, ok)
-	require.Equal(t, "", opt01Copy.Config.Name)
+	require.Equal(t, "", opt01Copy.Config)
 
 	opt02Copy := opt0Copy.ChildOptionMap["value2"]
 	require.Equal(t, opt02.Title, opt02Copy.Title)
 	require.Equal(t, opt02.EnvKey, opt02Copy.EnvKey)
 	require.Equal(t, 0, len(opt02Copy.ChildOptionMap))
-	require.Equal(t,
-		Config{Name: "name",
-			Icons: []string{},
-		}, opt02Copy.Config)
+	require.Equal(t, "name", opt02Copy.Config)
 
 	// Ensure copy is a new object
 	opt0Copy.Title = "OPT0_COPY"
@@ -247,7 +244,7 @@ func TestCopy(t *testing.T) {
 	opt01Copy.Title = "OPT01_COPY"
 	require.Equal(t, "OPT01", opt01.Title)
 
-	opt02Copy.Config.Name = "name_copy"
+	opt02Copy.Config = "name_copy"
 	require.Equal(t, "name", opt02.Config)
 }
 
