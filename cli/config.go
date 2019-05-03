@@ -49,6 +49,21 @@ var configCommand = cli.Command{
 	},
 }
 
+func printDirTree() {
+	cmd := command.New("which", "tree")
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	if err != nil || out == "" {
+		log.TErrorf("tree not installed, can not list files")
+	} else {
+		fmt.Println()
+		cmd := command.NewWithStandardOuts("tree", ".", "-L", "3")
+		log.TPrintf("$ %s", cmd.PrintableCommandArgs())
+		if err := cmd.Run(); err != nil {
+			log.TErrorf("Failed to list files in current directory, error: %s", err)
+		}
+	}
+}
+
 func writeScanResult(scanResult models.ScanResultModel, outputDir string, format output.Format) (string, error) {
 	pth := path.Join(outputDir, "result")
 	return output.WriteToFile(scanResult, format, pth)
@@ -61,14 +76,18 @@ func initConfig(c *cli.Context) error {
 	outputDir := c.String("output-dir")
 	formatStr := c.String("format")
 
-	if isCI {
-		log.TInfof(colorstring.Yellow("CI mode"))
+	if formatStr == "" {
+		formatStr = output.YAMLFormat.String()
 	}
-	log.TInfof(colorstring.Yellowf("scan dir: %s", searchDir))
-	log.TInfof(colorstring.Yellowf("output dir: %s", outputDir))
-	log.TInfof(colorstring.Yellowf("output format: %s", formatStr))
-	fmt.Println()
+	format, err := output.ParseFormat(formatStr)
+	if err != nil {
+		return fmt.Errorf("Failed to parse format (%s), error: %s", formatStr, err)
+	}
+	if format != output.JSONFormat && format != output.YAMLFormat {
+		return fmt.Errorf("Not allowed output format (%s), options: [%s, %s]", format.String(), output.YAMLFormat.String(), output.JSONFormat.String())
+	}
 
+	//
 	currentDir, err := pathutil.AbsPath("./")
 	if err != nil {
 		return fmt.Errorf("Failed to expand path (%s), error: %s", outputDir, err)
@@ -97,18 +116,43 @@ func initConfig(c *cli.Context) error {
 		}
 	}
 
-	if formatStr == "" {
-		formatStr = output.YAMLFormat.String()
+	if isCI {
+		log.TInfof(colorstring.Yellow("CI mode"))
 	}
-	format, err := output.ParseFormat(formatStr)
-	if err != nil {
-		return fmt.Errorf("Failed to parse format (%s), error: %s", formatStr, err)
-	}
-	if format != output.JSONFormat && format != output.YAMLFormat {
-		return fmt.Errorf("Not allowed output format (%s), options: [%s, %s]", format.String(), output.YAMLFormat.String(), output.JSONFormat.String())
-	}
-	// ---
+	log.TInfof(colorstring.Yellowf("scan dir: %s", searchDir))
+	log.TInfof(colorstring.Yellowf("output dir: %s", outputDir))
+	log.TInfof(colorstring.Yellowf("output format: %s", format))
+	fmt.Println()
 
+	result, detected, err := generateConfig(searchDir, format)
+	if err != nil {
+		return err
+	}
+
+	// Write output to files
+	log.TInfof("Saving outputs:")
+	outputPth, err := writeScanResult(result, outputDir, format)
+	if err != nil {
+		return fmt.Errorf("Failed to write output, error: %s", err)
+	}
+	log.TPrintf("scan result: %s", outputPth)
+
+	if !detected {
+		printDirTree()
+		return fmt.Errorf("No known platform detected")
+	}
+
+	if !isCI {
+		if err := getInteractiveAnswers(result, outputDir, format); err != nil {
+			return nil
+		}
+		return nil
+	}
+	return nil
+}
+
+// GenerateConfig creates
+func generateConfig(searchDir string, format output.Format) (models.ScanResultModel, bool, error) {
 	scanResult := scanner.Config(searchDir)
 
 	platforms := []string{}
@@ -117,46 +161,14 @@ func initConfig(c *cli.Context) error {
 	}
 
 	if len(platforms) == 0 {
-		cmd := command.New("which", "tree")
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		if err != nil || out == "" {
-			log.TErrorf("tree not installed, can not list files")
-		} else {
-			fmt.Println()
-			cmd := command.NewWithStandardOuts("tree", ".", "-L", "3")
-			log.TPrintf("$ %s", cmd.PrintableCommandArgs())
-			if err := cmd.Run(); err != nil {
-				log.TErrorf("Failed to list files in current directory, error: %s", err)
-			}
-		}
-
-		log.TInfof("Saving outputs:")
 		scanResult.AddError("general", "No known platform detected")
-
-		outputPth, err := writeScanResult(scanResult, outputDir, format)
-		if err != nil {
-			return fmt.Errorf("Failed to write output, error: %s", err)
-		}
-
-		log.TPrintf("scan result: %s", outputPth)
-		return fmt.Errorf("No known platform detected")
+		return scanResult, false, nil
 	}
+	return scanResult, true, nil
+}
 
-	// Write output to files
-	if isCI {
-		log.TInfof("Saving outputs:")
-
-		outputPth, err := writeScanResult(scanResult, outputDir, format)
-		if err != nil {
-			return fmt.Errorf("Failed to write output, error: %s", err)
-		}
-
-		log.TPrintf("  scan result: %s", outputPth)
-		return nil
-	}
-	// ---
-
-	// Select option
+func getInteractiveAnswers(scanResult models.ScanResultModel, outputDir string, format output.Format) error {
+	// Select options
 	log.TInfof("Collecting inputs:")
 
 	config, err := scanner.AskForConfig(scanResult)
@@ -179,7 +191,5 @@ func initConfig(c *cli.Context) error {
 	}
 	log.TInfof("  bitrise.yml template: %s", outputPth)
 	fmt.Println()
-	// ---
-
 	return nil
 }
