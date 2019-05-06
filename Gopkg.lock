@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cabe9ec8289704e71e45138c18ad90275bce25a8d61145c4130b55d9d9a6d6dc"
+  digest = "1:6ab7a72d995ed7cd18df2ed88733e3f1ccb8004f88bdc206442df73e088a82c6"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9b3cdde74fbe9443d704467498a7dcb61a79de9b"
+  revision = "5521996833c095f5ac75d99687cef8ad344ded12"
 
 [[projects]]
   digest = "1:bd8bc15ce3a9929e2777651cbc271fca5561c0d5f42187edb4720e638d24662d"
@@ -82,7 +82,7 @@
 
 [[projects]]
   branch = "feature/asset-catalog"
-  digest = "1:8af8b80037a09b0339a79001d1eba1e3919f0f66a2c560ed9eef9f3b7aad4fde"
+  digest = "1:821b2bc27b97bc5c4fe6c2ce8910a2a54adf42f879cc6a4646c76b10ea914fe4"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
@@ -92,7 +92,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "1ac68d29bf79b23d213ead990fc45e77665f1bc8"
+  revision = "03605e4cfd9d262f1039db0afb8d30ad062e13ce"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -169,14 +169,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
+  digest = "1:1ddfda089b8a15d92242412aabc1107b8c7a87c609c09c5b441c81dbcca0ab79"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
+  revision = "ca7f33d4116e3a1f9425755d6a44e7ed9b4c97df"
 
 [[projects]]
-  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -187,8 +187,8 @@
     "unicode/norm",
   ]
   pruneopts = "UT"
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "v2"
