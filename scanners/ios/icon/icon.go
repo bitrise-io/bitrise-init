@@ -23,52 +23,39 @@ func LookupPossibleMatches(projectPath string, schemeName string, basepath strin
 		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
 	}
 
-	log.Printf("name: %s", project.Name)
-
 	scheme, found := project.Scheme(schemeName)
 	if !found {
 		return nil, fmt.Errorf("scheme (%s) not found in project", schemeName)
 	}
 
 	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
-	log.Printf("main target: %s", mainTarget.Name)
+	log.Debugf("Project: %s, Scheme: %s, main target: %s", project.Name, schemeName, mainTarget.Name)
 
-	appIconSetName, err := getAppIconSetName(project, mainTarget)
-	if err != nil {
-		return nil, fmt.Errorf("app icon set name not found in project, error: %s", err)
-	}
-
-	targetsToAssetCatalogs, err := xcodeproj.AssetCatalogs(projectPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get asset catalogs for project: %s, error: %s", projectPath, err)
-	}
-	assetCatalogPaths, ok := targetsToAssetCatalogs[mainTarget.ID]
+	targetToAppIconSetPaths, err := xcodeproj.AppIconSetPaths(projectPath)
+	appIconSetPaths, ok := targetToAppIconSetPaths[mainTarget.ID]
 	if !ok {
 		return nil, fmt.Errorf("target not found in project")
 	}
 
-	appIconPath, found, err := lookupAppIconPath(projectPath, assetCatalogPaths, appIconSetName)
-	if err != nil {
-		return nil, err
-	} else if !found {
-		return nil, err
+	iconPaths := []string{}
+	for _, appIconSetPath := range appIconSetPaths {
+		icon, found, err := parseResourceSet(appIconSetPath)
+		if err != nil {
+			return nil, fmt.Errorf("could not get icon, error: %s", err)
+		} else if !found {
+			return nil, nil
+		}
+		log.Debugf("App icons: %s", icon)
+
+		iconPath := filepath.Join(appIconSetPath, icon.Filename)
+
+		if _, err := os.Stat(iconPath); err != nil && os.IsNotExist(err) {
+			return nil, fmt.Errorf("icon file does not exist: %s, error: %err", iconPath, err)
+		}
+		iconPaths = append(iconPaths, iconPath)
 	}
 
-	log.Printf("%s", appIconPath)
-	icon, found, err := parseResourceSet(appIconPath)
-	if err != nil {
-		return nil, fmt.Errorf("could not get icon, error: %s", err)
-	} else if !found {
-		return nil, nil
-	}
-
-	iconPath := filepath.Join(appIconPath, icon.Filename)
-
-	if _, err := os.Stat(iconPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("icon file does not exist: %s, error: %err", iconPath, err)
-	}
-
-	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames([]string{iconPath}, basepath)
+	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
 	if err != nil {
 		return nil, err
 	}
@@ -131,8 +118,6 @@ func parseResourceSetMetadata(input io.Reader) ([]appIcon, error) {
 	}
 	var icons []appIcon
 	for _, icon := range decoded.Images {
-		fmt.Printf("%s", icon)
-		fmt.Println()
 		sizeParts := strings.Split(icon.Size, "x")
 		if len(sizeParts) != 2 {
 			return nil, fmt.Errorf("invalid image size format")
