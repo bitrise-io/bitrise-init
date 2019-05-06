@@ -352,6 +352,20 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(target.Name, exportMethodOption)
 
+				iconIDs := []string{}
+				if !excludeAppIcon {
+					appIcons, err := icon.LookupByTarget(projectPath, target.Name, searchDir)
+					if err != nil {
+						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
+						log.Warnf(warningMsg)
+						warnings = append(warnings, warningMsg)
+					}
+					for iconID, iconPath := range appIcons {
+						iconsForAllProjects[iconID] = iconPath
+						iconIDs = append(iconIDs, iconID)
+					}
+				}
+
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
@@ -369,7 +383,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := icon.LookupPossibleMatches(projectPath, scheme.Name, searchDir)
+					appIcons, err := icon.LookupByScheme(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)

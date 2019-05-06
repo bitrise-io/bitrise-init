@@ -6,7 +6,6 @@ import (
 	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
-// mainTargetOfScheme return the main target
 func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, error) {
 	projTargets := proj.Proj.Targets
 	sch, ok := proj.Scheme(scheme)
@@ -30,4 +29,14 @@ func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Targ
 		}
 	}
 	return xcodeproj.Target{}, fmt.Errorf("failed to find the project's main target for scheme (%s)", scheme)
+}
+
+func targetByName(proj xcodeproj.XcodeProj, target string) (xcodeproj.Target, bool, error) {
+	projTargets := proj.Proj.Targets
+	for _, t := range projTargets {
+		if t.Name == target {
+			return t, true, nil
+		}
+	}
+	return xcodeproj.Target{}, false, nil
 }

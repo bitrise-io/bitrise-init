@@ -15,9 +15,11 @@ import (
 	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
-// LookupPossibleMatches returns possible ios app icons,
-// in a map with key of a id (sha256 hash converted to string), value of icon path
-func LookupPossibleMatches(projectPath string, schemeName string, basepath string) (models.Icons, error) {
+// LookupByScheme returns possible ios app icons for a scheme,
+// Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
+// with the original (png) file extension appended
+// Icons value: absolute icon path
+func LookupByScheme(projectPath string, schemeName string, basepath string) (models.Icons, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
@@ -29,10 +31,33 @@ func LookupPossibleMatches(projectPath string, schemeName string, basepath strin
 	}
 
 	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
-	log.Debugf("Project: %s, Scheme: %s, main target: %s", project.Name, schemeName, mainTarget.Name)
 
+	return lookupByTarget(projectPath, mainTarget, basepath)
+}
+
+// LookupByTarget returns possible ios app icons for a scheme,
+// Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
+// with the original (png) file extension appended
+// Icons value: absolute icon path
+func LookupByTarget(projectPath string, targetName string, basepath string) (models.Icons, error) {
+	project, err := xcodeproj.Open(projectPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
+	}
+
+	target, found, err := targetByName(project, targetName)
+	if err != nil {
+		return models.Icons{}, err
+	} else if !found {
+		return models.Icons{}, fmt.Errorf("not found target: %s, in project: %s", targetName, projectPath)
+	}
+
+	return lookupByTarget(projectPath, target, basepath)
+}
+
+func lookupByTarget(projectPath string, target xcodeproj.Target, basepath string) (models.Icons, error) {
 	targetToAppIconSetPaths, err := xcodeproj.AppIconSetPaths(projectPath)
-	appIconSetPaths, ok := targetToAppIconSetPaths[mainTarget.ID]
+	appIconSetPaths, ok := targetToAppIconSetPaths[target.ID]
 	if !ok {
 		return nil, fmt.Errorf("target not found in project")
 	}
