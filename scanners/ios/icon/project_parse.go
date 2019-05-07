@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bitrise-io/xcode-project/xcodeproj"
+	"github.com/bitrise-io/xcode-project/xcworkspace"
 )
 
 func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, error) {
@@ -39,4 +40,19 @@ func targetByName(proj xcodeproj.XcodeProj, target string) (xcodeproj.Target, bo
 		}
 	}
 	return xcodeproj.Target{}, false, nil
+}
+
+// ProjectPathByScheme ...
+func ProjectPathByScheme(workspacePath string, scheme string) (string, bool, error) {
+	workspace, err := xcworkspace.Open(workspacePath)
+	if err != nil {
+		return "", false, err
+	}
+
+	_, projectPath, err := workspace.Scheme(scheme)
+	if err != nil {
+		return "", false, err
+	}
+
+	return projectPath, true, nil
 }

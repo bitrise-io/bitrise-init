@@ -429,16 +429,32 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				warnings = append(warnings, message)
 			}
 
-			for _, target := range targets {
-				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
-				schemeOption.AddOption(target.Name, exportMethodOption)
+			for _, project := range workspace.Projects { // Not reusing targets as project path is needed
+				for _, target := range project.Targets {
+					exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
+					schemeOption.AddOption(target.Name, exportMethodOption)
 
-				for _, exportMethod := range exportMethods {
-					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
-					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
+					iconIDs := []string{}
+					if !excludeAppIcon {
+						appIcons, err := icon.LookupByTarget(project.Pth, target.Name, searchDir)
+						if err != nil {
+							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
+							log.Warnf(warningMsg)
+							warnings = append(warnings, warningMsg)
+						}
+						for iconID, iconPath := range appIcons {
+							iconsForAllProjects[iconID] = iconPath
+							iconIDs = append(iconIDs, iconID)
+						}
+					}
 
-					exportMethodOption.AddConfig(exportMethod, configOption)
+					for _, exportMethod := range exportMethods {
+						configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
+						configDescriptors = append(configDescriptors, configDescriptor)
+						configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
+
+						exportMethodOption.AddConfig(exportMethod, configOption)
+					}
 				}
 			}
 		} else {
@@ -447,6 +463,28 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
 				schemeOption.AddOption(scheme.Name, exportMethodOption)
+
+				iconIDs := []string{}
+				if !excludeAppIcon {
+					projectPath, err := icon.ProjectPathByScheme(workspace.Pth, scheme.Name)
+					if err != nil {
+						warningMsg := fmt.Sprintf("could not get project path (%s) for scheme (%s) and workspace (%s), error: %s",
+							projectPath, scheme.Name, workspace.Pth, err)
+						log.Warnf(warningMsg)
+						warnings = append(warnings, warningMsg)
+					} else {
+						appIcons, err := icon.LookupByScheme(projectPath, scheme.Name, searchDir)
+						if err != nil {
+							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
+							log.Warnf(warningMsg)
+							warnings = append(warnings, warningMsg)
+						}
+						for iconID, iconPath := range appIcons {
+							iconsForAllProjects[iconID] = iconPath
+							iconIDs = append(iconIDs, iconID)
+						}
+					}
+				}
 
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
