@@ -379,7 +379,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, true)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
 
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
@@ -461,7 +461,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 					for _, exportMethod := range exportMethods {
 						configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, true)
 						configDescriptors = append(configDescriptors, configDescriptor)
-						configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
+						configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
 
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					}
@@ -499,7 +499,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 				for _, exportMethod := range exportMethods {
 					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, false)
 					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), []string{})
+					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
 
 					exportMethodOption.AddConfig(exportMethod, configOption)
 				}
