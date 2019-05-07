@@ -50,10 +50,6 @@ const (
 	MacExportMethodInputTitle = "Application export method\nNOTE: `none` means: Export a copy of the application without re-signing."
 )
 
-const (
-	appIconTitle = "Application icon"
-)
-
 // IosExportMethods ...
 var IosExportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
 
