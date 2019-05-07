@@ -18,34 +18,89 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-// Name ...
-const Name = "react-native"
+// scannerName is the name of the scanner.
+const scannerName = "react-native"
 
 const (
-	// WorkDirInputKey ...
+	// WorkDirInputKey is a key of the working directory step input.
 	WorkDirInputKey = "workdir"
 )
 
-// Scanner ...
+// Scanner implements the React Native project scanner.
 type Scanner struct {
 	searchDir      string
 	iosScanner     *ios.Scanner
 	androidScanner *android.Scanner
+
 	hasNPMTest     bool
 	packageJSONPth string
+
+	usesExpo    bool
+	usesExpoKit bool
 }
 
-// NewScanner ...
+// NewScanner creates a new scanner instance.
 func NewScanner() *Scanner {
 	return &Scanner{}
 }
 
-// Name ...
+// Name exposes the scanner name.
 func (Scanner) Name() string {
-	return Name
+	return scannerName
 }
 
-// DetectPlatform ...
+// isExpoProject reports whether a project is Expo based or not.
+func isExpoProject(packageJSONPth string) (bool, error) {
+	packages, err := utility.ParsePackagesJSON(packageJSONPth)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse package json file (%s): %s", packageJSONPth, err)
+	}
+
+	if _, found := packages.Dependencies["expo"]; !found {
+		return false, nil
+	}
+
+	// app.json file is a required part of an expo projects and shoulb be placed next to the root package.json file
+	appJSONPth := filepath.Join(filepath.Dir(packageJSONPth), "app.json")
+	exist, err := pathutil.IsPathExists(appJSONPth)
+	if err != nil {
+		return false, fmt.Errorf("failed to check if app.json file (%s) exist: %s", appJSONPth, err)
+	}
+	return exist, nil
+}
+
+// hasNativeProjects reports whether the project directory contains ios and android native projects or not.
+func hasNativeProjects(packageJSONPth string, iosScanner *ios.Scanner, androidScanner *android.Scanner) (bool, bool, error) {
+	projectDir := filepath.Dir(packageJSONPth)
+
+	iosProjectDetected := false
+	iosDir := filepath.Join(projectDir, "ios")
+	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
+		return false, false, err
+	} else if exist {
+		if detected, err := iosScanner.DetectPlatform(projectDir); err != nil {
+			return false, false, err
+		} else if detected {
+			iosProjectDetected = true
+		}
+	}
+
+	androidProjectDetected := false
+	androidDir := filepath.Join(projectDir, "android")
+	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
+		return false, false, err
+	} else if exist {
+		if detected, err := androidScanner.DetectPlatform(projectDir); err != nil {
+			return false, false, err
+		} else if detected {
+			androidProjectDetected = true
+		}
+	}
+
+	return iosProjectDetected, androidProjectDetected, nil
+}
+
+// DetectPlatform implements the ScannerInterface.
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
@@ -57,59 +112,64 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	log.TPrintf("%d package.json file detected", len(packageJSONPths))
-
 	log.TInfof("Filter relevant package.json files")
 
-	relevantPackageJSONPths := []string{}
-	iosScanner := ios.NewScanner()
-	androidScanner := android.NewScanner()
+	usesExpo := false
+	var packageFile string
+
 	for _, packageJSONPth := range packageJSONPths {
 		log.TPrintf("checking: %s", packageJSONPth)
 
-		projectDir := filepath.Dir(packageJSONPth)
-
-		iosProjectDetected := false
-		iosDir := filepath.Join(projectDir, "ios")
-		if exist, err := pathutil.IsDirExists(iosDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				iosProjectDetected = true
-			}
-		}
-
-		androidProjectDetected := false
-		androidDir := filepath.Join(projectDir, "android")
-		if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-			return false, err
-		} else if exist {
-			if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
-				return false, err
-			} else if detected {
-				androidProjectDetected = true
-			}
-		}
-
-		if iosProjectDetected || androidProjectDetected {
-			relevantPackageJSONPths = append(relevantPackageJSONPths, packageJSONPth)
+		expo, err := isExpoProject(packageJSONPth)
+		if err != nil {
+			log.TWarnf("failed to check if project uses Expo: %s", err)
 		} else {
-			log.TWarnf("no ios nor android project found, skipping package.json file")
+			log.TDonef("project uses Expo: %s", expo)
+		}
+
+		if expo {
+			usesExpo = true
+			packageFile = packageJSONPth
+			break
+		}
+
+		if scanner.iosScanner == nil {
+			scanner.iosScanner = ios.NewScanner()
+		}
+		if scanner.androidScanner == nil {
+			scanner.androidScanner = android.NewScanner()
+		}
+
+		ios, android, err := hasNativeProjects(packageJSONPth, scanner.iosScanner, scanner.androidScanner)
+		if err != nil {
+			log.TWarnf("failed to check native projects: %s", err)
+		} else {
+			log.TDonef("has native ios project: %s", ios)
+			log.TDonef("has native android project: %s", android)
+		}
+
+		if ios || android {
+			packageFile = packageJSONPth
+			break
 		}
 	}
 
-	if len(relevantPackageJSONPths) == 0 {
+	if packageFile == "" {
 		return false, nil
 	}
 
-	scanner.packageJSONPth = relevantPackageJSONPths[0]
+	scanner.usesExpo = usesExpo
+	scanner.packageJSONPth = packageFile
 
 	return true, nil
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+	if scanner.usesExpo {
+		return scanner.expoOptions()
+	}
+
 	warnings := models.Warnings{}
 
 	var rootOption models.OptionNode
@@ -240,9 +300,15 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 }
 
 // DefaultOptions ...
-func (Scanner) DefaultOptions() models.OptionNode {
+func (scanner *Scanner) DefaultOptions() models.OptionNode {
+	expoOption := models.NewOption("Project was created using Expo CLI?", "")
+
+	expoDefaultOptions := scanner.expoDefaultOptions()
+	expoOption.AddOption("yes", &expoDefaultOptions)
+
 	androidOptions := (&android.Scanner{ExcludeTest: true}).DefaultOptions()
 	androidOptions.RemoveConfigs()
+	expoOption.AddOption("no", &androidOptions)
 
 	iosOptions := (&ios.Scanner{}).DefaultOptions()
 	for _, child := range iosOptions.LastChilds() {
@@ -253,11 +319,15 @@ func (Scanner) DefaultOptions() models.OptionNode {
 
 	androidOptions.AttachToLastChilds(&iosOptions)
 
-	return androidOptions
+	return *expoOption
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+	if scanner.usesExpo {
+		return scanner.expoConfigs()
+	}
+
 	configMap := models.BitriseConfigMap{}
 
 	packageJSONDir := filepath.Dir(scanner.packageJSONPth)
@@ -330,7 +400,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-				bitriseDataModel, err := configBuilder.Generate(Name)
+				bitriseDataModel, err := configBuilder.Generate(scannerName)
 				if err != nil {
 					return models.BitriseConfigMap{}, err
 				}
@@ -346,7 +416,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		} else {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-			bitriseDataModel, err := configBuilder.Generate(Name)
+			bitriseDataModel, err := configBuilder.Generate(scannerName)
 			if err != nil {
 				return models.BitriseConfigMap{}, err
 			}
@@ -405,7 +475,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-				bitriseDataModel, err := configBuilder.Generate(Name)
+				bitriseDataModel, err := configBuilder.Generate(scannerName)
 				if err != nil {
 					return models.BitriseConfigMap{}, err
 				}
@@ -421,7 +491,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 		} else {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-			bitriseDataModel, err := configBuilder.Generate(Name)
+			bitriseDataModel, err := configBuilder.Generate(scannerName)
 			if err != nil {
 				return models.BitriseConfigMap{}, err
 			}
@@ -474,7 +544,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	bitriseDataModel, err := configBuilder.Generate(Name)
+	bitriseDataModel, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
