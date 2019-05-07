@@ -82,7 +82,7 @@
 
 [[projects]]
   branch = "feature/asset-catalog"
-  digest = "1:821b2bc27b97bc5c4fe6c2ce8910a2a54adf42f879cc6a4646c76b10ea914fe4"
+  digest = "1:e6bb654c30c6b3e26298b2da9e831f407552737052f3a2e1c2777ab62242956b"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
@@ -92,7 +92,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "03605e4cfd9d262f1039db0afb8d30ad062e13ce"
+  revision = "4934572be67745e0e95eed46e9305002aa0b089d"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -169,11 +169,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1ddfda089b8a15d92242412aabc1107b8c7a87c609c09c5b441c81dbcca0ab79"
+  digest = "1:545fb41f3b186052e964e070d76288e527cf8a52ffe95411baffb7b08c2a9409"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "ca7f33d4116e3a1f9425755d6a44e7ed9b4c97df"
+  revision = "2953c62de483abe29031e197e72d3b7061f65f91"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
