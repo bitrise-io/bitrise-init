@@ -14,6 +14,7 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-xcode/xcodeproj"
+	"github.com/bitrise-io/xcode-project/xcworkspace"
 )
 
 const (
@@ -225,6 +226,20 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 	}
 
 	return carthageCommand, warning
+}
+
+func projectPathByScheme(workspacePath string, scheme string) (string, error) {
+	workspace, err := xcworkspace.Open(workspacePath)
+	if err != nil {
+		return "", err
+	}
+
+	_, projectPath, err := workspace.Scheme(scheme)
+	if err != nil {
+		return "", err
+	}
+
+	return projectPath, nil
 }
 
 // GenerateOptions ...
@@ -466,7 +481,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					projectPath, err := icon.ProjectPathByScheme(workspace.Pth, scheme.Name)
+					projectPath, err := projectPathByScheme(workspace.Pth, scheme.Name)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get project path (%s) for scheme (%s) and workspace (%s), error: %s",
 							projectPath, scheme.Name, workspace.Pth, err)

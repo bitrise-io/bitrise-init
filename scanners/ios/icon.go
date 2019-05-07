@@ -1,13 +1,9 @@
 package icon
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/utility"
@@ -55,6 +51,21 @@ func LookupByTarget(projectPath string, targetName string, basepath string) (mod
 	return lookupByTarget(projectPath, target, basepath)
 }
 
+func nameToTarget(projectPath string, targetName string) (xcodeproj.Target, error) {
+	project, err := xcodeproj.Open(projectPath)
+	if err != nil {
+		return xcodeproj.Target{}, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
+	}
+
+	target, found, err := targetByName(project, targetName)
+	if err != nil {
+		return xcodeproj.Target{}, err
+	} else if !found {
+		return xcodeproj.Target{}, fmt.Errorf("not found target: %s, in project: %s", targetName, projectPath)
+	}
+	return target, nil
+}
+
 func lookupByTarget(projectPath string, target xcodeproj.Target, basepath string) (models.Icons, error) {
 	targetToAppIconSetPaths, err := xcodeproj.AppIconSetPaths(projectPath)
 	appIconSetPaths, ok := targetToAppIconSetPaths[target.ID]
@@ -87,77 +98,37 @@ func lookupByTarget(projectPath string, target xcodeproj.Target, basepath string
 	return iconIDToPath, nil
 }
 
-type assetIcon struct {
-	Size     string
-	Filename string
-}
-
-type assetInfo struct {
-	Version int
-	Author  string
-}
-type assetMetadata struct {
-	Images []assetIcon
-	Info   assetInfo
-}
-
-type appIcon struct {
-	Size     int
-	Filename string
-}
-
-func parseResourceSet(resourceSetPath string) (appIcon, bool, error) {
-	const resourceMetadataFileName = "Contents.json"
-	file, err := os.Open(filepath.Join(resourceSetPath, resourceMetadataFileName))
-	if err != nil {
-		return appIcon{}, false, fmt.Errorf("failed to open file, error: %s", err)
+func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, error) {
+	projTargets := proj.Proj.Targets
+	sch, ok := proj.Scheme(scheme)
+	if !ok {
+		return xcodeproj.Target{}, fmt.Errorf("Failed to find scheme (%s) in project", scheme)
 	}
 
-	appIcons, err := parseResourceSetMetadata(file)
-	if err != nil {
-		return appIcon{}, false, fmt.Errorf("failed to parse asset metadata, error: %s", err)
-	}
-
-	if len(appIcons) == 0 {
-		return appIcon{}, false, nil
-	}
-	largestIcon := appIcons[0]
-	for _, icon := range appIcons {
-		if icon.Size > largestIcon.Size {
-			largestIcon = icon
+	var blueIdent string
+	for _, entry := range sch.BuildAction.BuildActionEntries {
+		if entry.BuildableReference.IsAppReference() {
+			blueIdent = entry.BuildableReference.BlueprintIdentifier
+			break
 		}
 	}
-	return largestIcon, true, nil
+
+	// Search for the main target
+	for _, t := range projTargets {
+		if t.ID == blueIdent {
+			return t, nil
+
+		}
+	}
+	return xcodeproj.Target{}, fmt.Errorf("failed to find the project's main target for scheme (%s)", scheme)
 }
 
-func parseResourceSetMetadata(input io.Reader) ([]appIcon, error) {
-	decoder := json.NewDecoder(input)
-	var decoded assetMetadata
-	err := decoder.Decode(&decoded)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode asset metadata file, error: %s", err)
-	}
-
-	if decoded.Info.Version != 1 {
-		return nil, fmt.Errorf("unsupported asset metadata version")
-	}
-	var icons []appIcon
-	for _, icon := range decoded.Images {
-		sizeParts := strings.Split(icon.Size, "x")
-		if len(sizeParts) != 2 {
-			return nil, fmt.Errorf("invalid image size format")
-		}
-		iconSize, err := strconv.ParseFloat(sizeParts[0], 32)
-		if err != nil {
-			return nil, fmt.Errorf("invalid image size, error: %s", err)
-		}
-		// If icon is not set for a given usage, filaname key is missing
-		if icon.Filename != "" {
-			icons = append(icons, appIcon{
-				Size:     int(iconSize),
-				Filename: icon.Filename,
-			})
+func targetByName(proj xcodeproj.XcodeProj, target string) (xcodeproj.Target, bool, error) {
+	projTargets := proj.Proj.Targets
+	for _, t := range projTargets {
+		if t.Name == target {
+			return t, true, nil
 		}
 	}
-	return icons, nil
+	return xcodeproj.Target{}, false, nil
 }
