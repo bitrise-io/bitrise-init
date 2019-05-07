@@ -1,4 +1,4 @@
-package icon
+package ios
 
 import (
 	"encoding/json"

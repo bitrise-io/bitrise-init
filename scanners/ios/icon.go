@@ -1,4 +1,4 @@
-package icon
+package ios
 
 import (
 	"fmt"
@@ -11,11 +11,11 @@ import (
 	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
-// LookupByScheme returns possible ios app icons for a scheme,
+// lookupBySchemeName returns possible ios app icons for a scheme,
 // Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
 // with the original (png) file extension appended
 // Icons value: absolute icon path
-func LookupByScheme(projectPath string, schemeName string, basepath string) (models.Icons, error) {
+func lookupBySchemeName(projectPath string, schemeName string, basepath string) (models.Icons, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
@@ -31,21 +31,14 @@ func LookupByScheme(projectPath string, schemeName string, basepath string) (mod
 	return lookupByTarget(projectPath, mainTarget, basepath)
 }
 
-// LookupByTarget returns possible ios app icons for a scheme,
+// lookupByTargetName returns possible ios app icons for a scheme,
 // Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
 // with the original (png) file extension appended
 // Icons value: absolute icon path
-func LookupByTarget(projectPath string, targetName string, basepath string) (models.Icons, error) {
-	project, err := xcodeproj.Open(projectPath)
+func lookupByTargetName(projectPath string, targetName string, basepath string) (models.Icons, error) {
+	target, err := nameToTarget(projectPath, targetName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open project file: %s, error: %s", projectPath, err)
-	}
-
-	target, found, err := targetByName(project, targetName)
-	if err != nil {
-		return models.Icons{}, err
-	} else if !found {
-		return models.Icons{}, fmt.Errorf("not found target: %s, in project: %s", targetName, projectPath)
+		return models.Icons{}, nil
 	}
 
 	return lookupByTarget(projectPath, target, basepath)

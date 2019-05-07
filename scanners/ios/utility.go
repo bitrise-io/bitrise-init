@@ -7,7 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/scanners/ios/icon"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -369,7 +368,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := icon.LookupByTarget(projectPath, target.Name, searchDir)
+					appIcons, err := lookupByTargetName(projectPath, target.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
@@ -398,7 +397,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := icon.LookupByScheme(projectPath, scheme.Name, searchDir)
+					appIcons, err := lookupBySchemeName(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
@@ -451,7 +450,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 					iconIDs := []string{}
 					if !excludeAppIcon {
-						appIcons, err := icon.LookupByTarget(project.Pth, target.Name, searchDir)
+						appIcons, err := lookupByTargetName(project.Pth, target.Name, searchDir)
 						if err != nil {
 							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
 							log.Warnf(warningMsg)
@@ -488,7 +487,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						log.Warnf(warningMsg)
 						warnings = append(warnings, warningMsg)
 					} else {
-						appIcons, err := icon.LookupByScheme(projectPath, scheme.Name, searchDir)
+						appIcons, err := lookupBySchemeName(projectPath, scheme.Name, searchDir)
 						if err != nil {
 							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 							log.Warnf(warningMsg)
