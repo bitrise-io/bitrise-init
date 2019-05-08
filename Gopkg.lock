@@ -35,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6ff15f23762c225970c8624e1ef1b6a8861aa5d1ef4f10702ea158bf24d3ce4a"
+  digest = "1:a01d84a558d84ce7c2a050e553b67a9cc66a120f219499f457a88d1292a3135f"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -51,7 +51,7 @@
     "sliceutil",
   ]
   pruneopts = "UT"
-  revision = "2a09aab8380d7842750328aebd5671bcccea89c8"
+  revision = "8898129615c9e407fc6b0e60ea882f2b18ec4dc2"
 
 [[projects]]
   branch = "master"
@@ -81,8 +81,8 @@
   revision = "8cd3398fab6c211eef53502b65ec7ad5510f556a"
 
 [[projects]]
-  branch = "feature/asset-catalog"
-  digest = "1:e6bb654c30c6b3e26298b2da9e831f407552737052f3a2e1c2777ab62242956b"
+  branch = "master"
+  digest = "1:d30f24e344dc73c47a2e18a658fe46cc22b18a756b0fed3e8056c2fd4669a125"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
@@ -92,7 +92,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "4934572be67745e0e95eed46e9305002aa0b089d"
+  revision = "5929ad85d89233b3296d2d795e068a656db7fb25"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -169,11 +169,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:545fb41f3b186052e964e070d76288e527cf8a52ffe95411baffb7b08c2a9409"
+  digest = "1:f42e547cbcaa2cf6548b0bb27a350f75db23340d062877fb534c06eb57934e8c"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "2953c62de483abe29031e197e72d3b7061f65f91"
+  revision = "12bbe5a7a5209180b72cc7e3ed9da40442fe3246"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
