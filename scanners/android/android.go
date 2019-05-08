@@ -71,8 +71,8 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
-		iconIDs := make([]string, len(icons))
 		appIconsAllProjects = append(appIconsAllProjects, icons...)
+		iconIDs := make([]string, len(icons))
 		for i, icon := range icons {
 			iconIDs[i] = icon.Filename
 		}

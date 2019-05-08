@@ -91,7 +91,7 @@ func lookupIcons(projectDir string, basepath string) ([]string, error) {
 		return nil, err
 	}
 
-	// falling back to standard icon names, if not found in manifest
+	// falling back to standard icon name, if not found in manifest
 	iconNames := []icon{
 		{
 			prefix:       "mipmap",
@@ -129,10 +129,5 @@ func LookupIcons(projectDir string, basepath string) (models.Icons, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
-	if err != nil {
-		return nil, err
-	}
-	return icons, nil
+	return utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
 }
