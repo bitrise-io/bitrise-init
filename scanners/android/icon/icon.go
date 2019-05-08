@@ -2,7 +2,6 @@ package icon
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -11,7 +10,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
 type icon struct {
@@ -19,33 +18,19 @@ type icon struct {
 	fileNameBase string
 }
 
-func lookupIcon(manifestPth, resPth string) (string, error) {
+func lookupIconName(manifestPth string) (icon, error) {
 	doc := etree.NewDocument()
 	if err := doc.ReadFromFile(manifestPth); err != nil {
-		return "", err
+		return icon{}, err
 	}
 
 	log.Debugf("Looking for app icons. Manifest path: %s", manifestPth)
-	icon, err := parseIconName(doc)
+	parsedIcon, err := parseIconName(doc)
 	if err != nil {
-		return "", err
+		return icon{}, err
 	}
 
-	var resourceSuffixes = [...]string{"xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi", "ldpi"}
-	resourceDirs := make([]string, len(resourceSuffixes))
-	for _, mipmapSuffix := range resourceSuffixes {
-		resourceDirs = append(resourceDirs, icon.prefix+"-"+mipmapSuffix)
-	}
-
-	for _, dir := range resourceDirs {
-		filePath := path.Join(resPth, dir, icon.fileNameBase+".png")
-		if exists, err := pathutil.IsPathExists(filePath); err != nil {
-			return "", err
-		} else if exists {
-			return filePath, nil
-		}
-	}
-	return "", nil
+	return parsedIcon, nil
 }
 
 // parseIconName fetches icon name from AndroidManifest.xml
@@ -76,33 +61,65 @@ func parseIconName(doc *etree.Document) (icon, error) {
 	}, nil
 }
 
+func lookupIconPaths(resPth string, icon icon) ([]string, error) {
+	var resourceSuffixes = [...]string{"xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi", "ldpi"}
+	resourceDirs := make([]string, len(resourceSuffixes))
+	for _, mipmapSuffix := range resourceSuffixes {
+		resourceDirs = append(resourceDirs, icon.prefix+"-"+mipmapSuffix)
+	}
+
+	for _, dir := range resourceDirs {
+		iconPaths, err := filepath.Glob(filepath.Join(regexp.QuoteMeta(resPth), dir, icon.fileNameBase+".png"))
+		if err != nil {
+			return nil, err
+		}
+		if len(iconPaths) != 0 {
+			return iconPaths, nil
+		}
+	}
+	return nil, nil
+}
+
 func lookupPossibleMatches(projectDir string, basepath string) ([]string, error) {
-	manifestPaths, err := filepath.Glob(filepath.Join(regexp.QuoteMeta(projectDir), "*", "src", "*", "AndroidManifest.xml"))
+	variantPaths := filepath.Join(regexp.QuoteMeta(projectDir), "*", "src", "*")
+	manifestPaths, err := filepath.Glob(filepath.Join(variantPaths, "AndroidManifest.xml"))
+	if err != nil {
+		return nil, err
+	}
+	resourcesPaths, err := filepath.Glob(filepath.Join(variantPaths, "res"))
 	if err != nil {
 		return nil, err
 	}
 
-	var iconPaths []string
+	iconNames := []icon{
+		{
+			prefix:       "mipmap",
+			fileNameBase: "ic_launcher",
+		},
+		{
+			prefix:       "mipmap",
+			fileNameBase: "ic_launcher_round",
+		},
+	}
 	for _, manifestPath := range manifestPaths {
-		resourcesPath, err := filepath.Abs(filepath.Join(manifestPath, "..", "res"))
+		icon, err := lookupIconName(manifestPath)
 		if err != nil {
 			return nil, err
 		}
-		if exist, err := pathutil.IsPathExists(resourcesPath); err != nil {
-			return nil, err
-		} else if !exist {
-			log.Debugf("Resource path %s does not exist.", resourcesPath)
-		}
+		iconNames = append(iconNames, icon)
+	}
 
-		iconPath, err := lookupIcon(manifestPath, resourcesPath)
-		if err != nil {
-			return nil, err
-		}
-		if iconPath != "" {
-			iconPaths = append(iconPaths, iconPath)
+	var iconPaths []string
+	for _, resourcesPath := range resourcesPaths {
+		for _, icon := range iconNames {
+			foundIconPaths, err := lookupIconPaths(resourcesPath, icon)
+			if err != nil {
+				return nil, err
+			}
+			iconPaths = append(iconPaths, foundIconPaths...)
 		}
 	}
-	return iconPaths, nil
+	return sliceutil.UniqueStringSlice(iconPaths), nil
 }
 
 // LookupPossibleMatches returns the largest resolution for all potential android icons
