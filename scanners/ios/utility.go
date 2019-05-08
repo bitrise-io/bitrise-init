@@ -367,7 +367,6 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						warnings = append(warnings, warningMsg)
 					}
 					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					iconIDs := make([]string, len(icons))
 					for _, icon := range icons {
 						iconIDs = append(iconIDs, icon.Filename)
 					}
@@ -397,7 +396,6 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						warnings = append(warnings, warningMsg)
 					}
 					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					iconIDs := make([]string, len(icons))
 					for _, icon := range icons {
 						iconIDs = append(iconIDs, icon.Filename)
 					}
@@ -452,7 +450,6 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 							warnings = append(warnings, warningMsg)
 						}
 						iconsForAllProjects = append(iconsForAllProjects, icons...)
-						iconIDs := make([]string, len(icons))
 						for _, icon := range icons {
 							iconIDs = append(iconIDs, icon.Filename)
 						}
@@ -500,7 +497,6 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						warnings = append(warnings, warningMsg)
 					}
 					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					iconIDs := make([]string, len(icons))
 					for _, icon := range icons {
 						iconIDs = append(iconIDs, icon.Filename)
 					}
