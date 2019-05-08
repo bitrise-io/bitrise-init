@@ -7,7 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/scanners/android/icon"
 )
 
 // Scanner ...
@@ -68,7 +67,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
-		appIcons, err := icon.LookupPossibleMatches(projectRoot, scanner.SearchDir)
+		appIcons, err := LookupIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}

@@ -585,6 +585,7 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
                 config: android-config
                 icons:
                 - 81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png
+                - 3a50cbe24812ec6ef995f7142267bf67059d3e73e6b042873043b00354dbfde0.png
 configs:
   android:
     android-config: |

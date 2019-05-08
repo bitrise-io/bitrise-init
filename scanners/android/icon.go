@@ -1,4 +1,4 @@
-package icon
+package android
 
 import (
 	"fmt"
@@ -18,47 +18,47 @@ type icon struct {
 	fileNameBase string
 }
 
-func lookupIconName(manifestPth string) (icon, error) {
+func lookupIconName(manifestPth string) ([]icon, error) {
 	doc := etree.NewDocument()
 	if err := doc.ReadFromFile(manifestPth); err != nil {
-		return icon{}, err
+		return nil, err
 	}
 
 	log.Debugf("Looking for app icons. Manifest path: %s", manifestPth)
-	parsedIcon, err := parseIconName(doc)
+	parsedIcons, err := parseIconName(doc)
 	if err != nil {
-		return icon{}, err
+		return nil, err
 	}
 
-	return parsedIcon, nil
+	return parsedIcons, nil
 }
 
 // parseIconName fetches icon name from AndroidManifest.xml
-func parseIconName(doc *etree.Document) (icon, error) {
+func parseIconName(doc *etree.Document) ([]icon, error) {
 	man := doc.SelectElement("manifest")
 	if man == nil {
 		log.Debugf("Key manifest not found in manifest file")
-		return icon{}, nil
+		return nil, nil
 	}
 	app := man.SelectElement("application")
 	if app == nil {
 		log.Debugf("Key application not found in manifest file")
-		return icon{}, nil
+		return nil, nil
 	}
 	ic := app.SelectAttr("android:icon")
 	if ic == nil {
 		log.Debugf("Attribute not found in manifest file")
-		return icon{}, nil
+		return nil, nil
 	}
 
 	iconPathParts := strings.Split(strings.TrimPrefix(ic.Value, "@"), "/")
 	if len(iconPathParts) != 2 {
-		return icon{}, fmt.Errorf("unsupported icon key")
+		return nil, fmt.Errorf("unsupported icon key")
 	}
-	return icon{
+	return []icon{{
 		prefix:       iconPathParts[0],
 		fileNameBase: iconPathParts[1],
-	}, nil
+	}}, nil
 }
 
 func lookupIconPaths(resPth string, icon icon) ([]string, error) {
@@ -80,7 +80,7 @@ func lookupIconPaths(resPth string, icon icon) ([]string, error) {
 	return nil, nil
 }
 
-func lookupPossibleMatches(projectDir string, basepath string) ([]string, error) {
+func lookupIcons(projectDir string, basepath string) ([]string, error) {
 	variantPaths := filepath.Join(regexp.QuoteMeta(projectDir), "*", "src", "*")
 	manifestPaths, err := filepath.Glob(filepath.Join(variantPaths, "AndroidManifest.xml"))
 	if err != nil {
@@ -91,6 +91,7 @@ func lookupPossibleMatches(projectDir string, basepath string) ([]string, error)
 		return nil, err
 	}
 
+	// falling back to standard icon names, if not found in manifest
 	iconNames := []icon{
 		{
 			prefix:       "mipmap",
@@ -102,11 +103,11 @@ func lookupPossibleMatches(projectDir string, basepath string) ([]string, error)
 		},
 	}
 	for _, manifestPath := range manifestPaths {
-		icon, err := lookupIconName(manifestPath)
+		icons, err := lookupIconName(manifestPath)
 		if err != nil {
 			return nil, err
 		}
-		iconNames = append(iconNames, icon)
+		iconNames = append(iconNames, icons...)
 	}
 
 	var iconPaths []string
@@ -122,11 +123,11 @@ func lookupPossibleMatches(projectDir string, basepath string) ([]string, error)
 	return sliceutil.UniqueStringSlice(iconPaths), nil
 }
 
-// LookupPossibleMatches returns the largest resolution for all potential android icons
+// LookupIcons returns the largest resolution for all potential android icons
 // It does look up all possible files project_dir/*/src/*/AndroidManifest.xml,
 // then looks up the icon referenced in the res directory
-func LookupPossibleMatches(projectDir string, basepath string) (models.Icons, error) {
-	iconPaths, err := lookupPossibleMatches(projectDir, basepath)
+func LookupIcons(projectDir string, basepath string) (models.Icons, error) {
+	iconPaths, err := lookupIcons(projectDir, basepath)
 	if err != nil {
 		return nil, err
 	}

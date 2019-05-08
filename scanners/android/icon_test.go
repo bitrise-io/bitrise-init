@@ -1,4 +1,4 @@
-package icon
+package android
 
 import (
 	"io/ioutil"
@@ -29,7 +29,7 @@ const appManifest = `
 </manifest>
 `
 
-func TestLookupPossibleMatches(t *testing.T) {
+func TestLookupIcons(t *testing.T) {
 	projectDir, err := ioutil.TempDir("", "android-dummy-project")
 	if err != nil {
 		t.Errorf("setup: failed to create temp dir")
@@ -86,7 +86,7 @@ func TestLookupPossibleMatches(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := lookupPossibleMatches(tt.projectDir, tt.basepath)
+			got, err := lookupIcons(tt.projectDir, tt.basepath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
 				return

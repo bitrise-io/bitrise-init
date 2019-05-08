@@ -360,7 +360,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := lookupByTargetName(projectPath, target.Name, searchDir)
+					appIcons, err := lookupIconByTargetName(projectPath, target.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
@@ -389,7 +389,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := lookupBySchemeName(projectPath, scheme.Name, searchDir)
+					appIcons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
@@ -443,7 +443,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 					iconIDs := []string{}
 					if !excludeAppIcon {
-						appIcons, err := lookupByTargetName(project.Pth, target.Name, searchDir)
+						appIcons, err := lookupIconByTargetName(project.Pth, target.Name, searchDir)
 						if err != nil {
 							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
 							log.Warnf(warningMsg)
@@ -490,7 +490,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						continue
 					}
 
-					appIcons, err := lookupBySchemeName(projectPath, scheme.Name, searchDir)
+					appIcons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
