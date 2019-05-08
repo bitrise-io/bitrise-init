@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -91,6 +92,8 @@ func TestLookupIcons(t *testing.T) {
 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			sort.Strings(got)
+			sort.Strings(tt.want)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LookupPossibleMatches() = %v, want %v", got, tt.want)
 			}

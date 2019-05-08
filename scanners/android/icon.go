@@ -33,7 +33,7 @@ func lookupIconName(manifestPth string) ([]icon, error) {
 	return parsedIcons, nil
 }
 
-// parseIconName fetches icon name from AndroidManifest.xml
+// parseIconName fetches icon name from AndroidManifest.xml.
 func parseIconName(doc *etree.Document) ([]icon, error) {
 	man := doc.SelectElement("manifest")
 	if man == nil {
@@ -123,9 +123,7 @@ func lookupIcons(projectDir string, basepath string) ([]string, error) {
 	return sliceutil.UniqueStringSlice(iconPaths), nil
 }
 
-// LookupIcons returns the largest resolution for all potential android icons
-// It does look up all possible files project_dir/*/src/*/AndroidManifest.xml,
-// then looks up the icon referenced in the res directory
+// LookupIcons returns the largest resolution for all potential android icons.
 func LookupIcons(projectDir string, basepath string) (models.Icons, error) {
 	iconPaths, err := lookupIcons(projectDir, basepath)
 	if err != nil {

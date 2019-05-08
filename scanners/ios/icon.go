@@ -11,10 +11,7 @@ import (
 	"github.com/bitrise-io/xcode-project/xcodeproj"
 )
 
-// lookupIconBySchemeName returns possible ios app icons for a scheme,
-// Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
-// with the original (png) file extension appended
-// Icons value: absolute icon path
+// lookupIconBySchemeName returns possible ios app icons for a scheme.
 func lookupIconBySchemeName(projectPath string, schemeName string, basepath string) (models.Icons, error) {
 	project, err := xcodeproj.Open(projectPath)
 	if err != nil {
@@ -31,10 +28,7 @@ func lookupIconBySchemeName(projectPath string, schemeName string, basepath stri
 	return lookupIconByTarget(projectPath, mainTarget, basepath)
 }
 
-// lookupIconByTargetName returns possible ios app icons for a scheme,
-// Icons key: unique id for relative paths under basepath(sha256 hash converted to string) as a filename,
-// with the original (png) file extension appended
-// Icons value: absolute icon path
+// lookupIconByTargetName returns possible ios app icons for a target.
 func lookupIconByTargetName(projectPath string, targetName string, basepath string) (models.Icons, error) {
 	target, err := nameToTarget(projectPath, targetName)
 	if err != nil {
@@ -84,11 +78,11 @@ func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath st
 		iconPaths = append(iconPaths, iconPath)
 	}
 
-	iconIDToPath, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
+	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
 	if err != nil {
 		return nil, err
 	}
-	return iconIDToPath, nil
+	return icons, nil
 }
 
 func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, error) {

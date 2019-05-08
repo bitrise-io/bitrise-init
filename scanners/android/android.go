@@ -67,14 +67,14 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
 
-		appIcons, err := LookupIcons(projectRoot, scanner.SearchDir)
+		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
 			return models.OptionNode{}, warnings, models.Icons{}, err
 		}
-		iconIDs := []string{}
-		for iconID, iconPath := range appIcons {
-			appIconsAllProjects[iconID] = iconPath
-			iconIDs = append(iconIDs, iconID)
+		iconIDs := make([]string, len(icons))
+		appIconsAllProjects = append(appIconsAllProjects, icons...)
+		for i, icon := range icons {
+			iconIDs[i] = icon.Filename
 		}
 
 		configOption := models.NewConfigOption(ConfigName, iconIDs)

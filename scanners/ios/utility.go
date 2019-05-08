@@ -360,15 +360,16 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := lookupIconByTargetName(projectPath, target.Name, searchDir)
+					icons, err := lookupIconByTargetName(projectPath, target.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
 						warnings = append(warnings, warningMsg)
 					}
-					for iconID, iconPath := range appIcons {
-						iconsForAllProjects[iconID] = iconPath
-						iconIDs = append(iconIDs, iconID)
+					iconsForAllProjects = append(iconsForAllProjects, icons...)
+					iconIDs := make([]string, len(icons))
+					for _, icon := range icons {
+						iconIDs = append(iconIDs, icon.Filename)
 					}
 				}
 
@@ -389,15 +390,16 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 				iconIDs := []string{}
 				if !excludeAppIcon {
-					appIcons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
+					icons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
 						warnings = append(warnings, warningMsg)
 					}
-					for iconID, iconPath := range appIcons {
-						iconsForAllProjects[iconID] = iconPath
-						iconIDs = append(iconIDs, iconID)
+					iconsForAllProjects = append(iconsForAllProjects, icons...)
+					iconIDs := make([]string, len(icons))
+					for _, icon := range icons {
+						iconIDs = append(iconIDs, icon.Filename)
 					}
 				}
 
@@ -443,15 +445,16 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 					iconIDs := []string{}
 					if !excludeAppIcon {
-						appIcons, err := lookupIconByTargetName(project.Pth, target.Name, searchDir)
+						icons, err := lookupIconByTargetName(project.Pth, target.Name, searchDir)
 						if err != nil {
 							warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", project.Pth, err)
 							log.Warnf(warningMsg)
 							warnings = append(warnings, warningMsg)
 						}
-						for iconID, iconPath := range appIcons {
-							iconsForAllProjects[iconID] = iconPath
-							iconIDs = append(iconIDs, iconID)
+						iconsForAllProjects = append(iconsForAllProjects, icons...)
+						iconIDs := make([]string, len(icons))
+						for _, icon := range icons {
+							iconIDs = append(iconIDs, icon.Filename)
 						}
 					}
 
@@ -490,15 +493,16 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						continue
 					}
 
-					appIcons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
+					icons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
 					if err != nil {
 						warningMsg := fmt.Sprintf("could not get icons for app: %s, error: %s", projectPath, err)
 						log.Warnf(warningMsg)
 						warnings = append(warnings, warningMsg)
 					}
-					for iconID, iconPath := range appIcons {
-						iconsForAllProjects[iconID] = iconPath
-						iconIDs = append(iconIDs, iconID)
+					iconsForAllProjects = append(iconsForAllProjects, icons...)
+					iconIDs := make([]string, len(icons))
+					for _, icon := range icons {
+						iconIDs = append(iconIDs, icon.Filename)
 					}
 				}
 

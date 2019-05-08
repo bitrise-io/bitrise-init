@@ -44,12 +44,12 @@ func copyIconsToDir(icons models.Icons, outputDir string) error {
 		return fmt.Errorf("output dir does not exist")
 	}
 
-	for iconID, iconPath := range icons {
-		if err := validateIcon(iconPath); err != nil {
+	for _, icon := range icons {
+		if err := validateIcon(icon.Path); err != nil {
 			log.Warnf("%s", err)
 			continue
 		}
-		if err := copyFile(iconPath, filepath.Join(outputDir, iconID)); err != nil {
+		if err := copyFile(icon.Path, filepath.Join(outputDir, icon.Filename)); err != nil {
 			return err
 		}
 	}
