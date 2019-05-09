@@ -206,7 +206,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			xamarinConfigurationOption.AddOption(config, xamarinPlatformOption)
 
 			for _, platform := range platforms {
-				configOption := models.NewConfigOption(configName(scanner.HasNugetPackages, scanner.HasXamarinComponents), []string{})
+				configOption := models.NewConfigOption(configName(scanner.HasNugetPackages, scanner.HasXamarinComponents), nil)
 				xamarinPlatformOption.AddConfig(platform, configOption)
 			}
 		}
@@ -225,7 +225,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
 	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
 
-	configOption := models.NewConfigOption(defaultConfigName, []string{})
+	configOption := models.NewConfigOption(defaultConfigName, nil)
 	xamarinPlatformOption.AddConfig("_", configOption)
 
 	return *xamarinSolutionOption

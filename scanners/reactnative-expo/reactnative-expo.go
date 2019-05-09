@@ -358,10 +358,10 @@ entries.`
 		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
 		userNameOption.AddOption("_", passwordOption)
 
-		configOption := models.NewConfigOption(configName, []string{})
+		configOption := models.NewConfigOption(configName, nil)
 		passwordOption.AddConfig("_", configOption)
 	} else {
-		configOption := models.NewConfigOption(configName, []string{})
+		configOption := models.NewConfigOption(configName, nil)
 		buildVariantOption.AddConfig("Release", configOption)
 	}
 
@@ -622,7 +622,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
 		userNameOption.AddOption("_", passwordOption)
 
-		configOption := models.NewConfigOption("react-native-expo-expo-kit-default-config", []string{})
+		configOption := models.NewConfigOption("react-native-expo-expo-kit-default-config", nil)
 		passwordOption.AddConfig("_", configOption)
 	}
 
@@ -653,7 +653,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
 		moduleOption.AddOption("app", buildVariantOption)
 
-		configOption := models.NewConfigOption("react-native-expo-plain-default-config", []string{})
+		configOption := models.NewConfigOption("react-native-expo-plain-default-config", nil)
 		buildVariantOption.AddConfig("Release", configOption)
 	}
 

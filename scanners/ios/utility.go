@@ -544,7 +544,7 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
 	schemeOption.AddOption("_", exportMethodOption)
 
 	for _, exportMethod := range exportMethods {
-		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)), []string{})
+		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)), nil)
 		exportMethodOption.AddConfig(exportMethod, configOption)
 	}
 

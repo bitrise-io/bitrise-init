@@ -143,7 +143,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		for _, lane := range lanes {
 			log.TPrintf("- %s", lane)
 
-			configOption := models.NewConfigOption(configName, []string{})
+			configOption := models.NewConfigOption(configName, nil)
 			laneOption.AddConfig(lane, configOption)
 		}
 	}
@@ -171,7 +171,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 	laneOption.AddOption("_", projectTypeOption)
 
 	for _, p := range platforms {
-		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, p), []string{})
+		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, p), nil)
 		projectTypeOption.AddConfig(p, configOption)
 	}
 

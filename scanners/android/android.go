@@ -94,7 +94,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
-	configOption := models.NewConfigOption(DefaultConfigName, []string{})
+	configOption := models.NewConfigOption(DefaultConfigName, nil)
 
 	projectLocationOption.AddOption("_", moduleOption)
 	moduleOption.AddOption("_", variantOption)
