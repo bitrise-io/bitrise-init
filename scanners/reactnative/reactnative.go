@@ -105,19 +105,19 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	log.TPrintf("%d package.json file detected", len(packageJSONPths))
-	log.TInfof("Filter relevant package.json files")
+	log.TPrintf("Filter relevant package.json files")
 
 	usesExpo := false
 	var packageFile string
 
 	for _, packageJSONPth := range packageJSONPths {
-		log.TPrintf("checking: %s", packageJSONPth)
+		log.TPrintf("Checking: %s", packageJSONPth)
 
 		expo, err := isExpoProject(packageJSONPth)
 		if err != nil {
 			log.TWarnf("failed to check if project uses Expo: %s", err)
 		} else {
-			log.TDonef("project uses Expo: %v", expo)
+			log.TPrintf("Project uses Expo: %v", expo)
 		}
 
 		if expo {
@@ -137,8 +137,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if err != nil {
 			log.TWarnf("failed to check native projects: %s", err)
 		} else {
-			log.TDonef("has native ios project: %s", ios)
-			log.TDonef("has native android project: %s", android)
+			log.TPrintf("Has native ios project: %s", ios)
+			log.TPrintf("Has native android project: %s", android)
 		}
 
 		if ios || android {

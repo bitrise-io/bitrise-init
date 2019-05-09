@@ -281,7 +281,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			hasTest = true
 		}
 	}
-	log.TPrintf("test script found in package.json: %v", hasTest)
+	log.TPrintf("Test script found in package.json: %v", hasTest)
 
 	if !hasTest {
 		// if the project has no test script defined,
