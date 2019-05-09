@@ -70,7 +70,6 @@ type AutomationToolScanner interface {
 
 // ProjectScanners ...
 var ProjectScanners = []ScannerInterface{
-	// expo.NewScanner(),
 	reactnative.NewScanner(),
 	flutter.NewScanner(),
 	ionic.NewScanner(),
