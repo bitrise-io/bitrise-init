@@ -12,8 +12,8 @@ import (
 
 // ConvertPathsToUniqueFileNames returns a sorted array of unique icons.
 func ConvertPathsToUniqueFileNames(absoluteIconPaths []string, basepath string) (models.Icons, error) {
-	paths := sliceutil.UniqueStringSlice(absoluteIconPaths)
-	sort.Strings(paths)
+	absoluteIconPaths = sliceutil.UniqueStringSlice(absoluteIconPaths)
+	sort.Strings(absoluteIconPaths)
 
 	icons := models.Icons{}
 	for _, iconPath := range absoluteIconPaths {
