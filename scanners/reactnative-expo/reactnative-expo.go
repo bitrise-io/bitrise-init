@@ -777,7 +777,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 // ExcludedScannerNames ...
 func (Scanner) ExcludedScannerNames() []string {
 	return []string{
-		reactnative.Name,
+		// reactnative.Name,
 		string(ios.XcodeProjectTypeIOS),
 		string(ios.XcodeProjectTypeMacOS),
 		android.ScannerName,

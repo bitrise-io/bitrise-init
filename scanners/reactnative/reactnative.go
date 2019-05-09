@@ -124,7 +124,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if err != nil {
 			log.TWarnf("failed to check if project uses Expo: %s", err)
 		} else {
-			log.TDonef("project uses Expo: %s", expo)
+			log.TDonef("project uses Expo: %v", expo)
 		}
 
 		if expo {
@@ -510,7 +510,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 }
 
 // DefaultConfigs ...
-func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	// ci
@@ -558,6 +558,17 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{
 		configName: string(data),
 	}
+
+	// add Expo default configs
+	expoConfigs, err := scanner.expoDefaultConfigs()
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	for k, v := range expoConfigs {
+		configMap[k] = v
+	}
+
 	return configMap, nil
 }
 
