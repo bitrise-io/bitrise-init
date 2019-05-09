@@ -10,8 +10,8 @@ import (
 	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
-// ConvertPathsToUniqueFileNames returns a sorted array of unique icons.
-func ConvertPathsToUniqueFileNames(absoluteIconPaths []string, basepath string) (models.Icons, error) {
+// CreateIconDescriptors returns a sorted array of generated unique icon names, and the original file path.
+func CreateIconDescriptors(absoluteIconPaths []string, basepath string) (models.Icons, error) {
 	absoluteIconPaths = sliceutil.UniqueStringSlice(absoluteIconPaths)
 	sort.Strings(absoluteIconPaths)
 

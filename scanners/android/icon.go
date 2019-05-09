@@ -129,5 +129,5 @@ func LookupIcons(projectDir string, basepath string) (models.Icons, error) {
 	if err != nil {
 		return nil, err
 	}
-	return utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
+	return utility.CreateIconDescriptors(iconPaths, basepath)
 }

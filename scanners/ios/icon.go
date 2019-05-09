@@ -78,7 +78,7 @@ func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath st
 		iconPaths = append(iconPaths, iconPath)
 	}
 
-	icons, err := utility.ConvertPathsToUniqueFileNames(iconPaths, basepath)
+	icons, err := utility.CreateIconDescriptors(iconPaths, basepath)
 	if err != nil {
 		return nil, err
 	}
