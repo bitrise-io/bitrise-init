@@ -59,17 +59,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionNode{}, warnings, models.Icons{}, err
+			return models.OptionNode{}, warnings, nil, err
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
 		if err != nil {
-			return models.OptionNode{}, warnings, models.Icons{}, err
+			return models.OptionNode{}, warnings, nil, err
 		}
 
 		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
-			return models.OptionNode{}, warnings, models.Icons{}, err
+			return models.OptionNode{}, warnings, nil, err
 		}
 		appIconsAllProjects = append(appIconsAllProjects, icons...)
 		iconIDs := make([]string, len(icons))

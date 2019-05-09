@@ -191,7 +191,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 	if len(validSolutionMap) == 0 {
 		log.TErrorf("No valid solution file found")
-		return models.OptionNode{}, warnings, models.Icons{}, errors.New("No valid solution file found")
+		return models.OptionNode{}, warnings, nil, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
@@ -212,7 +212,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 	}
 
-	return *xamarinSolutionOption, warnings, models.Icons{}, nil
+	return *xamarinSolutionOption, warnings, nil, nil
 }
 
 // DefaultOptions ...

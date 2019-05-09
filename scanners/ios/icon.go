@@ -32,7 +32,7 @@ func lookupIconBySchemeName(projectPath string, schemeName string, basepath stri
 func lookupIconByTargetName(projectPath string, targetName string, basepath string) (models.Icons, error) {
 	target, err := nameToTarget(projectPath, targetName)
 	if err != nil {
-		return models.Icons{}, nil
+		return nil, nil
 	}
 
 	return lookupIconByTarget(projectPath, target, basepath)

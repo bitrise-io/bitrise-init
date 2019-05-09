@@ -320,7 +320,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 	}
 
-	return *flutterProjectLocationOption, models.Warnings{}, models.Icons{}, nil
+	return *flutterProjectLocationOption, models.Warnings{}, nil, nil
 }
 
 func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {

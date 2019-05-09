@@ -146,7 +146,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	packagesJSONPth := filepath.Join(projectRootDir, "package.json")
 	packages, err := utility.ParsePackagesJSON(packagesJSONPth)
 	if err != nil {
-		return models.OptionNode{}, warnings, models.Icons{}, err
+		return models.OptionNode{}, warnings, nil, err
 	}
 
 	// Search for karma/jasmine tests
@@ -172,7 +172,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	if karmaJasmineDependencyFound {
 		karmaConfigJSONPth := filepath.Join(projectRootDir, "karma.conf.js")
 		if exist, err := pathutil.IsPathExists(karmaConfigJSONPth); err != nil {
-			return models.OptionNode{}, warnings, models.Icons{}, err
+			return models.OptionNode{}, warnings, nil, err
 		} else if exist {
 			karmaTestDetected = true
 		}
@@ -208,7 +208,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		if jasmineDependencyFound {
 			jasmineConfigJSONPth := filepath.Join(projectRootDir, "spec", "support", "jasmine.json")
 			if exist, err := pathutil.IsPathExists(jasmineConfigJSONPth); err != nil {
-				return models.OptionNode{}, warnings, models.Icons{}, err
+				return models.OptionNode{}, warnings, nil, err
 			} else if exist {
 				jasminTestDetected = true
 			}
@@ -226,7 +226,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	if err != nil {
 		return models.OptionNode{},
 			warnings,
-			models.Icons{},
+			nil,
 			fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
 	}
 	if relCordovaConfigDir == "." {
@@ -261,7 +261,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	}
 	// ---
 
-	return *rootOption, warnings, models.Icons{}, nil
+	return *rootOption, warnings, nil, nil
 }
 
 // DefaultOptions ...

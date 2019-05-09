@@ -151,13 +151,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	if !isValidFastfileFound {
 		log.TErrorf("No valid Fastfile found")
 		warnings = append(warnings, "No valid Fastfile found")
-		return models.OptionNode{}, warnings, models.Icons{}, nil
+		return models.OptionNode{}, warnings, nil, nil
 	}
 
 	// Add project_type property option to decision tree
 	optionWithProjectType := toolscanner.AddProjectTypeToOptions(*workDirOption, scanner.projectTypes)
 
-	return optionWithProjectType, warnings, models.Icons{}, nil
+	return optionWithProjectType, warnings, nil, nil
 }
 
 // DefaultOptions ...
