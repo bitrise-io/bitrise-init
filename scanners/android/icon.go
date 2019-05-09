@@ -53,7 +53,7 @@ func parseIconName(doc *etree.Document) ([]icon, error) {
 
 	iconPathParts := strings.Split(strings.TrimPrefix(ic.Value, "@"), "/")
 	if len(iconPathParts) != 2 {
-		return nil, fmt.Errorf("unsupported icon key")
+		return nil, fmt.Errorf("unsupported icon key (%s)", ic.Value)
 	}
 	return []icon{{
 		prefix:       iconPathParts[0],
