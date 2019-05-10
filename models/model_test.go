@@ -213,7 +213,7 @@ func TestCopy(t *testing.T) {
 
 	opt0.AddOption("value1", opt01)
 
-	opt02 := NewConfigOption("name")
+	opt02 := NewConfigOption("name", nil)
 	opt0.AddConfig("value2", opt02)
 
 	// make a copy

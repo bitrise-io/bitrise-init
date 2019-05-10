@@ -3,19 +3,27 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cabe9ec8289704e71e45138c18ad90275bce25a8d61145c4130b55d9d9a6d6dc"
+  digest = "1:6ab7a72d995ed7cd18df2ed88733e3f1ccb8004f88bdc206442df73e088a82c6"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9b3cdde74fbe9443d704467498a7dcb61a79de9b"
+  revision = "5521996833c095f5ac75d99687cef8ad344ded12"
+
+[[projects]]
+  digest = "1:bd8bc15ce3a9929e2777651cbc271fca5561c0d5f42187edb4720e638d24662d"
+  name = "github.com/beevik/etree"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8aee6516be3b1163bb6450c35c50e4969e3a3aa8"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:59664077e5eba703425d438e1c9d6f4aeaaf485814cedcae5d9c05cd093f0664"
+  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
+  revision = "2ec917b478fe766c026ba3e78954db0f6b3954d4"
 
 [[projects]]
   branch = "master"
@@ -27,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6ff15f23762c225970c8624e1ef1b6a8861aa5d1ef4f10702ea158bf24d3ce4a"
+  digest = "1:a01d84a558d84ce7c2a050e553b67a9cc66a120f219499f457a88d1292a3135f"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -43,7 +51,7 @@
     "sliceutil",
   ]
   pruneopts = "UT"
-  revision = "2a09aab8380d7842750328aebd5671bcccea89c8"
+  revision = "8898129615c9e407fc6b0e60ea882f2b18ec4dc2"
 
 [[projects]]
   branch = "master"
@@ -54,7 +62,7 @@
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "04a02fcd3c06c698d47ce4e27dbe105d6ea8eadc"
+  revision = "a49d262bd2151997b9b18f882654eae3aab31a9d"
 
 [[projects]]
   branch = "master"
@@ -74,7 +82,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:791ce0f7d09a4c628614a5e3d097589406e8870f03bfa0db199b2d80cd2fb670"
+  digest = "1:d30f24e344dc73c47a2e18a658fe46cc22b18a756b0fed3e8056c2fd4669a125"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
@@ -84,7 +92,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "b724e9a2dda0585b6ceb6dbf9eb84ddbbf135335"
+  revision = "5929ad85d89233b3296d2d795e068a656db7fb25"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -161,14 +169,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:28d862f4f9bf2d1976d1d320481bff661b7565eb876d4df2a981f79e7f40e4cd"
+  digest = "1:4fc43e824f7e546353de724c00507b1d9c0bab56344b10c2330a97f166a0fba7"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "12500544f89f9420afe9529ba8940bf72d294972"
+  revision = "a5b02f93d862f065920dd6a40dddc66b60d0dec4"
 
 [[projects]]
-  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -179,8 +187,8 @@
     "unicode/norm",
   ]
   pruneopts = "UT"
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "v2"
@@ -203,6 +211,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Sirupsen/logrus",
+    "github.com/beevik/etree",
     "github.com/bitrise-io/bitrise/models",
     "github.com/bitrise-io/envman/models",
     "github.com/bitrise-io/go-utils/colorstring",
@@ -218,6 +227,7 @@
     "github.com/bitrise-io/goinp/goinp",
     "github.com/bitrise-io/stepman/models",
     "github.com/bitrise-io/xcode-project/serialized",
+    "github.com/bitrise-io/xcode-project/xcodeproj",
     "github.com/bitrise-io/xcode-project/xcworkspace",
     "github.com/google/go-cmp/cmp",
     "github.com/stretchr/testify/require",
