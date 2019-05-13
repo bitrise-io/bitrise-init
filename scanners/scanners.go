@@ -44,7 +44,7 @@ type ScannerInterface interface {
 	// - OptionNode
 	// - Warnings (if any)
 	// - error if (if any)
-	Options() (models.OptionNode, models.Warnings, error)
+	Options() (models.OptionNode, models.Warnings, models.Icons, error)
 
 	// Returns:
 	// - default options for the platform.

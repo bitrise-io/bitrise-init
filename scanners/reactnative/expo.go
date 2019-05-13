@@ -222,10 +222,10 @@ entries.`
 		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
 		userNameOption.AddOption("_", passwordOption)
 
-		configOption := models.NewConfigOption(expoConfigName)
+		configOption := models.NewConfigOption(expoConfigName, nil)
 		passwordOption.AddConfig("_", configOption)
 	} else {
-		configOption := models.NewConfigOption(expoConfigName)
+		configOption := models.NewConfigOption(expoConfigName, nil)
 		buildVariantOption.AddConfig("Release", configOption)
 	}
 
@@ -486,7 +486,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
 		userNameOption.AddOption("_", passwordOption)
 
-		configOption := models.NewConfigOption(expoWithExpoKitDefaultConfigName)
+		configOption := models.NewConfigOption(expoWithExpoKitDefaultConfigName, nil)
 		passwordOption.AddConfig("_", configOption)
 	}
 
@@ -517,7 +517,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
 		moduleOption.AddOption("app", buildVariantOption)
 
-		configOption := models.NewConfigOption(expoDefaultConfigName)
+		configOption := models.NewConfigOption(expoDefaultConfigName, nil)
 		buildVariantOption.AddConfig("Release", configOption)
 	}
 

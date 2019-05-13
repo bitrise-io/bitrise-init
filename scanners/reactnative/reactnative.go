@@ -162,11 +162,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 }
 
 // Options implements ScannerInterface.Options function.
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (options models.OptionNode, warnings models.Warnings, icons models.Icons, err error) {
 	if scanner.usesExpo {
-		return scanner.expoOptions()
+		options, warnings, err = scanner.expoOptions()
 	}
-	return scanner.options()
+	options, warnings, err = scanner.options()
+	return
 }
 
 // Configs implements ScannerInterface.Configs function.

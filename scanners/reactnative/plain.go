@@ -76,7 +76,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 				return models.OptionNode{}, warnings, fmt.Errorf("failed to npm install react-native in: %s\noutput: %s\nerror: %s", projectDir, out, err)
 			}
 
-			options, warns, err := androidScanner.Options()
+			options, warns, _, err := androidScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
 				return models.OptionNode{}, warnings, err
@@ -98,7 +98,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 		if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionNode{}, warnings, err
 		} else if detected {
-			options, warns, err := iosScanner.Options()
+			options, warns, _, err := iosScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
 				return models.OptionNode{}, warnings, err

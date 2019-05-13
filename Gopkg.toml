@@ -3,6 +3,10 @@
   branch = "master"
 
 [[constraint]]
+  name = "github.com/beevik/etree"
+  version = "1.1.0"
+
+[[constraint]]
   name = "github.com/bitrise-io/bitrise"
   branch = "master"
 
@@ -23,12 +27,12 @@
   branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/bitrise-io/go-xcode"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/bitrise-io/xcode-project"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/google/go-cmp"

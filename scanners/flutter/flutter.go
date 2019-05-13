@@ -246,7 +246,7 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
 
 	for _, project := range scanner.projects {
@@ -274,17 +274,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 								schemeOption.AddOption(scheme, exportMethodOption)
 
 								for _, exportMethod := range ios.IosExportMethods {
-									configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+									configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), nil)
 									exportMethodOption.AddConfig(exportMethod, configOption)
 								}
 							}
 						}
 					} else {
-						configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+						configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), nil)
 						flutterProjectHasTestOption.AddOption(v, configOption)
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg)
+					configOption := models.NewConfigOption(cfg, nil)
 					flutterProjectHasTestOption.AddOption(v, configOption)
 				}
 			}
@@ -305,23 +305,23 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 							schemeOption.AddOption(scheme, exportMethodOption)
 
 							for _, exportMethod := range ios.IosExportMethods {
-								configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+								configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), nil)
 								exportMethodOption.AddConfig(exportMethod, configOption)
 							}
 						}
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg + "-app-" + getBuildablePlatform(project.hasAndroidProject, project.hasIosProject))
+					configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), nil)
 					flutterProjectLocationOption.AddOption(project.path, configOption)
 				}
 			} else {
-				configOption := models.NewConfigOption(cfg)
+				configOption := models.NewConfigOption(cfg, nil)
 				flutterProjectLocationOption.AddOption(project.path, configOption)
 			}
 		}
 	}
 
-	return *flutterProjectLocationOption, nil, nil
+	return *flutterProjectLocationOption, models.Warnings{}, nil, nil
 }
 
 func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
@@ -363,15 +363,15 @@ func (Scanner) DefaultOptions() models.OptionNode {
 					schemeOption.AddOption("_", exportMethodOption)
 
 					for _, exportMethod := range ios.IosExportMethods {
-						configOption := models.NewConfigOption(cfg + "-app-" + platform)
+						configOption := models.NewConfigOption(cfg+"-app-"+platform, nil)
 						exportMethodOption.AddConfig(exportMethod, configOption)
 					}
 				} else {
-					configOption := models.NewConfigOption(cfg + "-app-" + platform)
+					configOption := models.NewConfigOption(cfg+"-app-"+platform, nil)
 					flutterPlatformOption.AddConfig(platform, configOption)
 				}
 			} else {
-				configOption := models.NewConfigOption(cfg)
+				configOption := models.NewConfigOption(cfg, nil)
 				flutterPlatformOption.AddConfig(platform, configOption)
 			}
 		}
