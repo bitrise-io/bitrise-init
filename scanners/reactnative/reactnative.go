@@ -165,8 +165,9 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 func (scanner *Scanner) Options() (options models.OptionNode, warnings models.Warnings, icons models.Icons, err error) {
 	if scanner.usesExpo {
 		options, warnings, err = scanner.expoOptions()
+	} else {
+		options, warnings, err = scanner.options()
 	}
-	options, warnings, err = scanner.options()
 	return
 }
 
