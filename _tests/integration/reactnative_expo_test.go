@@ -76,7 +76,7 @@ var bitriseCRNAVersions = []interface{}{
 }
 
 var bitriseCRNAResultYML = fmt.Sprintf(`options:
-  react-native-expo:
+  react-native:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
     value_map:
@@ -149,11 +149,11 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                               Release:
                                 config: react-native-expo-config
 configs:
-  react-native-expo:
+  react-native:
     react-native-expo-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: react-native-expo
+      project_type: react-native
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -221,7 +221,7 @@ configs:
               - xcodebuild_options: -UseModernBuildSystem=NO
           - deploy-to-bitrise-io@%s: {}
 warnings:
-  react-native-expo: []
+  react-native: []
 `, bitriseCRNAVersions...)
 
 var bitriseExpoKitVersions = []interface{}{
@@ -248,7 +248,7 @@ var bitriseExpoKitVersions = []interface{}{
 }
 
 var bitriseExpoKitResultYML = fmt.Sprintf(`options:
-  react-native-expo:
+  react-native:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
     value_map:
@@ -353,11 +353,11 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                                       _:
                                         config: react-native-expo-config
 configs:
-  react-native-expo:
+  react-native:
     react-native-expo-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: react-native-expo
+      project_type: react-native
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -442,5 +442,5 @@ configs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
-  react-native-expo: []
+  react-native: []
 `, bitriseExpoKitVersions...)

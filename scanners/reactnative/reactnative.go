@@ -63,15 +63,18 @@ func isExpoProject(packageJSONPth string) (bool, error) {
 }
 
 // hasNativeProjects reports whether the project directory contains ios and android native project.
-func hasNativeProjects(packageJSONPth string, iosScanner *ios.Scanner, androidScanner *android.Scanner) (bool, bool, error) {
-	projectDir := filepath.Dir(packageJSONPth)
+func hasNativeProjects(searchDir, projectDir string, iosScanner *ios.Scanner, androidScanner *android.Scanner) (bool, bool, error) {
+	absProjectDir, err := pathutil.AbsPath(projectDir)
+	if err != nil {
+		return false, false, err
+	}
 
 	iosProjectDetected := false
-	iosDir := filepath.Join(projectDir, "ios")
+	iosDir := filepath.Join(absProjectDir, "ios")
 	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
 		return false, false, err
 	} else if exist {
-		if detected, err := iosScanner.DetectPlatform(projectDir); err != nil {
+		if detected, err := iosScanner.DetectPlatform(searchDir); err != nil {
 			return false, false, err
 		} else if detected {
 			iosProjectDetected = true
@@ -79,11 +82,11 @@ func hasNativeProjects(packageJSONPth string, iosScanner *ios.Scanner, androidSc
 	}
 
 	androidProjectDetected := false
-	androidDir := filepath.Join(projectDir, "android")
+	androidDir := filepath.Join(absProjectDir, "android")
 	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
 		return false, false, err
 	} else if exist {
-		if detected, err := androidScanner.DetectPlatform(projectDir); err != nil {
+		if detected, err := androidScanner.DetectPlatform(searchDir); err != nil {
 			return false, false, err
 		} else if detected {
 			androidProjectDetected = true
@@ -133,12 +136,13 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			scanner.androidScanner = android.NewScanner()
 		}
 
-		ios, android, err := hasNativeProjects(packageJSONPth, scanner.iosScanner, scanner.androidScanner)
+		projectDir := filepath.Dir(packageJSONPth)
+		ios, android, err := hasNativeProjects(searchDir, projectDir, scanner.iosScanner, scanner.androidScanner)
 		if err != nil {
 			log.TWarnf("failed to check native projects: %s", err)
 		} else {
-			log.TPrintf("Has native ios project: %s", ios)
-			log.TPrintf("Has native android project: %s", android)
+			log.TPrintf("Has native ios project: %v", ios)
+			log.TPrintf("Has native android project: %v", android)
 		}
 
 		if ios || android {
