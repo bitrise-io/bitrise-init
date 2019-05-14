@@ -8,6 +8,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -74,6 +75,9 @@ func walkMultipleFiles(searchDir string, files ...string) (matches []string, err
 			return err
 		}
 		if info.IsDir() {
+			if info.Name() == "node_modules" {
+				return filepath.SkipDir
+			}
 			match, err := checkFiles(path, files...)
 			if err != nil {
 				return err
@@ -93,6 +97,7 @@ func checkGradlew(projectDir string) error {
 		return err
 	}
 	if !exist {
+		log.Warnf("No Gradle Wrapper (gradlew) found at path: %s", gradlewPth)
 		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b> 
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
