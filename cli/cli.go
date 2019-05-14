@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-io/bitrise-init/version"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/urfave/cli"
 )
 
@@ -26,11 +26,6 @@ func Run() {
 	app.Email = ""
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "loglevel, l",
-			Usage:  "Log level (options: debug, info, warn, error, fatal, panic).",
-			EnvVar: "LOGLEVEL",
-		},
 		cli.BoolFlag{
 			Name:   "ci",
 			Usage:  "If true it indicates that we're used by another tool so don't require any user input!",
@@ -39,24 +34,7 @@ func Run() {
 	}
 
 	app.Before = func(c *cli.Context) error {
-		log.SetFormatter(&log.TextFormatter{
-			FullTimestamp:   true,
-			ForceColors:     true,
-			TimestampFormat: "15:04:05",
-		})
-
-		// Log level
-		logLevelStr := c.String("loglevel")
-		if logLevelStr == "" {
-			logLevelStr = "info"
-		}
-
-		level, err := log.ParseLevel(logLevelStr)
-		if err != nil {
-			return err
-		}
-		log.SetLevel(level)
-
+		log.SetEnableDebugLog(true)
 		return nil
 	}
 
@@ -67,6 +45,7 @@ func Run() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		log.Warnf("%s", err)
+		os.Exit(1)
 	}
 }
