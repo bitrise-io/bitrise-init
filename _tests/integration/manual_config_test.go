@@ -1568,7 +1568,7 @@ configs:
     default-react-native-expo-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: default-react-native-expo-config
+      project_type: react-native
       trigger_map:
       - push_branch: '*'
         workflow: primary
@@ -1653,7 +1653,7 @@ configs:
     default-react-native-expo-expo-kit-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: default-react-native-expo-config
+      project_type: react-native
       trigger_map:
       - push_branch: '*'
         workflow: primary

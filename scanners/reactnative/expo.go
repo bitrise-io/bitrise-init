@@ -28,16 +28,8 @@ const (
 	expoWithExpoKitDefaultConfigName = "default-react-native-expo-expo-kit-config"
 )
 
-// AppJSONError represents an issue with app.json file.
-type AppJSONError struct {
-	appJSONPth  string
-	reason      string
-	explanation string
-}
-
-// Error implements the error interface
-func (e AppJSONError) Error() string {
-	return fmt.Sprintf("app.json file (%s) %s\n%s", e.appJSONPth, e.reason, e.explanation)
+func appJSONError(appJSONPth, reason, explanation string) error {
+	return fmt.Errorf("app.json file (%s) %s\n%s", appJSONPth, reason, explanation)
 }
 
 // expoOptions implements ScannerInterface.Options function for Expo based React Native projects.
@@ -117,29 +109,29 @@ entries.`
 
 		expoObj, err := app.Object("expo")
 		if err != nil {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing expo entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo entry", errorMessage)
 		}
 		projectName, err = expoObj.String("name")
 		if err != nil || projectName == "" {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing or empty expo/name entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/name entry", errorMessage)
 		}
 
 		iosObj, err := expoObj.Object("ios")
 		if err != nil {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing expo/ios entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo/ios entry", errorMessage)
 		}
 		bundleID, err := iosObj.String("bundleIdentifier")
 		if err != nil || bundleID == "" {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing or empty expo/ios/bundleIdentifier entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/ios/bundleIdentifier entry", errorMessage)
 		}
 
 		androidObj, err := expoObj.Object("android")
 		if err != nil {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing expo/android entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo/android entry", errorMessage)
 		}
 		packageName, err := androidObj.String("package")
 		if err != nil || packageName == "" {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing or empty expo/android/package entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/android/package entry", errorMessage)
 		}
 	} else {
 		// if the project does not use Expo Kit app.json needs to contain name and displayName entries
@@ -151,11 +143,11 @@ entries.`
 
 		projectName, err = app.String("name")
 		if err != nil || projectName == "" {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing or empty name entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty name entry", errorMessage)
 		}
 		displayName, err := app.String("displayName")
 		if err != nil || displayName == "" {
-			return models.OptionNode{}, warnings, AppJSONError{appJSONPth, "missing or empty displayName entry", errorMessage}
+			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty displayName entry", errorMessage)
 		}
 	}
 
@@ -573,7 +565,7 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-		bitriseDataModel, err := configBuilder.Generate(expoDefaultConfigName)
+		bitriseDataModel, err := configBuilder.Generate(scannerName)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -625,7 +617,7 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
-		bitriseDataModel, err := configBuilder.Generate(expoDefaultConfigName)
+		bitriseDataModel, err := configBuilder.Generate(scannerName)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
