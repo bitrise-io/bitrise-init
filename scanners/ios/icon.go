@@ -23,8 +23,13 @@ func lookupIconBySchemeName(projectPath string, schemeName string, basepath stri
 		return nil, fmt.Errorf("scheme (%s) not found in project", schemeName)
 	}
 
-	mainTarget, err := mainTargetOfScheme(project, scheme.Name)
-
+	mainTarget, found, err := mainTargetOfScheme(project, scheme.Name)
+	if err != nil {
+		return nil, fmt.Errorf("main target not found for project (%s), scheme (%s), error: %s", project.Path, scheme.Name, err)
+	} else if !found {
+		log.TDebugf("No main target found for scheme: %s", scheme.Name)
+		return nil, nil
+	}
 	return lookupIconByTarget(projectPath, mainTarget, basepath)
 }
 
@@ -32,7 +37,7 @@ func lookupIconBySchemeName(projectPath string, schemeName string, basepath stri
 func lookupIconByTargetName(projectPath string, targetName string, basepath string) (models.Icons, error) {
 	target, err := nameToTarget(projectPath, targetName)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return lookupIconByTarget(projectPath, target, basepath)
@@ -55,7 +60,11 @@ func nameToTarget(projectPath string, targetName string) (xcodeproj.Target, erro
 
 func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath string) (models.Icons, error) {
 	targetToAppIconSetPaths, err := xcodeproj.AppIconSetPaths(projectPath)
+	if err != nil {
+		return nil, err
+	}
 	appIconSetPaths, ok := targetToAppIconSetPaths[target.ID]
+	log.TDebugf("Appiconsets for target (%s): %s", target.Name, appIconSetPaths)
 	if !ok {
 		return nil, nil
 	}
@@ -66,12 +75,12 @@ func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath st
 		if err != nil {
 			return nil, fmt.Errorf("could not get icon, error: %s", err)
 		} else if !found {
+			log.TDebugf("No icon found at %s", appIconSetPath)
 			return nil, nil
 		}
-		log.Debugf("App icons: %s", icon)
+		log.TDebugf("App icons: %+v", icon)
 
 		iconPath := filepath.Join(appIconSetPath, icon.Filename)
-
 		if _, err := os.Stat(iconPath); err != nil && os.IsNotExist(err) {
 			return nil, fmt.Errorf("icon file does not exist: %s, error: %err", iconPath, err)
 		}
@@ -85,11 +94,11 @@ func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath st
 	return icons, nil
 }
 
-func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, error) {
+func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Target, bool, error) {
 	projTargets := proj.Proj.Targets
 	sch, ok := proj.Scheme(scheme)
 	if !ok {
-		return xcodeproj.Target{}, fmt.Errorf("Failed to find scheme (%s) in project", scheme)
+		return xcodeproj.Target{}, false, fmt.Errorf("Failed to find scheme (%s) in project", scheme)
 	}
 
 	var blueIdent string
@@ -103,11 +112,10 @@ func mainTargetOfScheme(proj xcodeproj.XcodeProj, scheme string) (xcodeproj.Targ
 	// Search for the main target
 	for _, t := range projTargets {
 		if t.ID == blueIdent {
-			return t, nil
-
+			return t, true, nil
 		}
 	}
-	return xcodeproj.Target{}, fmt.Errorf("failed to find the project's main target for scheme (%s)", scheme)
+	return xcodeproj.Target{}, false, nil
 }
 
 func targetByName(proj xcodeproj.XcodeProj, target string) (xcodeproj.Target, bool, error) {
