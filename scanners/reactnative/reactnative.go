@@ -131,9 +131,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		if scanner.iosScanner == nil {
 			scanner.iosScanner = ios.NewScanner()
+			scanner.iosScanner.ExcludeAppIcon = true
 		}
 		if scanner.androidScanner == nil {
 			scanner.androidScanner = android.NewScanner()
+			scanner.androidScanner.ExcludeAppIcon = true
 		}
 
 		projectDir := filepath.Dir(packageJSONPth)

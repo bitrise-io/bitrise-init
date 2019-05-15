@@ -61,14 +61,12 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
 		return models.OptionNode{}, warnings, err
 	} else if exist {
-		androidScanner := android.NewScanner()
-
-		if detected, err := androidScanner.DetectPlatform(scanner.searchDir); err != nil {
+		if detected, err := scanner.androidScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionNode{}, warnings, err
 		} else if detected {
 			// only the first match we need
-			androidScanner.ExcludeTest = true
-			androidScanner.ProjectRoots = []string{androidScanner.ProjectRoots[0]}
+			scanner.androidScanner.ExcludeTest = true
+			scanner.androidScanner.ProjectRoots = []string{scanner.androidScanner.ProjectRoots[0]}
 
 			npmCmd := command.New("npm", "install")
 			npmCmd.SetDir(projectDir)
@@ -76,14 +74,13 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 				return models.OptionNode{}, warnings, fmt.Errorf("failed to npm install react-native in: %s\noutput: %s\nerror: %s", projectDir, out, err)
 			}
 
-			options, warns, _, err := androidScanner.Options()
+			options, warns, _, err := scanner.androidScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
 				return models.OptionNode{}, warnings, err
 			}
 
 			androidOptions = &options
-			scanner.androidScanner = androidScanner
 		}
 	}
 
@@ -93,19 +90,16 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
 		return models.OptionNode{}, warnings, err
 	} else if exist {
-		iosScanner := ios.NewScanner()
-
-		if detected, err := iosScanner.DetectPlatform(scanner.searchDir); err != nil {
+		if detected, err := scanner.iosScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionNode{}, warnings, err
 		} else if detected {
-			options, warns, _, err := iosScanner.Options()
+			options, warns, _, err := scanner.iosScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
 				return models.OptionNode{}, warnings, err
 			}
 
 			iosOptions = &options
-			scanner.iosScanner = iosScanner
 		}
 	}
 
