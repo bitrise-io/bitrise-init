@@ -2,10 +2,11 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-io/bitrise-init/output"
 	"github.com/bitrise-io/bitrise-init/version"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/urfave/cli"
 )
 
@@ -21,7 +22,8 @@ var versionCommand = cli.Command{
 	Usage: "Prints the version",
 	Action: func(c *cli.Context) error {
 		if err := printVersion(c); err != nil {
-			log.Fatal(err)
+			log.TWarnf("%s", err)
+			os.Exit(1)
 		}
 		return nil
 	},
