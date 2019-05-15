@@ -10,7 +10,7 @@
 # Enforcing this to use bitrise.yml version (7) currently supported by website 
 [[constraint]]
   name = "github.com/bitrise-io/bitrise"
-  version = "=1.28.0"
+  version = "=1.29.0"
 
 [[constraint]]
   name = "github.com/bitrise-io/envman"

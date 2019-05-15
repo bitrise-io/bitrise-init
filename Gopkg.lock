@@ -14,8 +14,8 @@
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "73db1738b2b2569713dbaa88b876b135664aa2f4"
-  version = "1.28.0"
+  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
+  version = "1.29.0"
 
 [[projects]]
   branch = "master"
