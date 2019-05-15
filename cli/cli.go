@@ -45,7 +45,7 @@ func Run() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.TWarnf("%s", err)
+		log.TErrorf("%s", err)
 		os.Exit(1)
 	}
 }

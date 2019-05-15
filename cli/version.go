@@ -22,7 +22,7 @@ var versionCommand = cli.Command{
 	Usage: "Prints the version",
 	Action: func(c *cli.Context) error {
 		if err := printVersion(c); err != nil {
-			log.TWarnf("%s", err)
+			log.TErrorf("%s", err)
 			os.Exit(1)
 		}
 		return nil
