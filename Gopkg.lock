@@ -10,12 +10,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
+  digest = "1:59664077e5eba703425d438e1c9d6f4aeaaf485814cedcae5d9c05cd093f0664"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "d517b4ec062349d3b475a1928a804bfa284e86d9"
+  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
+  version = "1.29.0"
 
 [[projects]]
   branch = "master"
@@ -203,6 +203,7 @@
     "github.com/bitrise-io/stepman/models",
     "github.com/bitrise-io/xcode-project/serialized",
     "github.com/bitrise-io/xcode-project/xcodeproj",
+    "github.com/bitrise-io/xcode-project/xcscheme",
     "github.com/bitrise-io/xcode-project/xcworkspace",
     "github.com/google/go-cmp/cmp",
     "github.com/stretchr/testify/require",
