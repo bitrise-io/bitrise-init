@@ -14,8 +14,11 @@ func ManualConfig() (models.ScanResultModel, error) {
 	scannerToBitriseConfigMap := map[string]models.BitriseConfigMap{}
 
 	for _, scanner := range scannerList {
-		option := scanner.DefaultOptions()
-		scannerToOptionRoot[scanner.Name()] = option
+		options := scanner.DefaultOptions()
+
+		initOptionTypeRecursive(&options)
+
+		scannerToOptionRoot[scanner.Name()] = options
 
 		configs, err := scanner.DefaultConfigs()
 		if err != nil {

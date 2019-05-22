@@ -78,8 +78,8 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 
 		configOption := models.NewConfigOption(ConfigName, iconIDs)
-		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey).SetType(models.TypeUserInput)
+		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
@@ -92,8 +92,8 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey).SetType(models.TypeUserInput)
+	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 	configOption := models.NewConfigOption(DefaultConfigName, nil)
 
 	projectLocationOption.AddOption("_", moduleOption)

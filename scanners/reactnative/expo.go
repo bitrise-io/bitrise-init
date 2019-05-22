@@ -164,7 +164,7 @@ entries.`
 		projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcodeproj"), schemeOption)
 	}
 
-	developmentTeamOption := models.NewOption("iOS Development team", "BITRISE_IOS_DEVELOPMENT_TEAM")
+	developmentTeamOption := models.NewOption("iOS Development team", "BITRISE_IOS_DEVELOPMENT_TEAM").SetType(models.TypeUserInput)
 	schemeOption.AddOption(projectName, developmentTeamOption)
 
 	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
@@ -188,7 +188,7 @@ entries.`
 			exportMethodOption.AddOption(exportMethod, projectLocationOption)
 		}
 
-		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
+		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey).SetType(models.TypeUserInput)
 		projectLocationOption.AddOption("./android", moduleOption)
 	} else {
 		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file)", "WORKDIR")
@@ -199,19 +199,19 @@ entries.`
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption(relPackageJSONDir, projectLocationOption)
 
-		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
+		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey).SetType(models.TypeUserInput)
 		projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
 	}
 
-	buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
+	buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 	moduleOption.AddOption("app", buildVariantOption)
 
 	// expo options
 	if scanner.usesExpoKit {
-		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME")
+		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME").SetType(models.TypeUserInput)
 		buildVariantOption.AddOption("Release", userNameOption)
 
-		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
+		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD").SetType(models.TypeUserInput)
 		userNameOption.AddOption("_", passwordOption)
 
 		configOption := models.NewConfigOption(expoConfigName, nil)
@@ -465,17 +465,17 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption("_", projectLocationOption)
 
-		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey).SetType(models.TypeUserInput)
 		projectLocationOption.AddOption("./android", moduleOption)
 
-		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
+		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 		moduleOption.AddOption("app", buildVariantOption)
 
 		// Expo CLI options
-		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME")
+		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME").SetType(models.TypeUserInput)
 		buildVariantOption.AddOption("Release", userNameOption)
 
-		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD")
+		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD").SetType(models.TypeUserInput)
 		userNameOption.AddOption("_", passwordOption)
 
 		configOption := models.NewConfigOption(expoWithExpoKitDefaultConfigName, nil)
@@ -503,10 +503,10 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputEnvKey)
 		workDirOption.AddOption("_", projectLocationOption)
 
-		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey).SetType(models.TypeUserInput)
 		projectLocationOption.AddOption("./android", moduleOption)
 
-		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey)
+		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 		moduleOption.AddOption("app", buildVariantOption)
 
 		configOption := models.NewConfigOption(expoDefaultConfigName, nil)

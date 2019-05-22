@@ -168,6 +168,33 @@ func runScanners(scannerList []scanners.ScannerInterface, searchDir string) map[
 	return scannerOutputs
 }
 
+func initOptionTypeRecursive(option *models.OptionNode) {
+	// if not the last child => which is a config node
+	if len(option.ChildOptionMap) > 0 {
+
+		// if there is only one option which has a "_" key then it is an user input field originally
+		if val, ok := option.ChildOptionMap["_"]; len(option.ChildOptionMap) == 1 && ok {
+			// if no type set yet
+			if option.Type == "" {
+				option.Type = models.TypeUserInput
+			}
+			// removing "_" character
+			option.ChildOptionMap = map[string]*models.OptionNode{"": val}
+		}
+
+		// if no type set yet
+		if option.Type == "" {
+			// in other cases it is a list selector originally
+			option.Type = models.TypeSelector
+		}
+
+		// check all the following childs
+		for _, value := range option.ChildOptionMap {
+			initOptionTypeRecursive(value)
+		}
+	}
+}
+
 // Collect output of a specific scanner
 func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOutput {
 	var detectorWarnings models.Warnings
@@ -187,6 +214,8 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 
 	options, projectWarnings, icons, err := detector.Options()
 	detectorWarnings = append(detectorWarnings, projectWarnings...)
+
+	initOptionTypeRecursive(&options)
 
 	if err != nil {
 		log.TErrorf("Analyzer failed, error: %s", err)
