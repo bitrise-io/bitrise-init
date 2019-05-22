@@ -368,24 +368,29 @@ var customConfigResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: user_input
     value_map:
-      _:
+      "":
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
-          _:
+          "":
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: default-android-config
   cordova:
     title: Directory of Cordova Config.xml
     env_key: CORDOVA_WORK_DIR
+    type: user_input
     value_map:
-      _:
+      "":
         title: Platform to use in cordova-cli commands
         env_key: CORDOVA_PLATFORM
+        type: selector
         value_map:
           android:
             config: default-cordova-config
@@ -396,13 +401,16 @@ var customConfigResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Working directory
     env_key: FASTLANE_WORK_DIR
+    type: user_input
     value_map:
-      _:
+      "":
         title: Fastlane lane
         env_key: FASTLANE_LANE
+        type: user_input
         value_map:
-          _:
+          "":
             title: Project type
+            type: selector
             value_map:
               android:
                 config: default-fastlane-android-config
@@ -411,26 +419,32 @@ var customConfigResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project Location
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
+    type: user_input
     value_map:
-      _:
+      "":
         title: Run tests found in the project
+        type: selector
         value_map:
           "no":
             title: Platform
+            type: selector
             value_map:
               android:
                 config: flutter-config-app-android
               both:
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-app-both
@@ -443,14 +457,17 @@ var customConfigResultYML = fmt.Sprintf(`options:
               ios:
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-app-ios
@@ -464,20 +481,24 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: flutter-config
           "yes":
             title: Platform
+            type: selector
             value_map:
               android:
                 config: flutter-config-test-app-android
               both:
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-test-app-both
@@ -490,14 +511,17 @@ var customConfigResultYML = fmt.Sprintf(`options:
               ios:
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-test-app-ios
@@ -512,10 +536,12 @@ var customConfigResultYML = fmt.Sprintf(`options:
   ionic:
     title: Directory of Ionic Config.xml
     env_key: IONIC_WORK_DIR
+    type: user_input
     value_map:
-      _:
+      "":
         title: Platform to use in ionic-cli commands
         env_key: IONIC_PLATFORM
+        type: selector
         value_map:
           android:
             config: default-ionic-config
@@ -526,14 +552,17 @@ var customConfigResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: user_input
         value_map:
-          _:
+          "":
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: default-ios-config
@@ -546,16 +575,19 @@ var customConfigResultYML = fmt.Sprintf(`options:
   macos:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: user_input
         value_map:
-          _:
+          "":
             title: |-
               Application export method
-              NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
+              NOTE: `+"`"+`none`+"`"+` means: Export a copy of the application without re-signing.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               app-store:
                 config: default-macos-config
@@ -567,30 +599,37 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-macos-config
   react-native:
     title: Project was created using Expo CLI?
+    type: selector
     value_map:
       "no":
         title: The root directory of an Android project
         env_key: PROJECT_LOCATION
+        type: user_input
         value_map:
-          _:
+          "":
             title: Module
             env_key: MODULE
+            type: user_input
             value_map:
-              _:
+              "":
                 title: Variant
                 env_key: VARIANT
+                type: user_input_optional
                 value_map:
                   "":
                     title: Project (or Workspace) path
                     env_key: BITRISE_PROJECT_PATH
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: Scheme name
                         env_key: BITRISE_SCHEME
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: ipa export method
                             env_key: BITRISE_EXPORT_METHOD
+                            type: selector
                             value_map:
                               ad-hoc:
                                 config: default-react-native-config
@@ -603,35 +642,43 @@ var customConfigResultYML = fmt.Sprintf(`options:
       "yes":
         title: Project uses Expo Kit (any js file imports expo dependency)?
         env_key: USES_EXPO_KIT
+        type: selector
         value_map:
           "no":
             title: The iOS project path generated ny the 'expo eject' process
             env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              _:
+              "":
                 title: The iOS scheme name generated by the 'expo eject' process
                 env_key: BITRISE_SCHEME
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
@@ -639,18 +686,22 @@ var customConfigResultYML = fmt.Sprintf(`options:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
@@ -658,18 +709,22 @@ var customConfigResultYML = fmt.Sprintf(`options:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
@@ -677,154 +732,188 @@ var customConfigResultYML = fmt.Sprintf(`options:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
           "yes":
             title: The iOS workspace path generated ny the 'expo eject' process
             env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              _:
+              "":
                 title: The iOS scheme name generated by the 'expo eject' process
                 env_key: BITRISE_SCHEME
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       app-store:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       development:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       enterprise:
                         title: Project root directory (the directory of the project
                           app.json/package.json file)
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: user_input
         value_map:
-          _:
+          "":
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: user_input
             value_map:
-              _:
+              "":
                 config: default-xamarin-config
 configs:
   android:

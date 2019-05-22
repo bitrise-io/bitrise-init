@@ -79,72 +79,88 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
   react-native:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       ios/BitriseCRNA.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           BitriseCRNA:
             title: iOS Development team
             env_key: BITRISE_IOS_DEVELOPMENT_TEAM
+            type: user_input
             value_map:
-              _:
+              "":
                 title: ipa export method
                 env_key: BITRISE_EXPORT_METHOD
+                type: selector
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -251,106 +267,130 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
   react-native:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       ios/bitriseexpokit.xcworkspace:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           bitriseexpokit:
             title: iOS Development team
             env_key: BITRISE_IOS_DEVELOPMENT_TEAM
+            type: user_input
             value_map:
-              _:
+              "":
                 title: ipa export method
                 env_key: BITRISE_EXPORT_METHOD
+                type: selector
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
 configs:
   react-native:

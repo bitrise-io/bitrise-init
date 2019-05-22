@@ -77,6 +77,7 @@ var sampleAppsCordovaWithJasmineResultYML = fmt.Sprintf(`options:
   cordova:
     title: Platform to use in cordova-cli commands
     env_key: CORDOVA_PLATFORM
+    type: selector
     value_map:
       android:
         config: cordova-config
@@ -154,6 +155,7 @@ var sampleAppsCordovaWithKarmaJasmineResultYML = fmt.Sprintf(`options:
   cordova:
     title: Platform to use in cordova-cli commands
     env_key: CORDOVA_PLATFORM
+    type: selector
     value_map:
       android:
         config: cordova-config

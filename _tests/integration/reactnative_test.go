@@ -80,26 +80,32 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
   react-native:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       project/android:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: selector
                 value_map:
                   project/ios/SampleAppsReactNativeAndroid.xcodeproj:
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: react-native-android-ios-test-config
@@ -112,6 +118,7 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                       SampleAppsReactNativeAndroid-tvOS:
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: react-native-android-ios-test-config
@@ -232,26 +239,32 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
   react-native:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       android:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 title: Project (or Workspace) path
                 env_key: BITRISE_PROJECT_PATH
+                type: selector
                 value_map:
                   ios/SampleAppsReactNativeAndroid.xcodeproj:
                     title: Scheme name
                     env_key: BITRISE_SCHEME
+                    type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: react-native-android-ios-test-config
@@ -264,6 +277,7 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                       SampleAppsReactNativeAndroid-tvOS:
                         title: ipa export method
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: react-native-android-ios-test-config

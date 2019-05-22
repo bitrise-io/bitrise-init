@@ -147,14 +147,17 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       src:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: android-config
@@ -304,14 +307,17 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: android-config
@@ -451,14 +457,17 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: android-config
@@ -572,14 +581,17 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
     env_key: PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         title: Module
         env_key: MODULE
+        type: user_input
         value_map:
           app:
             title: Variant
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: android-config
