@@ -57,6 +57,7 @@ func NewOption(title, envKey string) *OptionNode {
 		EnvKey:         envKey,
 		ChildOptionMap: map[string]*OptionNode{},
 		Components:     []string{},
+		Type:           TypeSelector,
 	}
 }
 

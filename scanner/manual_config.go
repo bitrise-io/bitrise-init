@@ -16,8 +16,6 @@ func ManualConfig() (models.ScanResultModel, error) {
 	for _, scanner := range scannerList {
 		options := scanner.DefaultOptions()
 
-		initOptionTypeRecursive(&options)
-
 		scannerToOptionRoot[scanner.Name()] = options
 
 		configs, err := scanner.DefaultConfigs()

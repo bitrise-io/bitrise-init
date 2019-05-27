@@ -217,16 +217,16 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionNode {
-	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey).SetType(models.TypeUserInput)
 
-	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
-	xamarinSolutionOption.AddOption("_", xamarinConfigurationOption)
+	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey).SetType(models.TypeUserInput)
+	xamarinSolutionOption.AddOption("", xamarinConfigurationOption)
 
-	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
-	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
+	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey).SetType(models.TypeUserInput)
+	xamarinConfigurationOption.AddOption("", xamarinPlatformOption)
 
 	configOption := models.NewConfigOption(defaultConfigName, nil)
-	xamarinPlatformOption.AddConfig("_", configOption)
+	xamarinPlatformOption.AddConfig("", configOption)
 
 	return *xamarinSolutionOption
 }

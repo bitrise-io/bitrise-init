@@ -525,10 +525,10 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 // GenerateDefaultOptions ...
 func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
-	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputEnvKey)
+	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputEnvKey).SetType(models.TypeUserInput)
 
-	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey)
-	projectPathOption.AddOption("_", schemeOption)
+	schemeOption := models.NewOption(SchemeInputTitle, SchemeInputEnvKey).SetType(models.TypeUserInput)
+	projectPathOption.AddOption("", schemeOption)
 
 	exportMethodInputTitle := ""
 	exportMethods := []string{}
@@ -541,7 +541,7 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
 	}
 
 	exportMethodOption := models.NewOption(exportMethodInputTitle, ExportMethodInputEnvKey)
-	schemeOption.AddOption("_", exportMethodOption)
+	schemeOption.AddOption("", exportMethodOption)
 
 	for _, exportMethod := range exportMethods {
 		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, string(projectType)), nil)

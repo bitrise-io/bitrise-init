@@ -16,6 +16,7 @@ func TestNewOption(t *testing.T) {
 		EnvKey:         "BITRISE_PROJECT_PATH",
 		ChildOptionMap: map[string]*OptionNode{},
 		Components:     []string{},
+		Type:           TypeSelector,
 	}
 
 	require.Equal(t, expected, actual)

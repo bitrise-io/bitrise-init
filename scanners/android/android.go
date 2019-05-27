@@ -91,13 +91,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey).SetType(models.TypeUserInput)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey).SetType(models.TypeUserInput)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey).SetType(models.TypeOptionalUserInput)
 	configOption := models.NewConfigOption(DefaultConfigName, nil)
 
-	projectLocationOption.AddOption("_", moduleOption)
-	moduleOption.AddOption("_", variantOption)
+	projectLocationOption.AddOption("", moduleOption)
+	moduleOption.AddOption("", variantOption)
 	variantOption.AddConfig("", configOption)
 
 	return *projectLocationOption

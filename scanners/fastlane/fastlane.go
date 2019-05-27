@@ -162,13 +162,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionNode {
-	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey).SetType(models.TypeUserInput)
 
-	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
-	workDirOption.AddOption("_", laneOption)
+	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey).SetType(models.TypeUserInput)
+	workDirOption.AddOption("", laneOption)
 
 	projectTypeOption := models.NewOption("Project type", "")
-	laneOption.AddOption("_", projectTypeOption)
+	laneOption.AddOption("", projectTypeOption)
 
 	for _, p := range platforms {
 		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, p), nil)

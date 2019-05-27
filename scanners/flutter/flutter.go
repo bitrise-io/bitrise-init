@@ -337,10 +337,10 @@ func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionNode {
-	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey)
+	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputEnvKey).SetType(models.TypeUserInput)
 
 	flutterProjectHasTestOption := models.NewOption(testsInputTitle, "")
-	flutterProjectLocationOption.AddOption("_", flutterProjectHasTestOption)
+	flutterProjectLocationOption.AddOption("", flutterProjectHasTestOption)
 
 	for _, v := range []string{"yes", "no"} {
 		cfg := configName
@@ -353,14 +353,14 @@ func (Scanner) DefaultOptions() models.OptionNode {
 		for _, platform := range platforms {
 			if platform != "none" {
 				if platform != "android" {
-					projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey)
+					projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputEnvKey).SetType(models.TypeUserInput)
 					flutterPlatformOption.AddOption(platform, projectPathOption)
 
-					schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
-					projectPathOption.AddOption("_", schemeOption)
+					schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey).SetType(models.TypeUserInput)
+					projectPathOption.AddOption("", schemeOption)
 
 					exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
-					schemeOption.AddOption("_", exportMethodOption)
+					schemeOption.AddOption("", exportMethodOption)
 
 					for _, exportMethod := range ios.IosExportMethods {
 						configOption := models.NewConfigOption(cfg+"-app-"+platform, nil)
