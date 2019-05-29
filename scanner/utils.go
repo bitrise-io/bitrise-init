@@ -3,6 +3,7 @@ package scanner
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 
@@ -13,35 +14,29 @@ import (
 )
 
 func askForOptionValue(option models.OptionNode) (string, string, error) {
-	optionValues := option.GetValues()
-
-	selectedValue := ""
-	if len(optionValues) == 1 {
-		if optionValues[0] == "_" {
-			// provide option value
-			question := fmt.Sprintf("Provide: %s", option.Title)
-			answer, err := goinp.AskForString(question)
-			if err != nil {
-				return "", "", err
-			}
-
-			selectedValue = answer
-		} else {
-			// auto select the only one value
-			selectedValue = optionValues[0]
-		}
-	} else {
-		// select from values
-		question := fmt.Sprintf("Select: %s", option.Title)
-		answer, err := goinp.SelectFromStrings(question, optionValues)
-		if err != nil {
-			return "", "", err
-		}
-
-		selectedValue = answer
+	// this options is a last element in a tree, contains only config name
+	if option.Config != "" {
+		return "", option.Config, nil
 	}
 
-	return option.EnvKey, selectedValue, nil
+	var (
+		answer string
+		err    error
+	)
+
+	switch option.Type {
+	case models.TypeSelector, models.TypeOptionalSelector:
+		answer, err = goinp.AskOptions(option.Title, "", option.Type == models.TypeOptionalSelector, option.GetValues()...)
+	case models.TypeUserInput, models.TypeOptionalUserInput:
+		var defaultValue string
+		for key := range option.ChildOptionMap {
+			defaultValue = key
+			break
+		}
+		answer, err = goinp.AskOptions(option.Title, defaultValue, option.Type == models.TypeOptionalUserInput)
+	}
+
+	return option.EnvKey, strings.TrimSpace(answer), err
 }
 
 // AskForOptions ...
@@ -114,7 +109,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 		platform = platforms[0]
 	} else {
 		var err error
-		platform, err = goinp.SelectFromStrings("Select platform", platforms)
+		platform, err = goinp.AskOptions("platform", "", false, platforms...)
 		if err != nil {
 			return bitriseModels.BitriseDataModel{}, err
 		}
