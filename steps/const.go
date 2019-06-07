@@ -237,7 +237,7 @@ const (
 	// FlutterInstallID ...
 	FlutterInstallID = "flutter-installer"
 	// FlutterInstallVersion ...
-	FlutterInstallVersion = "0.10.0"
+	FlutterInstallVersion = "0.11.0"
 )
 
 const (
