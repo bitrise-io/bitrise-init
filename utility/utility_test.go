@@ -1,11 +1,12 @@
 package utility
 
 import (
+	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 	"testing"
-
-	"path/filepath"
 
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -302,5 +303,61 @@ func TestInDirectoryFilter(t *testing.T) {
 		filtered, err := FilterPaths(paths, filter)
 		require.NoError(t, err)
 		require.Equal(t, []string{"/Users/vagrant/test"}, filtered)
+	}
+}
+
+func TestDirectoryContainsFileFilter(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "*.xcworkspace")
+	if err != nil {
+		t.Errorf("failed to create temp dir, error: %s", err)
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Errorf("failed to remove temp dir, error: %s", err)
+		}
+	}()
+
+	const filterFileName = "contents.xcworkspacedata"
+	tempFile, err := os.Create(path.Join(tempDir, filterFileName))
+	if err != nil {
+		t.Errorf("failed to create temp file, error: %s", err)
+	}
+	if err := tempFile.Close(); err != nil {
+		t.Errorf("failed to close file, error: %s", err)
+	}
+
+	tests := []struct {
+		name           string
+		path           string
+		filterFileName string
+		want           bool
+		wantErr        bool
+	}{
+		{
+			name:           "contains file",
+			path:           tempDir,
+			filterFileName: filterFileName,
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "does not contain file",
+			filterFileName: filterFileName + "asd",
+			path:           tempDir,
+			want:           false,
+			wantErr:        false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := DirectoryContainsFile(tt.filterFileName)(tt.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DirectoryContainsFile() returned error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			if got != tt.want {
+				t.Errorf("DirectoryContainsFile() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
