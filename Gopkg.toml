@@ -3,10 +3,10 @@
   name = "github.com/beevik/etree"
   version = "1.1.0"
 
-# Enforcing this to use bitrise.yml version (7) currently supported by website 
+# Enforcing this to use bitrise.yml version (8) currently supported by website 
 [[constraint]]
   name = "github.com/bitrise-io/bitrise"
-  version = "=1.29.0"
+  version = "=1.31.0"
 
 [[constraint]]
   name = "github.com/bitrise-io/envman"

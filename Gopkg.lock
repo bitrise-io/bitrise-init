@@ -10,12 +10,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:59664077e5eba703425d438e1c9d6f4aeaaf485814cedcae5d9c05cd093f0664"
+  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
-  version = "1.29.0"
+  revision = "f7458dd6a6c5612fd3e92ab021fb7f18a7d0abc4"
+  version = "1.31.0"
 
 [[projects]]
   branch = "master"
