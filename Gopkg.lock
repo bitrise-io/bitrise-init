@@ -23,7 +23,7 @@
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "1716460e0651c3f40b9542f9e237b9a3d35773bb"
+  revision = "eb2e53257e527de59351cec1ecdffb50dadd5a07"
 
 [[projects]]
   branch = "master"
@@ -54,15 +54,15 @@
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "a49d262bd2151997b9b18f882654eae3aab31a9d"
+  revision = "c1544b4453f2869335f71fb53c0360bdb91d01b4"
 
 [[projects]]
   branch = "master"
-  digest = "1:f9749f95e34724e0bfb71a3bf0fa00e0e303d42f1de172bf134f013fa1e9dbb7"
+  digest = "1:980e760f25b82cb4ffe32b146956029f1f5c8bea3c39f9f973cc023d4ae965b1"
   name = "github.com/bitrise-io/goinp"
   packages = ["goinp"]
   pruneopts = "UT"
-  revision = "f451b19ba4d087d8272d411ad91af5f4218fd517"
+  revision = "bd18a8681e272db4696c50152b288f722d08b914"
 
 [[projects]]
   branch = "master"
@@ -70,7 +70,7 @@
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "050220145c5a1c555ae67c6f62677d95eb46ed26"
+  revision = "af0e468635253eaf3a66dca748af4a5966d161b1"
 
 [[projects]]
   branch = "master"
@@ -150,6 +150,25 @@
   pruneopts = "UT"
   revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
   version = "v1.20.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "UT"
+  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2a96b14fed8617c9e499777c03ec21f35dfd5b396f0b05fcdd7eff9e6c67f196"
+  name = "golang.org/x/sys"
+  packages = [
+    "unix",
+    "windows",
+  ]
+  pruneopts = "UT"
+  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
