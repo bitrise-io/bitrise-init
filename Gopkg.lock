@@ -8,6 +8,7 @@
   version = "v1.1.0"
 
 [[projects]]
+
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   revision = "a7523d99944aaf56c644dec41f374f746db9a453"
@@ -44,6 +45,7 @@
     "plistutil",
     "xcodeproj"
   ]
+
   revision = "c1544b4453f2869335f71fb53c0360bdb91d01b4"
 
 [[projects]]
