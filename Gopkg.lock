@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  revision = "1716460e0651c3f40b9542f9e237b9a3d35773bb"
-  version = "2.2.3"
+  revision = "eb2e53257e527de59351cec1ecdffb50dadd5a07"
+  version = "2.2.4"
 
 [[projects]]
   branch = "master"
@@ -44,19 +44,19 @@
     "plistutil",
     "xcodeproj"
   ]
-  revision = "51984334e0fb83bf66588acf87f09c5ac624874b"
+  revision = "c1544b4453f2869335f71fb53c0360bdb91d01b4"
 
 [[projects]]
   branch = "master"
   name = "github.com/bitrise-io/goinp"
   packages = ["goinp"]
-  revision = "c9a4dac0f9b3539bbbeb10eece5c3f03d0ec3ea0"
+  revision = "bd18a8681e272db4696c50152b288f722d08b914"
 
 [[projects]]
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "050220145c5a1c555ae67c6f62677d95eb46ed26"
-  version = "0.11.5"
+  revision = "af0e468635253eaf3a66dca748af4a5966d161b1"
+  version = "0.11.6"
 
 [[projects]]
   branch = "master"
@@ -120,6 +120,21 @@
   packages = ["."]
   revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
   version = "v1.20.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  revision = "f99c8df09eb5bff426315721bfa5f16a99cad32c"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
 
 [[projects]]
   name = "golang.org/x/text"
