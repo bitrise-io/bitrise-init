@@ -51,13 +51,13 @@ type OptionNode struct {
 }
 
 // NewOption ...
-func NewOption(title, envKey string) *OptionNode {
+func NewOption(title, envKey string, optionType Type) *OptionNode {
 	return &OptionNode{
 		Title:          title,
 		EnvKey:         envKey,
 		ChildOptionMap: map[string]*OptionNode{},
 		Components:     []string{},
-		Type:           TypeSelector,
+		Type:           optionType,
 	}
 }
 
@@ -92,12 +92,6 @@ func (option *OptionNode) IsValueOption() bool {
 // IsEmpty ...
 func (option *OptionNode) IsEmpty() bool {
 	return !option.IsValueOption() && !option.IsConfigOption()
-}
-
-// SetType ...
-func (option *OptionNode) SetType(optionType Type) *OptionNode {
-	option.Type = optionType
-	return option
 }
 
 // AddOption ...

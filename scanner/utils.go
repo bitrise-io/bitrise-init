@@ -74,6 +74,10 @@ func askForOptionValue(option models.OptionNode) (string, string, error) {
 			options = append(options, customValueOptionText)
 		}
 
+		if len(options) == 1 {
+			return option.EnvKey, options[0], nil
+		}
+
 		selected, err := selectOption(options)
 		if err != nil {
 			return "", "", err
@@ -135,6 +139,7 @@ func AskForOptions(options models.OptionNode) (string, []envmanModels.Environmen
 				if opt.Type != models.TypeOptionalSelector {
 					return nil
 				}
+				// if user select custom value from the optional list then we need to select any next option
 				for _, option := range opt.ChildOptionMap {
 					childOption = option
 					break

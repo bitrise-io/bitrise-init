@@ -195,14 +195,14 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	}
 
 	// Check for solution projects
-	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey, models.TypeSelector)
 
 	for solutionFile, configMap := range validSolutionMap {
-		xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
+		xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey, models.TypeSelector)
 		xamarinSolutionOption.AddOption(solutionFile, xamarinConfigurationOption)
 
 		for config, platforms := range configMap {
-			xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
+			xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey, models.TypeSelector)
 			xamarinConfigurationOption.AddOption(config, xamarinPlatformOption)
 
 			for _, platform := range platforms {
@@ -217,12 +217,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionNode {
-	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey).SetType(models.TypeUserInput)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey, models.TypeUserInput)
 
-	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey).SetType(models.TypeUserInput)
+	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey, models.TypeUserInput)
 	xamarinSolutionOption.AddOption("", xamarinConfigurationOption)
 
-	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey).SetType(models.TypeUserInput)
+	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey, models.TypeUserInput)
 	xamarinConfigurationOption.AddOption("", xamarinPlatformOption)
 
 	configOption := models.NewConfigOption(defaultConfigName, nil)
