@@ -191,7 +191,7 @@ entries.`
 		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputEnvKey, models.TypeUserInput)
 		projectLocationOption.AddOption("./android", moduleOption)
 	} else {
-		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file, models.TypeSelector)", "WORKDIR")
+		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file)", "WORKDIR", models.TypeSelector)
 		for _, exportMethod := range ios.IosExportMethods {
 			exportMethodOption.AddOption(exportMethod, workDirOption)
 		}
@@ -442,7 +442,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 // expoDefaultOptions implements ScannerInterface.DefaultOptions function for Expo based React Native projects.
 func (Scanner) expoDefaultOptions() models.OptionNode {
-	expoKitOption := models.NewOption("Project uses Expo Kit (any js file imports expo dependency, models.TypeSelector)?", "USES_EXPO_KIT")
+	expoKitOption := models.NewOption("Project uses Expo Kit (any js file imports expo dependency)?", "USES_EXPO_KIT", models.TypeSelector)
 
 	// with Expo Kit
 	{
@@ -457,7 +457,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		schemeOption.AddOption("", exportMethodOption)
 
 		// android options
-		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file, models.TypeSelector)", "WORKDIR").SetType(models.TypeUserInput)
+		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file)", "WORKDIR", models.TypeUserInput)
 		for _, exportMethod := range ios.IosExportMethods {
 			exportMethodOption.AddOption(exportMethod, workDirOption)
 		}
@@ -472,10 +472,10 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		moduleOption.AddOption("app", buildVariantOption)
 
 		// Expo CLI options
-		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME", models.TypeUserInput).SetType(models.TypeUserInput)
+		userNameOption := models.NewOption("Expo username", "EXPO_USERNAME", models.TypeUserInput)
 		buildVariantOption.AddOption("Release", userNameOption)
 
-		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD", models.TypeUserInput).SetType(models.TypeUserInput)
+		passwordOption := models.NewOption("Expo password", "EXPO_PASSWORD", models.TypeUserInput)
 		userNameOption.AddOption("", passwordOption)
 
 		configOption := models.NewConfigOption(expoWithExpoKitDefaultConfigName, nil)
@@ -495,7 +495,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		schemeOption.AddOption("", exportMethodOption)
 
 		// android options
-		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file, models.TypeSelector)", "WORKDIR").SetType(models.TypeUserInput)
+		workDirOption := models.NewOption("Project root directory (the directory of the project app.json/package.json file)", "WORKDIR", models.TypeUserInput)
 		for _, exportMethod := range ios.IosExportMethods {
 			exportMethodOption.AddOption(exportMethod, workDirOption)
 		}
