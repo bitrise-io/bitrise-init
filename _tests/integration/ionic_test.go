@@ -52,10 +52,12 @@ var ionic2ResultYML = fmt.Sprintf(`options:
   ionic:
     title: Directory of Ionic Config.xml
     env_key: IONIC_WORK_DIR
+    type: selector
     value_map:
       cutePuppyPics:
         title: Platform to use in ionic-cli commands
         env_key: IONIC_PLATFORM
+        type: selector
         value_map:
           android:
             config: ionic-config

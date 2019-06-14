@@ -35,8 +35,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 									Config: "fastlane-config",
 								},
 							},
+							Type: models.TypeSelector,
 						},
 					},
+					Type: models.TypeSelector,
 				},
 				detectedProjectTypes: []string{detectedProjectType},
 			},
@@ -54,8 +56,13 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + detectedProjectType,
-									}}}}},
+									}},
+								Type: models.TypeSelector,
+							}},
+						Type: models.TypeSelector,
+					},
 				},
+				Type: models.TypeSelector,
 			},
 		},
 		{
@@ -64,10 +71,12 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 				scannerOptionTree: models.OptionNode{
 					Title:  "Working directory",
 					EnvKey: "FASTLANE_WORK_DIR",
+					Type:   models.TypeSelector,
 					ChildOptionMap: map[string]*models.OptionNode{
 						"BitriseFastlaneSample": &models.OptionNode{
 							Title:  "Fastlane lane",
 							EnvKey: "FASTLANE_LANE",
+							Type:   models.TypeSelector,
 							ChildOptionMap: map[string]*models.OptionNode{
 								"ios test": &models.OptionNode{
 									Config: "fastlane-config",
@@ -81,14 +90,17 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 			want: models.OptionNode{
 				Title:  "Project type",
 				EnvKey: ProjectTypeEnvKey,
+				Type:   models.TypeSelector,
 				ChildOptionMap: map[string]*models.OptionNode{
 					"ios": &models.OptionNode{
 						Title:  "Working directory",
 						EnvKey: "FASTLANE_WORK_DIR",
+						Type:   models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"BitriseFastlaneSample": &models.OptionNode{
 								Title:  "Fastlane lane",
 								EnvKey: "FASTLANE_LANE",
+								Type:   models.TypeSelector,
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + "ios",
@@ -100,10 +112,12 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 					"android": &models.OptionNode{
 						Title:  "Working directory",
 						EnvKey: "FASTLANE_WORK_DIR",
+						Type:   models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"BitriseFastlaneSample": &models.OptionNode{
 								Title:  "Fastlane lane",
 								EnvKey: "FASTLANE_LANE",
+								Type:   models.TypeSelector,
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + "android",

@@ -87,14 +87,17 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       XamarinSampleApp.sln:
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-components-config
@@ -105,6 +108,7 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-components-config
@@ -161,14 +165,17 @@ var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       CreditCardValidator.iOS.sln:
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
@@ -179,6 +186,7 @@ var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
@@ -232,20 +240,24 @@ var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       CreditCardValidator.Droid.sln:
         title: Xamarin solution configuration
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config

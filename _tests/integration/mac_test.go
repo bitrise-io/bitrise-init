@@ -62,16 +62,19 @@ var sampleAppsOSX1011ResultYML = fmt.Sprintf(`options:
   macos:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       sample-apps-osx-10-11.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           sample-apps-osx-10-11:
             title: |-
               Application export method
               NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               app-store:
                 config: macos-test-config

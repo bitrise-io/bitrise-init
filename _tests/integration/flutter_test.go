@@ -214,21 +214,26 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project Location
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         title: Run tests found in the project
+        type: selector
         value_map:
           "no":
             title: Project (or Workspace) path
             env_key: BITRISE_PROJECT_PATH
+            type: selector
             value_map:
               ios/Runner.xcworkspace:
                 title: Scheme name
                 env_key: BITRISE_SCHEME
+                type: selector
                 value_map:
                   Runner:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         config: flutter-config-app-both
@@ -241,14 +246,17 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
           "yes":
             title: Project (or Workspace) path
             env_key: BITRISE_PROJECT_PATH
+            type: selector
             value_map:
               ios/Runner.xcworkspace:
                 title: Scheme name
                 env_key: BITRISE_SCHEME
+                type: selector
                 value_map:
                   Runner:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         config: flutter-config-test-app-both
@@ -726,9 +734,11 @@ var flutterSamplePackageResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project Location
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         title: Run tests found in the project
+        type: selector
         value_map:
           "no":
             config: flutter-config
@@ -1202,23 +1212,28 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project Location
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
+    type: selector
     value_map:
       .:
         config: flutter-config-app-android
       example:
         title: Run tests found in the project
+        type: selector
         value_map:
           "no":
             title: Project (or Workspace) path
             env_key: BITRISE_PROJECT_PATH
+            type: selector
             value_map:
               example/ios/Runner.xcworkspace:
                 title: Scheme name
                 env_key: BITRISE_SCHEME
+                type: selector
                 value_map:
                   Runner:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         config: flutter-config-app-both
@@ -1231,14 +1246,17 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
           "yes":
             title: Project (or Workspace) path
             env_key: BITRISE_PROJECT_PATH
+            type: selector
             value_map:
               example/ios/Runner.xcworkspace:
                 title: Scheme name
                 env_key: BITRISE_SCHEME
+                type: selector
                 value_map:
                   Runner:
                     title: ipa export method
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
                         config: flutter-config-test-app-both

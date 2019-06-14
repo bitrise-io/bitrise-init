@@ -2,32 +2,26 @@
 
 
 [[projects]]
-  digest = "1:bd8bc15ce3a9929e2777651cbc271fca5561c0d5f42187edb4720e638d24662d"
   name = "github.com/beevik/etree"
   packages = ["."]
-  pruneopts = "UT"
   revision = "8aee6516be3b1163bb6450c35c50e4969e3a3aa8"
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
+
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  pruneopts = "UT"
-  revision = "f7458dd6a6c5612fd3e92ab021fb7f18a7d0abc4"
-  version = "1.31.0"
+  revision = "a7523d99944aaf56c644dec41f374f746db9a453"
+  version = "1.29.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4e1c0cc22c53c5ebda9bd380afd5b56a2f1fc9e6fd2eed59ab8ba0c1522eee19"
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  pruneopts = "UT"
   revision = "eb2e53257e527de59351cec1ecdffb50dadd5a07"
+  version = "2.2.4"
 
 [[projects]]
   branch = "master"
-  digest = "1:a01d84a558d84ce7c2a050e553b67a9cc66a120f219499f457a88d1292a3135f"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -40,138 +34,111 @@
     "parseutil",
     "pathutil",
     "pointers",
-    "sliceutil",
+    "sliceutil"
   ]
-  pruneopts = "UT"
   revision = "8898129615c9e407fc6b0e60ea882f2b18ec4dc2"
 
 [[projects]]
   branch = "master"
-  digest = "1:3060b1a20d5eccc02b4dcf61127258fb3ca0070b3386d4326907417164a9bcdd"
   name = "github.com/bitrise-io/go-xcode"
   packages = [
     "plistutil",
-    "xcodeproj",
+    "xcodeproj"
   ]
-  pruneopts = "UT"
+
   revision = "c1544b4453f2869335f71fb53c0360bdb91d01b4"
 
 [[projects]]
   branch = "master"
-  digest = "1:980e760f25b82cb4ffe32b146956029f1f5c8bea3c39f9f973cc023d4ae965b1"
   name = "github.com/bitrise-io/goinp"
   packages = ["goinp"]
-  pruneopts = "UT"
   revision = "bd18a8681e272db4696c50152b288f722d08b914"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a31f5ffeb3ba940633762768571321abb47b57bc48c0551fc0e3d7aff3564770"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  pruneopts = "UT"
   revision = "af0e468635253eaf3a66dca748af4a5966d161b1"
+  version = "0.11.6"
 
 [[projects]]
   branch = "master"
-  digest = "1:d30f24e344dc73c47a2e18a658fe46cc22b18a756b0fed3e8056c2fd4669a125"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "serialized",
     "xcodebuild",
     "xcodeproj",
     "xcscheme",
-    "xcworkspace",
+    "xcworkspace"
   ]
-  pruneopts = "UT"
   revision = "5929ad85d89233b3296d2d795e068a656db7fb25"
 
 [[projects]]
-  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  pruneopts = "UT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:bf40199583e5143d1472fc34d10d6f4b69d97572142acf343b3e43136da40823"
   name = "github.com/google/go-cmp"
   packages = [
     "cmp",
     "cmp/internal/diff",
     "cmp/internal/flags",
     "cmp/internal/function",
-    "cmp/internal/value",
+    "cmp/internal/value"
   ]
-  pruneopts = "UT"
   revision = "6f77996f0c42f7b84e5a2b252227263f93432e9b"
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
   name = "github.com/pkg/errors"
   packages = ["."]
-  pruneopts = "UT"
   revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
   version = "v0.8.1"
 
 [[projects]]
-  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
-  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:6baa565fe16f8657cf93469b2b8a6c61a277827734400d27e44d589547297279"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
-  pruneopts = "UT"
   revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
+  version = "v1.0.0"
 
 [[projects]]
-  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
-    "require",
+    "require"
   ]
-  pruneopts = "UT"
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
   name = "github.com/urfave/cli"
   packages = ["."]
-  pruneopts = "UT"
   revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
   version = "v1.20.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  pruneopts = "UT"
-  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
+  revision = "f99c8df09eb5bff426315721bfa5f16a99cad32c"
 
 [[projects]]
   branch = "master"
-  digest = "1:2a96b14fed8617c9e499777c03ec21f35dfd5b396f0b05fcdd7eff9e6c67f196"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows",
+    "windows"
   ]
-  pruneopts = "UT"
   revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
 
 [[projects]]
-  digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -179,55 +146,26 @@
     "internal/ucd",
     "transform",
     "unicode/cldr",
-    "unicode/norm",
+    "unicode/norm"
   ]
-  pruneopts = "UT"
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  pruneopts = "UT"
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
   version = "v2.2.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:c10265d5a71326618d37e97169eddb3582f78e8ac7dcf87403b4cf619efd519a"
   name = "howett.net/plist"
   packages = ["."]
-  pruneopts = "UT"
   revision = "591f970eefbbeb04d7b37f334a0c4c3256e32876"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/beevik/etree",
-    "github.com/bitrise-io/bitrise/models",
-    "github.com/bitrise-io/envman/models",
-    "github.com/bitrise-io/go-utils/colorstring",
-    "github.com/bitrise-io/go-utils/command",
-    "github.com/bitrise-io/go-utils/command/git",
-    "github.com/bitrise-io/go-utils/errorutil",
-    "github.com/bitrise-io/go-utils/fileutil",
-    "github.com/bitrise-io/go-utils/log",
-    "github.com/bitrise-io/go-utils/pathutil",
-    "github.com/bitrise-io/go-utils/pointers",
-    "github.com/bitrise-io/go-utils/sliceutil",
-    "github.com/bitrise-io/go-xcode/xcodeproj",
-    "github.com/bitrise-io/goinp/goinp",
-    "github.com/bitrise-io/stepman/models",
-    "github.com/bitrise-io/xcode-project/serialized",
-    "github.com/bitrise-io/xcode-project/xcodeproj",
-    "github.com/bitrise-io/xcode-project/xcscheme",
-    "github.com/bitrise-io/xcode-project/xcworkspace",
-    "github.com/google/go-cmp/cmp",
-    "github.com/stretchr/testify/require",
-    "github.com/urfave/cli",
-    "gopkg.in/yaml.v2",
-  ]
+  inputs-digest = "93aabd331a4434a8d5a0731ba51fafc3816288ff29903135df5cd57e7300e808"
   solver-name = "gps-cdcl"
   solver-version = 1

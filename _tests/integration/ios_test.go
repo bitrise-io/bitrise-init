@@ -116,14 +116,17 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       BitriseXcode7Sample.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           BitriseXcode7Sample:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-test-missing-shared-schemes-config
@@ -222,14 +225,17 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       iOSMinimalCocoaPodsSample.xcworkspace:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           iOSMinimalCocoaPodsSample:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-pod-test-config
@@ -328,14 +334,17 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       watch-test.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           Complication - watch-test WatchKit App:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -348,6 +357,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
           Glance - watch-test WatchKit App:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -360,6 +370,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
           Notification - watch-test WatchKit App:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -372,6 +383,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
           watch-test:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-test-config
@@ -384,6 +396,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
           watch-test WatchKit App:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -498,14 +511,17 @@ var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       sample-apps-carthage.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           sample-apps-carthage:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-carthage-test-config

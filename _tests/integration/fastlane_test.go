@@ -71,28 +71,34 @@ var fastlaneVersions = []interface{}{
 var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Project type
+    type: selector
     value_map:
       ios:
         title: Working directory
         env_key: FASTLANE_WORK_DIR
+        type: selector
         value_map:
           BitriseFastlaneSample:
             title: Fastlane lane
             env_key: FASTLANE_LANE
+            type: selector
             value_map:
               ios test:
                 config: fastlane-config_ios
   ios:
     title: Project (or Workspace) path
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       BitriseFastlaneSample/BitriseFastlaneSample.xcodeproj:
         title: Scheme name
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           BitriseFastlaneSample:
             title: ipa export method
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-test-config
