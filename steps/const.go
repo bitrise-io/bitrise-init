@@ -97,7 +97,7 @@ const (
 	// FastlaneID ...
 	FastlaneID = "fastlane"
 	// FastlaneVersion ...
-	FastlaneVersion = "2.5.0"
+	FastlaneVersion = "2.4.0"
 )
 
 const (
