@@ -17,19 +17,22 @@ const (
 	ConfigName        = "android-config"
 	DefaultConfigName = "default-android-config"
 
-	ProjectLocationInputKey    = "project_location"
-	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
-	ProjectLocationInputTitle  = "The root directory of an Android project"
+	ProjectLocationInputKey     = "project_location"
+	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
+	ProjectLocationInputTitle   = "The root directory of an Android project"
+	ProjectLocationInputSummary = ""
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
-	VariantInputKey    = "variant"
-	VariantInputEnvKey = "VARIANT"
-	VariantInputTitle  = "Variant"
+	VariantInputKey     = "variant"
+	VariantInputEnvKey  = "VARIANT"
+	VariantInputTitle   = "Variant"
+	VariantInputSummary = ""
 
-	ModuleInputKey    = "module"
-	ModuleInputEnvKey = "MODULE"
-	ModuleInputTitle  = "Module"
+	ModuleInputKey     = "module"
+	ModuleInputEnvKey  = "MODULE"
+	ModuleInputTitle   = "Module"
+	ModuleInputSummary = ""
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"

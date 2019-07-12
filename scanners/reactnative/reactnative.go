@@ -19,6 +19,11 @@ const (
 	workDirInputKey = "workdir"
 )
 
+const (
+	isExpoCLIInputTitle   = "Project was created using Expo CLI?"
+	isExpoCLIInputSummary = ""
+)
+
 // Scanner implements the project scanner for plain React Native and Expo based projects.
 type Scanner struct {
 	searchDir      string
@@ -183,7 +188,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 
 // DefaultOptions implements ScannerInterface.DefaultOptions function.
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	expoOption := models.NewOption("Project was created using Expo CLI?", "", models.TypeSelector)
+	expoOption := models.NewOption(isExpoCLIInputTitle, isExpoCLIInputSummary, "", models.TypeSelector)
 
 	expoDefaultOptions := scanner.expoDefaultOptions()
 	expoOption.AddOption("yes", &expoDefaultOptions)

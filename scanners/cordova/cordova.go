@@ -27,15 +27,17 @@ const (
 
 // Step Inputs
 const (
-	workDirInputKey    = "workdir"
-	workDirInputTitle  = "Directory of Cordova Config.xml"
-	workDirInputEnvKey = "CORDOVA_WORK_DIR"
+	workDirInputKey     = "workdir"
+	workDirInputTitle   = "Directory of Cordova Config.xml"
+	workDirInputEnvKey  = "CORDOVA_WORK_DIR"
+	workDirInputSummary = ""
 )
 
 const (
-	platformInputKey    = "platform"
-	platformInputTitle  = "Platform to use in cordova-cli commands"
-	platformInputEnvKey = "CORDOVA_PLATFORM"
+	platformInputKey     = "platform"
+	platformInputTitle   = "Platform to use in cordova-cli commands"
+	platformInputEnvKey  = "CORDOVA_PLATFORM"
+	platformInputSummary = ""
 )
 
 const (
@@ -237,9 +239,9 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	platforms := []string{"ios", "android", "ios,android"}
 
 	if relCordovaConfigDir != "" {
-		rootOption = models.NewOption(workDirInputTitle, workDirInputEnvKey, models.TypeSelector)
+		rootOption = models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeSelector)
 
-		projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
+		projectTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
 		rootOption.AddOption(relCordovaConfigDir, projectTypeOption)
 
 		for _, platform := range platforms {
@@ -247,7 +249,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			projectTypeOption.AddConfig(platform, configOption)
 		}
 	} else {
-		rootOption = models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
+		rootOption = models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
 
 		for _, platform := range platforms {
 			configOption := models.NewConfigOption(configName, nil)
@@ -261,9 +263,9 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionNode {
-	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey, models.TypeUserInput)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeUserInput)
 
-	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
+	projectTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
 	workDirOption.AddOption("", projectTypeOption)
 
 	platforms := []string{
