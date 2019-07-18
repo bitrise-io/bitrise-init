@@ -40,7 +40,6 @@ const (
 	xamarinPlatformInputEnvKey  = "BITRISE_XAMARIN_PLATFORM"
 	xamarinPlatformInputTitle   = "Xamarin solution platform"
 	xamarinPlatformInputSummary = "The Xamarin solution configuration that you wish to run in your first build. You can change this at any time in your Workflows."
-  42,22: 	xamarinPlatformInputSummary = "The target platform of your Xamarin project. You can change this at any time in your Workflows."
 )
 
 const (
