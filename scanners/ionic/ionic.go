@@ -28,16 +28,16 @@ const (
 // Step Inputs
 const (
 	workDirInputKey     = "workdir"
-	workDirInputTitle   = "Directory of Ionic Config.xml"
+	workDirInputTitle   = "Directory of the Ionic config.xml file"
 	workDirInputEnvKey  = "IONIC_WORK_DIR"
-	workDirInputSummary = ""
+	workDirInputSummary = "The working directory of your Ionic app is where you store your config.xml file. This location is stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 )
 
 const (
 	platformInputKey     = "platform"
-	platformInputTitle   = "Platform to use in ionic-cli commands"
+	platformInputTitle   = "The platform to use in ionic-cli commands"
 	platformInputEnvKey  = "IONIC_PLATFORM"
-	platformInputSummary = ""
+	platformInputSummary = "The target platform for your builds, stored as an Environment Variable. Your options are iOS, Android, or both. You can change this in your Env Vars at any time."
 )
 
 const (

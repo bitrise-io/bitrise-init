@@ -26,14 +26,14 @@ const (
 	platformInputKey            = "platform"
 	defaultIOSConfiguration     = "Release"
 	projectLocationInputEnvKey  = "BITRISE_FLUTTER_PROJECT_LOCATION"
-	projectLocationInputTitle   = "Project Location"
+	projectLocationInputTitle   = "Project location"
 	projectTypeInputEnvKey      = "BITRISE_FLUTTER_PROJECT_TYPE"
 	projectTypeInputTitle       = "Project Type"
 	testsInputTitle             = "Run tests found in the project"
 	platformInputTitle          = "Platform"
-	projectLocationInputSummary = ""
-	testsInputSummary           = ""
-	platformInputSummary        = ""
+	projectLocationInputSummary = "The path to your Flutter app, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
+	testsInputSummary           = "Our Flutter Test Step can run the tests found in your project's repository."
+	platformInputSummary        = "The target platform for your first build. Your options are iOS, Android, both, or neither. You can change this in your Env Vars at any time."
 )
 
 var (

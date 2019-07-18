@@ -12,7 +12,7 @@ const (
 	// The key is used in the options decision tree model.
 	// If empty, it will not be inserted into the bitrise.yml
 	ProjectTypeEnvKey      = ""
-	ProjectTypeUserSummary = ""
+	ProjectTypeUserSummary = "The type of your project. This determines what Steps are added to your automatically configured Workflows. You can, however, add any Steps to your Workflows at any time."
 )
 
 // AddProjectTypeToConfig returns the config filled in with every detected project type, that could be selected

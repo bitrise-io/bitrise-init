@@ -25,7 +25,7 @@ const (
 	xamarinSolutionInputKey     = "xamarin_solution"
 	xamarinSolutionInputEnvKey  = "BITRISE_PROJECT_PATH"
 	xamarinSolutionInputTitle   = "Path to the Xamarin Solution file"
-	xamarinSolutionInputSummary = ""
+	xamarinSolutionInputSummary = "Your solution file has to contain all the solution configurations you wish to use on Bitrise. A solution configuration specifies how projects in the solution are to be built and deployed."
 )
 
 const (
@@ -39,7 +39,8 @@ const (
 	xamarinPlatformInputKey     = "xamarin_platform"
 	xamarinPlatformInputEnvKey  = "BITRISE_XAMARIN_PLATFORM"
 	xamarinPlatformInputTitle   = "Xamarin solution platform"
-	xamarinPlatformInputSummary = ""
+	xamarinPlatformInputSummary = "The Xamarin solution configuration that you wish to run in your first build. You can change this at any time in your Workflows."
+  42,22: 	xamarinPlatformInputSummary = "The target platform of your Xamarin project. You can change this at any time in your Workflows."
 )
 
 const (

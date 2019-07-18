@@ -26,9 +26,9 @@ const (
 	// ProjectPathInputEnvKey ...
 	ProjectPathInputEnvKey = "BITRISE_PROJECT_PATH"
 	// ProjectPathInputTitle ...
-	ProjectPathInputTitle = "Project (or Workspace) path"
+	ProjectPathInputTitle = "Project or Workspace path"
 	// ProjectPathInputSummary ...
-	ProjectPathInputSummary = ""
+	ProjectPathInputSummary = "The location of your Xcode project or Xcode workspace files, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path."
 )
 
 const (
@@ -39,7 +39,7 @@ const (
 	// SchemeInputTitle ...
 	SchemeInputTitle = "Scheme name"
 	// SchemeInputSummary ...
-	SchemeInputSummary = ""
+	SchemeInputSummary = "An Xcode scheme defines a collection of targets to build, a configuration to use when building, and a collection of tests to execute. Only shared schemes are detected automatically but you can use any scheme as a target on Bitrise. You can change the scheme at any time in your Env Vars."
 )
 
 const (
@@ -52,9 +52,9 @@ const (
 	// MacExportMethodInputTitle ...
 	MacExportMethodInputTitle = "Application export method\nNOTE: `none` means: Export a copy of the application without re-signing."
 	// IosExportMethodInputSummary ...
-	IosExportMethodInputSummary = ""
+	IosExportMethodInputSummary = "The export method used to create an .ipa file in your builds, stored as an Environment Variable. You can change this at any time, or even create several .ipa files with different export methods in the same build."
 	// MacExportMethodInputSummary ...
-	MacExportMethodInputSummary = ""
+	MacExportMethodInputSummary = "The export method used to create an .app file in your builds, stored as an Environment Variable. You can change this at any time, or even create several .app files with different export methods in the same build."
 )
 
 // IosExportMethods ...

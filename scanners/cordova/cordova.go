@@ -28,16 +28,16 @@ const (
 // Step Inputs
 const (
 	workDirInputKey     = "workdir"
-	workDirInputTitle   = "Directory of Cordova Config.xml"
+	workDirInputTitle   = "Directory of the Cordova config.xml file"
 	workDirInputEnvKey  = "CORDOVA_WORK_DIR"
-	workDirInputSummary = ""
+	workDirInputSummary = "The working directory of your Cordova app is where you store your config.xml file. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 )
 
 const (
 	platformInputKey     = "platform"
-	platformInputTitle   = "Platform to use in cordova-cli commands"
+	platformInputTitle   = "The platform to use in cordova-cli commands"
 	platformInputEnvKey  = "CORDOVA_PLATFORM"
-	platformInputSummary = ""
+	platformInputSummary = "The target platform for your build, stored as an Environment Variable. Your options are iOS, Android, or both. You can change this in your Env Vars at any time."
 )
 
 const (
