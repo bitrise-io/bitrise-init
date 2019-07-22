@@ -5,3 +5,4 @@ _bin/
 .bitrise*
 .gows*
 bitrise-init
+.idea
