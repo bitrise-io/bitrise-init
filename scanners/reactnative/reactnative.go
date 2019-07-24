@@ -20,8 +20,8 @@ const (
 )
 
 const (
-	isExpoCLIInputTitle   = "Project was created using Expo CLI?"
-	isExpoCLIInputSummary = ""
+	isExpoCLIInputTitle   = "Was the project created using the Expo CLI?"
+	isExpoCLIInputSummary = "If your React Native app was created with the Expo CLI, Bitrise will automatically insert the **Expo Eject** Step to your Workflows."
 )
 
 // Scanner implements the project scanner for plain React Native and Expo based projects.

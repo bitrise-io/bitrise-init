@@ -34,18 +34,18 @@ const (
 	laneInputKey     = "lane"
 	laneInputTitle   = "Fastlane lane"
 	laneInputEnvKey  = "FASTLANE_LANE"
-	laneInputSummary = ""
+	laneInputSummary = "The lane that will be used in your builds, stored as an Environment Variable. You can change this at any time."
 )
 
 const (
 	workDirInputKey     = "work_dir"
 	workDirInputTitle   = "Working directory"
 	workDirInputEnvKey  = "FASTLANE_WORK_DIR"
-	workDirInputSummary = ""
+	workDirInputSummary = "The fastlane working directory: this is the directory in which your fastlane script is executed."
 )
 const (
 	projectTypeInputTitle   = "Project type"
-	projectTypeInputSummary = ""
+	projectTypeInputSummary = "The project type of the app you added to Bitrise."
 )
 
 const (

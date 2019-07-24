@@ -20,19 +20,19 @@ const (
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
 	ProjectLocationInputTitle   = "The root directory of an Android project"
-	ProjectLocationInputSummary = ""
+	ProjectLocationInputSummary = "The root directory of your Android app, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
 	VariantInputKey     = "variant"
 	VariantInputEnvKey  = "VARIANT"
 	VariantInputTitle   = "Variant"
-	VariantInputSummary = ""
+	VariantInputSummary = "Your Android build variants. You can add more variants at any time, as well as further configure your existing variants later."
 
 	ModuleInputKey     = "module"
 	ModuleInputEnvKey  = "MODULE"
 	ModuleInputTitle   = "Module"
-	ModuleInputSummary = ""
+	ModuleInputSummary = "Modules provide a container for your Android app's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"
@@ -96,7 +96,7 @@ func checkGradlew(projectDir string) error {
 		return err
 	}
 	if !exist {
-		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b> 
+		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b>
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
