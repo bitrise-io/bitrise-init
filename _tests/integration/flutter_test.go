@@ -212,26 +212,42 @@ var flutterSampleAppVersions = []interface{}{
 
 var flutterSampleAppResultYML = fmt.Sprintf(`options:
   flutter:
-    title: Project Location
+    title: Project location
+    summary: The path to your Flutter app, stored as an Environment Variable. In your
+      Workflows, you can specify paths relative to this path. You can change this
+      at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     type: selector
     value_map:
       .:
         title: Run tests found in the project
+        summary: Our Flutter Test Step can run the tests found in your project's repository.
         type: selector
         value_map:
           "no":
-            title: Project (or Workspace) path
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
             env_key: BITRISE_PROJECT_PATH
             type: selector
             value_map:
               ios/Runner.xcworkspace:
                 title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
                 env_key: BITRISE_SCHEME
                 type: selector
                 value_map:
                   Runner:
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
                     type: selector
                     value_map:
@@ -244,17 +260,29 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
                       enterprise:
                         config: flutter-config-app-both
           "yes":
-            title: Project (or Workspace) path
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
             env_key: BITRISE_PROJECT_PATH
             type: selector
             value_map:
               ios/Runner.xcworkspace:
                 title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
                 env_key: BITRISE_SCHEME
                 type: selector
                 value_map:
                   Runner:
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
                     type: selector
                     value_map:
@@ -732,12 +760,16 @@ var flutterSamplePackageVersions = []interface{}{
 
 var flutterSamplePackageResultYML = fmt.Sprintf(`options:
   flutter:
-    title: Project Location
+    title: Project location
+    summary: The path to your Flutter app, stored as an Environment Variable. In your
+      Workflows, you can specify paths relative to this path. You can change this
+      at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     type: selector
     value_map:
       .:
         title: Run tests found in the project
+        summary: Our Flutter Test Step can run the tests found in your project's repository.
         type: selector
         value_map:
           "no":
@@ -1210,7 +1242,10 @@ var flutterSamplePluginVersions = []interface{}{
 
 var flutterSamplePluginResultYML = fmt.Sprintf(`options:
   flutter:
-    title: Project Location
+    title: Project location
+    summary: The path to your Flutter app, stored as an Environment Variable. In your
+      Workflows, you can specify paths relative to this path. You can change this
+      at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     type: selector
     value_map:
@@ -1218,20 +1253,33 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
         config: flutter-config-app-android
       example:
         title: Run tests found in the project
+        summary: Our Flutter Test Step can run the tests found in your project's repository.
         type: selector
         value_map:
           "no":
-            title: Project (or Workspace) path
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
             env_key: BITRISE_PROJECT_PATH
             type: selector
             value_map:
               example/ios/Runner.xcworkspace:
                 title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
                 env_key: BITRISE_SCHEME
                 type: selector
                 value_map:
                   Runner:
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
                     type: selector
                     value_map:
@@ -1244,17 +1292,29 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
                       enterprise:
                         config: flutter-config-app-both
           "yes":
-            title: Project (or Workspace) path
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
             env_key: BITRISE_PROJECT_PATH
             type: selector
             value_map:
               example/ios/Runner.xcworkspace:
                 title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
                 env_key: BITRISE_SCHEME
                 type: selector
                 value_map:
                   Runner:
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
                     type: selector
                     value_map:

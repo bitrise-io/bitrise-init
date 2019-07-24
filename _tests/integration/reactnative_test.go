@@ -79,31 +79,52 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
   react-native:
     title: The root directory of an Android project
+    summary: The root directory of your Android app, stored as an Environment Variable.
+      In your Workflows, you can specify paths relative to this path. You can change
+      this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       project/android:
         title: Module
+        summary: Modules provide a container for your Android app's source code, resource
+          files, and app level settings, such as the module-level build file and Android
+          manifest file. Each module can be independently built, tested, and debugged.
+          You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
+            summary: Your Android build variants. You can add more variants at any
+              time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
               "":
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
                 type: selector
                 value_map:
                   project/ios/SampleAppsReactNativeAndroid.xcodeproj:
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
                         type: selector
                         value_map:
@@ -117,6 +138,10 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
                         type: selector
                         value_map:
@@ -238,31 +263,52 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
   react-native:
     title: The root directory of an Android project
+    summary: The root directory of your Android app, stored as an Environment Variable.
+      In your Workflows, you can specify paths relative to this path. You can change
+      this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       android:
         title: Module
+        summary: Modules provide a container for your Android app's source code, resource
+          files, and app level settings, such as the module-level build file and Android
+          manifest file. Each module can be independently built, tested, and debugged.
+          You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
+            summary: Your Android build variants. You can add more variants at any
+              time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
               "":
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
                 type: selector
                 value_map:
                   ios/SampleAppsReactNativeAndroid.xcodeproj:
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
                         type: selector
                         value_map:
@@ -276,6 +322,10 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
                         type: selector
                         value_map:

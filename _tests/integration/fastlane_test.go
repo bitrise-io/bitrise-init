@@ -71,32 +71,50 @@ var fastlaneVersions = []interface{}{
 var fastlaneResultYML = fmt.Sprintf(`options:
   fastlane:
     title: Project type
+    summary: The type of your project. This determines what Steps are added to your
+      automatically configured Workflows. You can, however, add any Steps to your
+      Workflows at any time.
     type: selector
     value_map:
       ios:
         title: Working directory
+        summary: 'The fastlane working directory: this is the directory in which your
+          fastlane script is executed.'
         env_key: FASTLANE_WORK_DIR
         type: selector
         value_map:
           BitriseFastlaneSample:
             title: Fastlane lane
+            summary: The lane that will be used in your builds, stored as an Environment
+              Variable. You can change this at any time.
             env_key: FASTLANE_LANE
             type: selector
             value_map:
               ios test:
                 config: fastlane-config_ios
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
       BitriseFastlaneSample/BitriseFastlaneSample.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
         type: selector
         value_map:
           BitriseFastlaneSample:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
             type: selector
             value_map:
