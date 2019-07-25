@@ -1,5 +1,6 @@
 package stack
 
+// DefaultStacks contains the default stacks for given project types.
 var DefaultStacks = map[string]string{
 	"xamarin":      "osx-vs4mac-stable",
 	"cordova":      "osx-vs4mac-stable",
