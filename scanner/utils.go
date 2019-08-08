@@ -3,10 +3,11 @@ package scanner
 import (
 	"errors"
 	"fmt"
+	"github.com/bitrise-io/bitrise-init/stack"
 	"strconv"
 	"strings"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -167,7 +168,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 
 	//
 	// Select platform
-	platforms := []string{}
+	var platforms []string
 	for platform := range scanResult.ScannerToOptionRoot {
 		platforms = append(platforms, platform)
 	}
@@ -211,6 +212,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	}
 
 	config.App.Environments = append(config.App.Environments, appEnvs...)
+	config.App.Meta["bitrise.io.stack"] = stack.DefaultStacks[platform]
 	// ---
 
 	return config, nil
