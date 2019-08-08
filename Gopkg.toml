@@ -6,7 +6,7 @@
 # Enforcing this to use bitrise.yml version (8) currently supported by website 
 [[constraint]]
   name = "github.com/bitrise-io/bitrise"
-  version = "=1.31.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/bitrise-io/envman"

@@ -10,12 +10,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:f006631e21e1ebecc5bd025f272197c6d1ee0102bc46006cf2e527b57be5e884"
+  branch = "master"
+  digest = "1:9641cd309c20439d381ada05c59f79f713bb1c900d2ff017ed3d198fa67042ec"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "f7458dd6a6c5612fd3e92ab021fb7f18a7d0abc4"
-  version = "1.31.0"
+  revision = "f9f5cec77bda126bce4ae7a19122a63b26655207"
 
 [[projects]]
   branch = "master"
@@ -126,12 +126,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   digest = "1:6baa565fe16f8657cf93469b2b8a6c61a277827734400d27e44d589547297279"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
   pruneopts = "UT"
   revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:99d32780e5238c2621fff621123997c3e3cca96db8be13179013aea77dfab551"
