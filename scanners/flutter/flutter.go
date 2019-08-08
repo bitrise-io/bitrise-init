@@ -23,22 +23,16 @@ const (
 	scannerName                = "flutter"
 	configName                 = "flutter-config"
 	projectLocationInputKey    = "project_location"
+	installerUpdateFlutterKey  = "is_update"
 	platformInputKey           = "platform"
 	defaultIOSConfiguration    = "Release"
 	projectLocationInputEnvKey = "BITRISE_FLUTTER_PROJECT_LOCATION"
 	projectLocationInputTitle  = "Project Location"
-	projectTypeInputEnvKey     = "BITRISE_FLUTTER_PROJECT_TYPE"
-	projectTypeInputTitle      = "Project Type"
 	testsInputTitle            = "Run tests found in the project"
 	platformInputTitle         = "Platform"
 )
 
 var (
-	projectTypes = []string{
-		"app",
-		"plugin",
-		"package",
-	}
 	platforms = []string{
 		"none",
 		"android",
@@ -408,9 +402,11 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// primary
 
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
 
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem())
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem(
+			envmanModels.EnvironmentItemModel{installerUpdateFlutterKey: "false"},
+		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
@@ -422,18 +418,20 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 			))
 		}
 
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(true)...)
 
 		// deploy
 
 		if variant.deploy {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(true)...)
 
 			if variant.platform != "android" {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 			}
 
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem())
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem(
+				envmanModels.EnvironmentItemModel{installerUpdateFlutterKey: "false"},
+			))
 
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
 				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
@@ -459,7 +457,7 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 				))
 			}
 
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
 		}
 
 		config, err := configBuilder.Generate(scannerName)
