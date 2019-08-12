@@ -32,14 +32,14 @@ const (
 	xamarinConfigurationInputKey     = "xamarin_configuration"
 	xamarinConfigurationInputEnvKey  = "BITRISE_XAMARIN_CONFIGURATION"
 	xamarinConfigurationInputTitle   = "Xamarin solution configuration"
-	xamarinConfigurationInputSummary = ""
+	xamarinConfigurationInputSummary = "The Xamarin solution configuration that you wish to run in your first build. You can change this at any time in your Workflows."
 )
 
 const (
 	xamarinPlatformInputKey     = "xamarin_platform"
 	xamarinPlatformInputEnvKey  = "BITRISE_XAMARIN_PLATFORM"
 	xamarinPlatformInputTitle   = "Xamarin solution platform"
-	xamarinPlatformInputSummary = "The Xamarin solution configuration that you wish to run in your first build. You can change this at any time in your Workflows."
+	xamarinPlatformInputSummary = ""
 )
 
 const (

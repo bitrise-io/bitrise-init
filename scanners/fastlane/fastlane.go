@@ -41,7 +41,7 @@ const (
 	workDirInputKey     = "work_dir"
 	workDirInputTitle   = "Working directory"
 	workDirInputEnvKey  = "FASTLANE_WORK_DIR"
-	workDirInputSummary = "The fastlane working directory: this is the directory in which your fastlane script is executed."
+	workDirInputSummary = "The directory where your Fastfile is located."
 )
 const (
 	projectTypeInputTitle   = "Project type"

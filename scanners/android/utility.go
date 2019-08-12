@@ -20,19 +20,19 @@ const (
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
 	ProjectLocationInputTitle   = "The root directory of an Android project"
-	ProjectLocationInputSummary = "The root directory of your Android app, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
+	ProjectLocationInputSummary = "The root directory of your Android project, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
 	VariantInputKey     = "variant"
 	VariantInputEnvKey  = "VARIANT"
 	VariantInputTitle   = "Variant"
-	VariantInputSummary = "Your Android build variants. You can add more variants at any time, as well as further configure your existing variants later."
+	VariantInputSummary = "Your Android build variant. You can add variants at any time, as well as further configure your existing variants later."
 
 	ModuleInputKey     = "module"
 	ModuleInputEnvKey  = "MODULE"
 	ModuleInputTitle   = "Module"
-	ModuleInputSummary = "Modules provide a container for your Android app's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
+	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"

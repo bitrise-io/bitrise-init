@@ -30,7 +30,7 @@ const (
 	workDirInputKey     = "workdir"
 	workDirInputTitle   = "Directory of the Ionic config.xml file"
 	workDirInputEnvKey  = "IONIC_WORK_DIR"
-	workDirInputSummary = "The working directory of your Ionic app is where you store your config.xml file. This location is stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
+	workDirInputSummary = "The working directory of your Ionic project is where you store your config.xml file. This location is stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 )
 
 const (

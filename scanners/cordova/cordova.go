@@ -30,7 +30,7 @@ const (
 	workDirInputKey     = "workdir"
 	workDirInputTitle   = "Directory of the Cordova config.xml file"
 	workDirInputEnvKey  = "CORDOVA_WORK_DIR"
-	workDirInputSummary = "The working directory of your Cordova app is where you store your config.xml file. In your Workflows, you can specify paths relative to this path. You can change this at any time."
+	workDirInputSummary = "The working directory of your Cordova project is where you store your config.xml file. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 )
 
 const (
