@@ -241,7 +241,7 @@ var flutterSampleAppVersions = []interface{}{
 var flutterSampleAppResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project location
-    summary: The path to your Flutter app, stored as an Environment Variable. In your
+    summary: The path to your Flutter project, stored as an Environment Variable. In your
       Workflows, you can specify paths relative to this path. You can change this
       at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
@@ -873,7 +873,7 @@ var flutterSamplePackageVersions = []interface{}{
 var flutterSamplePackageResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project location
-    summary: The path to your Flutter app, stored as an Environment Variable. In your
+    summary: The path to your Flutter project, stored as an Environment Variable. In your
       Workflows, you can specify paths relative to this path. You can change this
       at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1439,7 +1439,7 @@ var flutterSamplePluginVersions = []interface{}{
 var flutterSamplePluginResultYML = fmt.Sprintf(`options:
   flutter:
     title: Project location
-    summary: The path to your Flutter app, stored as an Environment Variable. In your
+    summary: The path to your Flutter project, stored as an Environment Variable. In your
       Workflows, you can specify paths relative to this path. You can change this
       at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION

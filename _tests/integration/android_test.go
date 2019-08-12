@@ -146,7 +146,7 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android app, stored as an Environment Variable.
+    summary: The root directory of your Android project, stored as an Environment Variable.
       In your Workflows, you can specify paths relative to this path. You can change
       this at any time.
     env_key: PROJECT_LOCATION
@@ -154,7 +154,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
     value_map:
       src:
         title: Module
-        summary: Modules provide a container for your Android app's source code, resource
+        summary: Modules provide a container for your Android project's source code, resource
           files, and app level settings, such as the module-level build file and Android
           manifest file. Each module can be independently built, tested, and debugged.
           You can add new modules to your Bitrise builds at any time.
@@ -163,7 +163,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
         value_map:
           app:
             title: Variant
-            summary: Your Android build variants. You can add more variants at any
+            summary: Your Android build variant. You can add variants at any
               time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
@@ -316,7 +316,7 @@ var sampleAppsAndroid22Versions = []interface{}{
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android app, stored as an Environment Variable.
+    summary: The root directory of your Android project, stored as an Environment Variable.
       In your Workflows, you can specify paths relative to this path. You can change
       this at any time.
     env_key: PROJECT_LOCATION
@@ -324,7 +324,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android app's source code, resource
+        summary: Modules provide a container for your Android project's source code, resource
           files, and app level settings, such as the module-level build file and Android
           manifest file. Each module can be independently built, tested, and debugged.
           You can add new modules to your Bitrise builds at any time.
@@ -333,7 +333,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
         value_map:
           app:
             title: Variant
-            summary: Your Android build variants. You can add more variants at any
+            summary: Your Android build variant. You can add variants at any
               time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
@@ -475,7 +475,7 @@ var androidNonExecutableGradlewVersions = []interface{}{
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android app, stored as an Environment Variable.
+    summary: The root directory of your Android project, stored as an Environment Variable.
       In your Workflows, you can specify paths relative to this path. You can change
       this at any time.
     env_key: PROJECT_LOCATION
@@ -483,7 +483,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android app's source code, resource
+        summary: Modules provide a container for your Android project's source code, resource
           files, and app level settings, such as the module-level build file and Android
           manifest file. Each module can be independently built, tested, and debugged.
           You can add new modules to your Bitrise builds at any time.
@@ -492,7 +492,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
         value_map:
           app:
             title: Variant
-            summary: Your Android build variants. You can add more variants at any
+            summary: Your Android build variant. You can add variants at any
               time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
@@ -608,7 +608,7 @@ warnings:
 var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android app, stored as an Environment Variable.
+    summary: The root directory of your Android project, stored as an Environment Variable.
       In your Workflows, you can specify paths relative to this path. You can change
       this at any time.
     env_key: PROJECT_LOCATION
@@ -616,7 +616,7 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android app's source code, resource
+        summary: Modules provide a container for your Android project's source code, resource
           files, and app level settings, such as the module-level build file and Android
           manifest file. Each module can be independently built, tested, and debugged.
           You can add new modules to your Bitrise builds at any time.
@@ -625,7 +625,7 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
         value_map:
           app:
             title: Variant
-            summary: Your Android build variants. You can add more variants at any
+            summary: Your Android build variant. You can add variants at any
               time, as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional

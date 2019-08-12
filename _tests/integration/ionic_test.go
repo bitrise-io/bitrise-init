@@ -51,7 +51,7 @@ var ionic2Versions = []interface{}{
 var ionic2ResultYML = fmt.Sprintf(`options:
   ionic:
     title: Directory of the Ionic config.xml file
-    summary: The working directory of your Ionic app is where you store your config.xml
+    summary: The working directory of your Ionic project is where you store your config.xml
       file. This location is stored as an Environment Variable. In your Workflows,
       you can specify paths relative to this path. You can change this at any time.
     env_key: IONIC_WORK_DIR
