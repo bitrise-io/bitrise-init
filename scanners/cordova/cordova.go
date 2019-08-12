@@ -241,12 +241,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	if relCordovaConfigDir != "" {
 		rootOption = models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeSelector)
 
-		projectTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
-		rootOption.AddOption(relCordovaConfigDir, projectTypeOption)
+		platformTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
+		rootOption.AddOption(relCordovaConfigDir, platformTypeOption)
 
 		for _, platform := range platforms {
 			configOption := models.NewConfigOption(configName, nil)
-			projectTypeOption.AddConfig(platform, configOption)
+			platformTypeOption.AddConfig(platform, configOption)
 		}
 	} else {
 		rootOption = models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
@@ -265,8 +265,8 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 func (*Scanner) DefaultOptions() models.OptionNode {
 	workDirOption := models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeUserInput)
 
-	projectTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
-	workDirOption.AddOption("", projectTypeOption)
+	platformTypeOption := models.NewOption(platformInputTitle, platformInputSummary, platformInputEnvKey, models.TypeSelector)
+	workDirOption.AddOption("", platformTypeOption)
 
 	platforms := []string{
 		"ios",
@@ -275,7 +275,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 	}
 	for _, platform := range platforms {
 		configOption := models.NewConfigOption(defaultConfigName, nil)
-		projectTypeOption.AddConfig(platform, configOption)
+		platformTypeOption.AddConfig(platform, configOption)
 	}
 
 	return *workDirOption
