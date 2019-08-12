@@ -78,32 +78,39 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -111,18 +118,22 @@ var flutterSampleAppVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -130,47 +141,57 @@ var flutterSampleAppVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -179,19 +200,23 @@ var flutterSampleAppVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -200,14 +225,17 @@ var flutterSampleAppVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var flutterSampleAppResultYML = fmt.Sprintf(`options:
@@ -311,13 +339,17 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -333,9 +365,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -344,18 +379,23 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -371,10 +411,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -389,18 +432,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -416,10 +464,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -434,18 +485,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -461,9 +517,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -471,6 +530,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -486,9 +546,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -500,14 +563,18 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -515,6 +582,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -530,10 +598,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -551,14 +622,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -566,6 +641,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -581,10 +657,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -602,14 +681,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -617,6 +700,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   flutter: []
 `, flutterSampleAppVersions...)
@@ -626,32 +710,39 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -659,18 +750,22 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -678,47 +773,57 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -727,19 +832,23 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -748,14 +857,17 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var flutterSamplePackageResultYML = fmt.Sprintf(`options:
@@ -793,13 +905,17 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -815,9 +931,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -826,18 +945,23 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -853,10 +977,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -871,18 +998,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -898,10 +1030,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -916,18 +1051,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -943,9 +1083,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -953,6 +1096,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -968,9 +1112,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -982,14 +1129,18 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -997,6 +1148,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1012,10 +1164,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1033,14 +1188,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1048,6 +1207,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1063,10 +1223,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1084,14 +1247,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1099,6 +1266,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   flutter: []
 `, flutterSamplePackageVersions...)
@@ -1108,32 +1276,39 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -1141,18 +1316,22 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -1160,47 +1339,57 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -1209,19 +1398,23 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// flutter-config-test-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
@@ -1230,14 +1423,17 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 }
 
 var flutterSamplePluginResultYML = fmt.Sprintf(`options:
@@ -1343,13 +1539,17 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1365,9 +1565,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1376,18 +1579,23 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1403,10 +1611,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1421,18 +1632,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1448,10 +1664,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1466,18 +1685,23 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1493,9 +1717,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1503,6 +1730,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1518,9 +1746,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1532,14 +1763,18 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1547,6 +1782,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1562,10 +1798,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1583,14 +1822,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1598,6 +1841,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1613,10 +1857,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1634,14 +1881,18 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1649,6 +1900,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   flutter: []
 `, flutterSamplePluginVersions...)
