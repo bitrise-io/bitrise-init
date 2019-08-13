@@ -78,7 +78,7 @@ var fastlaneResultYML = fmt.Sprintf(`options:
     value_map:
       ios:
         title: Working directory
-        summary: 'The directory where your Fastfile is located.'
+        summary: The directory where your Fastfile is located.
         env_key: FASTLANE_WORK_DIR
         type: selector
         value_map:

@@ -94,8 +94,8 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
     value_map:
       XamarinSampleApp.sln:
         title: Xamarin solution configuration
-        summary: The Xamarin solution configuration that you wish to run in your
-          first build. You can change this at any time in your Workflows.
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:
@@ -177,8 +177,8 @@ var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
     value_map:
       CreditCardValidator.iOS.sln:
         title: Xamarin solution configuration
-        summary: The Xamarin solution configuration that you wish to run in your
-          first build. You can change this at any time in your Workflows.
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:
@@ -257,8 +257,8 @@ var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
     value_map:
       CreditCardValidator.Droid.sln:
         title: Xamarin solution configuration
-        summary: The Xamarin solution configuration that you wish to run in your
-          first build. You can change this at any time in your Workflows.
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:

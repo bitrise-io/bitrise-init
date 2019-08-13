@@ -111,9 +111,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -129,9 +129,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -139,9 +139,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                                 config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -157,9 +157,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -167,9 +167,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                                 config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -185,9 +185,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -195,9 +195,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                                 config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -213,9 +213,9 @@ var bitriseCRNAResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -356,9 +356,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -374,9 +374,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -398,9 +398,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -416,9 +416,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -440,9 +440,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -458,9 +458,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:
@@ -482,9 +482,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
-                    summary: The root directory of your Android project, stored as an
-                      Environment Variable. In your Workflows, you can specify paths
-                      relative to this path. You can change this at any time.
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
                     type: selector
                     value_map:
@@ -500,9 +500,9 @@ var bitriseExpoKitResultYML = fmt.Sprintf(`options:
                         value_map:
                           app:
                             title: Variant
-                            summary: Your Android build variant. You can add
-                              variants at any time, as well as further configure your
-                              existing variants later.
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
                             type: user_input_optional
                             value_map:

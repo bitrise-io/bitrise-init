@@ -146,25 +146,25 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment Variable.
-      In your Workflows, you can specify paths relative to this path. You can change
-      this at any time.
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       src:
         title: Module
-        summary: Modules provide a container for your Android project's source code, resource
-          files, and app level settings, such as the module-level build file and Android
-          manifest file. Each module can be independently built, tested, and debugged.
-          You can add new modules to your Bitrise builds at any time.
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
-            summary: Your Android build variant. You can add variants at any
-              time, as well as further configure your existing variants later.
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
@@ -316,25 +316,25 @@ var sampleAppsAndroid22Versions = []interface{}{
 var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment Variable.
-      In your Workflows, you can specify paths relative to this path. You can change
-      this at any time.
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android project's source code, resource
-          files, and app level settings, such as the module-level build file and Android
-          manifest file. Each module can be independently built, tested, and debugged.
-          You can add new modules to your Bitrise builds at any time.
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
-            summary: Your Android build variant. You can add variants at any
-              time, as well as further configure your existing variants later.
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
@@ -475,25 +475,25 @@ var androidNonExecutableGradlewVersions = []interface{}{
 var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment Variable.
-      In your Workflows, you can specify paths relative to this path. You can change
-      this at any time.
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android project's source code, resource
-          files, and app level settings, such as the module-level build file and Android
-          manifest file. Each module can be independently built, tested, and debugged.
-          You can add new modules to your Bitrise builds at any time.
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
-            summary: Your Android build variant. You can add variants at any
-              time, as well as further configure your existing variants later.
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
@@ -608,25 +608,25 @@ warnings:
 var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment Variable.
-      In your Workflows, you can specify paths relative to this path. You can change
-      this at any time.
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
       .:
         title: Module
-        summary: Modules provide a container for your Android project's source code, resource
-          files, and app level settings, such as the module-level build file and Android
-          manifest file. Each module can be independently built, tested, and debugged.
-          You can add new modules to your Bitrise builds at any time.
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           app:
             title: Variant
-            summary: Your Android build variant. You can add variants at any
-              time, as well as further configure your existing variants later.
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:

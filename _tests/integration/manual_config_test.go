@@ -395,25 +395,25 @@ var customConfigVersions = []interface{}{
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment Variable.
-      In your Workflows, you can specify paths relative to this path. You can change
-      this at any time.
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
     type: user_input
     value_map:
       "":
         title: Module
-        summary: Modules provide a container for your Android project's source code, resource
-          files, and app level settings, such as the module-level build file and Android
-          manifest file. Each module can be independently built, tested, and debugged.
-          You can add new modules to your Bitrise builds at any time.
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
         type: user_input
         value_map:
           "":
             title: Variant
-            summary: Your Android build variant. You can add variants at any
-              time, as well as further configure your existing variants later.
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
             type: user_input_optional
             value_map:
@@ -421,9 +421,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-android-config
   cordova:
     title: Directory of the Cordova config.xml file
-    summary: The working directory of your Cordova project is where you store your config.xml
-      file. In your Workflows, you can specify paths relative to this path. You can
-      change this at any time.
+    summary: The working directory of your Cordova project is where you store your
+      config.xml file. In your Workflows, you can specify paths relative to this path.
+      You can change this at any time.
     env_key: CORDOVA_WORK_DIR
     type: user_input
     value_map:
@@ -443,7 +443,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
             config: default-cordova-config
   fastlane:
     title: Working directory
-    summary: 'The directory where your Fastfile is located.'
+    summary: The directory where your Fastfile is located.
     env_key: FASTLANE_WORK_DIR
     type: user_input
     value_map:
@@ -465,9 +465,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-fastlane-ios-config
   flutter:
     title: Project location
-    summary: The path to your Flutter project, stored as an Environment Variable. In your
-      Workflows, you can specify paths relative to this path. You can change this
-      at any time.
+    summary: The path to your Flutter project, stored as an Environment Variable.
+      In your Workflows, you can specify paths relative to this path. You can change
+      this at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     type: user_input
     value_map:
@@ -746,18 +746,18 @@ var customConfigResultYML = fmt.Sprintf(`options:
         value_map:
           "":
             title: Module
-            summary: Modules provide a container for your Android project's source code,
-              resource files, and app level settings, such as the module-level build
-              file and Android manifest file. Each module can be independently built,
-              tested, and debugged. You can add new modules to your Bitrise builds
-              at any time.
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
             env_key: MODULE
             type: user_input
             value_map:
               "":
                 title: Variant
-                summary: Your Android build variant. You can add variants at
-                  any time, as well as further configure your existing variants later.
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
                 env_key: VARIANT
                 type: user_input_optional
                 value_map:
@@ -849,7 +849,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -859,9 +859,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -886,7 +886,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -896,9 +896,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -923,7 +923,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -933,9 +933,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -960,7 +960,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -970,9 +970,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -1022,7 +1022,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -1032,9 +1032,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -1073,7 +1073,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -1083,9 +1083,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -1124,7 +1124,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -1134,9 +1134,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -1175,7 +1175,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               ./android:
                                 title: Module
                                 summary: Modules provide a container for your Android
-                                  app's source code, resource files, and app level
+                                  project's source code, resource files, and app level
                                   settings, such as the module-level build file and
                                   Android manifest file. Each module can be independently
                                   built, tested, and debugged. You can add new modules
@@ -1185,9 +1185,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                 value_map:
                                   app:
                                     title: Variant
-                                    summary: Your Android build variants. You can
-                                      add more variants at any time, as well as further
-                                      configure your existing variants later.
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
                                     type: user_input_optional
                                     value_map:
@@ -1217,8 +1217,8 @@ var customConfigResultYML = fmt.Sprintf(`options:
     value_map:
       "":
         title: Xamarin solution configuration
-        summary: The Xamarin solution configuration that you wish to run in your
-          first build. You can change this at any time in your Workflows.
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: user_input
         value_map:
