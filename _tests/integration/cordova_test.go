@@ -75,7 +75,10 @@ var sampleAppsCordovaWithJasmineVersions = []interface{}{
 
 var sampleAppsCordovaWithJasmineResultYML = fmt.Sprintf(`options:
   cordova:
-    title: Platform to use in cordova-cli commands
+    title: The platform to use in cordova-cli commands
+    summary: The target platform for your build, stored as an Environment Variable.
+      Your options are iOS, Android, or both. You can change this in your Env Vars
+      at any time.
     env_key: CORDOVA_PLATFORM
     type: selector
     value_map:
@@ -153,7 +156,10 @@ var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
 
 var sampleAppsCordovaWithKarmaJasmineResultYML = fmt.Sprintf(`options:
   cordova:
-    title: Platform to use in cordova-cli commands
+    title: The platform to use in cordova-cli commands
+    summary: The target platform for your build, stored as an Environment Variable.
+      Your options are iOS, Android, or both. You can change this in your Env Vars
+      at any time.
     env_key: CORDOVA_PLATFORM
     type: selector
     value_map:
