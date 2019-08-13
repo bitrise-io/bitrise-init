@@ -43,8 +43,9 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 				detectedProjectTypes: []string{detectedProjectType},
 			},
 			want: models.OptionNode{
-				Title:  "Project type",
-				EnvKey: ProjectTypeEnvKey,
+				Title:   "Project type",
+				Summary: "The type of your project. This determines what Steps are added to your automatically configured Workflows. You can, however, add any Steps to your Workflows at any time.",
+				EnvKey:  ProjectTypeEnvKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					detectedProjectType: &models.OptionNode{
 						Title:  "Working directory",
@@ -88,9 +89,10 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 				detectedProjectTypes: []string{"ios", "android"},
 			},
 			want: models.OptionNode{
-				Title:  "Project type",
-				EnvKey: ProjectTypeEnvKey,
-				Type:   models.TypeSelector,
+				Title:   "Project type",
+				Summary: "The type of your project. This determines what Steps are added to your automatically configured Workflows. You can, however, add any Steps to your Workflows at any time.",
+				EnvKey:  ProjectTypeEnvKey,
+				Type:    models.TypeSelector,
 				ChildOptionMap: map[string]*models.OptionNode{
 					"ios": &models.OptionNode{
 						Title:  "Working directory",

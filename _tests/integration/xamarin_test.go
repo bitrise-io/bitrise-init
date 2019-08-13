@@ -86,11 +86,16 @@ var xamarinSampleAppVersions = []interface{}{
 var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
       XamarinSampleApp.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:
@@ -164,11 +169,16 @@ var sampleAppsXamarinIosVersions = []interface{}{
 var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
       CreditCardValidator.iOS.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:
@@ -239,11 +249,16 @@ var sampleAppsXamarinAndroidVersions = []interface{}{
 var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
       CreditCardValidator.Droid.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
         type: selector
         value_map:

@@ -10,9 +10,10 @@ import (
 )
 
 func TestNewOption(t *testing.T) {
-	actual := NewOption("Project (or Workspace) path", "BITRISE_PROJECT_PATH", TypeSelector)
+	actual := NewOption("Project (or Workspace) path", "test", "BITRISE_PROJECT_PATH", TypeSelector)
 	expected := &OptionNode{
 		Title:          "Project (or Workspace) path",
+		Summary:        "test",
 		EnvKey:         "BITRISE_PROJECT_PATH",
 		ChildOptionMap: map[string]*OptionNode{},
 		Components:     []string{},
@@ -47,29 +48,29 @@ func TestGetValues(t *testing.T) {
 
 func TestLastOptions(t *testing.T) {
 	// 1. level
-	opt0 := NewOption("OPT0", "OPT0_KEY", TypeSelector)
+	opt0 := NewOption("OPT0", "", "OPT0_KEY", TypeSelector)
 
 	// 2. level
-	opt01 := NewOption("OPT01", "OPT01_KEY", TypeSelector) // has no child
+	opt01 := NewOption("OPT01", "", "OPT01_KEY", TypeSelector) // has no child
 	opt01.AddConfig("test", nil)
 	opt0.AddOption("value1", opt01)
 
-	opt02 := NewOption("OPT02", "OPT02_KEY", TypeSelector)
+	opt02 := NewOption("OPT02", "", "OPT02_KEY", TypeSelector)
 	opt0.AddOption("value2", opt02)
 
 	// 3. level
-	opt021 := NewOption("OPT021", "OPT021_KEY", TypeSelector)
+	opt021 := NewOption("OPT021", "", "OPT021_KEY", TypeSelector)
 	opt02.AddOption("value1", opt021)
 
 	// 4. level
-	opt0211 := NewOption("OPT0211", "OPT0211_KEY", TypeSelector) // has no child
+	opt0211 := NewOption("OPT0211", "", "OPT0211_KEY", TypeSelector) // has no child
 	opt021.AddOption("value1", opt0211)
 
-	opt0212 := NewOption("OPT0212", "OPT0212_KEY", TypeSelector)
+	opt0212 := NewOption("OPT0212", "", "OPT0212_KEY", TypeSelector)
 	opt021.AddOption("value2", opt0212)
 
 	// 5. level
-	opt02121 := NewOption("OPT02121", "OPT02121_KEY", TypeSelector) // has no child
+	opt02121 := NewOption("OPT02121", "", "OPT02121_KEY", TypeSelector) // has no child
 	opt0212.AddOption("value1", opt02121)
 
 	lastOptions := opt0.LastChilds()
@@ -206,10 +207,10 @@ func TestLastOptions(t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	// 1. level
-	opt0 := NewOption("OPT0", "OPT0_KEY", TypeSelector)
+	opt0 := NewOption("OPT0", "", "OPT0_KEY", TypeSelector)
 
 	// 2. level
-	opt01 := NewOption("OPT01", "OPT01_KEY", TypeSelector)
+	opt01 := NewOption("OPT01", "", "OPT01_KEY", TypeSelector)
 	opt01.AddOption("value01", nil)
 
 	opt0.AddOption("value1", opt01)
@@ -251,28 +252,28 @@ func TestCopy(t *testing.T) {
 
 func TestComponents(t *testing.T) {
 	// 1. level
-	opt0 := NewOption("OPT0", "OPT0_KEY", TypeSelector)
+	opt0 := NewOption("OPT0", "", "OPT0_KEY", TypeSelector)
 
 	// 2. level
-	opt01 := NewOption("OPT01", "OPT01_KEY", TypeSelector) // has no child
+	opt01 := NewOption("OPT01", "", "OPT01_KEY", TypeSelector) // has no child
 	opt0.AddOption("value1", opt01)
 
-	opt02 := NewOption("OPT02", "OPT02_KEY", TypeSelector)
+	opt02 := NewOption("OPT02", "", "OPT02_KEY", TypeSelector)
 	opt0.AddOption("value2", opt02)
 
 	// 3. level
-	opt021 := NewOption("OPT021", "OPT021_KEY", TypeSelector)
+	opt021 := NewOption("OPT021", "", "OPT021_KEY", TypeSelector)
 	opt02.AddOption("value1", opt021)
 
 	// 4. level
-	opt0211 := NewOption("OPT0211", "OPT0211_KEY", TypeSelector) // has no child
+	opt0211 := NewOption("OPT0211", "", "OPT0211_KEY", TypeSelector) // has no child
 	opt021.AddOption("value1", opt0211)
 
-	opt0212 := NewOption("OPT0212", "OPT0212_KEY", TypeSelector)
+	opt0212 := NewOption("OPT0212", "", "OPT0212_KEY", TypeSelector)
 	opt021.AddOption("value2", opt0212)
 
 	// 5. level
-	opt02121 := NewOption("OPT02121", "OPT02121_KEY", TypeSelector) // has no child
+	opt02121 := NewOption("OPT02121", "", "OPT02121_KEY", TypeSelector) // has no child
 	opt0212.AddOption("value1", opt02121)
 
 	require.Equal(t, []string{}, opt0.Components)
@@ -286,17 +287,17 @@ func TestComponents(t *testing.T) {
 
 func TestHead(t *testing.T) {
 	// 1. level
-	opt0 := NewOption("OPT0", "OPT0_KEY", TypeSelector)
+	opt0 := NewOption("OPT0", "", "OPT0_KEY", TypeSelector)
 
 	// 2. level
-	opt01 := NewOption("OPT01", "OPT01_KEY", TypeSelector) // has no child
+	opt01 := NewOption("OPT01", "", "OPT01_KEY", TypeSelector) // has no child
 	opt0.AddOption("value1", opt01)
 
-	opt02 := NewOption("OPT02", "OPT02_KEY", TypeSelector)
+	opt02 := NewOption("OPT02", "", "OPT02_KEY", TypeSelector)
 	opt0.AddOption("value2", opt02)
 
 	// 3. level
-	opt021 := NewOption("OPT021", "OPT021_KEY", TypeSelector)
+	opt021 := NewOption("OPT021", "", "OPT021_KEY", TypeSelector)
 	opt02.AddOption("value1", opt021)
 
 	require.Equal(t, (*OptionNode)(nil), opt0.Head)
@@ -307,17 +308,17 @@ func TestHead(t *testing.T) {
 
 func TestParent(t *testing.T) {
 	// 1. level
-	opt0 := NewOption("OPT0", "OPT0_KEY", TypeSelector)
+	opt0 := NewOption("OPT0", "", "OPT0_KEY", TypeSelector)
 
 	// 2. level
-	opt01 := NewOption("OPT01", "OPT01_KEY", TypeSelector) // has no child
+	opt01 := NewOption("OPT01", "", "OPT01_KEY", TypeSelector) // has no child
 	opt0.AddOption("value1", opt01)
 
-	opt02 := NewOption("OPT02", "OPT02_KEY", TypeSelector)
+	opt02 := NewOption("OPT02", "", "OPT02_KEY", TypeSelector)
 	opt0.AddOption("value2", opt02)
 
 	// 3. level
-	opt021 := NewOption("OPT021", "OPT021_KEY", TypeSelector)
+	opt021 := NewOption("OPT021", "", "OPT021_KEY", TypeSelector)
 	opt02.AddOption("value1", opt021)
 
 	{
