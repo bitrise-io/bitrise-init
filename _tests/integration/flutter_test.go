@@ -78,9 +78,9 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -89,9 +89,9 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
@@ -99,9 +99,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -110,10 +110,10 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -122,9 +122,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -133,10 +133,10 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -145,9 +145,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -156,9 +156,9 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -168,9 +168,9 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -179,9 +179,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -191,10 +191,10 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -204,9 +204,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -216,10 +216,10 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -229,9 +229,9 @@ var flutterSampleAppVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -311,12 +311,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -337,12 +337,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -357,12 +357,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -383,13 +383,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -410,12 +410,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -436,13 +436,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -463,12 +463,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -489,12 +489,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -518,12 +518,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -541,12 +541,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -570,13 +570,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -600,12 +600,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -629,13 +629,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -659,12 +659,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -682,9 +682,9 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -693,9 +693,9 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
@@ -703,9 +703,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -714,10 +714,10 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -726,9 +726,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -737,10 +737,10 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -749,9 +749,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -760,9 +760,9 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -772,9 +772,9 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -783,9 +783,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -795,10 +795,10 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -808,9 +808,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -820,10 +820,10 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -833,9 +833,9 @@ var flutterSamplePackageVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -873,12 +873,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -899,12 +899,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -919,12 +919,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -945,13 +945,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -972,12 +972,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -998,13 +998,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1025,12 +1025,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1051,12 +1051,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1080,12 +1080,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1103,12 +1103,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1132,13 +1132,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1162,12 +1162,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1191,13 +1191,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1221,12 +1221,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1244,9 +1244,9 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -1255,9 +1255,9 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1265,9 +1265,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -1276,10 +1276,10 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -1288,9 +1288,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -1299,10 +1299,10 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -1311,9 +1311,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
@@ -1322,9 +1322,9 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1334,9 +1334,9 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -1345,9 +1345,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1357,10 +1357,10 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -1370,9 +1370,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1382,10 +1382,10 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
@@ -1395,9 +1395,9 @@ var flutterSamplePluginVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1479,12 +1479,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1505,12 +1505,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1525,12 +1525,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1551,13 +1551,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1578,12 +1578,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1604,13 +1604,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1631,12 +1631,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1657,12 +1657,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1686,12 +1686,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1709,12 +1709,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1738,13 +1738,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1768,12 +1768,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1797,13 +1797,13 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1827,12 +1827,12 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - script@%s:
               title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION

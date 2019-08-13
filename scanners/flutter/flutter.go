@@ -402,11 +402,14 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// primary
 
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(true)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterInstallStepListItem(
 			envmanModels.EnvironmentItemModel{installerUpdateFlutterKey: "false"},
 		))
+
+		// cache-pull is after flutter-installer, to prevent removal of pub system cache
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CachePullStepListItem())
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
@@ -423,7 +426,7 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		// deploy
 
 		if variant.deploy {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(true)...)
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
 
 			if variant.platform != "android" {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
@@ -432,6 +435,8 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterInstallStepListItem(
 				envmanModels.EnvironmentItemModel{installerUpdateFlutterKey: "false"},
 			))
+
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CachePullStepListItem())
 
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
 				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
