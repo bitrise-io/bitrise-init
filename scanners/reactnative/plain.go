@@ -12,6 +12,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"gopkg.in/yaml.v2"
 )
@@ -21,7 +22,7 @@ const (
 )
 
 // configName generates a config name based on the inputs.
-func configName(hasAndroidProject, hasIosProject, hasNPMTest bool) string {
+func configName(hasAndroidProject, hasIosProject, hasTest bool) string {
 	name := "react-native"
 	if hasAndroidProject {
 		name += "-android"
@@ -29,7 +30,7 @@ func configName(hasAndroidProject, hasIosProject, hasNPMTest bool) string {
 	if hasIosProject {
 		name += "-ios"
 	}
-	if hasNPMTest {
+	if hasTest {
 		name += "-test"
 	}
 	return name + "-config"
@@ -47,10 +48,16 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 		return models.OptionNode{}, warnings, err
 	}
 
-	hasNPMTest := false
+	// determine Js dependency manager
+	if scanner.hasYarnLockFile, err = containsYarnLock(filepath.Dir(scanner.packageJSONPth)); err != nil {
+		return models.OptionNode{}, warnings, err
+	}
+	log.TPrintf("Js dependency manager is npm: %t", scanner.hasYarnLockFile)
+
+	hasTest := false
 	if _, found := packages.Scripts["test"]; found {
-		hasNPMTest = true
-		scanner.hasNPMTest = true
+		hasTest = true
+		scanner.hasTest = true
 	}
 
 	projectDir := filepath.Dir(scanner.packageJSONPth)
@@ -119,7 +126,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 						return models.OptionNode{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 					}
 
-					configName := configName(true, false, hasNPMTest)
+					configName := configName(true, false, hasTest)
 					child.Config = configName
 				}
 			}
@@ -141,7 +148,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 					return models.OptionNode{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 				}
 
-				configName := configName(scanner.androidScanner != nil, true, hasNPMTest)
+				configName := configName(scanner.androidScanner != nil, true, hasTest)
 				child.Config = configName
 			}
 		}
@@ -196,19 +203,27 @@ func (scanner *Scanner) configs() (models.BitriseConfigMap, error) {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
 	}
 
-	if scanner.hasNPMTest {
+	if scanner.hasTest {
 		configBuilder := models.NewDefaultConfigBuilder()
 
 		// ci
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		if scanner.hasYarnLockFile {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		} else {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		}
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 		// cd
 		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		if scanner.hasYarnLockFile {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		} else {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		}
 
 		// android cd
 		if scanner.androidScanner != nil {

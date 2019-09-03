@@ -30,8 +30,9 @@ type Scanner struct {
 	iosScanner     *ios.Scanner
 	androidScanner *android.Scanner
 
-	hasNPMTest     bool
-	packageJSONPth string
+	hasTest         bool
+	hasYarnLockFile bool
+	packageJSONPth  string
 
 	usesExpo    bool
 	usesExpoKit bool

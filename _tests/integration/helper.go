@@ -25,7 +25,7 @@ func replaceVersions(str string, versions ...interface{}) (string, error) {
 		if format, ok := f.(string); ok {
 			beforeCount := strings.Count(str, format)
 			if beforeCount < 1 {
-				return "", fmt.Errorf("format's original value not found")
+				return "", fmt.Errorf("format's original value not found, str: %s versions: %+v", str, versions)
 			}
 			str = strings.Replace(str, format, "%s", 1)
 
