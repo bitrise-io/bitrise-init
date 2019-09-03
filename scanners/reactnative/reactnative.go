@@ -166,6 +166,22 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.usesExpo = usesExpo
 	scanner.packageJSONPth = packageFile
 
+	// determine Js dependency manager
+	if scanner.hasYarnLockFile, err = containsYarnLock(filepath.Dir(scanner.packageJSONPth)); err != nil {
+		return false, err
+	}
+	log.TPrintf("Js dependency manager for %s npm: %t", scanner.packageJSONPth, scanner.hasYarnLockFile)
+
+	packages, err := utility.ParsePackagesJSON(scanner.packageJSONPth)
+	if err != nil {
+		return false, err
+	}
+
+	if _, found := packages.Scripts["test"]; found {
+		scanner.hasTest = true
+	}
+	log.TPrintf("Test script found in package.json: %v", scanner.hasTest)
+
 	return true, nil
 }
 

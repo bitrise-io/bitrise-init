@@ -12,7 +12,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"gopkg.in/yaml.v2"
 )
@@ -39,27 +38,7 @@ func configName(hasAndroidProject, hasIosProject, hasTest bool) string {
 // options implements ScannerInterface.Options function for plain React Native projects.
 func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	warnings := models.Warnings{}
-
 	var rootOption models.OptionNode
-
-	// react options
-	packages, err := utility.ParsePackagesJSON(scanner.packageJSONPth)
-	if err != nil {
-		return models.OptionNode{}, warnings, err
-	}
-
-	// determine Js dependency manager
-	if scanner.hasYarnLockFile, err = containsYarnLock(filepath.Dir(scanner.packageJSONPth)); err != nil {
-		return models.OptionNode{}, warnings, err
-	}
-	log.TPrintf("Js dependency manager is npm: %t", scanner.hasYarnLockFile)
-
-	hasTest := false
-	if _, found := packages.Scripts["test"]; found {
-		hasTest = true
-		scanner.hasTest = true
-	}
-
 	projectDir := filepath.Dir(scanner.packageJSONPth)
 
 	// android options
@@ -126,7 +105,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 						return models.OptionNode{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 					}
 
-					configName := configName(true, false, hasTest)
+					configName := configName(true, false, scanner.hasTest)
 					child.Config = configName
 				}
 			}
@@ -148,7 +127,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 					return models.OptionNode{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 				}
 
-				configName := configName(scanner.androidScanner != nil, true, hasTest)
+				configName := configName(scanner.androidScanner != nil, true, scanner.hasTest)
 				child.Config = configName
 			}
 		}
