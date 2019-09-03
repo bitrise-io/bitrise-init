@@ -11,7 +11,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"gopkg.in/yaml.v2"
 )
@@ -53,12 +52,6 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 			// only the first match we need
 			scanner.androidScanner.ExcludeTest = true
 			scanner.androidScanner.ProjectRoots = []string{scanner.androidScanner.ProjectRoots[0]}
-
-			npmCmd := command.New("npm", "install")
-			npmCmd.SetDir(projectDir)
-			if out, err := npmCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
-				return models.OptionNode{}, warnings, fmt.Errorf("failed to npm install react-native in: %s\noutput: %s\nerror: %s", projectDir, out, err)
-			}
 
 			options, warns, _, err := scanner.androidScanner.Options()
 			warnings = append(warnings, warns...)
