@@ -460,7 +460,7 @@ var sampleAppsReactNativeIosAndAndroidYarnVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.YarnVersion,
-	steps.NpmVersion,
+	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
