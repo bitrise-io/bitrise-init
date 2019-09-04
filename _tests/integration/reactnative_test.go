@@ -616,7 +616,7 @@ configs:
           - yarn@%s:
               inputs:
               - command: install
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
