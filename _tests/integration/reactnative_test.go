@@ -36,13 +36,14 @@ func TestReactNative(t *testing.T) {
 		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidVersions...)
 	}
 
-	t.Log("sample-apps-react-native-ios-and-android")
+	t.Log("sample-apps-react-native-ios-and-android-yarn")
 	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android")
+		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android-yarn")
 		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
 
 		yarnCommand := command.New("yarn", "install")
+		yarnCommand.SetDir(sampleAppDir)
 		out, err := yarnCommand.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
 
@@ -55,7 +56,7 @@ func TestReactNative(t *testing.T) {
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
 
-		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidYarnResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidYarnVersions...)
+		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android-yarn", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidYarnResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidYarnVersions...)
 	}
 
 	t.Log("sample-apps-react-native-subdir")
