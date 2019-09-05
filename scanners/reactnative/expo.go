@@ -17,7 +17,6 @@ import (
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/xcode-project/serialized"
 	"gopkg.in/yaml.v2"
 )
@@ -285,37 +284,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
 	}
 
-	// determine dependency manager step
-	hasYarnLockFile := false
-	if exist, err := pathutil.IsPathExists(filepath.Join(relPackageJSONDir, "yarn.lock")); err != nil {
-		log.Warnf("Failed to check if yarn.lock file exists in the workdir: %s", err)
-		log.TPrintf("Dependency manager: npm")
-	} else if exist {
-		log.TPrintf("Dependency manager: yarn")
-		hasYarnLockFile = true
-	} else {
-		log.TPrintf("Dependency manager: npm")
-	}
-
-	// find test script in package.json file
-	b, err := fileutil.ReadBytesFromFile(scanner.packageJSONPth)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-	var packageJSON serialized.Object
-	if err := json.Unmarshal([]byte(b), &packageJSON); err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	hasTest := false
-	if scripts, err := packageJSON.Object("scripts"); err == nil {
-		if _, err := scripts.String("test"); err == nil {
-			hasTest = true
-		}
-	}
-	log.TPrintf("Test script found in package.json: %v", hasTest)
-
-	if !hasTest {
+	if !scanner.hasTest {
 		// if the project has no test script defined,
 		// we can only provide deploy like workflow,
 		// so that is going to be the primary workflow
@@ -323,7 +292,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		configBuilder := models.NewDefaultConfigBuilder()
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-		if hasYarnLockFile {
+		if scanner.hasYarnLockFile {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 		} else {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
@@ -398,7 +367,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-	if hasYarnLockFile {
+	if scanner.hasYarnLockFile {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 	} else {
@@ -409,7 +378,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 	// deploy workflow
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-	if hasYarnLockFile {
+	if scanner.hasYarnLockFile {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 	} else {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
