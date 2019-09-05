@@ -29,6 +29,9 @@ Please check available workflows in [bitrise.yml](./bitrise.yml).
 ## How to release new bitrise-init version
 
 - update the step versions in steps/const.go
+    - `go get -u github.com/godrei/stepper`
+    - `stepper stepLatests --steps-const-file="steps/const.go"`
+    - copy the output after “Generated” to the const.go file
 - bump `version` in version/version.go
 - commit these changes & open PR
 - merge to master
