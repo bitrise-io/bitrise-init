@@ -67,7 +67,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.7.0"
+	DeployToBitriseIoVersion = "1.7.1"
 )
 
 const (
@@ -97,7 +97,7 @@ const (
 	// FastlaneID ...
 	FastlaneID = "fastlane"
 	// FastlaneVersion ...
-	FastlaneVersion = "2.5.2"
+	FastlaneVersion = "2.6.0"
 )
 
 const (
