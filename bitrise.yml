@@ -13,6 +13,25 @@ workflows:
             set -ex
             docker-compose build
             docker-compose run --rm app bitrise run ci
+  maintenance:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            go get -u github.com/godrei/stepper
+
+            # explanation:
+            # 1. run stepper tool
+            # 2. extract relevant part
+            # https://stackoverflow.com/questions/7103531/how-to-get-the-part-of-a-file-after-the-first-line-that-matches-a-regular-expres
+            stepper stepLatests --steps-const-file=$BITRISE_SOURCE_DIR/steps/const.go | sed -n -e '/package steps/,$p' > stepper_output.go
+
+            # 3. diff the generated const file with current one
+            diff $BITRISE_SOURCE_DIR/steps/const.go stepper_output.go
+
+            # 4. diff returns nonzero if diff not empty 
+            exit $?
 
   ci:
     after_run:
