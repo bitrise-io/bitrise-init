@@ -116,6 +116,7 @@ func initConfig(c *cli.Context) error {
 	return nil
 }
 
+// getInteractiveAnswers gets the interactive questions based on the scan result.
 func getInteractiveAnswers(scanResult models.ScanResultModel, outputDir string, format output.Format) error {
 	// Select options
 	log.TInfof("Collecting inputs:")

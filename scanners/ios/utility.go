@@ -115,7 +115,7 @@ func (descriptor ConfigDescriptor) ConfigName(projectType XcodeProjectType) stri
 	return fmt.Sprintf(configNameFormat, string(projectType), qualifiers)
 }
 
-// HasCartfileInDirectoryOf ...
+// HasCartfileInDirectoryOf checks if a given directory has Cartfile subdirectory.
 func HasCartfileInDirectoryOf(pth string) bool {
 	dir := filepath.Dir(pth)
 	cartfilePth := filepath.Join(dir, cartfileBase)
@@ -126,7 +126,7 @@ func HasCartfileInDirectoryOf(pth string) bool {
 	return exist
 }
 
-// HasCartfileResolvedInDirectoryOf ...
+// HasCartfileResolvedInDirectoryOf checks if a given directory has Cartfile.resolved subdirectory.
 func HasCartfileResolvedInDirectoryOf(pth string) bool {
 	dir := filepath.Dir(pth)
 	cartfileResolvedPth := filepath.Join(dir, cartfileResolvedBase)
@@ -137,7 +137,7 @@ func HasCartfileResolvedInDirectoryOf(pth string) bool {
 	return exist
 }
 
-// Detect ...
+// Detect check if the platform can be detected in the given directory. This is determined by the file content.
 func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
@@ -166,6 +166,7 @@ func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
 	return true, nil
 }
 
+// printMissingSharedSchemesAndGenerateWarning checks if thexcshareddata directory is missing or not in the given project.
 func printMissingSharedSchemesAndGenerateWarning(projectPth, defaultGitignorePth string, targets []xcodeproj.TargetModel) string {
 	isXcshareddataGitignored := false
 	if exist, err := pathutil.IsPathExists(defaultGitignorePth); err != nil {
@@ -209,6 +210,7 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 	return message
 }
 
+// detectCarthageCommand gets the Carthage command from a given directory.
 func detectCarthageCommand(projectPth string) (string, string) {
 	carthageCommand := ""
 	warning := ""
@@ -230,6 +232,7 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 	return carthageCommand, warning
 }
 
+// projectPathByScheme gets the path for the project for the given scheme.
 func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string) string {
 	for _, p := range projects {
 		for _, s := range p.SharedSchemes {
@@ -250,7 +253,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
 	}
 
-	// Separate workspaces and standalon projects
+	// Separate workspaces and standalone projects
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
 		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err

@@ -195,6 +195,18 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("invalid platform selected: %s", platform)
 	}
 
+	// Select stacks
+	stackStrs, err := availableStacks(platform)
+	if err != nil {
+		return bitriseModels.BitriseDataModel{}, err
+
+	}
+	fmt.Println("Select stack:")
+	selectedStack, err := selectOption(stackStrs)
+	if err != nil {
+		return bitriseModels.BitriseDataModel{}, err
+	}
+
 	configPth, appEnvs, err := AskForOptions(options)
 	if err != nil {
 		return bitriseModels.BitriseDataModel{}, err
@@ -212,8 +224,23 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	}
 
 	config.App.Environments = append(config.App.Environments, appEnvs...)
-	config.App.Meta["bitrise.io.stack"] = stack.DefaultStacks[platform]
+	config.Meta = map[string]interface{}{}
+	config.Meta["bitrise.io.stack"] = selectedStack
 	// ---
 
 	return config, nil
+}
+
+// availableStacks returns the available stacks for the given platform.
+func availableStacks(platformStr string) ([]string, error) {
+	platform, err := stack.ParsePlatform(platformStr)
+	if err != nil {
+		return []string{}, err
+	}
+	availableStacks := stack.StackOptionsMap[platform]
+	var stackStrs []string
+	for _, availableStack := range availableStacks {
+		stackStrs = append(stackStrs, availableStack.StringValue())
+	}
+	return stackStrs, nil
 }

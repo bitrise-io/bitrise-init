@@ -16,7 +16,7 @@ type SortablePath struct {
 	Components []string
 }
 
-// NewSortablePath ...
+// NewSortablePath creates a SortablePath instance from a given path.
 func NewSortablePath(pth string) (SortablePath, error) {
 	absPth, err := pathutil.AbsPath(pth)
 	if err != nil {
@@ -38,7 +38,7 @@ func NewSortablePath(pth string) (SortablePath, error) {
 	}, nil
 }
 
-// BySortablePathComponents ..
+// BySortablePathComponents is a comparator for SortablePath.
 type BySortablePathComponents []SortablePath
 
 func (s BySortablePathComponents) Len() int {

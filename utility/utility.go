@@ -59,7 +59,8 @@ func RelPath(basePth, pth string) (string, error) {
 	return filepath.Rel(absBasePth, absPth)
 }
 
-// ListPathInDirSortedByComponents ...
+// ListPathInDirSortedByComponents collects files from a given directory and sorts them by components. Boolean relPath
+// is for determining if relative paths should be added to the collection or not.
 func ListPathInDirSortedByComponents(searchDir string, relPath bool) ([]string, error) {
 	searchDir, err := filepath.Abs(searchDir)
 	if err != nil {
