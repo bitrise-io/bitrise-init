@@ -43,141 +43,155 @@ var optionsStacks = []string{
 //
 // This should be in sync with: https://github.com/bitrise-io/bitrise-website/blob/master/config/available_stacks.yml
 var StackOptionsMap = map[Platform][]Stack{
-	XAMARIN: {
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE},
-	CORDOVA: {
-		OSX_XCODE_10_2_X,
-		LINUX_DOCKER_ANDROID_LTS,
-		LINUX_DOCKER_ANDROID,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE},
-	REACT_NATIVE: {
-		OSX_XCODE_10_2_X,
-		LINUX_DOCKER_ANDROID_LTS,
-		LINUX_DOCKER_ANDROID,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE},
-	IONIC: {
-		OSX_XCODE_10_2_X,
-		LINUX_DOCKER_ANDROID_LTS,
-		LINUX_DOCKER_ANDROID,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE,
+	Xamarin: {
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable},
+	Cordova: {
+		OsxXcode102X,
+		LinuxDockerAndroidLts,
+		LinuxDockerAndroid,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge},
+	ReactNative: {
+		OsxXcode102X,
+		LinuxDockerAndroidLts,
+		LinuxDockerAndroid,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge},
+	Ionic: {
+		OsxXcode102X,
+		LinuxDockerAndroidLts,
+		LinuxDockerAndroid,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge,
 	},
-	FLUTTER: {
-		OSX_XCODE_10_2_X,
-		LINUX_DOCKER_ANDROID_LTS,
-		LINUX_DOCKER_ANDROID,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE,
+	Flutter: {
+		OsxXcode102X,
+		LinuxDockerAndroidLts,
+		LinuxDockerAndroid,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge,
 	},
-	ANDROID: {
-		LINUX_DOCKER_ANDROID,
-		LINUX_DOCKER_ANDROID_LTS,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_2_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE,
+	Android: {
+		LinuxDockerAndroid,
+		LinuxDockerAndroidLts,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode102X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge,
 	},
-	MACOS: {
-		OSX_XCODE_10_2_X,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE},
-	IOS: {
-		OSX_XCODE_10_2_X,
-		OSX_VS4MAC_STABLE,
-		OSX_VS4MAC_BETA,
-		OSX_VS4MAC_PREVIOUS_STABLE,
-		OSX_XCODE_11_2_X,
-		OSX_XCODE_11_1_X,
-		OSX_XCODE_11_0_X,
-		OSX_XCODE_10_1_X,
-		OSX_XCODE_10_0_X,
-		OSX_XCODE_9_4_X,
-		OSX_XCODE_8_3_X,
-		OSX_XCODE_EDGE},
+	MacOS: {
+		OsxXcode102X,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge},
+	Ios: {
+		OsxXcode102X,
+		OsxVs4MACStable,
+		OsxVs4MACBeta,
+		OsxVs4MACPreviousStable,
+		OsxXcode112X,
+		OsxXcode111X,
+		OsxXcode110X,
+		OsxXcode101X,
+		OsxXcode100X,
+		OsxXcode94X,
+		OsxXcode83X,
+		OsxXcodeEdge},
 }
 
 // Stack defines a Stack with it's name.
 type Stack string
 
 const (
-	LINUX_DOCKER_ANDROID_LTS   Stack = "linux-docker-android-lts"
-	LINUX_DOCKER_ANDROID       Stack = "linux-docker-android"
-	OSX_VS4MAC_BETA            Stack = "osx-vs4mac-beta"
-	OSX_VS4MAC_PREVIOUS_STABLE Stack = "osx-vs4mac-previous-stable"
-	OSX_VS4MAC_STABLE          Stack = "osx-vs4mac-stable"
-	OSX_XCODE_11_2_X           Stack = "osx-xcode-11.2.x"
-	OSX_XCODE_11_1_X           Stack = "osx-xcode-11.1.x"
-	OSX_XCODE_11_0_X           Stack = "osx-xcode-11.0.x"
-	OSX_XCODE_10_2_X           Stack = "osx-xcode-10.2.x"
-	OSX_XCODE_10_1_X           Stack = "osx-xcode-10.1.x"
-	OSX_XCODE_10_0_X           Stack = "osx-xcode-10.0.x"
-	OSX_XCODE_9_4_X            Stack = "osx-xcode-9.4.x"
-	OSX_XCODE_8_3_X            Stack = "osx-xcode-8.3.x"
-	OSX_XCODE_EDGE             Stack = "osx-xcode-edge"
+	// LinuxDockerAndroidLts the stack for linux-docker-android-lts.
+	LinuxDockerAndroidLts Stack = "linux-docker-android-lts"
+	// LinuxDockerAndroid the stack for linux-docker-android.
+	LinuxDockerAndroid Stack = "linux-docker-android"
+	// OsxVs4MACBeta the stack for osx-vs4mac-beta.
+	OsxVs4MACBeta Stack = "osx-vs4mac-beta"
+	// OsxVs4MACPreviousStable the stack for osx-vs4mac-previous-stable.
+	OsxVs4MACPreviousStable Stack = "osx-vs4mac-previous-stable"
+	// OsxVs4MACStable the stack for osx-vs4mac-stable.
+	OsxVs4MACStable Stack = "osx-vs4mac-stable"
+	// OsxXcode112X the stack for osx-xcode-11.2.x.
+	OsxXcode112X Stack = "osx-xcode-11.2.x"
+	// OsxXcode111X the stack for osx-xcode-11.1.x.
+	OsxXcode111X Stack = "osx-xcode-11.1.x"
+	// OsxXcode110X the stack for osx-xcode-11.0.x.
+	OsxXcode110X Stack = "osx-xcode-11.0.x"
+	// OsxXcode102X the stack for osx-xcode-10.2.x.
+	OsxXcode102X Stack = "osx-xcode-10.2.x"
+	// OsxXcode101X the stack for osx-xcode-10.1.x.
+	OsxXcode101X Stack = "osx-xcode-10.1.x"
+	// OsxXcode100X the stack for osx-xcode-10.0.x.
+	OsxXcode100X Stack = "osx-xcode-10.0.x"
+	// OsxXcode94X the stack for osx-xcode-9.4.x
+	OsxXcode94X Stack = "osx-xcode-9.4.x"
+	// OsxXcode83X the stack for osx-xcode-8.3.x.
+	OsxXcode83X Stack = "osx-xcode-8.3.x"
+	// OsxXcodeEdge the stack for osx-xcode-edge.
+	OsxXcodeEdge Stack = "osx-xcode-edge"
 )
 
 // Stacks is the array of the all available stacks.
 var Stacks = []Stack{
-	LINUX_DOCKER_ANDROID_LTS, LINUX_DOCKER_ANDROID, OSX_VS4MAC_BETA, OSX_VS4MAC_PREVIOUS_STABLE, OSX_XCODE_11_2_X,
-	OSX_XCODE_11_1_X, OSX_XCODE_11_0_X, OSX_XCODE_10_2_X, OSX_XCODE_10_1_X, OSX_XCODE_10_0_X, OSX_XCODE_9_4_X,
-	OSX_XCODE_8_3_X, OSX_XCODE_EDGE,
+	LinuxDockerAndroidLts, LinuxDockerAndroid, OsxVs4MACBeta, OsxVs4MACPreviousStable, OsxXcode112X,
+	OsxXcode111X, OsxXcode110X, OsxXcode102X, OsxXcode101X, OsxXcode100X, OsxXcode94X,
+	OsxXcode83X, OsxXcodeEdge,
 }
 
 // ParseStack gets the given stack from a string.
@@ -199,19 +213,27 @@ func (s Stack) StringValue() string {
 type Platform string
 
 const (
-	XAMARIN      Platform = "xamarin"
-	CORDOVA      Platform = "cordova"
-	REACT_NATIVE Platform = "react-native"
-	IONIC        Platform = "ionic"
-	FLUTTER      Platform = "flutter"
-	ANDROID      Platform = "android"
-	MACOS        Platform = "macos"
-	IOS          Platform = "ios"
+	// Xamarin the constant identifier for Xamarin platform.
+	Xamarin Platform = "xamarin"
+	// Cordova the constant identifier for Cordova platform.
+	Cordova Platform = "cordova"
+	// ReactNative the constant identifier for React Native platform.
+	ReactNative Platform = "react-native"
+	// Ionic the constant identifier for Ionic platform.
+	Ionic Platform = "ionic"
+	// Flutter the constant identifier for Flutter platform.
+	Flutter Platform = "flutter"
+	// Android the constant identifier for Android platform.
+	Android Platform = "android"
+	// MacOS the constant identifier for MacOS platform.
+	MacOS Platform = "macos"
+	// Ios the constant identifier for iOS platform.
+	Ios Platform = "ios"
 )
 
 // Platforms is the array of all available platforms.
 var Platforms = []Platform{
-	XAMARIN, CORDOVA, REACT_NATIVE, IONIC, FLUTTER, ANDROID, MACOS, IOS,
+	Xamarin, Cordova, ReactNative, Ionic, Flutter, Android, MacOS, Ios,
 }
 
 // ParsePlatform gets the given platform from a string.
