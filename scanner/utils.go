@@ -3,10 +3,10 @@ package scanner
 import (
 	"errors"
 	"fmt"
-	"github.com/bitrise-io/bitrise-init/stack"
 	"strconv"
 	"strings"
 
+	"github.com/bitrise-io/bitrise-init/stack"
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
@@ -232,15 +232,12 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 }
 
 // availableStacks returns the available stacks for the given platform.
-func availableStacks(platformStr string) ([]string, error) {
-	platform, err := stack.ParsePlatform(platformStr)
-	if err != nil {
-		return []string{}, err
+func availableStacks(platform string) ([]string, error) {
+	stacks := stack.Platforms[platform]
+
+	if len(stacks) == 0 {
+		return nil, fmt.Errorf("could not find platform %s", platform)
 	}
-	availableStacks := stack.StackOptionsMap[platform]
-	var stackStrs []string
-	for _, availableStack := range availableStacks {
-		stackStrs = append(stackStrs, availableStack.StringValue())
-	}
-	return stackStrs, nil
+
+	return stacks, nil
 }
