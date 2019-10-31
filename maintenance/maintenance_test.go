@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitrise-io/bitrise-add-new-project/config"
 	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
@@ -55,7 +54,7 @@ func TestStackChange(t *testing.T) {
 		t.Fatalf("Error unmarshalling stack data from string (%s): %s", bytes, err)
 	}
 
-	if len(config.Stacks) != len(rb) {
+	if len(stacks) != len(rb) {
 		t.Fatalf("Stack list changed")
 	}
 
