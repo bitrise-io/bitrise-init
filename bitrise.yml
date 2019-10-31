@@ -16,6 +16,7 @@ workflows:
   maintenance:
     steps:
     - script:
+        title: Check step version change
         inputs:
         - content: |-
             #!/usr/bin/env bash
@@ -32,6 +33,10 @@ workflows:
 
             # 4. diff returns nonzero if diff not empty 
             exit $?
+    - go-test:
+        title: Check available stack change
+        inputs:
+          - packages: ./maintenance
 
   ci:
     after_run:
