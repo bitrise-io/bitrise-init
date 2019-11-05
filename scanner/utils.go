@@ -15,6 +15,8 @@ import (
 	"github.com/bitrise-io/goinp/goinp"
 )
 
+const stackSelectFT = false
+
 func getDefaultValue(opt models.OptionNode) string {
 	if opt.Type == models.TypeOptionalSelector {
 		return ""
@@ -195,16 +197,15 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("invalid platform selected: %s", platform)
 	}
 
-	// Select stacks
-	stackStrs, err := availableStacks(platform)
-	if err != nil {
-		return bitriseModels.BitriseDataModel{}, err
-
-	}
-	fmt.Println("Select stack:")
-	selectedStack, err := selectOption(stackStrs)
-	if err != nil {
-		return bitriseModels.BitriseDataModel{}, err
+	var selectedStack string
+	if stackSelectFT {
+		// Select stacks
+		var err error
+		fmt.Println("Select stack:")
+		selectedStack, err = selectOption(stack.StackOptionsMap[platform])
+		if err != nil {
+			return bitriseModels.BitriseDataModel{}, err
+		}
 	}
 
 	configPth, appEnvs, err := AskForOptions(options)
@@ -224,23 +225,12 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	}
 
 	config.App.Environments = append(config.App.Environments, appEnvs...)
-	config.Meta = map[string]interface{}{}
-	config.Meta["bitrise.io.stack"] = selectedStack
+
+	if stackSelectFT {
+		config.Meta = map[string]interface{}{}
+		config.Meta["bitrise.io.stack"] = selectedStack
+	}
 	// ---
 
 	return config, nil
-}
-
-// availableStacks returns the available stacks for the given platform.
-func availableStacks(platformStr string) ([]string, error) {
-	platform, err := stack.ParsePlatform(platformStr)
-	if err != nil {
-		return []string{}, err
-	}
-	availableStacks := stack.StackOptionsMap[platform]
-	var stackStrs []string
-	for _, availableStack := range availableStacks {
-		stackStrs = append(stackStrs, availableStack.StringValue())
-	}
-	return stackStrs, nil
 }
