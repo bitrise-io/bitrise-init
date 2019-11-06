@@ -86,15 +86,23 @@ var xamarinSampleAppVersions = []interface{}{
 var xamarinSampleAppResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       XamarinSampleApp.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-components-config
@@ -105,6 +113,7 @@ var xamarinSampleAppResultYML = fmt.Sprintf(`options:
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-components-config
@@ -160,15 +169,23 @@ var sampleAppsXamarinIosVersions = []interface{}{
 var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       CreditCardValidator.iOS.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
@@ -179,6 +196,7 @@ var sampleAppsXamarinIosResultYML = fmt.Sprintf(`options:
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
@@ -231,21 +249,30 @@ var sampleAppsXamarinAndroidVersions = []interface{}{
 var sampleAppsXamarinAndroidResultYML = fmt.Sprintf(`options:
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       CreditCardValidator.Droid.sln:
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: selector
         value_map:
           Debug:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config
           Release:
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: selector
             value_map:
               Any CPU:
                 config: xamarin-nuget-config

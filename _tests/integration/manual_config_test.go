@@ -97,24 +97,30 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -122,17 +128,21 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -140,44 +150,54 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -185,19 +205,23 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -205,19 +229,23 @@ var customConfigVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
+	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
 
 	// ionic
 	models.FormatVersion,
@@ -367,25 +395,45 @@ var customConfigVersions = []interface{}{
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
     env_key: PROJECT_LOCATION
+    type: user_input
     value_map:
-      _:
+      "":
         title: Module
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
+        type: user_input
         value_map:
-          _:
+          "":
             title: Variant
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
             env_key: VARIANT
+            type: user_input_optional
             value_map:
               "":
                 config: default-android-config
   cordova:
-    title: Directory of Cordova Config.xml
+    title: Directory of the Cordova config.xml file
+    summary: The working directory of your Cordova project is where you store your
+      config.xml file. In your Workflows, you can specify paths relative to this path.
+      You can change this at any time.
     env_key: CORDOVA_WORK_DIR
+    type: user_input
     value_map:
-      _:
-        title: Platform to use in cordova-cli commands
+      "":
+        title: The platform to use in cordova-cli commands
+        summary: The target platform for your build, stored as an Environment Variable.
+          Your options are iOS, Android, or both. You can change this in your Env
+          Vars at any time.
         env_key: CORDOVA_PLATFORM
+        type: selector
         value_map:
           android:
             config: default-cordova-config
@@ -395,42 +443,74 @@ var customConfigResultYML = fmt.Sprintf(`options:
             config: default-cordova-config
   fastlane:
     title: Working directory
+    summary: The directory where your Fastfile is located.
     env_key: FASTLANE_WORK_DIR
+    type: user_input
     value_map:
-      _:
+      "":
         title: Fastlane lane
+        summary: The lane that will be used in your builds, stored as an Environment
+          Variable. You can change this at any time.
         env_key: FASTLANE_LANE
+        type: user_input
         value_map:
-          _:
+          "":
             title: Project type
+            summary: The project type of the app you added to Bitrise.
+            type: selector
             value_map:
               android:
                 config: default-fastlane-android-config
               ios:
                 config: default-fastlane-ios-config
   flutter:
-    title: Project Location
+    title: Project location
+    summary: The path to your Flutter project, stored as an Environment Variable.
+      In your Workflows, you can specify paths relative to this path. You can change
+      this at any time.
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
+    type: user_input
     value_map:
-      _:
+      "":
         title: Run tests found in the project
+        summary: Our Flutter Test Step can run the tests found in your project's repository.
+        type: selector
         value_map:
           "no":
             title: Platform
+            summary: The target platform for your first build. Your options are iOS,
+              Android, both, or neither. You can change this in your Env Vars at any
+              time.
+            type: selector
             value_map:
               android:
                 config: flutter-config-app-android
               both:
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-app-both
@@ -441,16 +521,31 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: flutter-config-app-both
               ios:
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-app-ios
@@ -464,20 +559,39 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: flutter-config
           "yes":
             title: Platform
+            summary: The target platform for your first build. Your options are iOS,
+              Android, both, or neither. You can change this in your Env Vars at any
+              time.
+            type: selector
             value_map:
               android:
                 config: flutter-config-test-app-android
               both:
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-test-app-both
@@ -488,16 +602,31 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: flutter-config-test-app-both
               ios:
-                title: Project (or Workspace) path
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
                 env_key: BITRISE_PROJECT_PATH
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
                     env_key: BITRISE_SCHEME
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: ipa export method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
                         env_key: BITRISE_EXPORT_METHOD
+                        type: selector
                         value_map:
                           ad-hoc:
                             config: flutter-config-test-app-ios
@@ -510,12 +639,20 @@ var customConfigResultYML = fmt.Sprintf(`options:
               none:
                 config: flutter-config-test
   ionic:
-    title: Directory of Ionic Config.xml
+    title: Directory of the Ionic config.xml file
+    summary: The working directory of your Ionic project is where you store your config.xml
+      file. This location is stored as an Environment Variable. In your Workflows,
+      you can specify paths relative to this path. You can change this at any time.
     env_key: IONIC_WORK_DIR
+    type: user_input
     value_map:
-      _:
-        title: Platform to use in ionic-cli commands
+      "":
+        title: The platform to use in ionic-cli commands
+        summary: The target platform for your builds, stored as an Environment Variable.
+          Your options are iOS, Android, or both. You can change this in your Env
+          Vars at any time.
         env_key: IONIC_PLATFORM
+        type: selector
         value_map:
           android:
             config: default-ionic-config
@@ -524,16 +661,30 @@ var customConfigResultYML = fmt.Sprintf(`options:
           ios,android:
             config: default-ionic-config
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: user_input
         value_map:
-          _:
+          "":
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: default-ios-config
@@ -544,18 +695,32 @@ var customConfigResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: default-ios-config
   macos:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: user_input
         value_map:
-          _:
+          "":
             title: |-
               Application export method
               NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
+            summary: The export method used to create an .app file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .app files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               app-store:
                 config: default-macos-config
@@ -566,31 +731,63 @@ var customConfigResultYML = fmt.Sprintf(`options:
               none:
                 config: default-macos-config
   react-native:
-    title: Project was created using Expo CLI?
+    title: Was the project created using the Expo CLI?
+    summary: If your React Native app was created with the Expo CLI, Bitrise will
+      automatically insert the **Expo Eject** Step to your Workflows.
+    type: selector
     value_map:
       "no":
         title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
         env_key: PROJECT_LOCATION
+        type: user_input
         value_map:
-          _:
+          "":
             title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
             env_key: MODULE
+            type: user_input
             value_map:
-              _:
+              "":
                 title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
                 env_key: VARIANT
+                type: user_input_optional
                 value_map:
                   "":
-                    title: Project (or Workspace) path
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
                     env_key: BITRISE_PROJECT_PATH
+                    type: user_input
                     value_map:
-                      _:
+                      "":
                         title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
                         env_key: BITRISE_SCHEME
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: ipa export method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
                             env_key: BITRISE_EXPORT_METHOD
+                            type: selector
                             value_map:
                               ad-hoc:
                                 config: default-react-native-config
@@ -601,230 +798,436 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               enterprise:
                                 config: default-react-native-config
       "yes":
-        title: Project uses Expo Kit (any js file imports expo dependency)?
+        title: Does the project use ExpoKit?
+        summary: ExpoKit is an Objective-C and Java library that allows you to use
+          the Expo platform and your existing Expo project as part of a larger standard
+          native project. Any .js file imports Expo dependency.
         env_key: USES_EXPO_KIT
+        type: selector
         value_map:
           "no":
             title: The iOS project path generated ny the 'expo eject' process
+            summary: 'Running `+"`expo eject`"+` downloads the required dependencies and
+              builds native projects under the `+"`ios`"+` and `+"`android`"+` directories of
+              your project: this is the path to the `+"`ios`"+` directory.'
             env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              _:
+              "":
                 title: The iOS scheme name generated by the 'expo eject' process
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. You can change the scheme at any time.
                 env_key: BITRISE_SCHEME
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
                       app-store:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
                       development:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
                       enterprise:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         config: default-react-native-expo-config
           "yes":
             title: The iOS workspace path generated ny the 'expo eject' process
+            summary: 'Running `+"`expo eject`"+` downloads the required dependencies and
+              builds native projects under the `+"`ios`"+` and `+"`android`"+` directories of
+              your project: this is the path to the iOS project''s workspace file.'
             env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              _:
+              "":
                 title: The iOS scheme name generated by the 'expo eject' process
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. You can change the scheme at any time.
                 env_key: BITRISE_SCHEME
+                type: user_input
                 value_map:
-                  _:
+                  "":
                     title: ipa export method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
                     env_key: BITRISE_EXPORT_METHOD
+                    type: selector
                     value_map:
                       ad-hoc:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
+                                        summary: 'Your Expo account username: only
+                                          required if you use ExpoKit.'
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
+                                            summary: 'Your Expo account password:
+                                              only required if you use ExpoKit.'
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       app-store:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
+                                        summary: 'Your Expo account username: only
+                                          required if you use ExpoKit.'
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
+                                            summary: 'Your Expo account password:
+                                              only required if you use ExpoKit.'
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       development:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
+                                        summary: 'Your Expo account username: only
+                                          required if you use ExpoKit.'
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
+                                            summary: 'Your Expo account password:
+                                              only required if you use ExpoKit.'
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
                       enterprise:
-                        title: Project root directory (the directory of the project
-                          app.json/package.json file)
+                        title: Project root directory
+                        summary: The directory of the `+"`app.json`"+` or `+"`package.json`"+`
+                          file of your React Native project.
                         env_key: WORKDIR
+                        type: user_input
                         value_map:
-                          _:
+                          "":
                             title: The root directory of an Android project
+                            summary: The root directory of your Android project, stored
+                              as an Environment Variable. In your Workflows, you can
+                              specify paths relative to this path. You can change
+                              this at any time.
                             env_key: PROJECT_LOCATION
+                            type: selector
                             value_map:
                               ./android:
                                 title: Module
+                                summary: Modules provide a container for your Android
+                                  project's source code, resource files, and app level
+                                  settings, such as the module-level build file and
+                                  Android manifest file. Each module can be independently
+                                  built, tested, and debugged. You can add new modules
+                                  to your Bitrise builds at any time.
                                 env_key: MODULE
+                                type: user_input
                                 value_map:
                                   app:
                                     title: Variant
+                                    summary: Your Android build variant. You can add
+                                      variants at any time, as well as further configure
+                                      your existing variants later.
                                     env_key: VARIANT
+                                    type: user_input_optional
                                     value_map:
                                       Release:
                                         title: Expo username
+                                        summary: 'Your Expo account username: only
+                                          required if you use ExpoKit.'
                                         env_key: EXPO_USERNAME
+                                        type: user_input
                                         value_map:
-                                          _:
+                                          "":
                                             title: Expo password
+                                            summary: 'Your Expo account password:
+                                              only required if you use ExpoKit.'
                                             env_key: EXPO_PASSWORD
+                                            type: user_input
                                             value_map:
-                                              _:
+                                              "":
                                                 config: default-react-native-expo-expo-kit-config
   xamarin:
     title: Path to the Xamarin Solution file
+    summary: Your solution file has to contain all the solution configurations you
+      wish to use on Bitrise. A solution configuration specifies how projects in the
+      solution are to be built and deployed.
     env_key: BITRISE_PROJECT_PATH
+    type: user_input
     value_map:
-      _:
+      "":
         title: Xamarin solution configuration
+        summary: The Xamarin solution configuration that you wish to run in your first
+          build. You can change this at any time in your Workflows.
         env_key: BITRISE_XAMARIN_CONFIGURATION
+        type: user_input
         value_map:
-          _:
+          "":
             title: Xamarin solution platform
             env_key: BITRISE_XAMARIN_PLATFORM
+            type: user_input
             value_map:
-              _:
+              "":
                 config: default-xamarin-config
 configs:
   android:
@@ -1026,11 +1429,15 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1048,7 +1455,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1057,6 +1467,7 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1064,11 +1475,15 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1087,7 +1502,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1102,6 +1520,7 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1109,11 +1528,15 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1132,7 +1555,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1147,6 +1573,7 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1154,11 +1581,15 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1176,7 +1607,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1184,6 +1618,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1201,7 +1636,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1213,6 +1651,7 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1220,7 +1659,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1228,6 +1670,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1246,7 +1689,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1264,6 +1710,7 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1271,7 +1718,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1279,6 +1729,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1297,7 +1748,10 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1315,6 +1769,7 @@ configs:
               - export_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
@@ -1322,7 +1777,10 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - flutter-installer@%s: {}
+          - flutter-installer@%s:
+              inputs:
+              - is_update: "false"
+          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1330,6 +1788,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
   ionic:
     default-ionic-config: |
       format_version: "%s"

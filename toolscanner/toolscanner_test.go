@@ -35,14 +35,17 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 									Config: "fastlane-config",
 								},
 							},
+							Type: models.TypeSelector,
 						},
 					},
+					Type: models.TypeSelector,
 				},
 				detectedProjectTypes: []string{detectedProjectType},
 			},
 			want: models.OptionNode{
-				Title:  "Project type",
-				EnvKey: ProjectTypeEnvKey,
+				Title:   "Project type",
+				Summary: "The type of your project. This determines what Steps are added to your automatically configured Workflows. You can, however, add any Steps to your Workflows at any time.",
+				EnvKey:  ProjectTypeEnvKey,
 				ChildOptionMap: map[string]*models.OptionNode{
 					detectedProjectType: &models.OptionNode{
 						Title:  "Working directory",
@@ -54,8 +57,13 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + detectedProjectType,
-									}}}}},
+									}},
+								Type: models.TypeSelector,
+							}},
+						Type: models.TypeSelector,
+					},
 				},
+				Type: models.TypeSelector,
 			},
 		},
 		{
@@ -64,10 +72,12 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 				scannerOptionTree: models.OptionNode{
 					Title:  "Working directory",
 					EnvKey: "FASTLANE_WORK_DIR",
+					Type:   models.TypeSelector,
 					ChildOptionMap: map[string]*models.OptionNode{
 						"BitriseFastlaneSample": &models.OptionNode{
 							Title:  "Fastlane lane",
 							EnvKey: "FASTLANE_LANE",
+							Type:   models.TypeSelector,
 							ChildOptionMap: map[string]*models.OptionNode{
 								"ios test": &models.OptionNode{
 									Config: "fastlane-config",
@@ -79,16 +89,20 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 				detectedProjectTypes: []string{"ios", "android"},
 			},
 			want: models.OptionNode{
-				Title:  "Project type",
-				EnvKey: ProjectTypeEnvKey,
+				Title:   "Project type",
+				Summary: "The type of your project. This determines what Steps are added to your automatically configured Workflows. You can, however, add any Steps to your Workflows at any time.",
+				EnvKey:  ProjectTypeEnvKey,
+				Type:    models.TypeSelector,
 				ChildOptionMap: map[string]*models.OptionNode{
 					"ios": &models.OptionNode{
 						Title:  "Working directory",
 						EnvKey: "FASTLANE_WORK_DIR",
+						Type:   models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"BitriseFastlaneSample": &models.OptionNode{
 								Title:  "Fastlane lane",
 								EnvKey: "FASTLANE_LANE",
+								Type:   models.TypeSelector,
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + "ios",
@@ -100,10 +114,12 @@ func TestAddProjectTypeToOptions(t *testing.T) {
 					"android": &models.OptionNode{
 						Title:  "Working directory",
 						EnvKey: "FASTLANE_WORK_DIR",
+						Type:   models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"BitriseFastlaneSample": &models.OptionNode{
 								Title:  "Fastlane lane",
 								EnvKey: "FASTLANE_LANE",
+								Type:   models.TypeSelector,
 								ChildOptionMap: map[string]*models.OptionNode{
 									"ios test": &models.OptionNode{
 										Config: "fastlane-config" + "_" + "android",

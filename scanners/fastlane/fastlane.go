@@ -9,6 +9,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/toolscanner"
 	"github.com/bitrise-io/bitrise-init/utility"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -31,15 +32,21 @@ var platforms = []string{iosPlatform, "android"}
 
 // Step Inputs
 const (
-	laneInputKey    = "lane"
-	laneInputTitle  = "Fastlane lane"
-	laneInputEnvKey = "FASTLANE_LANE"
+	laneInputKey     = "lane"
+	laneInputTitle   = "Fastlane lane"
+	laneInputEnvKey  = "FASTLANE_LANE"
+	laneInputSummary = "The lane that will be used in your builds, stored as an Environment Variable. You can change this at any time."
 )
 
 const (
-	workDirInputKey    = "work_dir"
-	workDirInputTitle  = "Working directory"
-	workDirInputEnvKey = "FASTLANE_WORK_DIR"
+	workDirInputKey     = "work_dir"
+	workDirInputTitle   = "Working directory"
+	workDirInputEnvKey  = "FASTLANE_WORK_DIR"
+	workDirInputSummary = "The directory where your Fastfile is located."
+)
+const (
+	projectTypeInputTitle   = "Project type"
+	projectTypeInputSummary = "The project type of the app you added to Bitrise."
 )
 
 const (
@@ -112,7 +119,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 	// Inspect Fastfiles
 
-	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeSelector)
 
 	for _, fastfile := range scanner.Fastfiles {
 		log.TInfof("Inspecting Fastfile: %s", fastfile)
@@ -137,7 +144,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 		isValidFastfileFound = true
 
-		laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
+		laneOption := models.NewOption(laneInputTitle, laneInputSummary, laneInputEnvKey, models.TypeSelector)
 		workDirOption.AddOption(workDir, laneOption)
 
 		for _, lane := range lanes {
@@ -162,13 +169,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (*Scanner) DefaultOptions() models.OptionNode {
-	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputSummary, workDirInputEnvKey, models.TypeUserInput)
 
-	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
-	workDirOption.AddOption("_", laneOption)
+	laneOption := models.NewOption(laneInputTitle, laneInputSummary, laneInputEnvKey, models.TypeUserInput)
+	workDirOption.AddOption("", laneOption)
 
-	projectTypeOption := models.NewOption("Project type", "")
-	laneOption.AddOption("_", projectTypeOption)
+	projectTypeOption := models.NewOption(projectTypeInputTitle, projectTypeInputSummary, "", models.TypeSelector)
+	laneOption.AddOption("", projectTypeOption)
 
 	for _, p := range platforms {
 		configOption := models.NewConfigOption(fmt.Sprintf(defaultConfigNameFormat, p), nil)
@@ -180,29 +187,41 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	generateConfig := func(isIOS bool) (bitriseModels.BitriseDataModel, error) {
+		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+		if isIOS {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+		}
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
-		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
-		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
-	))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
+			envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+			envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+		))
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	// Fill in project type later, from the list of detected project types
-	config, err := configBuilder.Generate(unknownProjectType,
-		envmanModels.EnvironmentItemModel{
-			fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
-		})
-	if err != nil {
-		return models.BitriseConfigMap{}, err
+		// Fill in project type later, from the list of detected project types
+		return configBuilder.Generate(unknownProjectType,
+			envmanModels.EnvironmentItemModel{
+				fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue,
+			})
 	}
 
 	// Create list of possible configs with project types
-	nameToConfigModel := toolscanner.AddProjectTypeToConfig(configName, config, scanner.projectTypes)
+	nameToConfigModel := map[string]bitriseModels.BitriseDataModel{}
+
+	for _, platform := range scanner.projectTypes {
+		config, err := generateConfig(platform == iosPlatform)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		for cfgName, dataModel := range toolscanner.AddProjectTypeToConfig(configName, config, []string{platform}) {
+			nameToConfigModel[cfgName] = dataModel
+		}
+	}
 
 	nameToConfigString := map[string]string{}
 	for configName, config := range nameToConfigModel {

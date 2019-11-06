@@ -77,74 +77,147 @@ var bitriseCRNAVersions = []interface{}{
 
 var bitriseCRNAResultYML = fmt.Sprintf(`options:
   react-native:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       ios/BitriseCRNA.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           BitriseCRNA:
             title: iOS Development team
+            summary: The Apple Development Team that the iOS version of the app belongs
+              to.
             env_key: BITRISE_IOS_DEVELOPMENT_TEAM
+            type: user_input
             value_map:
-              _:
+              "":
                 title: ipa export method
+                summary: The export method used to create an .ipa file in your builds,
+                  stored as an Environment Variable. You can change this at any time,
+                  or even create several .ipa files with different export methods
+                  in the same build.
                 env_key: BITRISE_EXPORT_METHOD
+                type: selector
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 config: react-native-expo-config
@@ -249,108 +322,205 @@ var bitriseExpoKitVersions = []interface{}{
 
 var bitriseExpoKitResultYML = fmt.Sprintf(`options:
   react-native:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       ios/bitriseexpokit.xcworkspace:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           bitriseexpokit:
             title: iOS Development team
+            summary: The Apple Development Team that the iOS version of the app belongs
+              to.
             env_key: BITRISE_IOS_DEVELOPMENT_TEAM
+            type: user_input
             value_map:
-              _:
+              "":
                 title: ipa export method
+                summary: The export method used to create an .ipa file in your builds,
+                  stored as an Environment Variable. You can change this at any time,
+                  or even create several .ipa files with different export methods
+                  in the same build.
                 env_key: BITRISE_EXPORT_METHOD
+                type: selector
                 value_map:
                   ad-hoc:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
+                                summary: 'Your Expo account username: only required
+                                  if you use ExpoKit.'
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
+                                    summary: 'Your Expo account password: only required
+                                      if you use ExpoKit.'
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   app-store:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
+                                summary: 'Your Expo account username: only required
+                                  if you use ExpoKit.'
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
+                                    summary: 'Your Expo account password: only required
+                                      if you use ExpoKit.'
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   development:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
+                                summary: 'Your Expo account username: only required
+                                  if you use ExpoKit.'
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
+                                    summary: 'Your Expo account password: only required
+                                      if you use ExpoKit.'
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
                   enterprise:
                     title: The root directory of an Android project
+                    summary: The root directory of your Android project, stored as
+                      an Environment Variable. In your Workflows, you can specify
+                      paths relative to this path. You can change this at any time.
                     env_key: PROJECT_LOCATION
+                    type: selector
                     value_map:
                       ./android:
                         title: Module
+                        summary: Modules provide a container for your Android project's
+                          source code, resource files, and app level settings, such
+                          as the module-level build file and Android manifest file.
+                          Each module can be independently built, tested, and debugged.
+                          You can add new modules to your Bitrise builds at any time.
                         env_key: MODULE
+                        type: user_input
                         value_map:
                           app:
                             title: Variant
+                            summary: Your Android build variant. You can add variants
+                              at any time, as well as further configure your existing
+                              variants later.
                             env_key: VARIANT
+                            type: user_input_optional
                             value_map:
                               Release:
                                 title: Expo username
+                                summary: 'Your Expo account username: only required
+                                  if you use ExpoKit.'
                                 env_key: EXPO_USERNAME
+                                type: user_input
                                 value_map:
-                                  _:
+                                  "":
                                     title: Expo password
+                                    summary: 'Your Expo account password: only required
+                                      if you use ExpoKit.'
                                     env_key: EXPO_PASSWORD
+                                    type: user_input
                                     value_map:
-                                      _:
+                                      "":
                                         config: react-native-expo-config
 configs:
   react-native:
