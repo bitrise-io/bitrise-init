@@ -4,37 +4,47 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
-type ResponseBody []DirectoryEntry
-type DirectoryEntry struct {
+func stacks() []string {
+	return []string{
+		"linux-docker-android-lts",
+		"linux-docker-android",
+		"osx-vs4mac-beta",
+		"osx-vs4mac-previous-stable",
+		"osx-vs4mac-stable",
+		"osx-xcode-10.0.x",
+		"osx-xcode-10.1.x",
+		"osx-xcode-10.2.x",
+		"osx-xcode-10.3.x",
+		"osx-xcode-11.0.x",
+		"osx-xcode-11.1.x",
+		"osx-xcode-11.2.x",
+		"osx-xcode-8.3.x",
+		"osx-xcode-9.4.x",
+		"osx-xcode-edge",
+	}
+}
+
+type report struct {
 	Name string `json:"name"`
 }
 
-var stacks = []string{
-	"linux-docker-android-lts",
-	"linux-docker-android",
-	"osx-vs4mac-beta",
-	"osx-vs4mac-previous-stable",
-	"osx-vs4mac-stable",
-	"osx-xcode-10.0.x",
-	"osx-xcode-10.1.x",
-	"osx-xcode-10.2.x",
-	"osx-xcode-10.3.x",
-	"osx-xcode-11.0.x",
-	"osx-xcode-11.1.x",
-	"osx-xcode-11.2.x",
-	"osx-xcode-8.3.x",
-	"osx-xcode-9.4.x",
-	"osx-xcode-edge",
+type systemReports []report
+
+func (reports systemReports) Stacks() (s []string) {
+	for _, report := range reports {
+		s = append(s, strings.TrimSuffix(report.Name, ".log"))
+	}
+	return
 }
 
 func TestStackChange(t *testing.T) {
-	resp, err := http.Get("https://api.github.com/repos/bitrise-io/bitrise.io/contents/system_reports")
+	resp, err := http.Get("https://api.github.com/repos/bitrise-io/bitrise.io/contents/system_reports?access_token=" + os.Getenv("GIT_BOT_USER_ACCESS_TOKEN"))
 	if err != nil {
 		t.Fatalf("Error getting current stack list from GitHub: %s", err)
 	}
@@ -49,20 +59,12 @@ func TestStackChange(t *testing.T) {
 		t.Fatalf("Error reading stack info from GitHub response: %s", err)
 	}
 
-	var rb ResponseBody
-	if err := json.Unmarshal(bytes, &rb); err != nil {
+	var reports systemReports
+	if err := json.Unmarshal(bytes, &reports); err != nil {
 		t.Fatalf("Error unmarshalling stack data from string (%s): %s", bytes, err)
 	}
 
-	if len(stacks) != len(rb) {
-		t.Fatalf("Stack list changed")
+	if expected := reports.Stacks(); !reflect.DeepEqual(expected, stacks()) {
+		t.Fatalf("Stack list changed, current: %v, expecting: %v", stacks(), expected)
 	}
-
-	for _, de := range rb {
-		trimmed := strings.TrimSuffix(de.Name, ".log")
-		if !sliceutil.IsStringInSlice(trimmed, stacks) {
-			t.Fatalf("Stack list changed")
-		}
-	}
-
 }
