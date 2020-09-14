@@ -409,20 +409,20 @@ func (p *XcodeProj) ForceCodeSign(configuration, targetName, developmentTeam, co
 	}
 
 	// Override TargetAttributes
-	if err = forceCodeSignOnTargetAttributes(targetAttributes, target.ID, developmentTeam); err != nil {
+	if err = foreceCodeSignOnTargetAttributes(targetAttributes, target.ID, developmentTeam); err != nil {
 		return fmt.Errorf("failed to change code signing in target attributes, error: %s", err)
 	}
 
 	// Override BuildSettings
-	if err = forceCodeSignOnBuildConfiguration(buildConfiguration, developmentTeam, provisioningProfileUUID, codesignIdentity); err != nil {
+	if err = foreceCodeSignOnBuildConfiguration(buildConfiguration, target.ID, developmentTeam, provisioningProfileUUID, codesignIdentity); err != nil {
 		return fmt.Errorf("failed to change code signing in build settings, error: %s", err)
 	}
 	return nil
 }
 
-// forceCodeSignOnTargetAttributes sets the TargetAttributes for the provided targetID.
+// foreceCodeSignOnTargetAttributes sets the TargetAttributes for the provided targetID.
 // **Overrides the ProvisioningStyle, developmentTeam and clears the DevelopmentTeamName in the provided `targetAttributes`!**
-func forceCodeSignOnTargetAttributes(targetAttributes serialized.Object, targetID, developmentTeam string) error {
+func foreceCodeSignOnTargetAttributes(targetAttributes serialized.Object, targetID, developmentTeam string) error {
 	targetAttribute, err := targetAttributes.Object(targetID)
 	if err != nil {
 		return fmt.Errorf("failed to get traget's (%s) attributes, error: %s", targetID, err)
@@ -434,41 +434,23 @@ func forceCodeSignOnTargetAttributes(targetAttributes serialized.Object, targetI
 	return nil
 }
 
-// forceCodeSignOnBuildConfiguration sets the BuildSettings for the provided build configuration.
-// **Overrides the CODE_SIGN_STYLE, DEVELOPMENT_TEAM, CODE_SIGN_IDENTITY, PROVISIONING_PROFILE
-// and clears the PROVISIONING_PROFILE_SPECIFIER in the provided `buildConfiguration`,
-// each modification also applies for the sdk specific settings too (CODE_SIGN_IDENTITY[sdk=iphoneos*])!**
-func forceCodeSignOnBuildConfiguration(buildConfiguration serialized.Object, developmentTeam, provisioningProfileUUID, codesignIdentity string) error {
+// foreceCodeSignOnBuildConfiguration sets the BuildSettings for the provided targetID.
+// **Overrides the CODE_SIGN_STYLE, DEVELOPMENT_TEAM, CODE_SIGN_IDENTITY, CODE_SIGN_IDENTITY[sdk=iphoneos\*], PROVISIONING_PROFILE, PROVISIONING_PROFILE[sdk=iphoneos\*] and clears the PROVISIONING_PROFILE_SPECIFIER in the provided `buildConfiguration`!**
+func foreceCodeSignOnBuildConfiguration(buildConfiguration serialized.Object, targetID, developmentTeam, provisioningProfileUUID, codesignIdentity string) error {
 	buildSettings, err := buildConfiguration.Object("buildSettings")
 	if err != nil {
 		return fmt.Errorf("failed to get buildSettings of buildConfiguration (%s), error: %s", pretty.Object(buildConfiguration), err)
 	}
 
-	forceAttributes := map[string]string{
-		"CODE_SIGN_STYLE":                "Manual",
-		"DEVELOPMENT_TEAM":               developmentTeam,
-		"CODE_SIGN_IDENTITY":             codesignIdentity,
-		"PROVISIONING_PROFILE_SPECIFIER": "",
-		"PROVISIONING_PROFILE":           provisioningProfileUUID,
-	}
-	for key, value := range forceAttributes {
-		writeAttributeForAllSDKs(buildSettings, key, value)
-	}
+	buildSettings["CODE_SIGN_STYLE"] = "Manual"
+	buildSettings["DEVELOPMENT_TEAM"] = developmentTeam
+	buildSettings["CODE_SIGN_IDENTITY"] = codesignIdentity
+	buildSettings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = codesignIdentity
+	buildSettings["PROVISIONING_PROFILE_SPECIFIER"] = ""
+	buildSettings["PROVISIONING_PROFILE"] = provisioningProfileUUID
+	buildSettings["PROVISIONING_PROFILE[sdk=iphoneos*]"] = provisioningProfileUUID
 
 	return nil
-}
-
-func writeAttributeForAllSDKs(buildSettings serialized.Object, newKey string, newValue string) {
-	buildSettings[newKey] = newValue
-
-	// override specific build setting if any: https://stackoverflow.com/a/5382708/5842489
-	// Example: CODE_SIGN_IDENTITY[sdk=iphoneos*]
-	matcher := regexp.MustCompile(fmt.Sprintf(`^%s\[sdk=.*\]$`, regexp.QuoteMeta(newKey)))
-	for oldKey := range buildSettings {
-		if matcher.Match([]byte(oldKey)) {
-			buildSettings[oldKey] = newValue
-		}
-	}
 }
 
 // Save the XcodeProj
