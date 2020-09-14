@@ -175,7 +175,11 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	var detectorErrors []string
 
 	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
-		analytics.Log("detect_platform_failed", "%s detector failed: %s", detector.Name(), err)
+		data := map[string]interface{}{
+			"detector": detector.Name(),
+			"error":    err,
+		}
+		analytics.LogError("detect_platform_failed", data, "%s detector DetectPlatform failed", detector.Name())
 
 		log.TErrorf("Scanner failed, error: %s", err)
 		return scannerOutput{
@@ -192,7 +196,11 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	detectorWarnings = append(detectorWarnings, projectWarnings...)
 
 	if err != nil {
-		analytics.Log("options_failed", "%s detector failed: %s", detector.Name(), err)
+		data := map[string]interface{}{
+			"detector": detector.Name(),
+			"error":    err,
+		}
+		analytics.LogError("options_failed", data, "%s detector Options failed", detector.Name())
 
 		log.TErrorf("Analyzer failed, error: %s", err)
 		// Error returned as a warning
@@ -206,7 +214,11 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	// Generate configs
 	configs, err := detector.Configs()
 	if err != nil {
-		analytics.Log("options_failed", "%s detector failed: %s", detector.Name(), err)
+		data := map[string]interface{}{
+			"detector": detector.Name(),
+			"error":    err,
+		}
+		analytics.LogError("configs_failed", data, "%s detector Configs failed", detector.Name())
 
 		log.TErrorf("Failed to generate config, error: %s", err)
 		detectorErrors = append(detectorErrors, err.Error())

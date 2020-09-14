@@ -23,7 +23,7 @@ func GenerateScanResult(searchDir string) (models.ScanResultModel, bool) {
 	}
 
 	if len(platforms) == 0 {
-		analytics.Log("no_platform_detected", "No known platform detected")
+		analytics.LogError("no_platform_detected", nil, "No known platform detected")
 
 		scanResult.AddError("general", "No known platform detected")
 		return scanResult, false
