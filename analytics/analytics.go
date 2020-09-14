@@ -11,5 +11,5 @@ func Log(tag string, format string, v ...interface{}) {
 	data := map[string]interface{}{
 		"build_slug": os.Getenv("BITRISE_BUILD_SLUG"),
 	}
-	log.RInfof("bitrise-init", tag, data, format, v)
+	log.RInfof("bitrise-init", tag, data, format, v...)
 }
