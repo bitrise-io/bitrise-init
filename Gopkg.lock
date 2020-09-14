@@ -23,11 +23,11 @@
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a82637cf13cc2bd0d61e8660aa269ce43c73a92e"
+  revision = "919e33f391ee97e87193ae604967f02707a64e37"
 
 [[projects]]
   branch = "master"
-  digest = "1:6331a8423e71476df9a9d4c88babcd5815adc831bcb9a04b27dc0586150fd6d0"
+  digest = "1:7005c1a1e89fd0dcbac8c65b9ee294223604ca2c5d3ad89dea44a67186249e51"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -43,7 +43,7 @@
     "sliceutil",
   ]
   pruneopts = "UT"
-  revision = "2c67c48e7086cfd8f9a29bfac2cd420d4dd1d2f9"
+  revision = "0c47c16813a4209321c9d0dba2e75867d6901ff2"
 
 [[projects]]
   branch = "master"
@@ -54,7 +54,7 @@
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "19cbfe6430acc193d779847a13be0b8585d866c1"
+  revision = "4f50762fd715b79a51183e49878be04d1413f798"
 
 [[projects]]
   branch = "master"
@@ -66,15 +66,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a31f5ffeb3ba940633762768571321abb47b57bc48c0551fc0e3d7aff3564770"
+  digest = "1:b1346ca132021ca4f0c38b546de5d579ccf406eede745c2f147b35e8c04ad997"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "5243f5feb13656285d1de3dc05bd5f3cd54d38b7"
+  revision = "83b3b9f433483b87e106bab9f479148092562cfa"
 
 [[projects]]
   branch = "master"
-  digest = "1:fdda64c0d9b713316970ace745f655595ef63f848d7404d049aea78fcb269b9b"
+  digest = "1:01732c12528e227614ef4e22adecbcd88718ee64f113d59f14e1314b031c153e"
   name = "github.com/bitrise-io/xcode-project"
   packages = [
     "pretty",
@@ -85,7 +85,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "a4e01d69cacc7dd9acbe8fb987dba69c9ce01b1c"
+  revision = "9481b30b489b9eaf073c818fcf4817b5b3224285"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -134,15 +134,15 @@
   revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
 
 [[projects]]
-  digest = "1:99d32780e5238c2621fff621123997c3e3cca96db8be13179013aea77dfab551"
+  digest = "1:729f65378817684798e53068862397c12daffa0757abbe073f6620a560fc6fb5"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "UT"
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "f654a9112bbeac49ca2cd45bfbe11533c4666cf8"
+  version = "v1.6.1"
 
 [[projects]]
   digest = "1:ca4df663ad76879ad38dbd736493679cbb1aa596c6d479fd9fc5e959e5ceb4fb"
@@ -153,25 +153,26 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
+  digest = "1:c381e2867d447cca3e74dbfb0c8ed371a4583c694b35838c5c642a2b79480fc6"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "c7e5f84aec591254278750bee18f39e5dd19cdb5"
+  revision = "5c72a883971a4325f8c62bf07b6d38c20ea47a6a"
 
 [[projects]]
   branch = "master"
-  digest = "1:1017834f19e0d987e8b1b928f016b0a1186a202ec1867fee7112efd4b4475bd1"
+  digest = "1:009866eb55e6cbf7f73dd6be442144bfcd28b4a4441f8e4b434747f39153dcdf"
   name = "golang.org/x/sys"
   packages = [
+    "internal/unsafeheader",
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c1f44814a5cd81a6d1cb589ef1e528bc5d305e07"
+  revision = "eff7692f900947b7d782d16af70ca32cc40774f0"
 
 [[projects]]
-  digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
+  digest = "1:a2c690dfee42801a26a0e88f69206feca8a3c2437fd476d84767468d7d7708e9"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -182,24 +183,32 @@
     "unicode/norm",
   ]
   pruneopts = "UT"
-  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
-  version = "v0.3.2"
+  revision = "23ae387dee1f90d29a23c0e87ee0b46038fbed0e"
+  version = "v0.3.3"
 
 [[projects]]
-  digest = "1:f26a5d382387e03a40d1471dddfba85dfff9bf05352d7e42d37612677c4d3c5c"
+  digest = "1:d7f1bd887dc650737a421b872ca883059580e9f8314d601f88025df4f4802dce"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f90ceb4f409096b60e2e9076b38b304b8246e5fa"
-  version = "v2.2.5"
+  revision = "0b1645d91e851e735d3e23330303ce81f70adbe3"
+  version = "v2.3.0"
+
+[[projects]]
+  branch = "v3"
+  digest = "1:229cb0f6192914f518cc1241ede6d6f1f458b31debfa18bf3a5c9e4f7b01e24b"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
 
 [[projects]]
   branch = "master"
-  digest = "1:c10265d5a71326618d37e97169eddb3582f78e8ac7dcf87403b4cf619efd519a"
+  digest = "1:b5ead2120cd278858a83be14ef551f54295da350033dbc3f227fe0298b880256"
   name = "howett.net/plist"
   packages = ["."]
   pruneopts = "UT"
-  revision = "591f970eefbbeb04d7b37f334a0c4c3256e32876"
+  revision = "3b63eb3a43b59c776909681ed1fcb412b47d3c9a"
 
 [solve-meta]
   analyzer-name = "dep"
