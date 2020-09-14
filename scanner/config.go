@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
 	"github.com/bitrise-io/go-utils/colorstring"
@@ -174,6 +175,8 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	var detectorErrors []string
 
 	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
+		analytics.Log("detect_platform_failed", "%s detector failed: %s", detector.Name(), err)
+
 		log.TErrorf("Scanner failed, error: %s", err)
 		return scannerOutput{
 			status:   notDetected,
@@ -189,6 +192,8 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	detectorWarnings = append(detectorWarnings, projectWarnings...)
 
 	if err != nil {
+		analytics.Log("options_failed", "%s detector failed: %s", detector.Name(), err)
+
 		log.TErrorf("Analyzer failed, error: %s", err)
 		// Error returned as a warning
 		detectorWarnings = append(detectorWarnings, err.Error())
@@ -201,6 +206,8 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	// Generate configs
 	configs, err := detector.Configs()
 	if err != nil {
+		analytics.Log("options_failed", "%s detector failed: %s", detector.Name(), err)
+
 		log.TErrorf("Failed to generate config, error: %s", err)
 		detectorErrors = append(detectorErrors, err.Error())
 		return scannerOutput{
