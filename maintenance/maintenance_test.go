@@ -2,6 +2,7 @@ package maintenance
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -29,6 +30,7 @@ func stacks() []string {
 		"osx-xcode-11.6.x",
 		"osx-xcode-11.7.x",
 		"osx-xcode-12.0.x",
+		"osx-xcode-12.2.x",
 		"osx-xcode-9.4.x",
 		"osx-xcode-edge",
 	}
@@ -48,7 +50,17 @@ func (reports systemReports) Stacks() (s []string) {
 }
 
 func TestStackChange(t *testing.T) {
-	resp, err := http.Get("https://api.github.com/repos/bitrise-io/bitrise.io/contents/system_reports?access_token=" + os.Getenv("GIT_BOT_USER_ACCESS_TOKEN"))
+	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/bitrise-io/bitrise.io/contents/system_reports", nil)
+	if err != nil {
+		t.Fatalf("setup: faile to create request: %s", err)
+	}
+
+	token := os.Getenv("GIT_BOT_USER_ACCESS_TOKEN")
+	if token != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("token %s", os.Getenv("GIT_BOT_USER_ACCESS_TOKEN")))
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("Error getting current stack list from GitHub: %s", err)
 	}
