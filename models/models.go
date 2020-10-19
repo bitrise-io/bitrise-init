@@ -36,7 +36,7 @@ type ScanResultModel struct {
 	ScannerToBitriseConfigMap         map[string]BitriseConfigMap          `json:"configs,omitempty" yaml:"configs,omitempty"`
 	ScannerToWarnings                 map[string]Warnings                  `json:"warnings,omitempty" yaml:"warnings,omitempty"`
 	ScannerToErrors                   map[string]Errors                    `json:"errors,omitempty" yaml:"errors,omitempty"`
-	ScannerToErrorsWithRecomendations map[string]ErrorsWithRecommendations `json:"errors_with_recommendations,omitempty" yaml:"_"`
+	ScannerToErrorsWithRecomendations map[string]ErrorsWithRecommendations `json:"errors_with_recommendations,omitempty" yaml:"errors_with_recommendations,omitempty"`
 	Icons                             []Icon                               `json:"-" yaml:"-"`
 }
 
