@@ -7,20 +7,8 @@ type Error struct {
 	Recommendations       Recommendation
 }
 
-// BranchReccomendations ...
-type BranchReccomendations struct {
-	AvailableBranches []string
-}
-
 // Recommendation interface
-type Recommendation interface {
-	GetRecommendationID() string
-}
-
-// GetRecommendationID ...
-func (br BranchReccomendations) GetRecommendationID() string {
-	return "branchRecommendation"
-}
+type Recommendation map[string]interface{}
 
 // NewError constructs a step.Error
 func NewError(stepID, tag string, err error, shortMsg string) *Error {
