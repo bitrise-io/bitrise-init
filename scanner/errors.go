@@ -12,5 +12,5 @@ func mapRecommendation(tag, errMsg string) step.Recommendation {
 	// 	fetchFailedMatcher := newFetchFailedPatternErrorMatcher()
 	// 	return fetchFailedMatcher.Run(msg)
 	// }
-	// return nil
+	return nil
 }

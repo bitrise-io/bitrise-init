@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -32,12 +33,13 @@ type scannerOutput struct {
 
 	// can always be set
 	// warnings returned by DetectPlatform(), Options()
-	warnings models.Warnings
+	warnings                   models.Warnings
+	warningsWithRecommendation []step.Error
 
 	// set if scanResultStatus is scanResultDetectedWithErrors
 	// errors returned by Config()
-	errors                    models.Errors
-	errorssWithRecommendation []step.Error
+	errors                   models.Errors
+	errorsWithRecommendation []step.Error
 
 	// set if scanResultStatus is scanResultDetected
 	options          models.OptionNode
@@ -46,13 +48,30 @@ type scannerOutput struct {
 	excludedScanners []string
 }
 
-func (o *scannerOutput) AddError(tag, err string) {
-	recommendation := mapRecommendation(tag, err)
-	if recommendation != nil {
-		// o.errorssWithRecommendation = step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
-	}
+func (o *scannerOutput) AddErrors(tag string, errs ...string) {
+	for _, err := range errs {
+		recommendation := mapRecommendation(tag, err)
+		if recommendation != nil {
+			errorWithRecommendation := step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
+			o.errorsWithRecommendation = append(o.errorsWithRecommendation, *errorWithRecommendation)
+			return
+		}
 
-	// return step.NewError("git-clone", tag, err, shortMsg)
+		o.errors = append(o.errors, err)
+	}
+}
+
+func (o *scannerOutput) AddWarnings(tag string, errs ...string) {
+	for _, err := range errs {
+		recommendation := mapRecommendation(tag, err)
+		if recommendation != nil {
+			errorWithRecommendation := step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
+			o.warningsWithRecommendation = append(o.warningsWithRecommendation, *errorWithRecommendation)
+			return
+		}
+
+		o.warnings = append(o.warnings, err)
+	}
 }
 
 // Config ...
@@ -182,9 +201,6 @@ func runScanners(scannerList []scanners.ScannerInterface, searchDir string) map[
 
 // Collect output of a specific scanner
 func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOutput {
-	var detectorWarnings models.Warnings
-	var detectorErrors []string
-
 	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
 		data := detectorErrorData(detector.Name(), err)
 		analytics.LogError("detect_platform_failed", data, "%s detector DetectPlatform failed", detector.Name())
@@ -200,20 +216,21 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		}
 	}
 
+	output := scannerOutput{}
+
 	options, projectWarnings, icons, err := detector.Options()
-	detectorWarnings = append(detectorWarnings, projectWarnings...)
+	output.AddWarnings("options_failed", []string(projectWarnings)...)
 
 	if err != nil {
 		data := detectorErrorData(detector.Name(), err)
 		analytics.LogError("options_failed", data, "%s detector Options failed", detector.Name())
 
 		log.TErrorf("Analyzer failed, error: %s", err)
+
 		// Error returned as a warning
-		detectorWarnings = append(detectorWarnings, err.Error())
-		return scannerOutput{
-			status:   detectedWithErrors,
-			warnings: detectorWarnings,
-		}
+		output.AddWarnings("options_failed", err.Error())
+		output.status = detectedWithErrors
+		return output
 	}
 
 	// Generate configs
@@ -223,12 +240,10 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		analytics.LogError("configs_failed", data, "%s detector Configs failed", detector.Name())
 
 		log.TErrorf("Failed to generate config, error: %s", err)
-		detectorErrors = append(detectorErrors, err.Error())
-		return scannerOutput{
-			status:   detectedWithErrors,
-			warnings: detectorWarnings,
-			errors:   detectorErrors,
-		}
+
+		output.AddErrors("configs_failed", err.Error())
+		output.status = detectedWithErrors
+		return output
 	}
 
 	scannerExcludedScanners := detector.ExcludedScannerNames()
@@ -236,15 +251,12 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 		log.TWarnf("Scanner will exclude scanners: %v", scannerExcludedScanners)
 	}
 
-	return scannerOutput{
-		status:           detected,
-		warnings:         detectorWarnings,
-		errors:           detectorErrors,
-		options:          options,
-		configs:          configs,
-		icons:            icons,
-		excludedScanners: scannerExcludedScanners,
-	}
+	output.status = detected
+	output.options = options
+	output.configs = configs
+	output.icons = icons
+	output.excludedScanners = scannerExcludedScanners
+	return output
 }
 
 func getDetectedScannerNames(scannerOutputs map[string]scannerOutput) (names []string) {
