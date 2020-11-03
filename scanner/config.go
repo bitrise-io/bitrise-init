@@ -7,6 +7,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/step"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -35,13 +36,23 @@ type scannerOutput struct {
 
 	// set if scanResultStatus is scanResultDetectedWithErrors
 	// errors returned by Config()
-	errors models.Errors
+	errors                    models.Errors
+	errorssWithRecommendation []step.Error
 
 	// set if scanResultStatus is scanResultDetected
 	options          models.OptionNode
 	configs          models.BitriseConfigMap
 	icons            models.Icons
 	excludedScanners []string
+}
+
+func (o *scannerOutput) AddError(tag, err string) {
+	recommendation := mapRecommendation(tag, err)
+	if recommendation != nil {
+		// o.errorssWithRecommendation = step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
+	}
+
+	// return step.NewError("git-clone", tag, err, shortMsg)
 }
 
 // Config ...
