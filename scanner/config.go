@@ -26,6 +26,12 @@ const (
 	detected
 )
 
+const (
+	optionsFailedTag     = "options_failed"
+	configsFailedTag     = "configs_failed"
+	detectPlatformFailed = "detect_platform_failed"
+)
+
 type scannerOutput struct {
 	status status
 
@@ -209,35 +215,34 @@ func runScanners(scannerList []scanners.ScannerInterface, searchDir string) map[
 
 // Collect output of a specific scanner
 func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOutput {
-	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
-		data := detectorErrorData(detector.Name(), err)
-		analytics.LogError("detect_platform_failed", data, "%s detector DetectPlatform failed", detector.Name())
-
-		log.TErrorf("Scanner failed, error: %s", err)
-		return scannerOutput{
-			status:   notDetected,
-			warnings: models.Warnings{err.Error()},
-		}
-	} else if !isDetect {
-		return scannerOutput{
-			status: notDetected,
-		}
-	}
-
 	output := scannerOutput{}
 
+	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
+		data := detectorErrorData(detector.Name(), err)
+		analytics.LogError(detectPlatformFailed, data, "%s detector DetectPlatform failed", detector.Name())
+
+		log.TErrorf("Scanner failed, error: %s", err)
+
+		output.status = notDetected
+		output.AddWarnings(detectPlatformFailed, err.Error())
+		return output
+	} else if !isDetect {
+		output.status = notDetected
+		return output
+	}
+
 	options, projectWarnings, icons, err := detector.Options()
-	output.AddWarnings("options_failed", []string(projectWarnings)...)
+	output.AddWarnings(optionsFailedTag, []string(projectWarnings)...)
 
 	if err != nil {
 		data := detectorErrorData(detector.Name(), err)
-		analytics.LogError("options_failed", data, "%s detector Options failed", detector.Name())
+		analytics.LogError(optionsFailedTag, data, "%s detector Options failed", detector.Name())
 
 		log.TErrorf("Analyzer failed, error: %s", err)
 
 		// Error returned as a warning
-		output.AddWarnings("options_failed", err.Error())
 		output.status = detectedWithErrors
+		output.AddWarnings(optionsFailedTag, err.Error())
 		return output
 	}
 
@@ -245,12 +250,12 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 	configs, err := detector.Configs()
 	if err != nil {
 		data := detectorErrorData(detector.Name(), err)
-		analytics.LogError("configs_failed", data, "%s detector Configs failed", detector.Name())
+		analytics.LogError(configsFailedTag, data, "%s detector Configs failed", detector.Name())
 
 		log.TErrorf("Failed to generate config, error: %s", err)
 
-		output.AddErrors("configs_failed", err.Error())
 		output.status = detectedWithErrors
+		output.AddErrors(configsFailedTag, err.Error())
 		return output
 	}
 
