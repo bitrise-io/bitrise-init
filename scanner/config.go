@@ -1,14 +1,12 @@
 package scanner
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
-	"github.com/bitrise-io/bitrise-init/step"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -34,12 +32,12 @@ type scannerOutput struct {
 	// can always be set
 	// warnings returned by DetectPlatform(), Options()
 	warnings                   models.Warnings
-	warningsWithRecommendation []step.Error
+	warningsWithRecommendation []models.ErrorWithRecommendations
 
 	// set if scanResultStatus is scanResultDetectedWithErrors
 	// errors returned by Config()
 	errors                   models.Errors
-	errorsWithRecommendation []step.Error
+	errorsWithRecommendation []models.ErrorWithRecommendations
 
 	// set if scanResultStatus is scanResultDetected
 	options          models.OptionNode
@@ -52,8 +50,10 @@ func (o *scannerOutput) AddErrors(tag string, errs ...string) {
 	for _, err := range errs {
 		recommendation := mapRecommendation(tag, err)
 		if recommendation != nil {
-			errorWithRecommendation := step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
-			o.errorsWithRecommendation = append(o.errorsWithRecommendation, *errorWithRecommendation)
+			o.errorsWithRecommendation = append(o.errorsWithRecommendation, models.ErrorWithRecommendations{
+				Error:           err,
+				Recommendations: recommendation,
+			})
 			return
 		}
 
@@ -65,8 +65,10 @@ func (o *scannerOutput) AddWarnings(tag string, errs ...string) {
 	for _, err := range errs {
 		recommendation := mapRecommendation(tag, err)
 		if recommendation != nil {
-			errorWithRecommendation := step.NewErrorWithRecommendations("bitrise-init", tag, errors.New(err), "", recommendation)
-			o.warningsWithRecommendation = append(o.warningsWithRecommendation, *errorWithRecommendation)
+			o.warningsWithRecommendation = append(o.warningsWithRecommendation, models.ErrorWithRecommendations{
+				Error:           err,
+				Recommendations: recommendation,
+			})
 			return
 		}
 
@@ -145,7 +147,11 @@ func Config(searchDir string) models.ScanResultModel {
 	}
 
 	scannerToWarnings := map[string]models.Warnings{}
+	scannerToWarningsWithRecommendation := map[string]models.ErrorsWithRecommendations{}
+
 	scannerToErrors := map[string]models.Errors{}
+	scannerToErrorsWithRecommendations := map[string]models.ErrorsWithRecommendations{}
+
 	scannerToOptions := map[string]models.OptionNode{}
 	scannerToConfigMap := map[string]models.BitriseConfigMap{}
 	icons := models.Icons{}
@@ -155,10 +161,12 @@ func Config(searchDir string) models.ScanResultModel {
 		if scannerOutput.status == notDetected && len(scannerOutput.warnings) > 0 ||
 			scannerOutput.status != notDetected {
 			scannerToWarnings[scanner] = scannerOutput.warnings
+			scannerToWarningsWithRecommendation[scanner] = scannerOutput.warningsWithRecommendation
 		}
 		if len(scannerOutput.errors) > 0 &&
 			(scannerOutput.status == detected || scannerOutput.status == detectedWithErrors) {
 			scannerToErrors[scanner] = scannerOutput.errors
+			scannerToErrorsWithRecommendations[scanner] = scannerOutput.errorsWithRecommendation
 		}
 		if len(scannerOutput.configs) > 0 && scannerOutput.status == detected {
 			scannerToOptions[scanner] = scannerOutput.options

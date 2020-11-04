@@ -1,14 +1,13 @@
 package step
 
+import "github.com/bitrise-io/bitrise-init/models"
+
 // Error is an error occuring top level in a step
 type Error struct {
 	StepID, Tag, ShortMsg string
 	Err                   error
-	Recommendations       Recommendation
+	Recommendations       models.Recommendation
 }
-
-// Recommendation interface
-type Recommendation map[string]interface{}
 
 // NewError constructs a step.Error
 func NewError(stepID, tag string, err error, shortMsg string) *Error {
@@ -21,7 +20,7 @@ func NewError(stepID, tag string, err error, shortMsg string) *Error {
 }
 
 // NewErrorWithRecommendations constructs a step.Error
-func NewErrorWithRecommendations(stepID, tag string, err error, shortMsg string, recommendations Recommendation) *Error {
+func NewErrorWithRecommendations(stepID, tag string, err error, shortMsg string, recommendations models.Recommendation) *Error {
 	return &Error{
 		StepID:          stepID,
 		Tag:             tag,
