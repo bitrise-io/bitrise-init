@@ -27,9 +27,10 @@ const (
 )
 
 const (
-	optionsFailedTag     = "options_failed"
-	configsFailedTag     = "configs_failed"
-	detectPlatformFailed = "detect_platform_failed"
+	optionsFailedTag        = "options_failed"
+	configsFailedTag        = "configs_failed"
+	detectPlatformFailedTag = "detect_platform_failed"
+	noPlatformDetectedTag   = "no_platform_detected"
 )
 
 type scannerOutput struct {
@@ -219,12 +220,12 @@ func runScanner(detector scanners.ScannerInterface, searchDir string) scannerOut
 
 	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
 		data := detectorErrorData(detector.Name(), err)
-		analytics.LogError(detectPlatformFailed, data, "%s detector DetectPlatform failed", detector.Name())
+		analytics.LogError(detectPlatformFailedTag, data, "%s detector DetectPlatform failed", detector.Name())
 
 		log.TErrorf("Scanner failed, error: %s", err)
 
 		output.status = notDetected
-		output.AddWarnings(detectPlatformFailed, err.Error())
+		output.AddWarnings(detectPlatformFailedTag, err.Error())
 		return output
 	} else if !isDetect {
 		output.status = notDetected
