@@ -127,7 +127,7 @@ func newOptionsFailedMatcher() *PatternErrorMatcher {
 	return newPatternErrorMatcher(
 		newOptionsFailedGenericDetail,
 		map[string]DetailBuilder{
-			`No Gradle Wrapper (gradlew) found.`: newGradlewNotFoundDetail,
+			`No Gradle Wrapper \(gradlew\) found\.`:                                                                                 newGradlewNotFoundDetail,
 			`app\.json file \((.+)\) missing or empty (.+) entry\nThe app\.json file needs to contain:`:                             newAppJSONIssueDetail,
 			`app\.json file \((.+)\) missing or empty (.+) entry\nIf the project uses Expo Kit the app.json file needs to contain:`: newExpoAppJSONIssueDetail,
 		},
