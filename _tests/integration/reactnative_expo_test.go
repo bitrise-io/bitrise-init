@@ -295,6 +295,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
+warnings_with_recommendations:
+  react-native: []
 `, bitriseCRNAVersions...)
 
 var bitriseExpoKitVersions = []interface{}{
@@ -612,5 +614,7 @@ configs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
+  react-native: []
+warnings_with_recommendations:
   react-native: []
 `, bitriseExpoKitVersions...)

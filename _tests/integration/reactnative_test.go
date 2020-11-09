@@ -260,6 +260,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
+warnings_with_recommendations:
+  react-native: []
 `, sampleAppsReactNativeSubdirVersions...)
 
 var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
@@ -441,6 +443,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
+warnings_with_recommendations:
+  react-native: []
 `, sampleAppsReactNativeIosAndAndroidVersions...)
 
 var sampleAppsReactNativeIosAndAndroidYarnVersions = []interface{}{
@@ -621,5 +625,7 @@ configs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
+  react-native: []
+warnings_with_recommendations:
   react-native: []
 `, sampleAppsReactNativeIosAndAndroidYarnVersions...)

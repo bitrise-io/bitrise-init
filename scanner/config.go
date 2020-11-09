@@ -182,11 +182,13 @@ func Config(searchDir string) models.ScanResultModel {
 		icons = append(icons, scannerOutput.icons...)
 	}
 	return models.ScanResultModel{
-		ScannerToOptionRoot:       scannerToOptions,
-		ScannerToBitriseConfigMap: scannerToConfigMap,
-		ScannerToWarnings:         scannerToWarnings,
-		ScannerToErrors:           scannerToErrors,
-		Icons:                     icons,
+		ScannerToOptionRoot:                  scannerToOptions,
+		ScannerToBitriseConfigMap:            scannerToConfigMap,
+		ScannerToWarnings:                    scannerToWarnings,
+		ScannerToErrors:                      scannerToErrors,
+		ScannerToErrorsWithRecommendations:   scannerToErrorsWithRecommendations,
+		ScannerToWarningsWithRecommendations: scannerToWarningsWithRecommendation,
+		Icons:                                icons,
 	}
 }
 

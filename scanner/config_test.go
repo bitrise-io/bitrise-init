@@ -1,13 +1,14 @@
 package scanner
 
 import (
+	"github.com/bitrise-io/bitrise-init/errormapper"
 	"reflect"
 	"testing"
 
 	"github.com/bitrise-io/bitrise-init/models"
 )
 
-var NoKnowPlatformDetectedRecommendation = newDetailedErrorRecommendation(Detail{
+var NoKnowPlatformDetectedRecommendation = errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{
 	Title:       "We couldn’t recognize your platform.",
 	Description: "Our auto-configurator supports react-native, flutter, ionic, cordova, ios, macos, android, xamarin, fastlane projects. If you’re adding something else, skip this step and configure your Workflow manually.",
 })

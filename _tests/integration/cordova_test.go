@@ -132,6 +132,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   cordova: []
+warnings_with_recommendations:
+  cordova: []
 `, sampleAppsCordovaWithJasmineVersions...)
 
 var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
@@ -212,5 +214,7 @@ configs:
           - karma-jasmine-runner@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
+  cordova: []
+warnings_with_recommendations:
   cordova: []
   `, sampleAppsCordovaWithKarmaJasmineVersions...)
