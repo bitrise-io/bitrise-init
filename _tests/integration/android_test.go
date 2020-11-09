@@ -280,9 +280,15 @@ warnings_with_recommendations:
 
 var sampleAppsSDK22NoGradlewResultYML = `warnings:
   android: []
-errors:
+errors_with_recommendations:
   general:
-  - No known platform detected
+  - error: No known platform detected
+    recommendations:
+      DetailedError:
+        title: We couldn’t recognize your platform.
+        description: Our auto-configurator supports react-native, flutter, ionic,
+          cordova, ios, macos, android, xamarin, fastlane projects. If you’re adding
+          something else, skip this step and configure your Workflow manually.
 warnings_with_recommendations:
   android:
   - error: |-

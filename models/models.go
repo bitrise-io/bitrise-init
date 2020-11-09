@@ -1,6 +1,8 @@
 package models
 
-import "github.com/bitrise-io/bitrise-init/step"
+import (
+	"github.com/bitrise-io/bitrise-init/step"
+)
 
 // BitriseConfigMap ...
 type BitriseConfigMap map[string]string
@@ -50,4 +52,15 @@ func (result *ScanResultModel) AddError(platform string, errorMessage string) {
 		result.ScannerToErrors[platform] = []string{}
 	}
 	result.ScannerToErrors[platform] = append(result.ScannerToErrors[platform], errorMessage)
+}
+
+// AddErrorWithRecommendation ...
+func (result *ScanResultModel) AddErrorWithRecommendation(platform string, recommendation ErrorWithRecommendations) {
+	if result.ScannerToErrorsWithRecommendations == nil {
+		result.ScannerToErrorsWithRecommendations = map[string]ErrorsWithRecommendations{}
+	}
+	if result.ScannerToErrorsWithRecommendations[platform] == nil {
+		result.ScannerToErrorsWithRecommendations[platform] = ErrorsWithRecommendations{}
+	}
+	result.ScannerToErrorsWithRecommendations[platform] = append(result.ScannerToErrorsWithRecommendations[platform], recommendation)
 }

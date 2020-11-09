@@ -19,11 +19,6 @@ func Test_mapRecommendation(t *testing.T) {
 		want step.Recommendation
 	}{
 		{
-			name: "noPlatformDetected generic error",
-			args: args{tag: noPlatformDetectedTag, err: "No known platform detected"},
-			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t recognize your platform.", Description: "Our auto-configurator supports react-native, flutter, ionic, cordova, ios, macos, android, xamarin, fastlane projects. If you’re adding something else, skip this step and configure your Workflow manually."}),
-		},
-		{
 			name: "detectPlatformFailed generic error",
 			args: args{tag: detectPlatformFailedTag, err: "No file found at path: Bitrise.xcodeproj/project.pbxproj"},
 			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "Our auto-configurator returned the following error:\nNo file found at path: Bitrise.xcodeproj/project.pbxproj"}),

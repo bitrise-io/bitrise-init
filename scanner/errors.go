@@ -21,8 +21,6 @@ func newPatternErrorMatcher(defaultBuilder errormapper.DetailedErrorBuilder, pat
 func mapRecommendation(tag, err string) step.Recommendation {
 	var matcher *errormapper.PatternErrorMatcher
 	switch tag {
-	case noPlatformDetectedTag:
-		matcher = newNoPlatformDetectedMatcher()
 	case detectPlatformFailedTag:
 		matcher = newDetectPlatformFailedMatcher()
 	case optionsFailedTag:
@@ -35,15 +33,7 @@ func mapRecommendation(tag, err string) step.Recommendation {
 	return nil
 }
 
-// noPlatformDetectedTag
-func newNoPlatformDetectedMatcher() *errormapper.PatternErrorMatcher {
-	return newPatternErrorMatcher(
-		newNoPlatformDetectedGenericDetail,
-		nil,
-	)
-}
-
-func newNoPlatformDetectedGenericDetail(params ...string) errormapper.DetailedError {
+func newNoPlatformDetectedGenericDetail() errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t recognize your platform.",
 		Description: fmt.Sprintf("Our auto-configurator supports %s projects. If you’re adding something else, skip this step and configure your Workflow manually.", strings.Join(availableScanners(), ", ")),
@@ -90,7 +80,7 @@ func newOptionsFailedMatcher() *errormapper.PatternErrorMatcher {
 
 var newOptionsFailedGenericDetail = newDetectPlatformFailedGenericDetail
 
-func newGradlewNotFoundDetail(params ...string) errormapper.DetailedError {
+func newGradlewNotFoundDetail(...string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew file in your project’s root directory.",
 		Description: `The Gradle Wrapper ensures that the right Gradle version is installed and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the Gradle Wrapper in the Gradle docs</a>.`,
