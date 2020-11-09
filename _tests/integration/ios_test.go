@@ -201,11 +201,21 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  ios: []
+warnings_with_recommendations:
   ios:
-  - |-
-    No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
-    Automatically generated schemes may differ from the ones in your project.
-    Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
+  - error: |-
+      No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
+      Automatically generated schemes may differ from the ones in your project.
+      Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
+    recommendations:
+      DetailedError:
+        title: We couldn’t parse your project files.
+        description: |-
+          Our auto-configurator returned the following error:
+          No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
+          Automatically generated schemes may differ from the ones in your project.
+          Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
 `, iosNoSharedSchemesVersions...)
 
 var iosCocoapodsAtRootVersions = []interface{}{
@@ -317,6 +327,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  ios: []
+warnings_with_recommendations:
   ios: []
 `, iosCocoapodsAtRootVersions...)
 
@@ -530,6 +542,8 @@ configs:
           - cache-push@%s: {}
 warnings:
   ios: []
+warnings_with_recommendations:
+  ios: []
 `, sampleAppsIosWatchkitVersions...)
 
 var sampleAppsCarthageVersions = []interface{}{
@@ -645,5 +659,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  ios: []
+warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)

@@ -274,17 +274,34 @@ configs:
           - cache-push@%s: {}
 warnings:
   android: []
+warnings_with_recommendations:
+  android: []
 `, sampleAppsAndroidSDK22SubdirVersions...)
 
 var sampleAppsSDK22NoGradlewResultYML = `warnings:
-  android:
-  - |-
-    <b>No Gradle Wrapper (gradlew) found.</b>
-    Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
-    that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>
-errors:
+  android: []
+errors_with_recommendations:
   general:
-  - No known platform detected
+  - error: No known platform detected
+    recommendations:
+      DetailedError:
+        title: We couldn’t recognize your platform.
+        description: Our auto-configurator supports react-native, flutter, ionic,
+          cordova, ios, macos, android, xamarin, fastlane projects. If you’re adding
+          something else, skip this step and configure your Workflow manually.
+warnings_with_recommendations:
+  android:
+  - error: |-
+      <b>No Gradle Wrapper (gradlew) found.</b>
+      Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
+      that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>
+    recommendations:
+      DetailedError:
+        title: We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew
+          file in your project’s root directory.
+        description: The Gradle Wrapper ensures that the right Gradle version is installed
+          and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the
+          Gradle Wrapper in the Gradle docs</a>.
 `
 
 var sampleAppsAndroid22Versions = []interface{}{
@@ -443,6 +460,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  android: []
+warnings_with_recommendations:
   android: []
 `, sampleAppsAndroid22Versions...)
 
@@ -603,6 +622,8 @@ configs:
           - cache-push@%s: {}
 warnings:
   android: []
+warnings_with_recommendations:
+  android: []
 `, androidNonExecutableGradlewVersions...)
 
 var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
@@ -736,5 +757,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  android: []
+warnings_with_recommendations:
   android: []
 `, sampleAppsAndroidSDK22SubdirVersions...)

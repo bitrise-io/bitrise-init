@@ -144,4 +144,6 @@ configs:
           - cache-push@%s: {}
 warnings:
   macos: []
+warnings_with_recommendations:
+  macos: []
 `, sampleAppsOSX1011Versions...)

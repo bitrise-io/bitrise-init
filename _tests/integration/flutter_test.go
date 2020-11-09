@@ -703,6 +703,8 @@ configs:
           - cache-push@%s: {}
 warnings:
   flutter: []
+warnings_with_recommendations:
+  flutter: []
 `, flutterSampleAppVersions...)
 
 var flutterSamplePackageVersions = []interface{}{
@@ -1268,6 +1270,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  flutter: []
+warnings_with_recommendations:
   flutter: []
 `, flutterSamplePackageVersions...)
 
@@ -1902,5 +1906,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  flutter: []
+warnings_with_recommendations:
   flutter: []
 `, flutterSamplePluginVersions...)

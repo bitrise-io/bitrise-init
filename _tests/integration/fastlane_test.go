@@ -202,4 +202,7 @@ configs:
 warnings:
   fastlane: []
   ios: []
+warnings_with_recommendations:
+  fastlane: []
+  ios: []
 `, fastlaneVersions...)

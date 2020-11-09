@@ -104,4 +104,6 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ionic: []
+warnings_with_recommendations:
+  ionic: []
 `, ionic2Versions...)

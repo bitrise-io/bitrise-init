@@ -153,6 +153,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
+warnings_with_recommendations:
+  xamarin: []
 `, xamarinSampleAppVersions...)
 
 var sampleAppsXamarinIosVersions = []interface{}{
@@ -233,6 +235,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
 warnings:
   xamarin: []
+warnings_with_recommendations:
+  xamarin: []
 `, sampleAppsXamarinIosVersions...)
 
 var sampleAppsXamarinAndroidVersions = []interface{}{
@@ -304,5 +308,7 @@ configs:
               - xamarin_platform: $BITRISE_XAMARIN_PLATFORM
           - deploy-to-bitrise-io@%s: {}
 warnings:
+  xamarin: []
+warnings_with_recommendations:
   xamarin: []
 `, sampleAppsXamarinAndroidVersions...)
