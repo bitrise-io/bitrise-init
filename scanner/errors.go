@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/step"
 )
 
 // Detail ...
@@ -15,8 +15,8 @@ type Detail struct {
 	Description string
 }
 
-func newDetailedErrorRecommendation(detail Detail) models.Recommendation {
-	return models.Recommendation{
+func newDetailedErrorRecommendation(detail Detail) step.Recommendation {
+	return step.Recommendation{
 		"DetailedError": map[string]string{
 			"Title":       detail.Title,
 			"Description": detail.Description,
@@ -43,7 +43,7 @@ func newPatternErrorMatcher(defaultHandler DetailBuilder, handlers map[string]De
 }
 
 // Run ...
-func (m *PatternErrorMatcher) Run(msg string) models.Recommendation {
+func (m *PatternErrorMatcher) Run(msg string) step.Recommendation {
 	for pattern, handler := range m.handlers {
 		re := regexp.MustCompile(pattern)
 		if re.MatchString(msg) {
@@ -64,7 +64,7 @@ func (m *PatternErrorMatcher) Run(msg string) models.Recommendation {
 	return newDetailedErrorRecommendation(detail)
 }
 
-func mapRecommendation(tag, err string) models.Recommendation {
+func mapRecommendation(tag, err string) step.Recommendation {
 	var matcher *PatternErrorMatcher
 	switch tag {
 	case noPlatformDetectedTag:

@@ -1,5 +1,7 @@
 package models
 
+import "github.com/bitrise-io/bitrise-init/step"
+
 // BitriseConfigMap ...
 type BitriseConfigMap map[string]string
 
@@ -22,11 +24,8 @@ type Icons []Icon
 // ErrorWithRecommendations ...
 type ErrorWithRecommendations struct {
 	Error           string
-	Recommendations Recommendation
+	Recommendations step.Recommendation
 }
-
-// Recommendation interface
-type Recommendation map[string]interface{}
 
 // ErrorsWithRecommendations is an array with an Error and its Recommendations
 type ErrorsWithRecommendations []ErrorWithRecommendations

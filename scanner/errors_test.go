@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/step"
 )
 
 func Test_mapRecommendation(t *testing.T) {
@@ -15,7 +15,7 @@ func Test_mapRecommendation(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want models.Recommendation
+		want step.Recommendation
 	}{
 		{
 			name: "noPlatformDetected generic error",
