@@ -289,6 +289,7 @@ errors_with_recommendations:
         description: Our auto-configurator supports react-native, flutter, ionic,
           cordova, ios, macos, android, xamarin, fastlane projects. If you’re adding
           something else, skip this step and configure your Workflow manually.
+      NoPlatformDetected: true
 warnings_with_recommendations:
   android:
   - error: |-
