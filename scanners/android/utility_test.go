@@ -41,7 +41,10 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 	paths := []string{rootPath, "2", "3", "4", "5"}
 	filePathWalk = func(root string, walkFn filepath.WalkFunc) error {
 		for _, path := range paths {
-			_ = walkFn(path, TestFileInfo{}, nil)
+			err := walkFn(path, TestFileInfo{}, nil)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	}
@@ -118,8 +121,10 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 			// Arrange
 			pathUtilIsPathExists = tc.pathExists
 			// Act
-			groups, _ := walkMultipleFileGroups(rootPath, projectFiles)
+			groups, err := walkMultipleFileGroups(rootPath, projectFiles)
+
 			// Assert
+			assert.NoError(t, err)
 			assert.Equal(t, groups, tc.expect)
 		})
 	}
