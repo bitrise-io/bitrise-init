@@ -6,8 +6,6 @@ import (
 )
 
 func Test_initData(t *testing.T) {
-	type args struct {
-	}
 	tests := []struct {
 		name       string
 		data, want map[string]interface{}
@@ -39,7 +37,6 @@ func Test_initData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			if got := initData(tt.data); !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("initData() = %v, want %s", got, tt.want)
 			}
