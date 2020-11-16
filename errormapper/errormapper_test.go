@@ -120,7 +120,7 @@ func Test_getParamAt(t *testing.T) {
 
 func TestPatternErrorMatcher_Run(t *testing.T) {
 	type fields struct {
-		defaultBuilder   DetailedErrorBuilder
+		defaultBuilder   DefaultDetailedErrorBuilder
 		patternToBuilder PatternToDetailedErrorBuilder
 	}
 	type args struct {
@@ -135,7 +135,7 @@ func TestPatternErrorMatcher_Run(t *testing.T) {
 		{
 			name: "Run with defaultBuilder",
 			fields: fields{
-				defaultBuilder: func(params ...string) DetailedError {
+				defaultBuilder: func(errorMsg string) DetailedError {
 					return DetailedError{
 						Title:       "T",
 						Description: "D",
@@ -156,14 +156,14 @@ func TestPatternErrorMatcher_Run(t *testing.T) {
 		{
 			name: "Run with patternBuilder",
 			fields: fields{
-				defaultBuilder: func(params ...string) DetailedError {
+				defaultBuilder: func(errorMsg string) DetailedError {
 					return DetailedError{
 						Title:       "DefaultTitle",
 						Description: "DefaultDesc",
 					}
 				},
 				patternToBuilder: map[string]DetailedErrorBuilder{
-					"Test": func(params ...string) DetailedError {
+					"Test": func(errorMsg string, params ...string) DetailedError {
 						return DetailedError{
 							Title:       "PatternTitle",
 							Description: "PatternDesc",
@@ -184,14 +184,14 @@ func TestPatternErrorMatcher_Run(t *testing.T) {
 		{
 			name: "Run with patternBuilder with param",
 			fields: fields{
-				defaultBuilder: func(params ...string) DetailedError {
+				defaultBuilder: func(errorMsg string) DetailedError {
 					return DetailedError{
 						Title:       "DefaultTitle",
 						Description: "DefaultDesc",
 					}
 				},
 				patternToBuilder: map[string]DetailedErrorBuilder{
-					"Test (.+)!": func(params ...string) DetailedError {
+					"Test (.+)!": func(errorMsg string, params ...string) DetailedError {
 						p := GetParamAt(0, params)
 						return DetailedError{
 							Title:       "PatternTitle",
