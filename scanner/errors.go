@@ -9,7 +9,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/step"
 )
 
-func newPatternErrorMatcher(defaultBuilder errormapper.DetailedErrorBuilder, patternToBuilder map[string]errormapper.DetailedErrorBuilder) *errormapper.PatternErrorMatcher {
+func newPatternErrorMatcher(defaultBuilder errormapper.DefaultDetailedErrorBuilder, patternToBuilder map[string]errormapper.DetailedErrorBuilder) *errormapper.PatternErrorMatcher {
 	m := errormapper.PatternErrorMatcher{
 		PatternToBuilder: patternToBuilder,
 		DefaultBuilder:   defaultBuilder,
@@ -58,11 +58,10 @@ func newDetectPlatformFailedMatcher() *errormapper.PatternErrorMatcher {
 	)
 }
 
-func newDetectPlatformFailedGenericDetail(params ...string) errormapper.DetailedError {
-	err := params[0]
+func newDetectPlatformFailedGenericDetail(errorMsg string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t parse your project files.",
-		Description: fmt.Sprintf("Our auto-configurator returned the following error:\n%s", err),
+		Description: fmt.Sprintf("Our auto-configurator returned the following error:\n%s", errorMsg),
 	}
 }
 
@@ -80,14 +79,14 @@ func newOptionsFailedMatcher() *errormapper.PatternErrorMatcher {
 
 var newOptionsFailedGenericDetail = newDetectPlatformFailedGenericDetail
 
-func newGradlewNotFoundDetail(...string) errormapper.DetailedError {
+func newGradlewNotFoundDetail(errorMsg string, params ...string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew file in your project’s root directory.",
 		Description: `The Gradle Wrapper ensures that the right Gradle version is installed and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the Gradle Wrapper in the Gradle docs</a>.`,
 	}
 }
 
-func newAppJSONIssueDetail(params ...string) errormapper.DetailedError {
+func newAppJSONIssueDetail(errorMsg string, params ...string) errormapper.DetailedError {
 	appJSONPath := params[0]
 	entryName := params[1]
 	return errormapper.DetailedError{
@@ -98,7 +97,7 @@ func newAppJSONIssueDetail(params ...string) errormapper.DetailedError {
 	}
 }
 
-func newExpoAppJSONIssueDetail(params ...string) errormapper.DetailedError {
+func newExpoAppJSONIssueDetail(errorMsg string, params ...string) errormapper.DetailedError {
 	appJSONPath := params[0]
 	entryName := params[1]
 	return errormapper.DetailedError{
