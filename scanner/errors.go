@@ -27,10 +27,27 @@ func mapRecommendation(tag, err string) step.Recommendation {
 		matcher = newOptionsFailedMatcher()
 	}
 
-	if matcher != nil {
-		return matcher.Run(err)
+	if matcher == nil {
+		matcher = newGenericMatcher()
 	}
-	return nil
+
+	return matcher.Run(err)
+}
+
+// newGenericMatcher
+func newGenericMatcher() *errormapper.PatternErrorMatcher {
+	return newPatternErrorMatcher(
+		newGenericDetail,
+		nil,
+	)
+}
+
+func newGenericDetail(params ...string) errormapper.DetailedError {
+	err := errormapper[0]
+	return errormapper.DetailedError{
+		Title:       err,
+		Description: "For more information, please see the log.",
+	}
 }
 
 func newNoPlatformDetectedGenericDetail() errormapper.DetailedError {
