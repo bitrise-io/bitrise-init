@@ -33,16 +33,16 @@ func lookupIconName(manifestPth string) ([]icon, error) {
 func parseIconName(doc *etree.Document) ([]icon, error) {
 	man := doc.SelectElement("manifest")
 	if man == nil {
-		return nil, fmt.Errorf("Key manifest not found in manifest file")
+		return nil, fmt.Errorf("key 'manifest' not found in AndroidManifest.xml")
 	}
 	app := man.SelectElement("application")
 	if app == nil {
-		return nil, fmt.Errorf("Key application not found in manifest file")
+		return nil, fmt.Errorf("key 'application' not found in AndroidManifest.xml")
 	}
 	ic := app.SelectAttr("android:icon")
 	if ic == nil {
 		// Gradle varaibles like ${appIcon} are not supported
-		return nil, fmt.Errorf("Attribute not found in manifest file")
+		return nil, fmt.Errorf("attribute 'android:icon' not found in AndroidManifest.xml")
 	}
 
 	iconPathParts := strings.Split(strings.TrimPrefix(ic.Value, "@"), "/")
@@ -99,8 +99,10 @@ func lookupIcons(projectDir string, basepath string) ([]string, error) {
 	for _, manifestPath := range manifestPaths {
 		icons, err := lookupIconName(manifestPath)
 		if err != nil {
-			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon from manifest")
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+			continue
 		}
+
 		iconNames = append(iconNames, icons...)
 	}
 
@@ -111,6 +113,7 @@ func lookupIcons(projectDir string, basepath string) ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			iconPaths = append(iconPaths, foundIconPaths...)
 		}
 	}

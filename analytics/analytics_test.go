@@ -25,6 +25,15 @@ func Test_initData(t *testing.T) {
 			},
 		},
 		{
+			name: "source is overwritten",
+			data: map[string]interface{}{
+				"source": "A",
+			},
+			want: map[string]interface{}{
+				"source": "scanner",
+			},
+		},
+		{
 			name: "Existing data",
 			data: map[string]interface{}{
 				"A": "B",

@@ -70,7 +70,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
-			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon from manifest")
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
 		}
 		appIconsAllProjects = append(appIconsAllProjects, icons...)
 		iconIDs := make([]string, len(icons))
