@@ -27,10 +27,25 @@ func mapRecommendation(tag, err string) step.Recommendation {
 		matcher = newOptionsFailedMatcher()
 	}
 
-	if matcher != nil {
-		return matcher.Run(err)
+	if matcher == nil {
+		matcher = newGenericMatcher()
 	}
-	return nil
+
+	return matcher.Run(err)
+}
+
+func newGenericMatcher() *errormapper.PatternErrorMatcher {
+	return newPatternErrorMatcher(
+		newGenericDetail,
+		nil,
+	)
+}
+
+func newGenericDetail(errorMsg string) errormapper.DetailedError {
+	return errormapper.DetailedError{
+		Title:       errorMsg,
+		Description: "For more information, please see the log.",
+	}
 }
 
 func newNoPlatformDetectedGenericDetail() errormapper.DetailedError {
@@ -61,7 +76,7 @@ func newDetectPlatformFailedMatcher() *errormapper.PatternErrorMatcher {
 func newDetectPlatformFailedGenericDetail(errorMsg string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t parse your project files.",
-		Description: fmt.Sprintf("Our auto-configurator returned the following error:\n%s", errorMsg),
+		Description: fmt.Sprintf("You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:\n%s", errorMsg),
 	}
 }
 
