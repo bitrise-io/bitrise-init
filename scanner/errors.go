@@ -34,7 +34,6 @@ func mapRecommendation(tag, err string) step.Recommendation {
 	return matcher.Run(err)
 }
 
-// newGenericMatcher
 func newGenericMatcher() *errormapper.PatternErrorMatcher {
 	return newPatternErrorMatcher(
 		newGenericDetail,

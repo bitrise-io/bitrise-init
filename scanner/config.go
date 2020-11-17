@@ -93,10 +93,11 @@ func Config(searchDir string) models.ScanResultModel {
 	// Setup
 	currentDir, err := os.Getwd()
 	if err != nil {
+		errorMsg := fmt.Sprintf("Failed to expand current directory path: %s", err)
 		result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-			Error: fmt.Sprintf("Failed to expand current directory path: %s", err),
+			Error: errorMsg,
 			Recommendations: step.Recommendation{
-				errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to expand current directory path: %s", err)),
+				errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
 			},
 		})
 		return result
@@ -107,10 +108,11 @@ func Config(searchDir string) models.ScanResultModel {
 	} else {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
+			errorMsg := fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err)
 			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-				Error: fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err),
+				Error: errorMsg,
 				Recommendations: step.Recommendation{
-					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err)),
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
 				},
 			})
 			return result
@@ -120,10 +122,11 @@ func Config(searchDir string) models.ScanResultModel {
 
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
+			errorMsg := fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err)
 			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-				Error: fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err),
+				Error: errorMsg,
 				Recommendations: step.Recommendation{
-					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err)),
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
 				},
 			})
 			return result
