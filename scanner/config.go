@@ -94,12 +94,9 @@ func Config(searchDir string) models.ScanResultModel {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-			Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+			Error: fmt.Sprintf("Failed to expand current directory path: %s", err),
 			Recommendations: step.Recommendation{
-				errormapper.DetailedErrorRecKey: errormapper.DetailedError{
-					Title: "Failed to expand current directory path",
-					Description: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
-				},
+				errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to expand current directory path: %s", err)),
 			},
 		})
 		return result
@@ -111,12 +108,9 @@ func Config(searchDir string) models.ScanResultModel {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
 			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-				Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+				Error: fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err),
 				Recommendations: step.Recommendation{
-					errormapper.DetailedErrorRecKey: errormapper.DetailedError{
-						Title: "Failed to expand path",
-						Description: fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err),
-					},
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err)),
 				},
 			})
 			return result
@@ -127,12 +121,9 @@ func Config(searchDir string) models.ScanResultModel {
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
 			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
-				Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+				Error: fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err),
 				Recommendations: step.Recommendation{
-					errormapper.DetailedErrorRecKey: errormapper.DetailedError{
-						Title: "Failed to change dir",
-						Description: fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err),
-					},
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err)),
 				},
 			})
 			return result

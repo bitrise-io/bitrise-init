@@ -42,10 +42,9 @@ func newGenericMatcher() *errormapper.PatternErrorMatcher {
 	)
 }
 
-func newGenericDetail(params ...string) errormapper.DetailedError {
-	err := errormapper[0]
+func newGenericDetail(errorMsg string) errormapper.DetailedError {
 	return errormapper.DetailedError{
-		Title:       err,
+		Title:       errorMsg,
 		Description: "For more information, please see the log.",
 	}
 }
