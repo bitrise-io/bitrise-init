@@ -1,6 +1,7 @@
 package android
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,13 +10,14 @@ import (
 	"testing"
 )
 
-const appManifest = `
+func manifestWithIcon(iconName string) string {
+	return fmt.Sprintf(`
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sample.results.test.multiple.bitrise.com.multipletestresultssample">
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="%s"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -28,9 +30,10 @@ const appManifest = `
         </activity>
     </application>
 </manifest>
-`
+`, iconName)
+}
 
-func TestLookupIcons(t *testing.T) {
+func TestLookupIconsMultipleApps(t *testing.T) {
 	projectDir, err := ioutil.TempDir("", "android-dummy-project")
 	if err != nil {
 		t.Errorf("setup: failed to create temp dir")
@@ -41,52 +44,78 @@ func TestLookupIcons(t *testing.T) {
 		}
 	}()
 
-	app1Dir := filepath.Join(projectDir, "app", "src", "main")
-	app2Dir := filepath.Join(projectDir, "another_app", "src", "main")
-	app1ResDir := filepath.Join(app1Dir, "res", "mipmap-xxxhdpi")
-	app2ResDir := filepath.Join(app2Dir, "res", "mipmap-xxxhdpi")
+	type dummyAppParams struct {
+		projectDir, appName, appManifest, iconFileName string
+	}
+	createDummyApp := func(params dummyAppParams) {
+		appDir := filepath.Join(params.projectDir, params.appName, "src", "main")
+		appResDir := filepath.Join(appDir, "res", "mipmap-xxxhdpi")
 
-	if err := os.MkdirAll(app1ResDir, 0755); err != nil {
-		t.Errorf("setup: failed top create dir %s", app1ResDir)
-	}
-	if err := os.MkdirAll(app2ResDir, 0755); err != nil {
-		t.Errorf("setup: failed top create dir %s", app2ResDir)
-	}
-
-	if err := ioutil.WriteFile(filepath.Join(app1Dir, "AndroidManifest.xml"), []byte(appManifest), 0755); err != nil {
-		t.Error("setup: failed to create file")
-	}
-	if err := ioutil.WriteFile(filepath.Join(app2Dir, "AndroidManifest.xml"), []byte(appManifest), 0755); err != nil {
-		t.Error("setup: failed to create file")
-	}
-
-	if err := ioutil.WriteFile(filepath.Join(app1ResDir, "ic_launcher.png"), []byte{}, 0755); err != nil {
-		t.Errorf("setup: failed to create file")
-	}
-	if err := ioutil.WriteFile(filepath.Join(app2ResDir, "ic_launcher.png"), []byte{}, 0755); err != nil {
-		t.Errorf("setup: failed to create file")
+		if err := os.MkdirAll(appResDir, 0755); err != nil {
+			t.Errorf("setup: failed top create dir %s", appResDir)
+		}
+		if err := ioutil.WriteFile(filepath.Join(appDir, "AndroidManifest.xml"), []byte(params.appManifest), 0755); err != nil {
+			t.Error("setup: failed to create file")
+		}
+		if err := ioutil.WriteFile(filepath.Join(appResDir, params.iconFileName), []byte{}, 0755); err != nil {
+			t.Errorf("setup: failed to create file")
+		}
 	}
 
 	tests := []struct {
-		name       string
-		projectDir string
-		basepath   string
-		want       []string
-		wantErr    bool
+		name           string
+		dummyAppParams []dummyAppParams
+		projectDir     string
+		basepath       string
+		want           []string
+		wantErr        bool
 	}{
 		{
-			name:       "android sample app",
+			name: "multiple android apps",
+			dummyAppParams: []dummyAppParams{
+				{
+					projectDir:   projectDir,
+					appName:      "app",
+					appManifest:  manifestWithIcon("@mipmap/custom_icon"),
+					iconFileName: "ic_launcher.png",
+				},
+				{
+					projectDir:   projectDir,
+					appName:      "another_app",
+					appManifest:  manifestWithIcon("@mipmap/ic_launcher"),
+					iconFileName: "custom_icon.png",
+				},
+			},
 			projectDir: projectDir,
 			basepath:   projectDir,
 			want: []string{
-				filepath.Join(projectDir, "another_app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
+				filepath.Join(projectDir, "another_app", "src", "main", "res", "mipmap-xxxhdpi", "custom_icon.png"),
 				filepath.Join(projectDir, "app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
 			},
-			wantErr: false,
+		},
+		{
+			name: "unknown icon format in manifest",
+			dummyAppParams: []dummyAppParams{
+				{
+					projectDir:   projectDir,
+					appName:      "app",
+					appManifest:  manifestWithIcon("${appIcon}"),
+					iconFileName: "ic_launcher.png",
+				},
+			},
+			projectDir: projectDir,
+			basepath:   projectDir,
+			want: []string{
+				filepath.Join(projectDir, "app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			for _, app := range tt.dummyAppParams {
+				createDummyApp(app)
+			}
+
 			got, err := lookupIcons(tt.projectDir, tt.basepath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
@@ -96,6 +125,12 @@ func TestLookupIcons(t *testing.T) {
 			sort.Strings(tt.want)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LookupPossibleMatches() = %v, want %v", got, tt.want)
+			}
+
+			for _, app := range tt.dummyAppParams {
+				if err := os.RemoveAll(filepath.Join(tt.projectDir, app.appName)); err != nil {
+					t.Logf("Failed to clean up after test, error: %s", err)
+				}
 			}
 		})
 	}
