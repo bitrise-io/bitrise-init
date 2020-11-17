@@ -61,7 +61,7 @@ func newDetectPlatformFailedMatcher() *errormapper.PatternErrorMatcher {
 func newDetectPlatformFailedGenericDetail(errorMsg string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t parse your project files.",
-		Description: fmt.Sprintf("Our auto-configurator returned the following error:\n%s", errorMsg),
+		Description: fmt.Sprintf("You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:\n%s", errorMsg),
 	}
 }
 

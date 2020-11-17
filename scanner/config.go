@@ -5,8 +5,10 @@ import (
 	"os"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
+	"github.com/bitrise-io/bitrise-init/errormapper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/step"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -91,7 +93,15 @@ func Config(searchDir string) models.ScanResultModel {
 	// Setup
 	currentDir, err := os.Getwd()
 	if err != nil {
-		result.AddError("general", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
+		result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+			Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+			Recommendations: step.Recommendation{
+				errormapper.DetailedErrorRecKey: errormapper.DetailedError{
+					Title: "Failed to expand current directory path",
+					Description: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+				},
+			},
+		})
 		return result
 	}
 
@@ -100,7 +110,15 @@ func Config(searchDir string) models.ScanResultModel {
 	} else {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
+			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+				Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+				Recommendations: step.Recommendation{
+					errormapper.DetailedErrorRecKey: errormapper.DetailedError{
+						Title: "Failed to expand path",
+						Description: fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err),
+					},
+				},
+			})
 			return result
 		}
 		searchDir = absScerach
@@ -108,7 +126,15 @@ func Config(searchDir string) models.ScanResultModel {
 
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
+			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+				Error: fmt.Sprintf("Failed to expand current directory path, error: %s", err),
+				Recommendations: step.Recommendation{
+					errormapper.DetailedErrorRecKey: errormapper.DetailedError{
+						Title: "Failed to change dir",
+						Description: fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err),
+					},
+				},
+			})
 			return result
 		}
 		defer func() {
