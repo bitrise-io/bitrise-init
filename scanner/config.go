@@ -6,8 +6,10 @@ import (
 	"os"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
+	"github.com/bitrise-io/bitrise-init/errormapper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/step"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -92,7 +94,13 @@ func Config(searchDir string) models.ScanResultModel {
 	// Setup
 	currentDir, err := os.Getwd()
 	if err != nil {
-		result.AddError("general", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
+		errorMsg := fmt.Sprintf("Failed to expand current directory path: %s", err)
+		result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+			Error: errorMsg,
+			Recommendations: step.Recommendation{
+				errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
+			},
+		})
 		return result
 	}
 
@@ -101,7 +109,13 @@ func Config(searchDir string) models.ScanResultModel {
 	} else {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
+			errorMsg := fmt.Sprintf("Failed to expand path (%s): %s", searchDir, err)
+			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+				Error: errorMsg,
+				Recommendations: step.Recommendation{
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
+				},
+			})
 			return result
 		}
 		searchDir = absScerach
@@ -109,7 +123,13 @@ func Config(searchDir string) models.ScanResultModel {
 
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
-			result.AddError("general", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
+			errorMsg := fmt.Sprintf("Failed to change dir, to (%s): %s", searchDir, err)
+			result.AddErrorWithRecommendation("general", models.ErrorWithRecommendations{
+				Error: errorMsg,
+				Recommendations: step.Recommendation{
+					errormapper.DetailedErrorRecKey: newDetectPlatformFailedGenericDetail(errorMsg),
+				},
+			})
 			return result
 		}
 		defer func() {

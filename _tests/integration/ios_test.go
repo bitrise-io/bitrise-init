@@ -212,7 +212,7 @@ warnings_with_recommendations:
       DetailedError:
         title: We couldn’t parse your project files.
         description: |-
-          Our auto-configurator returned the following error:
+          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
           Automatically generated schemes may differ from the ones in your project.
           Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.

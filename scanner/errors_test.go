@@ -1,9 +1,10 @@
 package scanner
 
 import (
-	"github.com/bitrise-io/bitrise-init/errormapper"
 	"reflect"
 	"testing"
+
+	"github.com/bitrise-io/bitrise-init/errormapper"
 
 	"github.com/bitrise-io/bitrise-init/step"
 )
@@ -21,12 +22,12 @@ func Test_mapRecommendation(t *testing.T) {
 		{
 			name: "detectPlatformFailed generic error",
 			args: args{tag: detectPlatformFailedTag, err: "No file found at path: Bitrise.xcodeproj/project.pbxproj"},
-			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "Our auto-configurator returned the following error:\nNo file found at path: Bitrise.xcodeproj/project.pbxproj"}),
+			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:\nNo file found at path: Bitrise.xcodeproj/project.pbxproj"}),
 		},
 		{
 			name: "optionsFailed generic error",
 			args: args{tag: optionsFailedTag, err: "No file found at path: ios/App/App/package.json"},
-			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "Our auto-configurator returned the following error:\nNo file found at path: ios/App/App/package.json"}),
+			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:\nNo file found at path: ios/App/App/package.json"}),
 		},
 		{
 			name: "optionsFailed gradlew error",
