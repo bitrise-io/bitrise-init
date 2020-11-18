@@ -28,18 +28,12 @@ const (
 func (stepInfo StepInfoModel) String() string {
 	str := ""
 	if stepInfo.GroupInfo.DeprecateNotes != "" {
-		str += colorstring.Red("This step is deprecated!") + "\n"
-
-		str += colorstring.Red("Note: ")
-		str += strings.TrimSpace(stepInfo.GroupInfo.DeprecateNotes) + "\n"
+		str += colorstring.Red("This step is deprecated")
 
 		if stepInfo.GroupInfo.RemovalDate != "" {
-			str += colorstring.Red("Removal date: ")
-			str += strings.TrimSpace(stepInfo.GroupInfo.RemovalDate) + "\n"
+			str += colorstring.Redf(" and will be removed: %s", stepInfo.GroupInfo.RemovalDate)
 		}
-	}
-	if len(stepInfo.GroupInfo.Maintainer) > 0 {
-		str += fmt.Sprintf("%s %s\n", colorstring.Blue("Maintainer:"), stepInfo.GroupInfo.Maintainer)
+		str += "\n"
 	}
 	str += fmt.Sprintf("%s %s\n", colorstring.Blue("Library:"), stepInfo.Library)
 	str += fmt.Sprintf("%s %s\n", colorstring.Blue("ID:"), stepInfo.ID)
@@ -259,25 +253,29 @@ func (collection StepCollectionModel) GetStep(id, version string) (StepModel, bo
 }
 
 // GetStepVersion ...
-func (collection StepCollectionModel) GetStepVersion(id, version string) (stepVersion StepVersionModel, stepFound bool, versionFound bool) {
+func (collection StepCollectionModel) GetStepVersion(id, version string) (StepVersionModel, bool, bool) {
 	stepHash := collection.Steps
 	stepVersions, stepFound := stepHash[id]
 
 	if !stepFound {
-		return StepVersionModel{}, false, false
+		return StepVersionModel{}, stepFound, false
 	}
 
 	if version == "" {
 		version = stepVersions.LatestVersionNumber
 	}
 
-	requiredVersion, err := ParseRequiredVersion(version)
-	if err != nil {
-		return StepVersionModel{}, true, false
+	step, versionFound := stepVersions.Versions[version]
+
+	if !stepFound || !versionFound {
+		return StepVersionModel{}, stepFound, versionFound
 	}
 
-	stepVersionModel, versionFound := latestMatchingStepVersion(requiredVersion, stepVersions)
-	return stepVersionModel, true, versionFound
+	return StepVersionModel{
+		Step:                   step,
+		Version:                version,
+		LatestAvailableVersion: stepVersions.LatestVersionNumber,
+	}, true, true
 }
 
 // GetDownloadLocations ...
