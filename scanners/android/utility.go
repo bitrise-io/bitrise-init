@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
@@ -75,7 +76,7 @@ func checkFileGroups(path string, fileGroups fileGroups) (bool, error) {
 	return true, nil
 }
 
-func walkMultipleFileGroups(searchDir string, fileGroups fileGroups) (matches []string, err error) {
+func walkMultipleFileGroups(searchDir string, fileGroups fileGroups, skipDirs []string) (matches []string, err error) {
 	match, err := checkFileGroups(searchDir, fileGroups)
 	if err != nil {
 		return nil, err
@@ -88,16 +89,36 @@ func walkMultipleFileGroups(searchDir string, fileGroups fileGroups) (matches []
 			return err
 		}
 		if info.IsDir() {
-			match, err := checkFileGroups(path, fileGroups)
-			if err != nil {
-				return err
-			}
-			if match {
-				matches = append(matches, path)
+			if !pathMatchSkipDirs(path, skipDirs) {
+				match, err := checkFileGroups(path, fileGroups)
+				if err != nil {
+					return err
+				}
+				if match {
+					matches = append(matches, path)
+				}
 			}
 		}
 		return nil
 	})
+}
+
+func pathMatchSkipDirs(path string, skipDirs []string) bool {
+	segments := strings.Split(path, string(os.PathSeparator))
+	for _, skipDir := range skipDirs {
+		if skipDir == "" {
+			continue
+		}
+		for _, segment := range segments {
+			if segment == "" {
+				continue
+			}
+			if segment == skipDir {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func checkGradlew(projectDir string) error {

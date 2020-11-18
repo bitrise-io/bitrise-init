@@ -40,7 +40,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		{"build.gradle", "build.gradle.kts"},
 		{"settings.gradle", "settings.gradle.kts"},
 	}
-	scanner.ProjectRoots, err = walkMultipleFileGroups(searchDir, projectFiles)
+	skipDirs := []string{".git", "CordovaLib", "node_modules"}
+	scanner.ProjectRoots, err = walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}

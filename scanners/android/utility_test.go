@@ -1,7 +1,6 @@
 package android
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
@@ -10,10 +9,11 @@ import (
 )
 
 type TestFileInfo struct {
+	name string
 }
 
 func (t TestFileInfo) Name() string {
-	panic("implement me")
+	return t.name
 }
 
 func (t TestFileInfo) Size() int64 {
@@ -37,11 +37,12 @@ func (t TestFileInfo) Sys() interface{} {
 }
 
 func TestWalkMultipleFileGroups(t *testing.T) {
+	pathSeparator := string(os.PathSeparator)
 	rootPath := "1"
-	paths := []string{rootPath, "2", "3", "4", "5"}
+	paths := []string{rootPath, "2", "3", "4", "5", "5" + pathSeparator + "6"}
 	filePathWalk = func(root string, walkFn filepath.WalkFunc) error {
 		for _, path := range paths {
-			err := walkFn(path, TestFileInfo{}, nil)
+			err := walkFn(path, TestFileInfo{name: path}, nil)
 			if err != nil {
 				return err
 			}
@@ -57,6 +58,7 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pathExists func(string) (bool, error)
+		skip       []string
 		expect     []string
 	}{
 		{
@@ -114,6 +116,18 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 			pathExists: buildMatcher(map[string][]string{rootPath: {"build.gradle"}}),
 			expect:     nil,
 		},
+		{
+			name:       "Some child folders contains build.gradle and settings.gradle and one is on skip list",
+			pathExists: buildMatcher(map[string][]string{paths[1]: {"build.gradle", "settings.gradle"}, paths[2]: {"build.gradle.kts", "settings.gradle.kts"}, paths[3]: {"build.gradle", "settings.gradle"}}),
+			skip:       []string{paths[2]},
+			expect:     []string{paths[1], paths[3]},
+		},
+		{
+			name:       "Skipped directory's child contains build.gradle and settings.gradle",
+			pathExists: buildMatcher(map[string][]string{paths[5]: {"build.gradle", "settings.gradle"}}),
+			skip:       []string{paths[4]},
+			expect:     nil,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -121,7 +135,7 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 			// Arrange
 			pathUtilIsPathExists = tc.pathExists
 			// Act
-			groups, err := walkMultipleFileGroups(rootPath, projectFiles)
+			groups, err := walkMultipleFileGroups(rootPath, projectFiles, tc.skip)
 
 			// Assert
 			assert.NoError(t, err)
@@ -134,7 +148,7 @@ func buildMatcher(rootsAndPaths map[string][]string) func(path string) (bool, er
 	return func(path string) (bool, error) {
 		for key, paths := range rootsAndPaths {
 			for _, p := range paths {
-				if path == fmt.Sprintf("%s%c%s", key, filepath.Separator, p) {
+				if path == filepath.Join(key, p) {
 					return true, nil
 				}
 			}
