@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -41,10 +42,24 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 	rootPath := "1"
 	paths := []string{rootPath, "2", "3", "4", "5", "5" + pathSeparator + "6"}
 	filePathWalk = func(root string, walkFn filepath.WalkFunc) error {
+		var skipPaths []string
 		for _, path := range paths {
+			skip := false
+			for _, skipPath := range skipPaths {
+				if strings.HasPrefix(path, skipPath) {
+					skip = true
+				}
+			}
+			if skip {
+				continue
+			}
 			err := walkFn(path, TestFileInfo{name: path}, nil)
 			if err != nil {
-				return err
+				if err == filepath.SkipDir {
+					skipPaths = append(skipPaths, path)
+				} else {
+					return err
+				}
 			}
 		}
 		return nil
