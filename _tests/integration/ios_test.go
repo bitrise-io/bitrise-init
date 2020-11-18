@@ -114,16 +114,30 @@ var iosNoSharedSchemesVersions = []interface{}{
 
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       BitriseXcode7Sample.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           BitriseXcode7Sample:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-test-missing-shared-schemes-config
@@ -187,11 +201,21 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  ios: []
+warnings_with_recommendations:
   ios:
-  - |-
-    No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
-    Automatically generated schemes may differ from the ones in your project.
-    Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
+  - error: |-
+      No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
+      Automatically generated schemes may differ from the ones in your project.
+      Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
+    recommendations:
+      DetailedError:
+        title: We couldn’t parse your project files.
+        description: |-
+          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
+          No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
+          Automatically generated schemes may differ from the ones in your project.
+          Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.
 `, iosNoSharedSchemesVersions...)
 
 var iosCocoapodsAtRootVersions = []interface{}{
@@ -220,16 +244,30 @@ var iosCocoapodsAtRootVersions = []interface{}{
 
 var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       iOSMinimalCocoaPodsSample.xcworkspace:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           iOSMinimalCocoaPodsSample:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-pod-test-config
@@ -290,6 +328,8 @@ configs:
           - cache-push@%s: {}
 warnings:
   ios: []
+warnings_with_recommendations:
+  ios: []
 `, iosCocoapodsAtRootVersions...)
 
 var sampleAppsIosWatchkitVersions = []interface{}{
@@ -326,16 +366,30 @@ var sampleAppsIosWatchkitVersions = []interface{}{
 
 var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       watch-test.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           Complication - watch-test WatchKit App:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -347,7 +401,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
                 config: ios-config
           Glance - watch-test WatchKit App:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -359,7 +418,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
                 config: ios-config
           Notification - watch-test WatchKit App:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -371,7 +435,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
                 config: ios-config
           watch-test:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-test-config
@@ -383,7 +452,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
                 config: ios-test-config
           watch-test WatchKit App:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-config
@@ -468,6 +542,8 @@ configs:
           - cache-push@%s: {}
 warnings:
   ios: []
+warnings_with_recommendations:
+  ios: []
 `, sampleAppsIosWatchkitVersions...)
 
 var sampleAppsCarthageVersions = []interface{}{
@@ -496,16 +572,30 @@ var sampleAppsCarthageVersions = []interface{}{
 
 var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
   ios:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       sample-apps-carthage.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           sample-apps-carthage:
             title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               ad-hoc:
                 config: ios-carthage-test-config
@@ -569,5 +659,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  ios: []
+warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)

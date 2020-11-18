@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
@@ -11,25 +12,33 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
+type fileGroups [][]string
+
+var pathUtilIsPathExists = pathutil.IsPathExists
+var filePathWalk = filepath.Walk
+
 // Constants ...
 const (
 	ScannerName       = "android"
 	ConfigName        = "android-config"
 	DefaultConfigName = "default-android-config"
 
-	ProjectLocationInputKey    = "project_location"
-	ProjectLocationInputEnvKey = "PROJECT_LOCATION"
-	ProjectLocationInputTitle  = "The root directory of an Android project"
+	ProjectLocationInputKey     = "project_location"
+	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
+	ProjectLocationInputTitle   = "The root directory of an Android project"
+	ProjectLocationInputSummary = "The root directory of your Android project, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 
-	VariantInputKey    = "variant"
-	VariantInputEnvKey = "VARIANT"
-	VariantInputTitle  = "Variant"
+	VariantInputKey     = "variant"
+	VariantInputEnvKey  = "VARIANT"
+	VariantInputTitle   = "Variant"
+	VariantInputSummary = "Your Android build variant. You can add variants at any time, as well as further configure your existing variants later."
 
-	ModuleInputKey    = "module"
-	ModuleInputEnvKey = "MODULE"
-	ModuleInputTitle  = "Module"
+	ModuleInputKey     = "module"
+	ModuleInputEnvKey  = "MODULE"
+	ModuleInputTitle   = "Module"
+	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
 
 	GradlewPathInputKey    = "gradlew_path"
 	GradlewPathInputEnvKey = "GRADLEW_PATH"
@@ -37,7 +46,7 @@ const (
 )
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	return filePathWalk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -48,21 +57,27 @@ func walk(src string, fn func(path string, info os.FileInfo) error) error {
 	})
 }
 
-func checkFiles(path string, files ...string) (bool, error) {
-	for _, file := range files {
-		exists, err := pathutil.IsPathExists(filepath.Join(path, file))
-		if err != nil {
-			return false, err
+func checkFileGroups(path string, fileGroups fileGroups) (bool, error) {
+	for _, fileGroup := range fileGroups {
+		found := false
+		for _, file := range fileGroup {
+			exists, err := pathUtilIsPathExists(filepath.Join(path, file))
+			if err != nil {
+				return found, err
+			}
+			if exists {
+				found = true
+			}
 		}
-		if !exists {
+		if !found {
 			return false, nil
 		}
 	}
 	return true, nil
 }
 
-func walkMultipleFiles(searchDir string, files ...string) (matches []string, err error) {
-	match, err := checkFiles(searchDir, files...)
+func walkMultipleFileGroups(searchDir string, fileGroups fileGroups, skipDirs []string) (matches []string, err error) {
+	match, err := checkFileGroups(searchDir, fileGroups)
 	if err != nil {
 		return nil, err
 	}
@@ -74,16 +89,36 @@ func walkMultipleFiles(searchDir string, files ...string) (matches []string, err
 			return err
 		}
 		if info.IsDir() {
-			match, err := checkFiles(path, files...)
-			if err != nil {
-				return err
-			}
-			if match {
-				matches = append(matches, path)
+			if !pathMatchSkipDirs(path, skipDirs) {
+				match, err := checkFileGroups(path, fileGroups)
+				if err != nil {
+					return err
+				}
+				if match {
+					matches = append(matches, path)
+				}
 			}
 		}
 		return nil
 	})
+}
+
+func pathMatchSkipDirs(path string, skipDirs []string) bool {
+	segments := strings.Split(path, string(os.PathSeparator))
+	for _, skipDir := range skipDirs {
+		if skipDir == "" {
+			continue
+		}
+		for _, segment := range segments {
+			if segment == "" {
+				continue
+			}
+			if segment == skipDir {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func checkGradlew(projectDir string) error {
@@ -93,7 +128,7 @@ func checkGradlew(projectDir string) error {
 		return err
 	}
 	if !exist {
-		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b> 
+		return errors.New(`<b>No Gradle Wrapper (gradlew) found.</b>
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}

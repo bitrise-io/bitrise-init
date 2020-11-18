@@ -24,23 +24,23 @@ type Workspace struct {
 	Path string
 }
 
-// Scheme returns the scheme with the given name and it's container's file path
-func (w Workspace) Scheme(name string) (xcscheme.Scheme, string, error) {
+// Scheme returns the scheme by name and it's container's absolute path.
+func (w Workspace) Scheme(name string) (*xcscheme.Scheme, string, error) {
 	schemesByContainer, err := w.Schemes()
 	if err != nil {
-		return xcscheme.Scheme{}, "", err
+		return nil, "", err
 	}
 
 	normName := norm.NFC.String(name)
 	for container, schemes := range schemesByContainer {
 		for _, scheme := range schemes {
 			if norm.NFC.String(scheme.Name) == normName {
-				return scheme, container, nil
+				return &scheme, container, nil
 			}
 		}
 	}
 
-	return xcscheme.Scheme{}, "", SchemeNotFoundError{scheme: name, container: w.Name}
+	return nil, "", xcscheme.NotFoundError{Scheme: name, Container: w.Name}
 }
 
 // SchemeBuildSettings ...
@@ -139,7 +139,7 @@ func Open(pth string) (Workspace, error) {
 
 	var workspace Workspace
 	if err := xml.Unmarshal(b, &workspace); err != nil {
-		return Workspace{}, err
+		return Workspace{}, fmt.Errorf("failed to unmarshal workspace file: %s, error: %s", pth, err)
 	}
 
 	workspace.Name = strings.TrimSuffix(filepath.Base(pth), filepath.Ext(pth))

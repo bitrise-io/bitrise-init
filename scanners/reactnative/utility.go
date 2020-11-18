@@ -1,10 +1,14 @@
 package reactnative
 
 import (
+	"fmt"
+	"path/filepath"
+
 	"github.com/bitrise-io/bitrise-init/utility"
+	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-// CollectPackageJSONFiles - Collects package.json files, with react-native dependency
+// CollectPackageJSONFiles collects package.json files, with react-native dependency.
 func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
@@ -36,21 +40,11 @@ func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 	return relevantPackageFileList, nil
 }
 
-func configName(hasAndroidProject, hasIosProject, hasNPMTest bool) string {
-	name := "react-native"
-	if hasAndroidProject {
-		name += "-android"
+func containsYarnLock(absPackageJSONDir string) (bool, error) {
+	if exist, err := pathutil.IsPathExists(filepath.Join(absPackageJSONDir, "yarn.lock")); err != nil {
+		return false, fmt.Errorf("Failed to check if yarn.lock file exists in the workdir: %s", err)
+	} else if exist {
+		return true, nil
 	}
-	if hasIosProject {
-		name += "-ios"
-	}
-	if hasNPMTest {
-		name += "-test"
-	}
-	name += "-config"
-	return name
-}
-
-func defaultConfigName() string {
-	return "default-react-native-config"
+	return false, nil
 }

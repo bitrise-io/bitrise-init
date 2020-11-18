@@ -6,6 +6,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 )
 
@@ -36,40 +37,42 @@ func (*Scanner) ExcludedScannerNames() []string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	scanner.SearchDir = searchDir
 
-	scanner.ProjectRoots, err = walkMultipleFiles(searchDir, "build.gradle", "settings.gradle")
+	projectFiles := fileGroups{
+		{"build.gradle", "build.gradle.kts"},
+		{"settings.gradle", "settings.gradle.kts"},
+	}
+	skipDirs := []string{".git", "CordovaLib", "node_modules"}
+	scanner.ProjectRoots, err = walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
-
-	kotlinRoots, err := walkMultipleFiles(searchDir, "build.gradle.kts", "settings.gradle.kts")
-	if err != nil {
-		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
-	}
-
-	scanner.ProjectRoots = append(scanner.ProjectRoots, kotlinRoots...)
 
 	return len(scanner.ProjectRoots) > 0, err
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
 	warnings := models.Warnings{}
 	appIconsAllProjects := models.Icons{}
 
+	foundOptions := false
+	var lastErr error = nil
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionNode{}, warnings, nil, err
+			lastErr = err
+			continue
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
 		if err != nil {
-			return models.OptionNode{}, warnings, nil, err
+			lastErr = err
+			continue
 		}
 
 		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
 		if err != nil {
-			return models.OptionNode{}, warnings, nil, err
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
 		}
 		appIconsAllProjects = append(appIconsAllProjects, icons...)
 		iconIDs := make([]string, len(icons))
@@ -78,12 +81,16 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 
 		configOption := models.NewConfigOption(ConfigName, iconIDs)
-		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
+		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
+		foundOptions = true
+	}
+	if !foundOptions && lastErr != nil {
+		return models.OptionNode{}, warnings, nil, lastErr
 	}
 
 	return *projectLocationOption, warnings, appIconsAllProjects, nil
@@ -91,13 +98,13 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeUserInput)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
+	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 	configOption := models.NewConfigOption(DefaultConfigName, nil)
 
-	projectLocationOption.AddOption("_", moduleOption)
-	moduleOption.AddOption("_", variantOption)
+	projectLocationOption.AddOption("", moduleOption)
+	moduleOption.AddOption("", variantOption)
 	variantOption.AddConfig("", configOption)
 
 	return *projectLocationOption

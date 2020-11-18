@@ -50,12 +50,20 @@ var ionic2Versions = []interface{}{
 
 var ionic2ResultYML = fmt.Sprintf(`options:
   ionic:
-    title: Directory of Ionic Config.xml
+    title: Directory of the Ionic config.xml file
+    summary: The working directory of your Ionic project is where you store your config.xml
+      file. This location is stored as an Environment Variable. In your Workflows,
+      you can specify paths relative to this path. You can change this at any time.
     env_key: IONIC_WORK_DIR
+    type: selector
     value_map:
       cutePuppyPics:
-        title: Platform to use in ionic-cli commands
+        title: The platform to use in ionic-cli commands
+        summary: The target platform for your builds, stored as an Environment Variable.
+          Your options are iOS, Android, or both. You can change this in your Env
+          Vars at any time.
         env_key: IONIC_PLATFORM
+        type: selector
         value_map:
           android:
             config: ionic-config
@@ -95,5 +103,7 @@ configs:
               - workdir: $IONIC_WORK_DIR
           - deploy-to-bitrise-io@%s: {}
 warnings:
+  ionic: []
+warnings_with_recommendations:
   ionic: []
 `, ionic2Versions...)

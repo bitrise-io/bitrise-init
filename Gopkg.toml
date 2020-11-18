@@ -1,16 +1,12 @@
 
 [[constraint]]
-  name = "github.com/Sirupsen/logrus"
-  version = "1.4.1"
-
-[[constraint]]
   name = "github.com/beevik/etree"
   version = "1.1.0"
 
-# Enforcing this to use bitrise.yml version (7) currently supported by website 
+# Enforcing this to use bitrise.yml version (8) currently supported by website 
 [[constraint]]
   name = "github.com/bitrise-io/bitrise"
-  version = "=1.29.0"
+  version = "=1.31.0"
 
 [[constraint]]
   name = "github.com/bitrise-io/envman"
@@ -46,7 +42,7 @@
 
 [[constraint]]
   name = "github.com/urfave/cli"
-  version = "1.20.0"
+  revision = "e6cf83ec39f6e1158ced1927d4ed14578fda8edb"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"

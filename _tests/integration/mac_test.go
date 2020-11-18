@@ -60,18 +60,32 @@ var sampleAppsOSX1011Versions = []interface{}{
 
 var sampleAppsOSX1011ResultYML = fmt.Sprintf(`options:
   macos:
-    title: Project (or Workspace) path
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
     env_key: BITRISE_PROJECT_PATH
+    type: selector
     value_map:
       sample-apps-osx-10-11.xcodeproj:
         title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
         env_key: BITRISE_SCHEME
+        type: selector
         value_map:
           sample-apps-osx-10-11:
             title: |-
               Application export method
               NOTE: `+"`none`"+` means: Export a copy of the application without re-signing.
+            summary: The export method used to create an .app file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .app files with different export methods in the
+              same build.
             env_key: BITRISE_EXPORT_METHOD
+            type: selector
             value_map:
               app-store:
                 config: macos-test-config
@@ -129,5 +143,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
+  macos: []
+warnings_with_recommendations:
   macos: []
 `, sampleAppsOSX1011Versions...)
