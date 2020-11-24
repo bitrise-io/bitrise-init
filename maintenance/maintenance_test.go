@@ -32,6 +32,7 @@ func stacks() []string {
 		"osx-xcode-12.0.x",
 		"osx-xcode-12.1.x",
 		"osx-xcode-12.2.x",
+		"osx-xcode-12.3.x",
 		"osx-xcode-9.4.x",
 		"osx-xcode-edge",
 	}
