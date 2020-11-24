@@ -88,7 +88,7 @@ func newOptionsFailedMatcher() *errormapper.PatternErrorMatcher {
 			`No Gradle Wrapper \(gradlew\) found\.`:                                                                                 newGradlewNotFoundDetail,
 			`app\.json file \((.+)\) missing or empty (.+) entry\nThe app\.json file needs to contain:`:                             newAppJSONIssueDetail,
 			`app\.json file \((.+)\) missing or empty (.+) entry\nIf the project uses Expo Kit the app.json file needs to contain:`: newExpoAppJSONIssueDetail,
-			`Cordova config.xml not found.`:                                                                                         newIonicCapacitorNotSupportedIssuesDetail,
+			`Cordova config.xml not found.`:                                                                                         newIonicCapacitorNotSupportedIssueDetail,
 		},
 	)
 }
@@ -125,7 +125,7 @@ func newExpoAppJSONIssueDetail(errorMsg string, params ...string) errormapper.De
 	}
 }
 
-func newIonicCapacitorNotSupportedIssuesDetail(errorMsg string, params ...string) errormapper.DetailedError {
+func newIonicCapacitorNotSupportedIssueDetail(errorMsg string, params ...string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t find your cordova.xml file.",
 		Description: `Our auto-configurator only supports Ionic projects with Cordova at the moment. If you’re trying to add a project with Ionic Capacitor or something else, skip auto-configuration and set up your project manually.`,
