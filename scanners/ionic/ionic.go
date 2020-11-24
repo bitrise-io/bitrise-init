@@ -207,7 +207,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	log.TPrintf("config.xml: %s", filepath.Join(projectRootDir, "config.xml"))
 
 	if !cordovaConfigExist {
-		warning := fmt.Sprintf("We only support Ionic Cordova apps at the moment. If you are trying to add an Ionic Capacitor project, that won't work correctly unfortunately. It's on our roadmap, we are planning to support it in the future.")
+		warning := fmt.Sprintf("Cordova config.xml not found.")
 		warnings = append(warnings, warning)
 	}
 
