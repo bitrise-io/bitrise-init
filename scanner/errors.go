@@ -128,6 +128,6 @@ func newExpoAppJSONIssueDetail(errorMsg string, params ...string) errormapper.De
 func newIonicCapacitorNotSupportedIssueDetail(errorMsg string, params ...string) errormapper.DetailedError {
 	return errormapper.DetailedError{
 		Title:       "We couldn’t find your cordova.xml file.",
-		Description: `Our auto-configurator only supports Ionic projects with Cordova at the moment. If you’re trying to add a project with Ionic Capacitor or something else, skip auto-configuration and set up your project manually.`,
+		Description: `Our auto-configurator only supports Ionic projects with Cordova at the moment. If you’re trying to add a project with Ionic Capacitor, or something else, some Steps in your automatically generated Workflow might fail. To fix this, replace the failing Steps with script Steps in the Workflow editor later.`,
 	}
 }

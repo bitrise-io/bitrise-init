@@ -201,7 +201,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		return models.OptionNode{},
 			warnings,
 			nil,
-			fmt.Errorf("failed to search for config.xml file, error: %s", err)
+			fmt.Errorf("failed to search for config.xml file: %s", err)
 	}
 
 	log.TPrintf("config.xml: %s", filepath.Join(projectRootDir, "config.xml"))
