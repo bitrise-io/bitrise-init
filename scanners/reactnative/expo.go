@@ -1,10 +1,7 @@
 package reactnative
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -15,9 +12,8 @@ import (
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/xcode-project/serialized"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -74,193 +70,86 @@ func appJSONError(appJSONPth, reason, explanation string) error {
 // expoOptions implements ScannerInterface.Options function for Expo based React Native projects.
 func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error) {
 	warnings := models.Warnings{}
+	log.TPrintf("Project name: %v", scanner.expoSettings.name)
 
-	// we need to know if the project uses the Expo Kit,
-	// since its usage differentiates the eject process and the config options
-	usesExpoKit := false
-
-	fileList, err := utility.ListPathInDirSortedByComponents(scanner.searchDir, true)
-	if err != nil {
-		return models.OptionNode{}, warnings, err
+	if scanner.expoSettings == nil {
+		return models.OptionNode{}, warnings, errors.New("can not generate expo Options, expoSettings is nil")
 	}
 
-	filters := []utility.FilterFunc{
-		utility.ExtensionFilter(".js", true),
-		utility.ComponentFilter("node_modules", false),
-	}
-	sourceFiles, err := utility.FilterPaths(fileList, filters...)
-	if err != nil {
-		return models.OptionNode{}, warnings, err
+	var iosNode *models.OptionNode
+	var exportMethodOption *models.OptionNode
+	if scanner.expoSettings.isIOS { // ios options
+		iosNodes := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
+		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
+
+		// predict the ejected project name
+		projectName := strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9])`).ReplaceAllString(scanner.expoSettings.name, ""))
+		iosNodes.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
+
+		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, "BITRISE_IOS_DEVELOPMENT_TEAM", models.TypeUserInput)
+		schemeOption.AddOption(projectName, developmentTeamOption)
+
+		exportMethodOption = models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+		developmentTeamOption.AddOption("", exportMethodOption)
 	}
 
-	re := regexp.MustCompile(`import .* from 'expo'`)
-
-SourceFileLoop:
-	for _, sourceFile := range sourceFiles {
-		f, err := os.Open(sourceFile)
+	var androidNode *models.OptionNode
+	var buildVariantOption *models.OptionNode
+	if scanner.expoSettings.isAndroid { // android options
+		packageJSONDir := filepath.Dir(scanner.packageJSONPth)
+		relPackageJSONDir, err := utility.RelPath(scanner.searchDir, packageJSONDir)
 		if err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, fmt.Errorf("Failed to get relative package.json dir path, error: %s", err)
 		}
-		defer func() {
-			if cerr := f.Close(); cerr != nil {
-				log.Warnf("Failed to close: %s, error: %s", f.Name(), err)
+		if relPackageJSONDir == "." {
+			// package.json placed in the search dir, no need to change-dir in the workflows
+			relPackageJSONDir = ""
+		}
+
+		var moduleOption *models.OptionNode
+		if relPackageJSONDir == "" {
+			androidNode = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+
+			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+			androidNode.AddOption("./android", moduleOption)
+		} else {
+			androidNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeSelector)
+
+			projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+			androidNode.AddOption(relPackageJSONDir, projectLocationOption)
+
+			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+			projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
+		}
+
+		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
+		moduleOption.AddOption("app", buildVariantOption)
+	}
+
+	configOption := models.NewConfigOption(expoConfigName, nil)
+
+	if iosNode != nil {
+		if androidNode == nil {
+			for _, exportMethod := range ios.IosExportMethods {
+				exportMethodOption.AddConfig(exportMethod, configOption)
 			}
-		}()
 
-		scanner := bufio.NewScanner(f)
-		for scanner.Scan() {
-			if match := re.FindString(scanner.Text()); match != "" {
-				usesExpoKit = true
-				break SourceFileLoop
-			}
-		}
-		if err := scanner.Err(); err != nil {
-			return models.OptionNode{}, warnings, err
-		}
-	}
-
-	scanner.usesExpoKit = usesExpoKit
-	log.TPrintf("Uses ExpoKit: %v", usesExpoKit)
-
-	// ensure app.json contains the required information (for non interactive eject)
-	// and predict the ejected project name
-	var projectName string
-
-	rootDir := filepath.Dir(scanner.packageJSONPth)
-	appJSONPth := filepath.Join(rootDir, "app.json")
-	appJSON, err := fileutil.ReadStringFromFile(appJSONPth)
-	if err != nil {
-		return models.OptionNode{}, warnings, err
-	}
-	var app serialized.Object
-	if err := json.Unmarshal([]byte(appJSON), &app); err != nil {
-		return models.OptionNode{}, warnings, err
-	}
-
-	if usesExpoKit {
-		// if the project uses Expo Kit app.json needs to contain expo/ios/bundleIdentifier and expo/android/package entries
-		// to be able to eject in non interactive mode
-		errorMessage := `If the project uses Expo Kit the app.json file needs to contain:
-- expo/name
-- expo/ios/bundleIdentifier
-- expo/android/package
-entries.`
-
-		expoObj, err := app.Object("expo")
-		if err != nil {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo entry", errorMessage)
-		}
-		projectName, err = expoObj.String("name")
-		if err != nil || projectName == "" {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/name entry", errorMessage)
+			return *iosNode, warnings, nil
 		}
 
-		iosObj, err := expoObj.Object("ios")
-		if err != nil {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo/ios entry", errorMessage)
-		}
-		bundleID, err := iosObj.String("bundleIdentifier")
-		if err != nil || bundleID == "" {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/ios/bundleIdentifier entry", errorMessage)
-		}
-
-		androidObj, err := expoObj.Object("android")
-		if err != nil {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing expo/android entry", errorMessage)
-		}
-		packageName, err := androidObj.String("package")
-		if err != nil || packageName == "" {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty expo/android/package entry", errorMessage)
-		}
-	} else {
-		// if the project does not use Expo Kit app.json needs to contain name and displayName entries
-		// to be able to eject in non interactive mode
-		errorMessage := `The app.json file needs to contain:
-- name
-- displayName
-entries.`
-
-		projectName, err = app.String("name")
-		if err != nil || projectName == "" {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty name entry", errorMessage)
-		}
-		displayName, err := app.String("displayName")
-		if err != nil || displayName == "" {
-			return models.OptionNode{}, warnings, appJSONError(appJSONPth, "missing or empty displayName entry", errorMessage)
-		}
-	}
-
-	log.TPrintf("Project name: %v", projectName)
-
-	// ios options
-	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
-	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
-
-	if usesExpoKit {
-		projectName = strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9_\-])`).ReplaceAllString(projectName, "-"))
-		projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
-	} else {
-		projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcodeproj"), schemeOption)
-	}
-
-	developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, "BITRISE_IOS_DEVELOPMENT_TEAM", models.TypeUserInput)
-	schemeOption.AddOption(projectName, developmentTeamOption)
-
-	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
-	developmentTeamOption.AddOption("", exportMethodOption)
-
-	// android options
-	packageJSONDir := filepath.Dir(scanner.packageJSONPth)
-	relPackageJSONDir, err := utility.RelPath(scanner.searchDir, packageJSONDir)
-	if err != nil {
-		return models.OptionNode{}, warnings, fmt.Errorf("Failed to get relative package.json dir path, error: %s", err)
-	}
-	if relPackageJSONDir == "." {
-		// package.json placed in the search dir, no need to change-dir in the workflows
-		relPackageJSONDir = ""
-	}
-
-	var moduleOption *models.OptionNode
-	if relPackageJSONDir == "" {
-		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
 		for _, exportMethod := range ios.IosExportMethods {
-			exportMethodOption.AddOption(exportMethod, projectLocationOption)
+			exportMethodOption.AddOption(exportMethod, androidNode)
 		}
 
-		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-		projectLocationOption.AddOption("./android", moduleOption)
-	} else {
-		workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeSelector)
-		for _, exportMethod := range ios.IosExportMethods {
-			exportMethodOption.AddOption(exportMethod, workDirOption)
-		}
-
-		projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
-		workDirOption.AddOption(relPackageJSONDir, projectLocationOption)
-
-		moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-		projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
-	}
-
-	buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
-	moduleOption.AddOption("app", buildVariantOption)
-
-	// expo options
-	if scanner.usesExpoKit {
-		userNameOption := models.NewOption(expoUserNameInputTitle, expoUserNameInputSummary, "EXPO_USERNAME", models.TypeUserInput)
-		buildVariantOption.AddOption("Release", userNameOption)
-
-		passwordOption := models.NewOption(expoPasswordInputTitle, expoPasswordInputSummary, "EXPO_PASSWORD", models.TypeUserInput)
-		userNameOption.AddOption("", passwordOption)
-
-		configOption := models.NewConfigOption(expoConfigName, nil)
-		passwordOption.AddConfig("", configOption)
-	} else {
-		configOption := models.NewConfigOption(expoConfigName, nil)
 		buildVariantOption.AddConfig("Release", configOption)
+
+		return *iosNode, warnings, nil
 	}
 
-	return *projectPathOption, warnings, nil
+	// iosNode == nil
+	buildVariantOption.AddConfig("Release", configOption)
+
+	return *androidNode, warnings, nil
 }
 
 // expoConfigs implements ScannerInterface.Configs function for Expo based React Native projects.
