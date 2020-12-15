@@ -24,6 +24,22 @@ const (
 )
 
 const (
+	expoBareEjectProjectPathInputSummary = "The relative location of the Xcode workspace, after running `expo eject`, for example `./ios/myproject.xcworkspace`. Needed to implement the Expo bare workflow (https://docs.expo.io/bare/customizing/)."
+)
+
+const (
+	iosBundleIDInputTitle   = "iOS bundle identifier"
+	iosBundleIDInputSummary = "Did not found the key expo/ios/bundleIdentifier in 'app.json'. You can add it here for now and commit in the repository later. Needed to implement the Expo bare workflow (https://docs.expo.io/bare/customizing/)."
+	iosBundleIDEnvKey       = "EXPO_BARE_IOS_BUNLDE_ID"
+)
+
+const (
+	androidPackageInputTitle   = "Android package name"
+	androidPackageInputSummary = "Did not found the key expo/android/package in 'app.json'. You can add it here for now and commit in the repository later. Needed to implement the Expo bare workflow (https://docs.expo.io/bare/customizing/)."
+	androidPackageEnvKey       = "EXPO_BARE_ANDROID_PACKAGE"
+)
+
+const (
 	iosDevelopmentTeamInputTitle   = "iOS Development team"
 	iosDevelopmentTeamInputSummary = "The Apple Development Team that the iOS version of the app belongs to."
 )
@@ -63,6 +79,17 @@ const (
 	projectPathInputSummary = "Running `expo eject` downloads the required dependencies and builds native projects under the `ios` and `android` directories of your project: this is the path to the `ios` directory."
 )
 
+func expoBareAddIdentifiersScript(appJsonPath, androidEnvKey, iosEnvKey string) string {
+	return fmt.Sprintf(`#!/usr/bin/env bash
+set -ex
+
+appJson="%s"
+tmp="/tmp/app.json"
+jq '.expo.android |= if has("package") or env.`+androidEnvKey+` == "" or env.`+androidEnvKey+` == null then . else .package = env.`+androidEnvKey+` end |
+.expo.ios |= if has("bundleIdentifier") or env.`+iosEnvKey+` == "" or env.`+iosEnvKey+` == null then . else .bundleIdentifier = env.`+iosEnvKey+` end' <${appJson} >${tmp}
+[[ $?==0 ]] && mv -f ${tmp} ${appJson}`, appJsonPath)
+}
+
 func appJSONError(appJSONPth, reason, explanation string) error {
 	return fmt.Errorf("app.json file (%s) %s\n%s", appJSONPth, reason, explanation)
 }
@@ -79,12 +106,27 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 	var iosNode *models.OptionNode
 	var exportMethodOption *models.OptionNode
 	if scanner.expoSettings.isIOS { // ios options
-		iosNodes := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
 		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
 
 		// predict the ejected project name
 		projectName := strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9])`).ReplaceAllString(scanner.expoSettings.name, ""))
-		iosNodes.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
+		iosProjectInputType := models.TypeOptionalSelector
+		if projectName == "" {
+			iosProjectInputType = models.TypeUserInput
+		}
+		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, expoBareEjectProjectPathInputSummary, ios.ProjectPathInputEnvKey, iosProjectInputType)
+		if projectName != "" {
+			projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
+		} else {
+			projectPathOption.AddOption("./ios/< PROJECT NAME >.xcworkspace", schemeOption)
+		}
+
+		if scanner.expoSettings.bundleIdentifierIOS == "" { // bundle ID Option
+			iosNode = models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummary, iosBundleIDEnvKey, models.TypeUserInput)
+			iosNode.AddOption("", projectPathOption)
+		} else {
+			iosNode = projectPathOption
+		}
 
 		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, "BITRISE_IOS_DEVELOPMENT_TEAM", models.TypeUserInput)
 		schemeOption.AddOption(projectName, developmentTeamOption)
@@ -106,20 +148,28 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 			relPackageJSONDir = ""
 		}
 
+		var projectSettingNode *models.OptionNode
 		var moduleOption *models.OptionNode
 		if relPackageJSONDir == "" {
-			androidNode = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+			projectSettingNode = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
 
 			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			androidNode.AddOption("./android", moduleOption)
 		} else {
-			androidNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeSelector)
+			projectSettingNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeSelector)
 
 			projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
 			androidNode.AddOption(relPackageJSONDir, projectLocationOption)
 
 			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
+		}
+
+		if scanner.expoSettings.packageNameAndroid == "" {
+			androidNode = models.NewOption(androidPackageInputTitle, androidPackageInputSummary, androidPackageEnvKey, models.TypeUserInput)
+			androidNode.AddOption("", projectSettingNode)
+		} else {
+			androidNode = projectSettingNode
 		}
 
 		buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
@@ -191,18 +241,17 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		if relPackageJSONDir == "" {
 			projectDir = "./"
 		}
-		if scanner.usesExpoKit {
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ExpoDetachStepListItem(
-				envmanModels.EnvironmentItemModel{"project_path": projectDir},
-				envmanModels.EnvironmentItemModel{"user_name": "$EXPO_USERNAME"},
-				envmanModels.EnvironmentItemModel{"password": "$EXPO_PASSWORD"},
-				envmanModels.EnvironmentItemModel{"run_publish": "yes"},
-			))
-		} else {
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ExpoDetachStepListItem(
-				envmanModels.EnvironmentItemModel{"project_path": projectDir},
+
+		if scanner.expoSettings.isAndroid && scanner.expoSettings.packageNameAndroid == "" ||
+			scanner.expoSettings.isIOS && scanner.expoSettings.bundleIdentifierIOS == "" {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ScriptSteplistItem("Set bundleIdentifier, packageName for Expo Eject",
+				envmanModels.EnvironmentItemModel{"content": expoBareAddIdentifiersScript(filepath.Join(projectDir, "app.json"), androidPackageEnvKey, iosBundleIDEnvKey)},
 			))
 		}
+
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.ExpoDetachStepListItem(
+			envmanModels.EnvironmentItemModel{"project_path": projectDir},
+		))
 
 		// android build
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
