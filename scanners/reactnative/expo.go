@@ -50,6 +50,11 @@ const (
 )
 
 const (
+	expoShouldPublishInputTitle   = "Publish Expo project?"
+	expoShouldPublishInputSummary = "Will ask for Expo password and username in the next step."
+)
+
+const (
 	expoUserNameInputTitle   = "Expo username"
 	expoUserNameInputSummary = "Your Expo account username: only required if you use ExpoKit."
 )
@@ -102,6 +107,13 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 	if scanner.expoSettings == nil {
 		return models.OptionNode{}, warnings, errors.New("can not generate expo Options, expoSettings is nil")
 	}
+
+	// expo options
+	usernameOption := models.NewOption(expoUserNameInputTitle, expoUserNameInputSummary, "EXPO_USERNAME", models.TypeUserInput)
+	passwordOption := models.NewOption(expoPasswordInputTitle, expoPasswordInputSummary, "EXPO_PASSWORD", models.TypeUserInput)
+	usernameOption.AddOption("", passwordOption)
+	rootNode := models.NewOption(expoShouldPublishInputTitle, expoShouldPublishInputSummary, "", models.TypeSelector)
+	rootNode.AddOption("yes", usernameOption)
 
 	var iosNode *models.OptionNode
 	var exportMethodOption *models.OptionNode
@@ -179,12 +191,15 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 	configOption := models.NewConfigOption(expoConfigName, nil)
 
 	if iosNode != nil {
+		rootNode.AddOption("no", iosNode)
+		passwordOption.AddOption("", iosNode)
+
 		if androidNode == nil {
 			for _, exportMethod := range ios.IosExportMethods {
 				exportMethodOption.AddConfig(exportMethod, configOption)
 			}
 
-			return *iosNode, warnings, nil
+			return *rootNode, warnings, nil
 		}
 
 		for _, exportMethod := range ios.IosExportMethods {
@@ -193,13 +208,15 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 
 		buildVariantOption.AddConfig("Release", configOption)
 
-		return *iosNode, warnings, nil
+		return *rootNode, warnings, nil
 	}
 
 	// iosNode == nil
+	rootNode.AddOption("no", androidNode)
+	passwordOption.AddOption("", androidNode)
 	buildVariantOption.AddConfig("Release", configOption)
 
-	return *androidNode, warnings, nil
+	return *rootNode, warnings, nil
 }
 
 // expoConfigs implements ScannerInterface.Configs function for Expo based React Native projects.
