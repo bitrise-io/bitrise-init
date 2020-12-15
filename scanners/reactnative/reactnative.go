@@ -38,7 +38,6 @@ type Scanner struct {
 	packageJSONPth  string
 
 	expoSettings *expoSettings
-	usesExpoKit  bool
 }
 
 // NewScanner creates a new scanner instance.

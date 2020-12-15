@@ -60,12 +60,12 @@ const (
 
 const (
 	expoUserNameInputTitle   = "Expo username"
-	expoUserNameInputSummary = "Your Expo account username: only required if you use ExpoKit."
+	expoUserNameInputSummary = "Your Expo account username: required to publish using Expo CLI."
 )
 
 const (
 	expoPasswordInputTitle   = "Expo password"
-	expoPasswordInputSummary = "Your Expo account password: only required if you use ExpoKit."
+	expoPasswordInputSummary = "Your Expo account password: required to publish using Expo CLI."
 )
 
 const (
@@ -289,24 +289,14 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 		// ios build
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-		if scanner.usesExpoKit {
-			// in case of expo kit rn project expo eject generates an ios project with Podfile
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
-		}
-
-		xcodeArchiveInputs := []envmanModels.EnvironmentItemModel{
-			{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-			{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-			{ios.ConfigurationInputKey: "Release"},
-			{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-			{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
-		}
-		if !scanner.usesExpoKit {
-			// in case of plain rn project new xcode build system needs to be turned off
-			xcodeArchiveInputs = append(xcodeArchiveInputs, envmanModels.EnvironmentItemModel{"xcodebuild_options": "-UseModernBuildSystem=NO"})
-		}
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveInputs...))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CocoapodsInstallStepListItem())
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
+		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 		configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, deployWorkflowDescription)
@@ -390,23 +380,14 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 		// ios build
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-		if scanner.usesExpoKit {
-			// in case of expo kit rn project expo eject generates an ios project with Podfile
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
-		}
-
-		xcodeArchiveInputs := []envmanModels.EnvironmentItemModel{
-			{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-			{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-			{ios.ConfigurationInputKey: "Release"},
-			{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-			{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
-		}
-		if !scanner.usesExpoKit {
-			xcodeArchiveInputs = append(xcodeArchiveInputs, envmanModels.EnvironmentItemModel{"xcodebuild_options": "-UseModernBuildSystem=NO"})
-		}
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveInputs...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
+		))
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
@@ -432,7 +413,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 	// ios options
 	projectPathOptionPublishNo := models.NewOption(bareIOSProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeOptionalUserInput)
 
-	bundleIDOption := models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummary, iosBundleIDEnvKey, models.TypeUserInput)
+	bundleIDOption := models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummaryDefault, iosBundleIDEnvKey, models.TypeUserInput)
 	projectPathOptionPublishNo.AddOption("./ios/< PROJECT NAME >.xcworkspace", bundleIDOption)
 
 	schemeOption := models.NewOption(schemeInputTitle, schemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
@@ -442,7 +423,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 	schemeOption.AddOption("", exportMethodOption)
 
 	// android options
-	androidPackageOption := models.NewOption(androidPackageInputTitle, androidPackageInputSummary, androidPackageEnvKey, models.TypeOptionalUserInput)
+	androidPackageOption := models.NewOption(androidPackageInputTitle, androidPackageInputSummaryDefault, androidPackageEnvKey, models.TypeOptionalUserInput)
 	for _, exportMethod := range ios.IosExportMethods {
 		exportMethodOption.AddOption(exportMethod, androidPackageOption)
 	}
