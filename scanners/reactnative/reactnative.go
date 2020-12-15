@@ -58,6 +58,11 @@ type expoSettings struct {
 	packageNameAndroid  string
 }
 
+func (settings *expoSettings) isAllIdentifierPresent() bool {
+	return !(settings.isAndroid && settings.packageNameAndroid == "" ||
+		settings.isIOS && settings.bundleIdentifierIOS == "")
+}
+
 // parseExpoProjectSettings reports whether a project is Expo based and it's settings, like targeted platforms
 func parseExpoProjectSettings(packageJSONPth string) (*expoSettings, error) {
 	packages, err := utility.ParsePackagesJSON(packageJSONPth)
