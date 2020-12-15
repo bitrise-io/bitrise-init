@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	expoConfigName                   = "react-native-expo-config"
-	expoDefaultConfigName            = "default-" + expoConfigName
+	expoConfigNamePublishNo          = "react-native-expo-config"
+	expoConfigNamePublishYes         = "react-native-expo-config-publish"
+	expoDefaultConfigName            = "default-" + expoConfigNamePublishNo
 	expoWithExpoKitDefaultConfigName = "default-react-native-expo-expo-kit-config"
 )
 
@@ -108,13 +109,6 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 		return models.OptionNode{}, warnings, errors.New("can not generate expo Options, expoSettings is nil")
 	}
 
-	// expo options
-	usernameOption := models.NewOption(expoUserNameInputTitle, expoUserNameInputSummary, "EXPO_USERNAME", models.TypeUserInput)
-	passwordOption := models.NewOption(expoPasswordInputTitle, expoPasswordInputSummary, "EXPO_PASSWORD", models.TypeUserInput)
-	usernameOption.AddOption("", passwordOption)
-	rootNode := models.NewOption(expoShouldPublishInputTitle, expoShouldPublishInputSummary, "", models.TypeSelector)
-	rootNode.AddOption("yes", usernameOption)
-
 	var iosNode *models.OptionNode
 	var exportMethodOption *models.OptionNode
 	if scanner.expoSettings.isIOS { // ios options
@@ -188,33 +182,54 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 		moduleOption.AddOption("app", buildVariantOption)
 	}
 
-	configOption := models.NewConfigOption(expoConfigName, nil)
-
+	var allPlatformOptionsPublishNo *models.OptionNode
 	if iosNode != nil {
-		rootNode.AddOption("no", iosNode)
-		passwordOption.AddOption("", iosNode)
+		allPlatformOptionsPublishNo = iosNode
 
-		if androidNode == nil {
+		if androidNode != nil {
 			for _, exportMethod := range ios.IosExportMethods {
-				exportMethodOption.AddConfig(exportMethod, configOption)
+				exportMethodOption.AddOption(exportMethod, androidNode)
 			}
-
-			return *rootNode, warnings, nil
 		}
-
-		for _, exportMethod := range ios.IosExportMethods {
-			exportMethodOption.AddOption(exportMethod, androidNode)
-		}
-
-		buildVariantOption.AddConfig("Release", configOption)
-
-		return *rootNode, warnings, nil
+	} else {
+		allPlatformOptionsPublishNo = androidNode
 	}
 
-	// iosNode == nil
-	rootNode.AddOption("no", androidNode)
-	passwordOption.AddOption("", androidNode)
-	buildVariantOption.AddConfig("Release", configOption)
+	allPlatformOptionsPublishYes := allPlatformOptionsPublishNo.Copy()
+	type configPair struct {
+		node, config *models.OptionNode
+	}
+	for _, s := range []configPair{
+		{node: allPlatformOptionsPublishNo, config: models.NewConfigOption(expoConfigNamePublishNo, nil)},
+		{node: allPlatformOptionsPublishYes, config: models.NewConfigOption(expoConfigNamePublishYes, nil)},
+	} {
+		for _, child := range s.node.LastChilds() {
+			for _, lastOption := range child.ChildOptionMap {
+				if androidNode != nil {
+					// Android buildVariantOption is last
+					lastOption.AddConfig("Release", s.config)
+					continue
+				}
+
+				// iOS exportMethodOption is last
+				for _, exportMethod := range ios.IosExportMethods {
+					lastOption.AddConfig(exportMethod, s.config)
+				}
+			}
+		}
+	}
+
+	// expo options
+	usernameOption := models.NewOption(expoUserNameInputTitle, expoUserNameInputSummary, "EXPO_USERNAME", models.TypeUserInput)
+	passwordOption := models.NewOption(expoPasswordInputTitle, expoPasswordInputSummary, "EXPO_PASSWORD", models.TypeUserInput)
+	usernameOption.AddOption("", passwordOption)
+	rootNode := models.NewOption(expoShouldPublishInputTitle, expoShouldPublishInputSummary, "", models.TypeSelector)
+
+	if scanner.hasTest { // If there are no tests, there is only a primary workflow, do not publish
+		rootNode.AddOption("yes", usernameOption)
+	}
+	rootNode.AddOption("no", allPlatformOptionsPublishNo)
+	passwordOption.AddOption("", allPlatformOptionsPublishYes)
 
 	return *rootNode, warnings, nil
 }
@@ -289,11 +304,11 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		}
 
 		xcodeArchiveInputs := []envmanModels.EnvironmentItemModel{
-			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-			envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-			envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
+			{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			{ios.ConfigurationInputKey: "Release"},
+			{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
 		}
 		if !scanner.usesExpoKit {
 			// in case of plain rn project new xcode build system needs to be turned off
@@ -314,92 +329,101 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			return models.BitriseConfigMap{}, err
 		}
 
-		configMap[expoConfigName] = string(data)
+		configMap[expoConfigNamePublishNo] = string(data)
 
 		return configMap, nil
 	}
 
-	// primary workflow
-	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-	if scanner.hasYarnLockFile {
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
-	} else {
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+	type publishPair struct {
+		isPublish bool
+		ID        string
 	}
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+	for _, config := range []publishPair{
+		{isPublish: false, ID: expoConfigNamePublishYes},
+		{isPublish: true, ID: expoConfigNamePublishNo},
+	} {
+		// primary workflow
+		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+		if scanner.hasYarnLockFile {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+		} else {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+		}
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
-	// deploy workflow
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-	if scanner.hasYarnLockFile {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-	} else {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-	}
+		// deploy workflow
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
+		if scanner.hasYarnLockFile {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		} else {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		}
 
-	projectDir := relPackageJSONDir
-	if relPackageJSONDir == "" {
-		projectDir = "./"
-	}
-	if scanner.usesExpoKit {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-			envmanModels.EnvironmentItemModel{"project_path": projectDir},
-			envmanModels.EnvironmentItemModel{"user_name": "$EXPO_USERNAME"},
-			envmanModels.EnvironmentItemModel{"password": "$EXPO_PASSWORD"},
-			envmanModels.EnvironmentItemModel{"run_publish": "yes"},
+		projectDir := relPackageJSONDir
+		if relPackageJSONDir == "" {
+			projectDir = "./"
+		}
+		if config.isPublish {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+				envmanModels.EnvironmentItemModel{"project_path": projectDir},
+				envmanModels.EnvironmentItemModel{"user_name": "$EXPO_USERNAME"},
+				envmanModels.EnvironmentItemModel{"password": "$EXPO_PASSWORD"},
+				envmanModels.EnvironmentItemModel{"run_publish": "yes"},
+			))
+		} else {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
+				envmanModels.EnvironmentItemModel{"project_path": projectDir},
+			))
+		}
+
+		// android build
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+			envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
 		))
-	} else {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-			envmanModels.EnvironmentItemModel{"project_path": projectDir},
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
+			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
+
+		// ios build
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+
+		if scanner.usesExpoKit {
+			// in case of expo kit rn project expo eject generates an ios project with Podfile
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+		}
+
+		xcodeArchiveInputs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
+		}
+		if !scanner.usesExpoKit {
+			xcodeArchiveInputs = append(xcodeArchiveInputs, envmanModels.EnvironmentItemModel{"xcodebuild_options": "-UseModernBuildSystem=NO"})
+		}
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveInputs...))
+
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+
+		bitriseDataModel, err := configBuilder.Generate(scannerName)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(bitriseDataModel)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		configMap[config.ID] = string(data)
 	}
-
-	// android build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
-	))
-
-	// ios build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-
-	if scanner.usesExpoKit {
-		// in case of expo kit rn project expo eject generates an ios project with Podfile
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
-	}
-
-	xcodeArchiveInputs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-		envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-		envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
-	}
-	if !scanner.usesExpoKit {
-		xcodeArchiveInputs = append(xcodeArchiveInputs, envmanModels.EnvironmentItemModel{"xcodebuild_options": "-UseModernBuildSystem=NO"})
-	}
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveInputs...))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
-
-	bitriseDataModel, err := configBuilder.Generate(scannerName)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	data, err := yaml.Marshal(bitriseDataModel)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	configMap[expoConfigName] = string(data)
 
 	return configMap, nil
 }
