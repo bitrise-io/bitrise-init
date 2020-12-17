@@ -18,89 +18,56 @@ func TestIOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ios__")
 	require.NoError(t, err)
 
-	t.Log("ios-no-shared-schemes")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "ios-no-shared-scheme")
-		sampleAppURL := "https://github.com/bitrise-samples/ios-no-shared-schemes.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(iosNoSharedSchemesResultYML), strings.TrimSpace(result))
+	type testCase struct {
+		name           string
+		repoURL        string
+		expectedResult string
 	}
 
-	t.Log("ios-cocoapods-at-root")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "ios-cocoapods-at-root")
-		sampleAppURL := "https://github.com/bitrise-samples/ios-cocoapods-at-root.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(iosCocoapodsAtRootResultYML), strings.TrimSpace(result))
+	testCases := []testCase{
+		{
+			name:           "ios-no-shared-schemes",
+			repoURL:        "https://github.com/bitrise-samples/ios-no-shared-schemes.git",
+			expectedResult: iosNoSharedSchemesResultYML,
+		},
+		{
+			name:           "ios-cocoapods-at-root",
+			repoURL:        "https://github.com/bitrise-samples/ios-cocoapods-at-root.git",
+			expectedResult: iosCocoapodsAtRootResultYML,
+		},
+		{
+			name:           "sample-apps-ios-watchkit",
+			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-watchkit.git",
+			expectedResult: sampleAppsIosWatchkitResultYML,
+		},
+		{
+			name:           "sample-apps-carthage",
+			repoURL:        "https://github.com/bitrise-samples/sample-apps-carthage.git",
+			expectedResult: sampleAppsCarthageResultYML,
+		},
+		{
+			name:           "sample-apps-appclip",
+			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
+			expectedResult: sampleAppClip,
+		},
 	}
 
-	t.Log("sample-apps-ios-watchkit")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-ios-watchkit")
-		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-watchkit.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
+	for _, testCase := range testCases {
+		t.Log(testCase.name)
+		{
+			sampleAppDir := filepath.Join(tmpDir, testCase.name)
+			gitClone(t, sampleAppDir, testCase.repoURL)
 
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
+			cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+			out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+			require.NoError(t, err, out)
 
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+			scanResultPth := filepath.Join(sampleAppDir, "result.yml")
 
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsIosWatchkitResultYML), strings.TrimSpace(result))
-	}
-
-	t.Log("sample-apps-carthage")
-	{
-		//
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-carthage")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-carthage.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsCarthageResultYML), strings.TrimSpace(result))
-	}
-	t.Log("sample-apps-appclip")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-appclip")
-		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppClip), strings.TrimSpace(result))
+			result, err := fileutil.ReadStringFromFile(scanResultPth)
+			require.NoError(t, err)
+			require.Equal(t, strings.TrimSpace(testCase.expectedResult), strings.TrimSpace(result))
+		}
 	}
 }
 
