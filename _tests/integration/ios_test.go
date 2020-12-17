@@ -48,7 +48,7 @@ func TestIOS(t *testing.T) {
 		{
 			name:           "sample-apps-appclip",
 			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
-			expectedResult: sampleAppClip,
+			expectedResult: sampleAppClipResultYML,
 		},
 	}
 
@@ -647,7 +647,7 @@ warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)
 
-var sampleAppClip = `options:
+var sampleAppClipResultYML = `options:
   ios:
     title: Project or Workspace path
     summary: The location of your Xcode project or Xcode workspace files, stored as
