@@ -196,7 +196,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if err != nil {
 			log.TWarnf("failed to check if project uses Expo: %s", err)
 		} else {
-			log.TPrintf("Project uses Expo: %+v", expoPrefs)
+			if expoPrefs != nil {
+				log.TPrintf("Project uses Expo: %+v", expoPrefs)
+			} else {
+				log.TPrintf("Project does not use Expo.")
+			}
 		}
 
 		if expoPrefs != nil {
