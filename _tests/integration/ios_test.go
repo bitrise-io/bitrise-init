@@ -86,6 +86,22 @@ func TestIOS(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, strings.TrimSpace(sampleAppsCarthageResultYML), strings.TrimSpace(result))
 	}
+	t.Log("sample-apps-appclip")
+	{
+		sampleAppDir := filepath.Join(tmpDir, "sample-apps-appclip")
+		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+
+		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+
+		result, err := fileutil.ReadStringFromFile(scanResultPth)
+		require.NoError(t, err)
+		require.Equal(t, strings.TrimSpace(sampleAppClip), strings.TrimSpace(result))
+	}
 }
 
 var iosNoSharedSchemesVersions = []interface{}{
@@ -663,3 +679,155 @@ warnings:
 warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)
+
+var sampleAppClip = `options:
+  ios:
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
+    env_key: BITRISE_PROJECT_PATH
+    type: selector
+    value_map:
+      Sample.xcworkspace:
+        title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
+        env_key: BITRISE_SCHEME
+        type: selector
+        value_map:
+          SampleAppClipApp:
+            title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
+            env_key: BITRISE_EXPORT_METHOD
+            type: selector
+            value_map:
+              ad-hoc:
+                config: ios-app-clip-ad-hoc-config
+              app-store:
+                config: ios-app-clip-app-store-config
+              development:
+                config: ios-app-clip-development-config
+              enterprise:
+                config: ios-app-clip-enterprise-config
+configs:
+  ios:
+    ios-app-clip-ad-hoc-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - export-xcarchive@3:
+              inputs:
+              - product: app-clip
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-app-store-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-development-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - export-xcarchive@3:
+              inputs:
+              - product: app-clip
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-enterprise-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+warnings:
+  ios: []
+warnings_with_recommendations:
+  ios: []`
