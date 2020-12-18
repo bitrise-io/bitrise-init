@@ -711,6 +711,7 @@ configs:
           - export-xcarchive@3:
               inputs:
               - product: app-clip
+              - export_method: $BITRISE_EXPORT_METHOD
           - deploy-to-bitrise-io@1: {}
           - cache-push@2: {}
     ios-app-clip-app-store-config: |
@@ -766,6 +767,7 @@ configs:
           - export-xcarchive@3:
               inputs:
               - product: app-clip
+              - export_method: $BITRISE_EXPORT_METHOD
           - deploy-to-bitrise-io@1: {}
           - cache-push@2: {}
     ios-app-clip-enterprise-config: |

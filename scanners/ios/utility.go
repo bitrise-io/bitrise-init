@@ -808,6 +808,7 @@ func shouldAppendAppClip(hasAppClip bool, exportMethod string) bool {
 func appendExportAppClipStep(configBuilder *models.ConfigBuilderModel, workflowID models.WorkflowID) {
 	exportXCArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		{ExportXCArchiveProductInputKey: ExportXCArchiveProductInputAppClipValue},
+		{ExportMethodInputKey: "$" + ExportMethodInputEnvKey},
 	}
 	configBuilder.AppendStepListItemsTo(workflowID, steps.ExportXCArchiveStepListItem(exportXCArchiveStepInputModels...))
 }
