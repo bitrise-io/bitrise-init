@@ -18,73 +18,56 @@ func TestIOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ios__")
 	require.NoError(t, err)
 
-	t.Log("ios-no-shared-schemes")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "ios-no-shared-scheme")
-		sampleAppURL := "https://github.com/bitrise-samples/ios-no-shared-schemes.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(iosNoSharedSchemesResultYML), strings.TrimSpace(result))
+	type testCase struct {
+		name           string
+		repoURL        string
+		expectedResult string
 	}
 
-	t.Log("ios-cocoapods-at-root")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "ios-cocoapods-at-root")
-		sampleAppURL := "https://github.com/bitrise-samples/ios-cocoapods-at-root.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(iosCocoapodsAtRootResultYML), strings.TrimSpace(result))
+	testCases := []testCase{
+		{
+			name:           "ios-no-shared-schemes",
+			repoURL:        "https://github.com/bitrise-samples/ios-no-shared-schemes.git",
+			expectedResult: iosNoSharedSchemesResultYML,
+		},
+		{
+			name:           "ios-cocoapods-at-root",
+			repoURL:        "https://github.com/bitrise-samples/ios-cocoapods-at-root.git",
+			expectedResult: iosCocoapodsAtRootResultYML,
+		},
+		{
+			name:           "sample-apps-ios-watchkit",
+			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-watchkit.git",
+			expectedResult: sampleAppsIosWatchkitResultYML,
+		},
+		{
+			name:           "sample-apps-carthage",
+			repoURL:        "https://github.com/bitrise-samples/sample-apps-carthage.git",
+			expectedResult: sampleAppsCarthageResultYML,
+		},
+		{
+			name:           "sample-apps-appclip",
+			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
+			expectedResult: sampleAppClipResultYML,
+		},
 	}
 
-	t.Log("sample-apps-ios-watchkit")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-ios-watchkit")
-		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-watchkit.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
+	for _, testCase := range testCases {
+		t.Log(testCase.name)
+		{
+			sampleAppDir := filepath.Join(tmpDir, testCase.name)
+			gitClone(t, sampleAppDir, testCase.repoURL)
 
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
+			cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+			out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+			require.NoError(t, err, out)
 
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+			scanResultPth := filepath.Join(sampleAppDir, "result.yml")
 
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsIosWatchkitResultYML), strings.TrimSpace(result))
-	}
-
-	t.Log("sample-apps-carthage")
-	{
-		//
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-carthage")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-carthage.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsCarthageResultYML), strings.TrimSpace(result))
+			result, err := fileutil.ReadStringFromFile(scanResultPth)
+			require.NoError(t, err)
+			require.Equal(t, strings.TrimSpace(testCase.expectedResult), strings.TrimSpace(result))
+		}
 	}
 }
 
@@ -663,3 +646,157 @@ warnings:
 warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)
+
+var sampleAppClipResultYML = `options:
+  ios:
+    title: Project or Workspace path
+    summary: The location of your Xcode project or Xcode workspace files, stored as
+      an Environment Variable. In your Workflows, you can specify paths relative to
+      this path.
+    env_key: BITRISE_PROJECT_PATH
+    type: selector
+    value_map:
+      Sample.xcworkspace:
+        title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
+        env_key: BITRISE_SCHEME
+        type: selector
+        value_map:
+          SampleAppClipApp:
+            title: ipa export method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
+            env_key: BITRISE_EXPORT_METHOD
+            type: selector
+            value_map:
+              ad-hoc:
+                config: ios-app-clip-ad-hoc-config
+              app-store:
+                config: ios-app-clip-app-store-config
+              development:
+                config: ios-app-clip-development-config
+              enterprise:
+                config: ios-app-clip-enterprise-config
+configs:
+  ios:
+    ios-app-clip-ad-hoc-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - export-xcarchive@3:
+              inputs:
+              - product: app-clip
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-app-store-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-development-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - export-xcarchive@3:
+              inputs:
+              - product: app-clip
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+    ios-app-clip-enterprise-config: |
+      format_version: "8"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@4: {}
+          - cache-pull@2: {}
+          - script@1:
+              title: Do anything with Script step
+          - certificate-and-profile-installer@1: {}
+          - xcode-archive@3:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
+          - deploy-to-bitrise-io@1: {}
+          - cache-push@2: {}
+warnings:
+  ios: []
+warnings_with_recommendations:
+  ios: []`

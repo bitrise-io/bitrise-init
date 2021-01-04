@@ -47,14 +47,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3060b1a20d5eccc02b4dcf61127258fb3ca0070b3386d4326907417164a9bcdd"
+  digest = "1:47dc0de590d47f16a8c7d1c2bab1f620157ea2e2895e6c359f78befe09ecc9a9"
   name = "github.com/bitrise-io/go-xcode"
   packages = [
     "plistutil",
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "19cbfe6430acc193d779847a13be0b8585d866c1"
+  revision = "81c1cd57e28a647e2b6e323791b62e620b333cd9"
 
 [[projects]]
   branch = "master"
@@ -225,6 +225,7 @@
     "github.com/bitrise-io/xcode-project/xcscheme",
     "github.com/bitrise-io/xcode-project/xcworkspace",
     "github.com/google/go-cmp/cmp",
+    "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/urfave/cli",
     "gopkg.in/yaml.v2",
