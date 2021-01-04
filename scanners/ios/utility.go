@@ -630,7 +630,7 @@ func GenerateConfigBuilder(
 		case XcodeProjectTypeIOS:
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 
-			if shouldAppendAppClip(hasAppClip, exportMethod) {
+			if shouldAppendExportAppClipStep(hasAppClip, exportMethod) {
 				appendExportAppClipStep(configBuilder, models.PrimaryWorkflowID)
 			}
 		case XcodeProjectTypeMacOS:
@@ -666,7 +666,7 @@ func GenerateConfigBuilder(
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestStepListItem(xcodeStepInputModels...))
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 
-			if shouldAppendAppClip(hasAppClip, exportMethod) {
+			if shouldAppendExportAppClipStep(hasAppClip, exportMethod) {
 				appendExportAppClipStep(configBuilder, models.DeployWorkflowID)
 			}
 		case XcodeProjectTypeMacOS:
@@ -800,7 +800,7 @@ func schemeHasAppClipTarget(scheme xcodeproj.SchemeModel, targets []xcodeproj.Ta
 	return false
 }
 
-func shouldAppendAppClip(hasAppClip bool, exportMethod string) bool {
+func shouldAppendExportAppClipStep(hasAppClip bool, exportMethod string) bool {
 	return hasAppClip &&
 		(exportMethod == "development" || exportMethod == "ad-hoc")
 }
