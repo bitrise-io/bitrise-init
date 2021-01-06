@@ -123,19 +123,14 @@ entries.`
 		log.TDebugf("%s", appJSONError(appJSONPth, "missing or empty expo/android/package entry", errorMessage))
 	}
 
-	isIOS := iosObj != nil
-	isAndroid := androidObj != nil
-	if isIOS || isAndroid {
-		return &expoSettings{
-			name:                projectName,
-			isIOS:               isIOS,
-			isAndroid:           isAndroid,
-			packageNameAndroid:  packageName,
-			bundleIdentifierIOS: bundleID,
-		}, nil
-	}
-
-	return nil, nil
+	// expo/ios and expo/android entry is optional
+	return &expoSettings{
+		name:                projectName,
+		isIOS:               true,
+		isAndroid:           true,
+		packageNameAndroid:  packageName,
+		bundleIdentifierIOS: bundleID,
+	}, nil
 }
 
 // hasNativeProjects reports whether the project directory contains ios and android native project.
