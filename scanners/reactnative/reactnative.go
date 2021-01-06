@@ -23,8 +23,8 @@ const (
 )
 
 const (
-	isExpoCLIInputTitle   = "Was the project created using the Expo CLI?"
-	isExpoCLIInputSummary = "If your React Native app was created with the Expo CLI, Bitrise will automatically insert the **Expo Eject** Step to your Workflows."
+	isExpoCLIInputTitle   = "Was your React Native app created with the Expo CLI and using Managed Workflow?"
+	isExpoCLIInputSummary = "Will include *Expo Eject** Step if using Expo Managed Workflow (https://docs.expo.io/introduction/managed-vs-bare/). If ios/android native projects are present in the repository, choose No."
 )
 
 // Scanner implements the project scanner for plain React Native and Expo based projects.
@@ -202,12 +202,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			}
 		}
 
-		if expoPrefs != nil {
-			expoSettings = expoPrefs
-			packageFile = packageJSONPth
-			break
-		}
-
 		if scanner.iosScanner == nil {
 			scanner.iosScanner = ios.NewScanner()
 			scanner.iosScanner.ExcludeAppIcon = true
@@ -222,8 +216,17 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if err != nil {
 			log.TWarnf("failed to check native projects: %s", err)
 		} else {
-			log.TPrintf("Has native ios project: %v", ios)
-			log.TPrintf("Has native android project: %v", android)
+			log.TPrintf("Found native ios project: %v", ios)
+			log.TPrintf("Found native android project: %v", android)
+		}
+
+		if expoPrefs != nil {
+			if !(ios || android) {
+				expoSettings = expoPrefs
+				packageFile = packageJSONPth
+				break
+			}
+			log.TPrintf("Native ios/android project present, expo eject step will not be included.")
 		}
 
 		if ios || android {
