@@ -26,8 +26,7 @@ func getTargetDefinitionProjectMap(podfilePth, cocoapodsVersion string) (map[str
 	}
 
 	gemfileContent := fmt.Sprintf(`source 'https://rubygems.org'
-gem 'cocoapods'%s
-gem 'cocoapods-core'
+gem 'cocoapods-core'%s
 gem 'json'
 `, gemfileCocoapodsVersion)
 
@@ -38,9 +37,6 @@ require 'json'
 
 begin
 	podfile_path = ENV['PODFILE_PATH']
-	# In case of relative require in the Podfile, change working directory
-	# For example: require_relative '../node_modules/react-native/scripts/react_native_pods'
-	Dir.chdir(File.dirname(podfile_path))
 	podfile = Pod::Podfile.from_file(podfile_path)
 	targets = podfile.target_definitions
 	
@@ -54,7 +50,7 @@ begin
 
 	puts "#{{ :data => target_project_map }.to_json}"
 rescue => e
-	puts "#{{ :error => "#{e.to_s} Reason: #{e.message}"}.to_json}"
+	puts "#{{ :error => e.to_s }.to_json}"
 end
 `
 
@@ -113,8 +109,7 @@ func getUserDefinedWorkspaceRelativePath(podfilePth, cocoapodsVersion string) (s
 	}
 
 	gemfileContent := fmt.Sprintf(`source 'https://rubygems.org'
-gem 'cocoapods'%s
-gem 'cocoapods-core'
+gem 'cocoapods-core'%s
 gem 'json'
 `, gemfileCocoapodsVersion)
 
@@ -125,14 +120,11 @@ require 'json'
 
 begin
 	podfile_path = ENV['PODFILE_PATH']
-	# In case of relative require in the Podfile, change working directory
-	# For example: require_relative '../node_modules/react-native/scripts/react_native_pods'
-	Dir.chdir(File.dirname(podfile_path))
 	podfile = Pod::Podfile.from_file(podfile_path)
 	pth = podfile.workspace_path
 	puts "#{{ :data => pth }.to_json}"
 rescue => e
-	puts "#{{ :error => "#{e.to_s} Reason: #{e.message}"}.to_json}"
+	puts "#{{ :error => e.to_s }.to_json}"
 end
 `
 	absPodfilePth, err := filepath.Abs(podfilePth)
@@ -163,7 +155,7 @@ end
 	}
 
 	if workspacePathOutput.Error != "" {
-		return "", fmt.Errorf("failed to read workspace path, error: %s", workspacePathOutput.Error)
+		return "", fmt.Errorf("failed to readworkspace path, error: %s", workspacePathOutput.Error)
 	}
 
 	return workspacePathOutput.Data, nil
