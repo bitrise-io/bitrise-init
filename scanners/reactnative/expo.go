@@ -31,15 +31,15 @@ const (
 
 const (
 	iosBundleIDInputTitle          = "iOS bundle identifier"
-	iosBundleIDInputSummary        = "Did not found the key expo/ios/bundleIdentifier in 'app.json'. You can add it now, or commit to the repository later. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
-	iosBundleIDInputSummaryDefault = "You can specify the iOS bundle identifier in case the key expo/ios/bundleIdentifier is not set in 'app.json'. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
+	iosBundleIDInputSummary        = "For example: 'com.sample.myapp'. Did not found the key expo/ios/bundleIdentifier in 'app.json'. You can add it now, or commit to the repository later. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
+	iosBundleIDInputSummaryDefault = "For example: 'com.sample.myapp'. You can specify the iOS bundle identifier in case the key expo/ios/bundleIdentifier is not set in 'app.json'. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
 	iosBundleIDEnvKey              = "EXPO_BARE_IOS_BUNLDE_ID"
 )
 
 const (
 	androidPackageInputTitle          = "Android package name"
-	androidPackageInputSummary        = "Did not found the key expo/android/package in 'app.json'. You can add it now, or commit to the repository later. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
-	androidPackageInputSummaryDefault = "You can specify the Android package name in case the key key expo/android/package is not set in 'app.json'. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
+	androidPackageInputSummary        = "For example: 'com.sample.myapp'. Did not found the key expo/android/package in 'app.json'. You can add it now, or commit to the repository later. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
+	androidPackageInputSummaryDefault = "For example: 'com.sample.myapp'. You can specify the Android package name in case the key key expo/android/package is not set in 'app.json'. Needed to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/)."
 	androidPackageEnvKey              = "EXPO_BARE_ANDROID_PACKAGE"
 )
 
