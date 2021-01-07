@@ -396,14 +396,14 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "test"}))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// deploy workflow
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem(expoBareAddIdentiferScriptTitle,
 		envmanModels.EnvironmentItemModel{"content": expoBareAddIdentifiersScript(filepath.Join(".", expoAppJSONName), androidPackageEnvKey, iosBundleIDEnvKey)},

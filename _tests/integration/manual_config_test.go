@@ -341,7 +341,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.NpmVersion,
+	steps.YarnVersion,
 	steps.ScriptVersion,
 	steps.ExpoDetachVersion,
 	steps.InstallMissingAndroidToolsVersion,
@@ -354,8 +354,8 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.NpmVersion,
-	steps.NpmVersion,
+	steps.YarnVersion,
+	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// xamarin
@@ -1861,7 +1861,7 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - workdir: $WORKDIR
               - command: install
@@ -1903,11 +1903,11 @@ configs:
           - git-clone@%s: {}
           - script@%s:
               title: Do anything with Script step
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - workdir: $WORKDIR
               - command: install
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - workdir: $WORKDIR
               - command: test
