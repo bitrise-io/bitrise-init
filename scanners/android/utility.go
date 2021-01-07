@@ -2,12 +2,13 @@ package android
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
+
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"os"
-	"path/filepath"
 )
 
 type fileGroups [][]string
@@ -112,6 +113,18 @@ func nameMatchSkipDirs(name string, skipDirs []string) bool {
 		}
 	}
 	return false
+}
+
+func checkLocalProperties(projectDir string) error {
+	localPropertiesPth := filepath.Join(projectDir, "local.properties")
+	exist, err := pathutil.IsPathExists(localPropertiesPth)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return newContainsLocalPropertiesError(localPropertiesPth)
+	}
+	return nil
 }
 
 func checkGradlew(projectDir string) error {

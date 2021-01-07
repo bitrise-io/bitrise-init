@@ -59,6 +59,15 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	foundOptions := false
 	var lastErr error = nil
 	for _, projectRoot := range scanner.ProjectRoots {
+		if err := checkLocalProperties(projectRoot); err != nil {
+			if isContainsLocalPropertiesError(err) {
+				warnings = append(warnings, err.Error())
+			} else {
+				lastErr = err
+				continue
+			}
+		}
+
 		if err := checkGradlew(projectRoot); err != nil {
 			lastErr = err
 			continue
@@ -146,4 +155,8 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return models.BitriseConfigMap{
 		DefaultConfigName: string(data),
 	}, nil
+}
+
+func handleCheckLocalPropertiesError(err error) error {
+	return nil
 }
