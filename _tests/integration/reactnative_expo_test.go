@@ -74,17 +74,21 @@ var managedExpoVersions = []interface{}{
 var managedExpoResultsYML = fmt.Sprintf(`options:
   react-native:
     title: iOS bundle identifier
-    summary: 'For example: ''com.sample.myapp''. Did not found the key expo/ios/bundleIdentifier
-      in ''app.json''. You can add it now, or commit to the repository later. Needed
-      to eject to the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/).'
+    summary: |-
+      Did not found the key expo/ios/bundleIdentifier in 'app.json'.
+
+      Will add the Expo Eject Step to the Workflow to generate the native iOS project, so the IPA can be exported.
+      For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
+      For example: 'com.sample.myapp'.
     env_key: EXPO_BARE_IOS_BUNLDE_ID
     type: user_input
     value_map:
       "":
         title: Project or Workspace path
-        summary: 'The relative location of the Xcode workspace, after running ''expo
-          eject''. For example: ''./ios/myproject.xcworkspace''. Needed to eject to
-          the bare workflow, managed workflow is not supported (https://docs.expo.io/bare/customizing/).'
+        summary: |-
+          Will add the Expo Eject Step to the Workflow to generate the native iOS project, so it can be built and archived.
+          Run 'expo eject' in a local environment to determine this value. This experiment then can be undone by deleting the ios and android directories. See https://docs.expo.io/bare/customizing/ for more details.
+          For example: './ios/myproject.xcworkspace'.
         env_key: BITRISE_PROJECT_PATH
         type: selector_optional
         value_map:
@@ -98,9 +102,13 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
             type: selector
             value_map:
               exposample:
-                title: iOS Development team
-                summary: The Apple Development Team that the iOS version of the app
-                  belongs to.
+                title: iOS Development team ID
+                summary: |-
+                  The Apple Development Team that the iOS version of the app belongs to. Will be used to override code signing settings. See https://devcenter.bitrise.io/getting-started/getting-started-with-expo-apps/#signing-and-exporting-your-ios-app-for-deployment for more details.
+
+                  Will add the Expo Eject Step to the Workflow to generate the native iOS project, so it can be built and archived.
+                  Run 'expo eject' in a local environment to determine this value. This experiment then can be undone by deleting the ios and android directories.
+                  For example: '1MZX23ABCD4'.
                 env_key: BITRISE_IOS_DEVELOPMENT_TEAM
                 type: user_input
                 value_map:
@@ -115,11 +123,12 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                     value_map:
                       ad-hoc:
                         title: Android package name
-                        summary: 'For example: ''com.sample.myapp''. Did not found
-                          the key expo/android/package in ''app.json''. You can add
-                          it now, or commit to the repository later. Needed to eject
-                          to the bare workflow, managed workflow is not supported
-                          (https://docs.expo.io/bare/customizing/).'
+                        summary: |-
+                          Did not found the key expo/android/package in 'app.json'.
+
+                          Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
+                          For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
+                          For example: 'com.sample.myapp'.
                         env_key: EXPO_BARE_ANDROID_PACKAGE
                         type: user_input
                         value_map:
@@ -155,11 +164,12 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                       app-store:
                         title: Android package name
-                        summary: 'For example: ''com.sample.myapp''. Did not found
-                          the key expo/android/package in ''app.json''. You can add
-                          it now, or commit to the repository later. Needed to eject
-                          to the bare workflow, managed workflow is not supported
-                          (https://docs.expo.io/bare/customizing/).'
+                        summary: |-
+                          Did not found the key expo/android/package in 'app.json'.
+
+                          Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
+                          For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
+                          For example: 'com.sample.myapp'.
                         env_key: EXPO_BARE_ANDROID_PACKAGE
                         type: user_input
                         value_map:
@@ -195,11 +205,12 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                       development:
                         title: Android package name
-                        summary: 'For example: ''com.sample.myapp''. Did not found
-                          the key expo/android/package in ''app.json''. You can add
-                          it now, or commit to the repository later. Needed to eject
-                          to the bare workflow, managed workflow is not supported
-                          (https://docs.expo.io/bare/customizing/).'
+                        summary: |-
+                          Did not found the key expo/android/package in 'app.json'.
+
+                          Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
+                          For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
+                          For example: 'com.sample.myapp'.
                         env_key: EXPO_BARE_ANDROID_PACKAGE
                         type: user_input
                         value_map:
@@ -235,11 +246,12 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                                         config: react-native-expo-config
                       enterprise:
                         title: Android package name
-                        summary: 'For example: ''com.sample.myapp''. Did not found
-                          the key expo/android/package in ''app.json''. You can add
-                          it now, or commit to the repository later. Needed to eject
-                          to the bare workflow, managed workflow is not supported
-                          (https://docs.expo.io/bare/customizing/).'
+                        summary: |-
+                          Did not found the key expo/android/package in 'app.json'.
+
+                          Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
+                          For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
+                          For example: 'com.sample.myapp'.
                         env_key: EXPO_BARE_ANDROID_PACKAGE
                         type: user_input
                         value_map:
