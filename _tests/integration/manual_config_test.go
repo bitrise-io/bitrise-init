@@ -783,9 +783,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
           Run 'expo eject' in a local environment to determine this value. This experiment then can be undone by deleting the ios and android directories. See https://docs.expo.io/bare/customizing/ for more details.
           For example: './ios/myproject.xcworkspace'.
         env_key: BITRISE_PROJECT_PATH
-        type: user_input_optional
+        type: user_input
         value_map:
-          ./ios/< PROJECT NAME >.xcworkspace:
+          "":
             title: iOS bundle identifier
             summary: |-
               Optional, only needs to be entered if the key expo/ios/bundleIdentifier is not set in 'app.json'.
