@@ -157,7 +157,3 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		DefaultConfigName: string(data),
 	}, nil
 }
-
-func handleCheckLocalPropertiesError(err error) error {
-	return nil
-}
