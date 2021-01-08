@@ -118,7 +118,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 	var iosNode *models.OptionNode
 	var exportMethodOption *models.OptionNode
 	if scanner.expoSettings.isIOS { // ios options
-		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
+		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeOptionalSelector)
 
 		// predict the ejected project name
 		projectName := strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9])`).ReplaceAllString(scanner.expoSettings.name, ""))
