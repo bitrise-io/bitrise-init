@@ -100,10 +100,6 @@ jq '.expo.android |= if has("package") or env.`+androidEnvKey+` == "" or env.`+a
 [[ $?==0 ]] && mv -f ${tmp} ${appJson}`, appJSONPath)
 }
 
-func appJSONError(appJSONPth, reason, explanation string) error {
-	return fmt.Errorf("app.json file (%s) %s\n%s", appJSONPth, reason, explanation)
-}
-
 // expoOptions implements ScannerInterface.Options function for Expo based React Native projects.
 func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error) {
 	warnings := models.Warnings{}

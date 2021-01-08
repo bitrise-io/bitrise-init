@@ -92,35 +92,29 @@ func parseExpoProjectSettings(packageJSONPth string) (*expoSettings, error) {
 		return nil, err
 	}
 
-	errorMessage := `To eject native projects non-interactively, the Expo project app.json file needs to contain:
-- expo/name
-- expo/ios/bundleIdentifier
-- expo/android/package
-entries.`
-
 	expoObj, err := app.Object("expo")
 	if err != nil {
-		return nil, appJSONError(appJSONPth, "missing expo entry", errorMessage)
+		return nil, nil
 	}
 	projectName, err := expoObj.String("name")
 	if err != nil || projectName == "" {
-		log.TWarnf("%s", appJSONError(appJSONPth, "missing or empty expo/name entry", errorMessage))
+		log.Debugf("%s", fmt.Errorf("app.json file (%s) has no 'expo/name' entry, can not guess iOS project path, will ask for it during project configuration", appJSONPth))
 	}
 	iosObj, err := expoObj.Object("ios")
 	if err != nil {
-		log.TDebugf("%s", appJSONError(appJSONPth, "missing expo/ios entry", errorMessage))
+		log.TDebugf("%s", fmt.Errorf("app.json file (%s) has no no 'expo/ios entry', assuming iOS is targeted by Expo", appJSONPth))
 	}
 	bundleID, err := iosObj.String("bundleIdentifier")
 	if err != nil || bundleID == "" {
-		log.TDebugf("%s", appJSONError(appJSONPth, "missing or empty expo/ios/bundleIdentifier entry", errorMessage))
+		log.TDebugf("%s", fmt.Errorf("app.json file (%s) has no no 'expo/ios/bundleIdentifier' entry, will ask for it during project configuration", appJSONPth))
 	}
 	androidObj, err := expoObj.Object("android")
 	if err != nil {
-		log.TDebugf("%s", appJSONError(appJSONPth, "missing expo/android entry", errorMessage))
+		log.TDebugf("%s", fmt.Errorf("app.json file (%s) has no 'expo/android' entry, assuming Android is targeted by Expo", appJSONPth))
 	}
 	packageName, err := androidObj.String("package")
 	if err != nil || packageName == "" {
-		log.TDebugf("%s", appJSONError(appJSONPth, "missing or empty expo/android/package entry", errorMessage))
+		log.TDebugf("%s", fmt.Errorf("app.json file (%s) has no no 'expo/android/package' entry, will ask for it during project configuration", appJSONPth))
 	}
 
 	// expo/ios and expo/android entry is optional
@@ -189,12 +183,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		expoPrefs, err := parseExpoProjectSettings(packageJSONPth)
 		if err != nil {
-			log.TWarnf("failed to check if project uses Expo: %s", err)
-		} else {
-			log.TPrintf("Project uses expo: %v", expoPrefs != nil)
-			if expoPrefs != nil {
-				log.TPrintf("Expo configuration: %+v", expoPrefs)
-			}
+			return false, fmt.Errorf("failed to check if project uses Expo: %s", err)
+		}
+
+		log.TPrintf("Project uses expo: %v", expoPrefs != nil)
+		if expoPrefs != nil {
+			log.TPrintf("Expo configuration: %+v", expoPrefs)
 		}
 
 		if scanner.iosScanner == nil {
@@ -241,7 +235,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	if scanner.hasYarnLockFile, err = containsYarnLock(filepath.Dir(scanner.packageJSONPth)); err != nil {
 		return false, err
 	}
-	log.TPrintf("Js dependency manager for %s npm: %t", scanner.packageJSONPth, scanner.hasYarnLockFile)
+	log.TPrintf("Js dependency manager for %s is yarn: %t", scanner.packageJSONPth, scanner.hasYarnLockFile)
 
 	packages, err := utility.ParsePackagesJSON(scanner.packageJSONPth)
 	if err != nil {
