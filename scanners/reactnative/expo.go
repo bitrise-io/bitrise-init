@@ -66,6 +66,7 @@ const (
 Will add the Expo Eject Step to the Workflow to generate the native iOS project, so it can be built and archived.
 Run 'expo eject' in a local environment to determine this value. This experiment then can be undone by deleting the ios and android directories.
 For example: '1MZX23ABCD4'.`
+	iosDevelopmentTeamEnv = "BITRISE_IOS_DEVELOPMENT_TEAM"
 )
 
 const (
@@ -80,6 +81,8 @@ const (
 Will add the Expo Eject Step to the Workflow to generate the native iOS project, so it can be built and archived.
 Run 'expo eject' in a local environment to determine this value. This experiment then can be undone by deleting the ios and android directories.`
 )
+
+const wordirEnv = "WORKDIR"
 
 const (
 	expoBareAddIdentiferScriptTitle = "Set bundleIdentifier, packageName for Expo Eject"
@@ -137,7 +140,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 			iosNode = projectPathOption
 		}
 
-		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, "BITRISE_IOS_DEVELOPMENT_TEAM", models.TypeUserInput)
+		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, iosDevelopmentTeamEnv, models.TypeUserInput)
 		schemeOption.AddOption(projectName, developmentTeamOption)
 
 		exportMethodOption = models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
@@ -165,7 +168,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			projectSettingNode.AddOption("./android", moduleOption)
 		} else {
-			projectSettingNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeSelector)
+			projectSettingNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeSelector)
 
 			projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
 			projectSettingNode.AddOption(relPackageJSONDir, projectLocationOption)
@@ -394,7 +397,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 		exportMethodOption.AddOption(exportMethod, androidPackageOption)
 	}
 
-	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, "WORKDIR", models.TypeUserInput)
+	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeUserInput)
 	androidPackageOption.AddOption("", workDirOption)
 
 	projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
