@@ -122,15 +122,11 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 
 		// predict the ejected project name
 		projectName := strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9])`).ReplaceAllString(scanner.expoSettings.name, ""))
-		iosProjectInputType := models.TypeOptionalSelector
-		if projectName == "" {
-			iosProjectInputType = models.TypeUserInput
-		}
-		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, iosProjectInputType)
+		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeOptionalSelector)
 		if projectName != "" {
 			projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
 		} else {
-			projectPathOption.AddOption("./ios/< PROJECT NAME >.xcworkspace", schemeOption)
+			projectPathOption.AddOption("", schemeOption)
 		}
 
 		if scanner.expoSettings.bundleIdentifierIOS == "" { // bundle ID Option
@@ -380,10 +376,10 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 // expoDefaultOptions implements ScannerInterface.DefaultOptions function for Expo based React Native projects.
 func (Scanner) expoDefaultOptions() models.OptionNode {
 	// ios options
-	rootNode := models.NewOption(bareIOSProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeOptionalUserInput)
+	rootNode := models.NewOption(bareIOSProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeUserInput)
 
 	bundleIDOption := models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummaryDefault, iosBundleIDEnvKey, models.TypeUserInput)
-	rootNode.AddOption("./ios/< PROJECT NAME >.xcworkspace", bundleIDOption)
+	rootNode.AddOption("", bundleIDOption)
 
 	schemeOption := models.NewOption(schemeInputTitle, schemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
 	bundleIDOption.AddOption("", schemeOption)
