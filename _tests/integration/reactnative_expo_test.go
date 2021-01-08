@@ -75,7 +75,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
   react-native:
     title: iOS bundle identifier
     summary: |-
-      Did not found the key expo/ios/bundleIdentifier in 'app.json'.
+      Key expo/ios/bundleIdentifier not present in 'app.json'.
 
       Will add the Expo Eject Step to the Workflow to generate the native iOS project, so the IPA can be exported.
       For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
@@ -124,7 +124,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                       ad-hoc:
                         title: Android package name
                         summary: |-
-                          Did not found the key expo/android/package in 'app.json'.
+                          Key expo/android/package not present in 'app.json'.
 
                           Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
                           For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
@@ -165,7 +165,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                       app-store:
                         title: Android package name
                         summary: |-
-                          Did not found the key expo/android/package in 'app.json'.
+                          Key expo/android/package not present in 'app.json'.
 
                           Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
                           For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
@@ -206,7 +206,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                       development:
                         title: Android package name
                         summary: |-
-                          Did not found the key expo/android/package in 'app.json'.
+                          Key expo/android/package not present in 'app.json'.
 
                           Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
                           For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
@@ -247,7 +247,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                       enterprise:
                         title: Android package name
                         summary: |-
-                          Did not found the key expo/android/package in 'app.json'.
+                          Key expo/android/package not present in 'app.json'.
 
                           Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
                           For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.

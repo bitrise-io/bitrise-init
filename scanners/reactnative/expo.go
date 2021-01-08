@@ -31,7 +31,7 @@ For example: './ios/myproject.xcworkspace'.`
 
 const (
 	iosBundleIDInputTitle   = "iOS bundle identifier"
-	iosBundleIDInputSummary = `Did not found the key expo/ios/bundleIdentifier in 'app.json'.
+	iosBundleIDInputSummary = `Key expo/ios/bundleIdentifier not present in 'app.json'.
 
 Will add the Expo Eject Step to the Workflow to generate the native iOS project, so the IPA can be exported.
 For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
@@ -46,7 +46,7 @@ For example: 'com.sample.myapp'.`
 
 const (
 	androidPackageInputTitle   = "Android package name"
-	androidPackageInputSummary = `Did not found the key expo/android/package in 'app.json'.
+	androidPackageInputSummary = `Key expo/android/package not present in 'app.json'.
 
 Will add the Expo Eject Step to the Workflow to generate the native Android project, so the bundle (AAB) can be built.
 For your convenience, define it here temporarily. To set this value permanently run 'expo eject' in a local environment and commit 'app.json' changes.
