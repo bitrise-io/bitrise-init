@@ -184,7 +184,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		expoPrefs, err := parseExpoProjectSettings(packageJSONPth)
 		if err != nil {
-			return false, fmt.Errorf("failed to check if project uses Expo: %s", err)
+			log.TWarnf("failed to check if project uses Expo: %s", err)
 		}
 
 		log.TPrintf("Project uses expo: %v", expoPrefs != nil)
