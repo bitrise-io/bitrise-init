@@ -115,16 +115,8 @@ func nameMatchSkipDirs(name string, skipDirs []string) bool {
 	return false
 }
 
-func checkLocalProperties(projectDir string) error {
-	localPropertiesPth := filepath.Join(projectDir, "local.properties")
-	exist, err := pathutil.IsPathExists(localPropertiesPth)
-	if err != nil {
-		return err
-	}
-	if exist {
-		return newContainsLocalPropertiesError(localPropertiesPth)
-	}
-	return nil
+func containsLocalProperties(projectDir string) (bool, error) {
+	return pathutil.IsPathExists(filepath.Join(projectDir, "local.properties"))
 }
 
 func checkGradlew(projectDir string) error {
