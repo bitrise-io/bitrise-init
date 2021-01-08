@@ -94,13 +94,8 @@ func parseExpoProjectSettings(packageJSONPth string) (*expoSettings, error) {
 
 	expoObj, err := app.Object("expo")
 	if err != nil {
-		return &expoSettings{
-			name:                "",
-			isIOS:               true,
-			isAndroid:           true,
-			packageNameAndroid:  "",
-			bundleIdentifierIOS: "",
-		}, nil
+		log.Warnf("%s", fmt.Errorf("app.json file (%s) has no 'expo' entry, not an Expo project", appJSONPth))
+		return nil, nil
 	}
 	projectName, err := expoObj.String("name")
 	if err != nil || projectName == "" {
