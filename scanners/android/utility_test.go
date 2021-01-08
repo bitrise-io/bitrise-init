@@ -1,12 +1,14 @@
 package android
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestFileInfo struct {
@@ -159,6 +161,39 @@ func TestWalkMultipleFileGroups(t *testing.T) {
 	}
 }
 
+func Test_ContainsLocalProperties(t *testing.T) {
+	testCases := []struct {
+		name                    string
+		containsLocalProperties bool
+		want                    bool
+	}{
+		{
+			name:                    "1. Given the project directory contains the local.properties file when the existance of the local.properties file is checked then expect TRUE to be returned",
+			containsLocalProperties: true,
+			want:                    true,
+		},
+		{
+			name:                    "2. Given the project directory not contains the local.properties file when the existance of the local.properties file is checked then expect FLASE to be returned",
+			containsLocalProperties: false,
+			want:                    false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			// Given
+			projectPath := createProjectDirectory(t, testCase.containsLocalProperties)
+
+			// When
+			exists, err := containsLocalProperties(projectPath)
+
+			// Then
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.want, exists)
+		})
+	}
+}
+
 func buildMatcher(rootsAndPaths map[string][]string) func(path string) (bool, error) {
 	return func(path string) (bool, error) {
 		for key, paths := range rootsAndPaths {
@@ -170,4 +205,22 @@ func buildMatcher(rootsAndPaths map[string][]string) func(path string) (bool, er
 		}
 		return false, nil
 	}
+}
+
+func createProjectDirectory(t *testing.T, containsLocalProperties bool) string {
+	tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
+	assert.NoError(t, err)
+
+	createFile(t, tmpDir, "build.gradle")
+
+	if containsLocalProperties {
+		createFile(t, tmpDir, "local.properties")
+	}
+
+	return tmpDir
+}
+
+func createFile(t *testing.T, path, fileName string) {
+	_, err := os.Create(filepath.Join(path, fileName))
+	assert.NoError(t, err)
 }
