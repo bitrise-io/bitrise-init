@@ -514,6 +514,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
           - certificate-and-profile-installer@%s: {}
+          - cocoapods-install@1: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
