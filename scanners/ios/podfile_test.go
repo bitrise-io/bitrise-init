@@ -79,11 +79,13 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{
 			"Pods": "MyXcodeProject.xcodeproj",
 		}
-		actualTargetDefinition, err := getTargetDefinitionProjectMap(podfilePth, "")
+
+		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("")
 		require.NoError(t, err)
 		require.Equal(t, expectedTargetDefinition, actualTargetDefinition)
 	}
@@ -98,9 +100,10 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{}
-		actualTargetDefinition, err := getTargetDefinitionProjectMap(podfilePth, "")
+		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("")
 		require.NoError(t, err)
 		require.Equal(t, expectedTargetDefinition, actualTargetDefinition)
 	}
@@ -129,9 +132,10 @@ end
 # end`
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{}
-		actualTargetDefinition, err := getTargetDefinitionProjectMap(podfilePth, "0.38.0")
+		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("0.38.0")
 		require.NoError(t, err)
 		require.Equal(t, expectedTargetDefinition, actualTargetDefinition)
 	}
@@ -155,9 +159,10 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedProject := "MyXcodeProject.xcodeproj"
-		actualProject, err := getUserDefinedProjectRelavtivePath(podfilePth, "")
+		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
@@ -172,9 +177,10 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedProject := ""
-		actualProject, err := getUserDefinedProjectRelavtivePath(podfilePth, "")
+		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
@@ -198,9 +204,10 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedWorkspace := "MyWorkspace.xcworkspace"
-		actualWorkspace, err := getUserDefinedWorkspaceRelativePath(podfilePth, "")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
@@ -215,9 +222,10 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedWorkspace := ""
-		actualWorkspace, err := getUserDefinedWorkspaceRelativePath(podfilePth, "")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
@@ -240,8 +248,9 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{})
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -258,12 +267,13 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project := ""
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{projectPth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{projectPth})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -291,6 +301,7 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project1 := ""
 		project1Pth := filepath.Join(tmpDir, "project1.xcodeproj")
@@ -300,7 +311,7 @@ pod 'Alamofire', '~> 3.4'
 		project2Pth := filepath.Join(tmpDir, "project2.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(project2Pth, project2))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{project1Pth, project2Pth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{project1Pth, project2Pth})
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -318,8 +329,9 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{})
 		require.Error(t, err)
 		require.Equal(t, 0, len(workspaceProjectMap))
 
@@ -337,12 +349,13 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project := ""
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{projectPth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{projectPth})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -371,6 +384,7 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project1 := ""
 		project1Pth := filepath.Join(tmpDir, "project1.xcodeproj")
@@ -380,7 +394,7 @@ pod 'Alamofire', '~> 3.4'
 		project2Pth := filepath.Join(tmpDir, "project2.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(project2Pth, project2))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{project1Pth, project2Pth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{project1Pth, project2Pth})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -409,12 +423,13 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project := ""
 		projectPth := filepath.Join(tmpDir, "project.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(projectPth, project))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{projectPth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{projectPth})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -444,6 +459,7 @@ pod 'Alamofire', '~> 3.4'
 `
 		podfilePth := filepath.Join(tmpDir, "Podfile")
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
+		podparser := podfileParser{podfilePth: podfilePth}
 
 		project1 := ""
 		project1Pth := filepath.Join(tmpDir, "project1.xcodeproj")
@@ -453,7 +469,7 @@ pod 'Alamofire', '~> 3.4'
 		project2Pth := filepath.Join(tmpDir, "project2.xcodeproj")
 		require.NoError(t, fileutil.WriteStringToFile(project2Pth, project2))
 
-		workspaceProjectMap, err := GetWorkspaceProjectMap(podfilePth, []string{project1Pth, project2Pth})
+		workspaceProjectMap, err := podparser.GetWorkspaceProjectMap([]string{project1Pth, project2Pth})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(workspaceProjectMap))
 
@@ -506,7 +522,8 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		podparser := podfileParser{podfilePth: ""}
+		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.NoError(t, err)
 		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
 		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
@@ -527,7 +544,8 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		podparser := podfileParser{podfilePth: ""}
+		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
@@ -552,7 +570,8 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		podparser := podfileParser{podfilePth: ""}
+		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
@@ -585,7 +604,8 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		podparser := podfileParser{podfilePth: ""}
+		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.NoError(t, err)
 		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
 		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
@@ -601,7 +621,8 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 
 		workspaces := []xcodeproj.WorkspaceModel{}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		podparser := podfileParser{podfilePth: ""}
+		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
