@@ -12,7 +12,6 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/go-utils/stringutil"
 	"github.com/bitrise-io/go-xcode/xcodeproj"
 )
 
@@ -104,9 +103,10 @@ func (podfileParser podfileParser) shouldRaiseReadDefinitionError(err string) bo
 		return false
 	}
 
-	isInvalidPodfileError := stringutil.CaseInsensitiveContains(err, "Pod::DSLError")
+	isInvalidPodfileError := strings.Contains(err, "Pod::DSLError")
 	if isInvalidPodfileError && podfileParser.suppressPodFileParseError {
-		log.Warnf("could not parse podfile, defult behaviour will be continued, %s", err)
+		log.TWarnf("Could not parse podfile: %s", err)
+		log.TWarnf("Will continue using defualt Cocoapods paths.")
 		return false
 	}
 
@@ -258,11 +258,11 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 func (podfileParser podfileParser) podfilelockPath(podfileDir string) (string, error) {
 	podfileLockPth := filepath.Join(podfileDir, "Podfile.lock")
 	if exist, err := pathutil.IsPathExists(podfileLockPth); err != nil {
-		return "", fmt.Errorf("failed to check if Podfile.lock exist, error: %s", err)
+		return "", fmt.Errorf("failed to check if Podfile.lock exist: %s", err)
 	} else if !exist {
 		podfileLockPth = filepath.Join(podfileDir, "podfile.lock")
 		if exist, err := pathutil.IsPathExists(podfileLockPth); err != nil {
-			return "", fmt.Errorf("failed to check if podfile.lock exist, error: %s", err)
+			return "", fmt.Errorf("failed to check if podfile.lock exist: %s", err)
 		} else if !exist {
 			podfileLockPth = ""
 		}
@@ -272,17 +272,16 @@ func (podfileParser podfileParser) podfilelockPath(podfileDir string) (string, e
 }
 
 func (podfileParser podfileParser) cocoapodsVersion(podfileLockPth string) (string, error) {
-	cocoapodsVersion := ""
 
-	if podfileLockPth != "" {
-		version, err := GemVersionFromGemfileLock("cocoapods", podfileLockPth)
-		if err != nil {
-			return "", fmt.Errorf("failed to read cocoapods version from %s, error: %s", podfileLockPth, err)
-		}
-		cocoapodsVersion = version
+	if podfileLockPth == "" {
+		return "", nil
 	}
 
-	return cocoapodsVersion, nil
+	version, err := GemVersionFromGemfileLock("cocoapods", podfileLockPth)
+	if err != nil {
+		return "", fmt.Errorf("failed to read cocoapods version from %s: %s", podfileLockPth, err)
+	}
+	return version, nil
 }
 
 func (podfileParser podfileParser) fixPodfileQuotation(podfilePth string) error {
@@ -309,7 +308,7 @@ func (podfileParser podfileParser) fixPodfileQuotation(podfilePth string) error 
 // Related project should be found in the standalone projects list.
 // We will create this workspace model, join the related project and remove this project from standlone projects.
 // If workspace is in the repository, both workspace and project should be find in the input lists.
-func (podfileParser podfileParser) MergePodWorkspaceProjectMap(podWorkspaceProjectMap map[string]string, standaloneProjects []xcodeproj.ProjectModel, workspaces []xcodeproj.WorkspaceModel) ([]xcodeproj.ProjectModel, []xcodeproj.WorkspaceModel, error) {
+func MergePodWorkspaceProjectMap(podWorkspaceProjectMap map[string]string, standaloneProjects []xcodeproj.ProjectModel, workspaces []xcodeproj.WorkspaceModel) ([]xcodeproj.ProjectModel, []xcodeproj.WorkspaceModel, error) {
 	mergedStandaloneProjects := []xcodeproj.ProjectModel{}
 	mergedWorkspaces := []xcodeproj.WorkspaceModel{}
 

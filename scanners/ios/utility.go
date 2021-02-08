@@ -322,7 +322,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 			continue
 		}
 
-		aStandaloneProjects, aWorkspaces, err := podfileParser.MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
+		aStandaloneProjects, aWorkspaces, err := MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
 		if err != nil {
 			warning := fmt.Sprintf("Failed to create cocoapods project-workspace mapping, error: %s", err)
 			warnings = append(warnings, warning)

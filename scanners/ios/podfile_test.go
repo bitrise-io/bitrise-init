@@ -522,8 +522,7 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		podparser := podfileParser{podfilePth: ""}
-		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.NoError(t, err)
 		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
 		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
@@ -544,8 +543,7 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		podparser := podfileParser{podfilePth: ""}
-		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
@@ -570,8 +568,7 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		podparser := podfileParser{podfilePth: ""}
-		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
@@ -604,8 +601,7 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			},
 		}
 
-		podparser := podfileParser{podfilePth: ""}
-		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.NoError(t, err)
 		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
 		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
@@ -621,8 +617,7 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 
 		workspaces := []xcodeproj.WorkspaceModel{}
 
-		podparser := podfileParser{podfilePth: ""}
-		mergedStandaloneProjects, mergedWorkspaces, err := podparser.MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
 		require.Error(t, err)
 		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
 		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
