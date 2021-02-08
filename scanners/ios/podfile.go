@@ -106,7 +106,7 @@ func (podfileParser podfileParser) shouldRaiseReadDefinitionError(err string) bo
 	isInvalidPodfileError := strings.Contains(err, "Pod::DSLError")
 	if isInvalidPodfileError && podfileParser.suppressPodFileParseError {
 		log.TWarnf("Could not parse podfile: %s", err)
-		log.TWarnf("Will continue using defualt Cocoapods paths.")
+		log.TWarnf("Will continue using default Cocoapods paths.")
 		return false
 	}
 
