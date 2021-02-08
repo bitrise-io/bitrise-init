@@ -514,6 +514,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
           - certificate-and-profile-installer@%s: {}
+          - cocoapods-install@1: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -538,14 +539,5 @@ configs:
 warnings:
   react-native: []
 warnings_with_recommendations:
-  react-native:
-  - error: 'Failed to determine cocoapods project-workspace mapping, error: failed
-      to get user defined project path, error: failed to get target definition map,
-      error: failed to read target defintion map, error: Pod::DSLError'
-    recommendations:
-      DetailedError:
-        title: We couldn’t parse your project files.
-        description: |-
-          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
-          Failed to determine cocoapods project-workspace mapping, error: failed to get user defined project path, error: failed to get target definition map, error: failed to read target defintion map, error: Pod::DSLError
+  react-native: []
 `, sampleAppsExpoBareVersions...)
