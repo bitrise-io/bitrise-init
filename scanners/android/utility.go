@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
@@ -89,36 +88,35 @@ func walkMultipleFileGroups(searchDir string, fileGroups fileGroups, skipDirs []
 			return err
 		}
 		if info.IsDir() {
-			if !pathMatchSkipDirs(path, skipDirs) {
-				match, err := checkFileGroups(path, fileGroups)
-				if err != nil {
-					return err
-				}
-				if match {
-					matches = append(matches, path)
-				}
+			if nameMatchSkipDirs(info.Name(), skipDirs) {
+				return filepath.SkipDir
+			}
+			match, err := checkFileGroups(path, fileGroups)
+			if err != nil {
+				return err
+			}
+			if match {
+				matches = append(matches, path)
 			}
 		}
 		return nil
 	})
 }
 
-func pathMatchSkipDirs(path string, skipDirs []string) bool {
-	segments := strings.Split(path, string(os.PathSeparator))
+func nameMatchSkipDirs(name string, skipDirs []string) bool {
 	for _, skipDir := range skipDirs {
 		if skipDir == "" {
 			continue
 		}
-		for _, segment := range segments {
-			if segment == "" {
-				continue
-			}
-			if segment == skipDir {
-				return true
-			}
+		if name == skipDir {
+			return true
 		}
 	}
 	return false
+}
+
+func containsLocalProperties(projectDir string) (bool, error) {
+	return pathutil.IsPathExists(filepath.Join(projectDir, "local.properties"))
 }
 
 func checkGradlew(projectDir string) error {

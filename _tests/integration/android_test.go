@@ -22,6 +22,13 @@ func gitClone(t *testing.T, dir, uri string) {
 	require.NoError(t, g.Clone(uri).Run())
 }
 
+func gitCloneBranch(t *testing.T, dir, uri, branch string) {
+	fmt.Printf("cloning into: %s\n", dir)
+	g, err := git.New(dir)
+	require.NoError(t, err)
+	require.NoError(t, g.CloneTagOrBranch(uri, branch).Run())
+}
+
 func TestAndroid(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
 	require.NoError(t, err)

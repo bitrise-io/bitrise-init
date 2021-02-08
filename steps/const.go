@@ -125,7 +125,7 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2"
+	XcodeArchiveVersion = "3"
 )
 
 const (
@@ -168,6 +168,14 @@ const (
 	XcodeArchiveMacID = "xcode-archive-mac"
 	// XcodeArchiveMacVersion ...
 	XcodeArchiveMacVersion = "1"
+)
+
+const (
+	// ExportXCArchiveID ...
+	ExportXCArchiveID = "export-xcarchive"
+
+	// ExportXCArchiveVersion ...
+	ExportXCArchiveVersion = "3"
 )
 
 const (
@@ -223,7 +231,7 @@ const (
 	// ExpoDetachID ...
 	ExpoDetachID = "expo-detach"
 	// ExpoDetachVersion ...
-	ExpoDetachVersion = "0"
+	ExpoDetachVersion = "1"
 )
 
 const (
