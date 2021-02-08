@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:77315a8b96656378087888d76b7fc39a3ca5b9eb91a6cea34199a597297ff9b6"
+  digest = "1:6331a8423e71476df9a9d4c88babcd5815adc831bcb9a04b27dc0586150fd6d0"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -41,7 +41,6 @@
     "pathutil",
     "pointers",
     "sliceutil",
-    "stringutil",
   ]
   pruneopts = "UT"
   revision = "2c67c48e7086cfd8f9a29bfac2cd420d4dd1d2f9"
@@ -218,7 +217,6 @@
     "github.com/bitrise-io/go-utils/pathutil",
     "github.com/bitrise-io/go-utils/pointers",
     "github.com/bitrise-io/go-utils/sliceutil",
-    "github.com/bitrise-io/go-utils/stringutil",
     "github.com/bitrise-io/go-xcode/xcodeproj",
     "github.com/bitrise-io/goinp/goinp",
     "github.com/bitrise-io/stepman/models",
