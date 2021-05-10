@@ -13,6 +13,7 @@ import (
 
 func stacks() []string {
 	return []string{
+		"linux-docker-android-20.04",
 		"linux-docker-android-lts",
 		"linux-docker-android",
 		"osx-vs4mac-beta",
