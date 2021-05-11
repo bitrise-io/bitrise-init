@@ -685,7 +685,7 @@ var sampleAppClipResultYML = `options:
 configs:
   ios:
     ios-app-clip-ad-hoc-config: |
-      format_version: "8"
+      format_version: "11"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -715,7 +715,7 @@ configs:
           - deploy-to-bitrise-io@1: {}
           - cache-push@2: {}
     ios-app-clip-app-store-config: |
-      format_version: "8"
+      format_version: "11"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -741,7 +741,7 @@ configs:
           - deploy-to-bitrise-io@1: {}
           - cache-push@2: {}
     ios-app-clip-development-config: |
-      format_version: "8"
+      format_version: "11"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -771,7 +771,7 @@ configs:
           - deploy-to-bitrise-io@1: {}
           - cache-push@2: {}
     ios-app-clip-enterprise-config: |
-      format_version: "8"
+      format_version: "11"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:

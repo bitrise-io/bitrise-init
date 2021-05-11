@@ -78,18 +78,6 @@ workflows:
 
   # ----------------------------------------------------------------
   # --- workflows for Utility
-  dep-update:
-    title: Do dependency update
-    steps:
-    - script:
-        title: Dependency update
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            dep ensure -v -update
 
   create-binaries:
     title: Create binaries
