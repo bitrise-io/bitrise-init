@@ -647,7 +647,7 @@ warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)
 
-var sampleAppClipResultYML = `options:
+var sampleAppClipResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
     summary: The location of your Xcode project or Xcode workspace files, stored as
@@ -685,7 +685,7 @@ var sampleAppClipResultYML = `options:
 configs:
   ios:
     ios-app-clip-ad-hoc-config: |
-      format_version: "11"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -696,26 +696,26 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@4: {}
-          - cache-pull@2: {}
-          - script@1:
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1: {}
-          - xcode-archive@3:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - export-xcarchive@3:
+          - export-xcarchive@%s:
               inputs:
               - product: app-clip
               - export_method: $BITRISE_EXPORT_METHOD
-          - deploy-to-bitrise-io@1: {}
-          - cache-push@2: {}
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     ios-app-clip-app-store-config: |
-      format_version: "11"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -726,22 +726,22 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@4: {}
-          - cache-pull@2: {}
-          - script@1:
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1: {}
-          - xcode-archive@3:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - deploy-to-bitrise-io@1: {}
-          - cache-push@2: {}
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     ios-app-clip-development-config: |
-      format_version: "11"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -752,26 +752,26 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@4: {}
-          - cache-pull@2: {}
-          - script@1:
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1: {}
-          - xcode-archive@3:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - export-xcarchive@3:
+          - export-xcarchive@%s:
               inputs:
               - product: app-clip
               - export_method: $BITRISE_EXPORT_METHOD
-          - deploy-to-bitrise-io@1: {}
-          - cache-push@2: {}
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
     ios-app-clip-enterprise-config: |
-      format_version: "11"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
@@ -782,21 +782,67 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@4: {}
-          - cache-pull@2: {}
-          - script@1:
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - script@%s:
               title: Do anything with Script step
-          - certificate-and-profile-installer@1: {}
-          - xcode-archive@3:
+          - certificate-and-profile-installer@%s: {}
+          - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - deploy-to-bitrise-io@1: {}
-          - cache-push@2: {}
+          - deploy-to-bitrise-io@%s: {}
+          - cache-push@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
-  ios: []`
+  ios: []`,
+	// ios-app-clip-ad-hoc-config/primary
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeArchiveVersion,
+	steps.ExportXCArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+
+	// ios-app-clip-app-store-config/primary
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+
+	// ios-app-clip-development-config/primary
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeArchiveVersion,
+	steps.ExportXCArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+
+	// ios-app-clip-enterprise-config/primary
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.ScriptVersion,
+	steps.CertificateAndProfileInstallerVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.CachePushVersion,
+)
