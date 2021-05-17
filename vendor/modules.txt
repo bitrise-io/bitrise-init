@@ -4,7 +4,7 @@ github.com/beevik/etree
 # github.com/bitrise-io/bitrise v0.0.0-20210513161711-09b1442cf3e0
 ## explicit
 github.com/bitrise-io/bitrise/models
-# github.com/bitrise-io/envman v0.0.0-20200512105748-919e33f391ee
+# github.com/bitrise-io/envman v0.0.0-20210517135508-b2b4fe89eac5
 ## explicit
 github.com/bitrise-io/envman/models
 # github.com/bitrise-io/go-plist v0.0.0-20210301100253-4b1a112ccd10
@@ -12,7 +12,7 @@ github.com/bitrise-io/go-plist
 # github.com/bitrise-io/go-steputils v0.0.0-20210514150206-5b6261447e77
 ## explicit
 github.com/bitrise-io/go-steputils/command/rubyscript
-# github.com/bitrise-io/go-utils v0.0.0-20210514133945-9dd14e1c514a
+# github.com/bitrise-io/go-utils v0.0.0-20210517140706-aa64fd88ca49
 ## explicit
 github.com/bitrise-io/go-utils/colorstring
 github.com/bitrise-io/go-utils/command
@@ -32,7 +32,7 @@ github.com/bitrise-io/go-xcode/xcodeproj
 # github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 ## explicit
 github.com/bitrise-io/goinp/goinp
-# github.com/bitrise-io/stepman v0.0.0-20210505110307-5c2296bcc558
+# github.com/bitrise-io/stepman v0.0.0-20210517135458-203f7a48d37a
 ## explicit
 github.com/bitrise-io/stepman/models
 # github.com/bitrise-io/xcode-project v0.0.0-20210302080829-f3e0bfbcd5cb

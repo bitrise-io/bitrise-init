@@ -2,7 +2,6 @@ package utility
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -55,35 +54,4 @@ func RelPath(basePth, pth string) (string, error) {
 	}
 
 	return filepath.Rel(absBasePth, absPth)
-}
-
-// ListPathInDirSortedByComponents ...
-func ListPathInDirSortedByComponents(searchDir string, relPath bool) ([]string, error) {
-	searchDir, err := filepath.Abs(searchDir)
-	if err != nil {
-		return []string{}, err
-	}
-
-	fileList := []string{}
-
-	if err := filepath.Walk(searchDir, func(path string, _ os.FileInfo, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-
-		if relPath {
-			rel, err := filepath.Rel(searchDir, path)
-			if err != nil {
-				return err
-			}
-			path = rel
-		}
-
-		fileList = append(fileList, path)
-
-		return nil
-	}); err != nil {
-		return []string{}, err
-	}
-	return pathutil.SortPathsByComponents(fileList)
 }
