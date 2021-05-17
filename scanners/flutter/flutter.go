@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-xcode/pathfilters"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
@@ -83,12 +84,12 @@ func findProjectLocations(searchDir string) ([]string, error) {
 		return nil, err
 	}
 
-	filters := []utility.FilterFunc{
-		utility.BaseFilter("pubspec.yaml", true),
-		utility.ComponentFilter("node_modules", false),
+	filters := []pathutil.FilterFunc{
+		pathutil.BaseFilter("pubspec.yaml", true),
+		pathutil.ComponentFilter("node_modules", false),
 	}
 
-	paths, err := utility.FilterPaths(fileList, filters...)
+	paths, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,19 +111,19 @@ func findWorkspaceLocations(projectLocation string) ([]string, error) {
 		fileList[i] = filepath.Join(projectLocation, file)
 	}
 
-	filters := []utility.FilterFunc{
-		ios.AllowXCWorkspaceExtFilter,
-		ios.AllowIsDirectoryFilter,
-		ios.ForbidEmbeddedWorkspaceRegexpFilter,
-		ios.ForbidGitDirComponentFilter,
-		ios.ForbidPodsDirComponentFilter,
-		ios.ForbidCarthageDirComponentFilter,
-		ios.ForbidFramworkComponentWithExtensionFilter,
-		ios.ForbidCordovaLibDirComponentFilter,
-		ios.ForbidNodeModulesComponentFilter,
+	filters := []pathutil.FilterFunc{
+		pathfilters.AllowXCWorkspaceExtFilter,
+		pathfilters.AllowIsDirectoryFilter,
+		pathfilters.ForbidEmbeddedWorkspaceRegexpFilter,
+		pathfilters.ForbidGitDirComponentFilter,
+		pathfilters.ForbidPodsDirComponentFilter,
+		pathfilters.ForbidCarthageDirComponentFilter,
+		pathfilters.ForbidFramworkComponentWithExtensionFilter,
+		pathfilters.ForbidCordovaLibDirComponentFilter,
+		pathfilters.ForbidNodeModulesComponentFilter,
 	}
 
-	return utility.FilterPaths(fileList, filters...)
+	return pathutil.FilterPaths(fileList, filters...)
 }
 
 // DetectPlatform ...
