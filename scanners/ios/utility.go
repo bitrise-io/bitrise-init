@@ -10,7 +10,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
@@ -158,7 +157,7 @@ func HasCartfileResolvedInDirectoryOf(pth string) bool {
 
 // Detect ...
 func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return false, err
 	}
@@ -273,7 +272,7 @@ func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string)
 func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
 	warnings := models.Warnings{}
 
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
 	}
