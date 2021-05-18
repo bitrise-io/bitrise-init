@@ -13,7 +13,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/xcode-project/xcworkspace"
@@ -79,7 +78,7 @@ func (Scanner) Name() string {
 }
 
 func findProjectLocations(searchDir string) ([]string, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
+	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +101,7 @@ func findProjectLocations(searchDir string) ([]string, error) {
 }
 
 func findWorkspaceLocations(projectLocation string) ([]string, error) {
-	fileList, err := utility.ListPathInDirSortedByComponents(projectLocation, true)
+	fileList, err := pathutil.ListPathInDirSortedByComponents(projectLocation, true)
 	if err != nil {
 		return nil, err
 	}
