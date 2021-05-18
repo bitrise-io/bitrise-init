@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bitrise-io/bitrise-init/step"
+	"github.com/bitrise-io/go-steputils/step"
 )
 
 func Test_newDetailedErrorRecommendation(t *testing.T) {

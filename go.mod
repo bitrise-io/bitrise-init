@@ -6,7 +6,7 @@ require (
 	github.com/beevik/etree v1.1.0
 	github.com/bitrise-io/bitrise v0.0.0-20210513161711-09b1442cf3e0
 	github.com/bitrise-io/envman v0.0.0-20210517135508-b2b4fe89eac5
-	github.com/bitrise-io/go-steputils v0.0.0-20210514150206-5b6261447e77 // indirect
+	github.com/bitrise-io/go-steputils v0.0.0-20210514150206-5b6261447e77
 	github.com/bitrise-io/go-utils v0.0.0-20210517140706-aa64fd88ca49
 	github.com/bitrise-io/go-xcode v0.0.0-20210517092111-792daa927657
 	github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1

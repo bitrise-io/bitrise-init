@@ -12,6 +12,7 @@ github.com/bitrise-io/go-plist
 # github.com/bitrise-io/go-steputils v0.0.0-20210514150206-5b6261447e77
 ## explicit
 github.com/bitrise-io/go-steputils/command/rubyscript
+github.com/bitrise-io/go-steputils/step
 # github.com/bitrise-io/go-utils v0.0.0-20210517140706-aa64fd88ca49
 ## explicit
 github.com/bitrise-io/go-utils/colorstring
