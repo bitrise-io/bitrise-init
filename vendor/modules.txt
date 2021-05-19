@@ -15,6 +15,7 @@ github.com/bitrise-io/go-steputils/command/rubyscript
 github.com/bitrise-io/go-steputils/step
 # github.com/bitrise-io/go-utils v0.0.0-20210517140706-aa64fd88ca49
 ## explicit
+github.com/bitrise-io/go-utils/builtinutil
 github.com/bitrise-io/go-utils/colorstring
 github.com/bitrise-io/go-utils/command
 github.com/bitrise-io/go-utils/command/git
@@ -25,11 +26,13 @@ github.com/bitrise-io/go-utils/parseutil
 github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-xcode v0.0.0-20210517092111-792daa927657
+github.com/bitrise-io/go-utils/testutil
+# github.com/bitrise-io/go-xcode v0.0.0-20210518080547-9a1c6a8a9b0a
 ## explicit
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/plistutil
 github.com/bitrise-io/go-xcode/xcodeproj
+github.com/bitrise-io/go-xcode/xcodeproject/xcscheme
 # github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 ## explicit
 github.com/bitrise-io/goinp/goinp
