@@ -11,12 +11,11 @@ require (
 	github.com/bitrise-io/go-xcode v0.0.0-20210518080547-9a1c6a8a9b0a
 	github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 	github.com/bitrise-io/stepman v0.0.0-20210517135458-203f7a48d37a
-	github.com/bitrise-io/xcode-project v0.0.0-20210302080829-f3e0bfbcd5cb
+	github.com/bitrise-io/xcode-project v0.0.0-20210518135038-e230d2aa9240
 	github.com/google/go-cmp v0.5.5
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli v1.22.5
 	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
-	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
