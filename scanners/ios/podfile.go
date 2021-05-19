@@ -8,7 +8,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/bitrise-io/bitrise-init/xcodeproj"
+	"github.com/bitrise-io/bitrise-init/internal/xcodeproj"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"

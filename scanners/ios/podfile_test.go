@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitrise-io/bitrise-init/xcodeproj"
+	"github.com/bitrise-io/bitrise-init/internal/xcodeproj"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"

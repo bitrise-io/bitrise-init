@@ -1,7 +1,7 @@
 package ios
 
 import (
-	"github.com/bitrise-io/bitrise-init/xcodeproj"
+	"github.com/bitrise-io/bitrise-init/internal/xcodeproj"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-xcode/pathfilters"
 )
