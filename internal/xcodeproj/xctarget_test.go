@@ -26,7 +26,7 @@ func Test_GivenOnlyApp_WhenProjectTargetCalled_ThenExpectSingleTarget(t *testing
 	defer clearDir(t, templateDir)
 
 	// When
-	targets, err := ProjectTargets(templateDir + "/MyApp.xcodeproj")
+	targets, err := projectTargets(templateDir + "/MyApp.xcodeproj")
 
 	// Then
 	require.NoError(t, err)
@@ -55,7 +55,7 @@ func Test_GivenAppWithAppClip_WhenProjectTargetCalled_ThenExpectSingleTarget(t *
 	defer clearDir(t, templateDir)
 
 	// When
-	targets, err := ProjectTargets(templateDir + "/MyApp.xcodeproj")
+	targets, err := projectTargets(templateDir + "/MyApp.xcodeproj")
 
 	// Then
 	require.NoError(t, err)
@@ -80,7 +80,7 @@ func Test_GivenAppWithTest_WhenProjectTargetCalled_ThenExpectSingleTarget(t *tes
 	defer clearDir(t, templateDir)
 
 	// When
-	targets, err := ProjectTargets(templateDir + "/MyApp.xcodeproj")
+	targets, err := projectTargets(templateDir + "/MyApp.xcodeproj")
 
 	// Then
 	require.NoError(t, err)
@@ -105,7 +105,7 @@ func Test_GivenAppWithUITest_WhenProjectTargetCalled_ThenExpectSingleTarget(t *t
 	defer clearDir(t, templateDir)
 
 	// When
-	targets, err := ProjectTargets(templateDir + "/MyApp.xcodeproj")
+	targets, err := projectTargets(templateDir + "/MyApp.xcodeproj")
 
 	// Then
 	require.NoError(t, err)
@@ -142,7 +142,7 @@ func Test_GivenAppWithTestAndAppClipAndWidget_WhenProjectTargetCalled_ThenExpect
 	defer clearDir(t, templateDir)
 
 	// When
-	targets, err := ProjectTargets(templateDir + "/MyApp.xcodeproj")
+	targets, err := projectTargets(templateDir + "/MyApp.xcodeproj")
 
 	// Then
 	require.NoError(t, err)

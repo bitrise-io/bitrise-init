@@ -23,7 +23,7 @@ func NewWorkspace(xcworkspacePth string, projectsToCheck ...string) (WorkspaceMo
 		Name: strings.TrimSuffix(filepath.Base(xcworkspacePth), filepath.Ext(xcworkspacePth)),
 	}
 
-	projects, err := WorkspaceProjectReferences(xcworkspacePth)
+	projects, err := workspaceProjectReferences(xcworkspacePth)
 	if err != nil {
 		return WorkspaceModel{}, err
 	}

@@ -15,6 +15,12 @@ import (
 	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
 )
 
+// Extensions
+const (
+	// XCSchemeExt ...
+	XCSchemeExt = ".xcscheme"
+)
+
 // SchemeModel ...
 type SchemeModel struct {
 	Name                  string
@@ -60,8 +66,7 @@ func sharedSchemeFilePaths(projectOrWorkspacePth string) ([]string, error) {
 	return filterSharedSchemeFilePaths(paths), nil
 }
 
-// SchemeNameFromPath ...
-func SchemeNameFromPath(schemePth string) string {
+func schemeNameFromPath(schemePth string) string {
 	basename := filepath.Base(schemePth)
 	ext := filepath.Ext(schemePth)
 	if ext != XCSchemeExt {
@@ -136,8 +141,7 @@ func schemeFileContentContainsXCTestBuildAction(schemeFileContent string) (bool,
 	return false, nil
 }
 
-// SchemeFileContainsXCTestBuildAction ...
-func SchemeFileContainsXCTestBuildAction(schemeFilePth string) (bool, error) {
+func schemeFileContainsXCTestBuildAction(schemeFilePth string) (bool, error) {
 	content, err := fileutil.ReadStringFromFile(schemeFilePth)
 	if err != nil {
 		return false, err
@@ -154,9 +158,9 @@ func sharedSchemes(projectOrWorkspacePth string) ([]SchemeModel, error) {
 
 	schemes := []SchemeModel{}
 	for _, schemePth := range schemePaths {
-		schemeName := SchemeNameFromPath(schemePth)
+		schemeName := schemeNameFromPath(schemePth)
 
-		hasXCTest, err := SchemeFileContainsXCTestBuildAction(schemePth)
+		hasXCTest, err := schemeFileContainsXCTestBuildAction(schemePth)
 		if err != nil {
 			return []SchemeModel{}, err
 		}
@@ -176,13 +180,11 @@ func sharedSchemes(projectOrWorkspacePth string) ([]SchemeModel, error) {
 	return schemes, nil
 }
 
-// ProjectSharedSchemes ...
-func ProjectSharedSchemes(projectPth string) ([]SchemeModel, error) {
+func projectSharedSchemes(projectPth string) ([]SchemeModel, error) {
 	return sharedSchemes(projectPth)
 }
 
-// WorkspaceProjectReferences ...
-func WorkspaceProjectReferences(workspace string) ([]string, error) {
+func workspaceProjectReferences(workspace string) ([]string, error) {
 	projects := []string{}
 
 	workspaceDir := filepath.Dir(workspace)
@@ -223,38 +225,6 @@ func WorkspaceProjectReferences(workspace string) ([]string, error) {
 	sort.Strings(projects)
 
 	return projects, nil
-}
-
-// WorkspaceSharedSchemes ...
-func WorkspaceSharedSchemes(workspacePth string) ([]SchemeModel, error) {
-	workspaceSharedSchemes, err := sharedSchemes(workspacePth)
-	if err != nil {
-		return []SchemeModel{}, err
-	}
-
-	projects, err := WorkspaceProjectReferences(workspacePth)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, project := range projects {
-		projectSharedSchemes, err := sharedSchemes(project)
-		if err != nil {
-			return []SchemeModel{}, err
-		}
-
-		for _, projectSharedScheme := range projectSharedSchemes {
-			for _, workspaceSharedScheme := range workspaceSharedSchemes {
-				if workspaceSharedScheme.Name == projectSharedScheme.Name {
-					continue
-				}
-			}
-
-			workspaceSharedSchemes = append(workspaceSharedSchemes, projectSharedScheme)
-		}
-	}
-
-	return workspaceSharedSchemes, nil
 }
 
 func buildableReferenceIDs(schemePth string) ([]string, error) {

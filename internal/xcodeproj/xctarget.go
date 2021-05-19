@@ -348,8 +348,7 @@ func pbxprojContentTartgets(pbxprojContent string) ([]TargetModel, error) {
 	return targets, nil
 }
 
-// ProjectTargets ...
-func ProjectTargets(projectPth string) ([]TargetModel, error) {
+func projectTargets(projectPth string) ([]TargetModel, error) {
 	pbxProjPth := filepath.Join(projectPth, "project.pbxproj")
 	if exist, err := pathutil.IsPathExists(pbxProjPth); err != nil {
 		return []TargetModel{}, err
@@ -363,24 +362,4 @@ func ProjectTargets(projectPth string) ([]TargetModel, error) {
 	}
 
 	return pbxprojContentTartgets(content)
-}
-
-// WorkspaceTargets ...
-func WorkspaceTargets(workspacePth string) ([]TargetModel, error) {
-	projects, err := WorkspaceProjectReferences(workspacePth)
-	if err != nil {
-		return []TargetModel{}, err
-	}
-
-	targets := []TargetModel{}
-	for _, project := range projects {
-		projectTargets, err := ProjectTargets(project)
-		if err != nil {
-			return []TargetModel{}, err
-		}
-
-		targets = append(targets, projectTargets...)
-	}
-
-	return targets, nil
 }
