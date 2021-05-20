@@ -1,7 +1,7 @@
 # github.com/beevik/etree v1.1.0
 ## explicit
 github.com/beevik/etree
-# github.com/bitrise-io/bitrise v0.0.0-20210513161711-09b1442cf3e0
+# github.com/bitrise-io/bitrise v0.0.0-20210519130014-380842fb41c1
 ## explicit
 github.com/bitrise-io/bitrise/models
 # github.com/bitrise-io/envman v0.0.0-20210517135508-b2b4fe89eac5
@@ -13,7 +13,7 @@ github.com/bitrise-io/go-plist
 ## explicit
 github.com/bitrise-io/go-steputils/command/rubyscript
 github.com/bitrise-io/go-steputils/step
-# github.com/bitrise-io/go-utils v0.0.0-20210517140706-aa64fd88ca49
+# github.com/bitrise-io/go-utils v0.0.0-20210520073355-367fa34178f5
 ## explicit
 github.com/bitrise-io/go-utils/colorstring
 github.com/bitrise-io/go-utils/command
@@ -26,7 +26,7 @@ github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
 github.com/bitrise-io/go-utils/pretty
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-xcode v0.0.0-20210520092118-409c8452797a
+# github.com/bitrise-io/go-xcode v0.0.0-20210520114025-bdbec53ee59f
 ## explicit
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/plistutil
