@@ -24,26 +24,24 @@ github.com/bitrise-io/go-utils/log
 github.com/bitrise-io/go-utils/parseutil
 github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
+github.com/bitrise-io/go-utils/pretty
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-xcode v0.0.0-20210517092111-792daa927657
+# github.com/bitrise-io/go-xcode v0.0.0-20210520092118-409c8452797a
 ## explicit
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/plistutil
 github.com/bitrise-io/go-xcode/xcodeproj
+github.com/bitrise-io/go-xcode/xcodeproject/serialized
+github.com/bitrise-io/go-xcode/xcodeproject/xcodebuild
+github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj
+github.com/bitrise-io/go-xcode/xcodeproject/xcscheme
+github.com/bitrise-io/go-xcode/xcodeproject/xcworkspace
 # github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 ## explicit
 github.com/bitrise-io/goinp/goinp
 # github.com/bitrise-io/stepman v0.0.0-20210517135458-203f7a48d37a
 ## explicit
 github.com/bitrise-io/stepman/models
-# github.com/bitrise-io/xcode-project v0.0.0-20210302080829-f3e0bfbcd5cb
-## explicit
-github.com/bitrise-io/xcode-project/pretty
-github.com/bitrise-io/xcode-project/serialized
-github.com/bitrise-io/xcode-project/xcodebuild
-github.com/bitrise-io/xcode-project/xcodeproj
-github.com/bitrise-io/xcode-project/xcscheme
-github.com/bitrise-io/xcode-project/xcworkspace
 # github.com/cpuguy83/go-md2man/v2 v2.0.0
 github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/davecgh/go-spew v1.1.1
