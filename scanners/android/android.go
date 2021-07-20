@@ -56,9 +56,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	for _, file := range projectFiles {
 		log.TPrintf("- %s", file)
 	}
-	countDetected := len(scanner.ProjectRoots) > 0
+	countDetected := len(scanner.ProjectRoots)
 	log.TPrintf("%d android files detected", countDetected)
-	return countDetected, err
+	nonZeroCount := countDetected > 0
+	return nonZeroCount, err
 }
 
 // Options ...
