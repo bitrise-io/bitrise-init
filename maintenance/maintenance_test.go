@@ -78,6 +78,6 @@ func TestStackChange(t *testing.T) {
 	}
 
 	if expected := reports.Stacks(); !reflect.DeepEqual(expected, stacks()) {
-		t.Fatalf("Stack list changed, current: %v, expecting: %v", stacks(), expected)
+		t.Fatalf("Stack list changed, current: %v, expecting: %v", expected, stacks())
 	}
 }
