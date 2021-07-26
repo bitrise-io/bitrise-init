@@ -6,3 +6,4 @@ _bin/
 .gows*
 bitrise-init
 .vscode/
+.idea/

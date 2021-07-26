@@ -28,6 +28,7 @@ func stacks() []string {
 		"osx-xcode-12.3.x",
 		"osx-xcode-12.4.x",
 		"osx-xcode-12.5.x",
+		"osx-xcode-13.0.x",
 		"osx-xcode-edge",
 	}
 }
@@ -48,7 +49,7 @@ func (reports systemReports) Stacks() (s []string) {
 func TestStackChange(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/bitrise-io/bitrise.io/contents/system_reports", nil)
 	if err != nil {
-		t.Fatalf("setup: faile to create request: %s", err)
+		t.Fatalf("setup: failed to create request: %s", err)
 	}
 
 	token := os.Getenv("GIT_BOT_USER_ACCESS_TOKEN")
@@ -76,7 +77,7 @@ func TestStackChange(t *testing.T) {
 		t.Fatalf("Error unmarshalling stack data from string (%s): %s", bytes, err)
 	}
 
-	if expected := reports.Stacks(); !reflect.DeepEqual(expected, stacks()) {
-		t.Fatalf("Stack list changed, current: %v, expecting: %v", stacks(), expected)
+	if currentStacks := reports.Stacks(); !reflect.DeepEqual(currentStacks, stacks()) {
+		t.Fatalf("Stack list changed, current: %v, expecting: %v", currentStacks, stacks())
 	}
 }
