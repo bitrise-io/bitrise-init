@@ -77,7 +77,7 @@ func TestStackChange(t *testing.T) {
 		t.Fatalf("Error unmarshalling stack data from string (%s): %s", bytes, err)
 	}
 
-	if expected := reports.Stacks(); !reflect.DeepEqual(expected, stacks()) {
-		t.Fatalf("Stack list changed, current: %v, expecting: %v", expected, stacks())
+	if currentStacks := reports.Stacks(); !reflect.DeepEqual(currentStacks, stacks()) {
+		t.Fatalf("Stack list changed, current: %v, expecting: %v", currentStacks, stacks())
 	}
 }
