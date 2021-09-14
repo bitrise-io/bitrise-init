@@ -16,6 +16,7 @@ type fileGroups [][]string
 var pathUtilIsPathExists = pathutil.IsPathExists
 var filePathWalk = filepath.Walk
 
+// Constants ...
 const (
 	ScannerName       = "android"
 	ConfigName        = "android-config"
