@@ -240,12 +240,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-build@%s:
               inputs:
@@ -270,12 +268,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -428,12 +424,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-build@%s:
               inputs:
@@ -458,12 +452,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -589,12 +581,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-build@%s:
               inputs:
@@ -619,12 +609,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -725,12 +713,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-build@%s:
               inputs:
@@ -755,12 +741,10 @@ configs:
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-              - module: $MODULE
               - variant: $VARIANT
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
