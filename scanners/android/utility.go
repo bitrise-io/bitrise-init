@@ -16,7 +16,6 @@ type fileGroups [][]string
 var pathUtilIsPathExists = pathutil.IsPathExists
 var filePathWalk = filepath.Walk
 
-// Constants ...
 const (
 	ScannerName       = "android"
 	ConfigName        = "android-config"
@@ -39,9 +38,7 @@ const (
 	ModuleInputTitle   = "Module"
 	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
 
-	GradlewPathInputKey    = "gradlew_path"
-	GradlewPathInputEnvKey = "GRADLEW_PATH"
-	GradlewPathInputTitle  = "Gradlew file path"
+	GradlewPathInputKey = "gradlew_path"
 )
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
