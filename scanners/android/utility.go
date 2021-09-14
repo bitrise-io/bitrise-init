@@ -148,18 +148,12 @@ func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 			ProjectLocationInputKey: projectLocationEnv,
 		},
 		envmanModels.EnvironmentItemModel{
-			ModuleInputKey: moduleEnv,
-		},
-		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
 		},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
 		envmanModels.EnvironmentItemModel{
 			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			ModuleInputKey: moduleEnv,
 		},
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
@@ -182,18 +176,12 @@ func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 			ProjectLocationInputKey: projectLocationEnv,
 		},
 		envmanModels.EnvironmentItemModel{
-			ModuleInputKey: moduleEnv,
-		},
-		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
 		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
 		envmanModels.EnvironmentItemModel{
 			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			ModuleInputKey: moduleEnv,
 		},
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
