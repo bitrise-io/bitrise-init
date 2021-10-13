@@ -46,8 +46,8 @@ const (
 )
 
 const (
-	// ExportMethodInputKey ...
-	ExportMethodInputKey = "export_method"
+	// DistributionMethodInputKey ...
+	DistributionMethodInputKey = "distribution_method"
 	// ExportMethodInputEnvKey ...
 	ExportMethodInputEnvKey = "BITRISE_EXPORT_METHOD"
 	// IosExportMethodInputTitle ...
@@ -631,7 +631,7 @@ func GenerateConfigBuilder(
 		{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
-	xcodeArchiveStepInputModels := append(xcodeStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
+	xcodeArchiveStepInputModels := append(xcodeStepInputModels, envmanModels.EnvironmentItemModel{DistributionMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	if hasTest {
 		switch projectType {
@@ -758,7 +758,7 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 		{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
 		{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
-	xcodeArchiveStepInputModels := append(xcodeTestStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
+	xcodeArchiveStepInputModels := append(xcodeTestStepInputModels, envmanModels.EnvironmentItemModel{DistributionMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	switch projectType {
 	case XcodeProjectTypeIOS:
@@ -823,7 +823,7 @@ func shouldAppendExportAppClipStep(hasAppClip bool, exportMethod string) bool {
 func appendExportAppClipStep(configBuilder *models.ConfigBuilderModel, workflowID models.WorkflowID) {
 	exportXCArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		{ExportXCArchiveProductInputKey: ExportXCArchiveProductInputAppClipValue},
-		{ExportMethodInputKey: "$" + ExportMethodInputEnvKey},
+		{DistributionMethodInputKey: "$" + ExportMethodInputEnvKey},
 	}
 	configBuilder.AppendStepListItemsTo(workflowID, steps.ExportXCArchiveStepListItem(exportXCArchiveStepInputModels...))
 }
