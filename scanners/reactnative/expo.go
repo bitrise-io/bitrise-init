@@ -275,7 +275,6 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
 			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-			envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
 		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
@@ -348,7 +347,6 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
-		envmanModels.EnvironmentItemModel{"force_team_id": "$BITRISE_IOS_DEVELOPMENT_TEAM"},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
