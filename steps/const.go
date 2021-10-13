@@ -174,7 +174,7 @@ const (
 	// ExportXCArchiveID ...
 	ExportXCArchiveID = "export-xcarchive"
 	// ExportXCArchiveVersion ...
-	ExportXCArchiveVersion = "3"
+	ExportXCArchiveVersion = "4"
 )
 
 const (
