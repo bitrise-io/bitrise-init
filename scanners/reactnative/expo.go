@@ -135,7 +135,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, iosDevelopmentTeamEnv, models.TypeUserInput)
 		schemeOption.AddOption(projectName, developmentTeamOption)
 
-		exportMethodOption = models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+		exportMethodOption = models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 		developmentTeamOption.AddOption("", exportMethodOption)
 	}
 
@@ -274,7 +274,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
 			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
 			// In case of Expo projects, you do not have the native project in your
 			// repository. During the build, we ask Expo to generate it (using the
 			// ExpoDetachStepListItem). The generated native project does not have
@@ -353,7 +353,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
@@ -385,7 +385,7 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 	schemeOption := models.NewOption(schemeInputTitle, schemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
 	bundleIDOption.AddOption("", schemeOption)
 
-	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 	schemeOption.AddOption("", exportMethodOption)
 
 	// android options
@@ -455,7 +455,7 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
 		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 	))
 

@@ -488,7 +488,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -523,7 +523,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -569,7 +569,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -604,7 +604,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -662,7 +662,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -698,7 +698,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
               stored as an Environment Variable. You can change this at any time,
               or even create several .app files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               app-store:
@@ -765,7 +765,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               can change this at any time, or even create several
                               .ipa files with different export methods in the same
                               build.
-                            env_key: BITRISE_EXPORT_METHOD
+                            env_key: BITRISE_DISTRIBUTION_METHOD
                             type: selector
                             value_map:
                               ad-hoc:
@@ -812,7 +812,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
                       export methods in the same build.
-                    env_key: BITRISE_EXPORT_METHOD
+                    env_key: BITRISE_DISTRIBUTION_METHOD
                     type: selector
                     value_map:
                       ad-hoc:
@@ -1317,7 +1317,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1370,7 +1370,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1507,7 +1507,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1566,7 +1566,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1651,7 +1651,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -1705,7 +1705,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - export_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -1807,7 +1807,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1902,7 +1902,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:

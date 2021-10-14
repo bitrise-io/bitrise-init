@@ -84,7 +84,7 @@ var sampleAppsOSX1011ResultYML = fmt.Sprintf(`options:
               stored as an Environment Variable. You can change this at any time,
               or even create several .app files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               app-store:
@@ -124,7 +124,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - export_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:

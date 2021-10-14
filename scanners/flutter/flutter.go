@@ -269,7 +269,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 							projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
 
 							for _, scheme := range schemes {
-								exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+								exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 								schemeOption.AddOption(scheme, exportMethodOption)
 
 								for _, exportMethod := range ios.IosExportMethods {
@@ -300,7 +300,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 						projectPathOption.AddOption(xcodeWorkspacePath, schemeOption)
 
 						for _, scheme := range schemes {
-							exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+							exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 							schemeOption.AddOption(scheme, exportMethodOption)
 
 							for _, exportMethod := range ios.IosExportMethods {
@@ -358,7 +358,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 					schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
 					projectPathOption.AddOption("", schemeOption)
 
-					exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.ExportMethodInputEnvKey, models.TypeSelector)
+					exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 					schemeOption.AddOption("", exportMethodOption)
 
 					for _, exportMethod := range ios.IosExportMethods {
@@ -462,7 +462,7 @@ func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-					envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
 					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: defaultIOSConfiguration},
 				))
 			}
