@@ -48,6 +48,8 @@ const (
 const (
 	// DistributionMethodInputKey ...
 	DistributionMethodInputKey = "distribution_method"
+	// ExportMethodInputKey ...
+	ExportMethodInputKey = "export_method"
 	// ExportMethodInputEnvKey ...
 	ExportMethodInputEnvKey = "BITRISE_EXPORT_METHOD"
 	// IosExportMethodInputTitle ...
@@ -632,6 +634,7 @@ func GenerateConfigBuilder(
 		{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
 	xcodeArchiveStepInputModels := append(xcodeStepInputModels, envmanModels.EnvironmentItemModel{DistributionMethodInputKey: "$" + ExportMethodInputEnvKey})
+	xcodeArchiveMacStepInputModels := append(xcodeStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	if hasTest {
 		switch projectType {
@@ -649,7 +652,7 @@ func GenerateConfigBuilder(
 				appendExportAppClipStep(configBuilder, models.PrimaryWorkflowID)
 			}
 		case XcodeProjectTypeMacOS:
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveMacStepInputModels...))
 		}
 	}
 
@@ -686,7 +689,7 @@ func GenerateConfigBuilder(
 			}
 		case XcodeProjectTypeMacOS:
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeStepInputModels...))
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveMacStepInputModels...))
 		}
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(isIncludeCache)...)
@@ -759,6 +762,7 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 		{SchemeInputKey: "$" + SchemeInputEnvKey},
 	}
 	xcodeArchiveStepInputModels := append(xcodeTestStepInputModels, envmanModels.EnvironmentItemModel{DistributionMethodInputKey: "$" + ExportMethodInputEnvKey})
+	xcodeArchiveMacStepInputModels := append(xcodeTestStepInputModels, envmanModels.EnvironmentItemModel{ExportMethodInputKey: "$" + ExportMethodInputEnvKey})
 
 	switch projectType {
 	case XcodeProjectTypeIOS:
@@ -783,7 +787,7 @@ func GenerateDefaultConfig(projectType XcodeProjectType, isIncludeCache bool) (m
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(xcodeArchiveStepInputModels...))
 	case XcodeProjectTypeMacOS:
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeTestMacStepListItem(xcodeTestStepInputModels...))
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveStepInputModels...))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveMacStepListItem(xcodeArchiveMacStepInputModels...))
 	}
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(true)...)
