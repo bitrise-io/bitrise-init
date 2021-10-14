@@ -429,7 +429,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -482,7 +482,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -619,7 +619,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -678,7 +678,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -997,7 +997,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1050,7 +1050,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1187,7 +1187,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1246,7 +1246,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1633,7 +1633,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1686,7 +1686,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1823,7 +1823,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
@@ -1882,7 +1882,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}

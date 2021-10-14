@@ -365,8 +365,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - configuration: Release
-              - export_method: $BITRISE_EXPORT_METHOD
-              - force_team_id: $BITRISE_IOS_DEVELOPMENT_TEAM
+              - distribution_method: $BITRISE_EXPORT_METHOD
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -519,7 +518,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_EXPORT_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
