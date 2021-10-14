@@ -62,6 +62,8 @@ const (
 	MacExportMethodInputSummary = "The export method used to create an .app file in your builds, stored as an Environment Variable. You can change this at any time, or even create several .app files with different export methods in the same build."
 )
 
+const XCConfigContentInputKey = "xcconfig_content"
+
 // IosExportMethods ...
 var IosExportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
 

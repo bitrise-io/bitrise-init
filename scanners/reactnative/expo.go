@@ -275,6 +275,13 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
 			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
+			// In case of Expo projects, you do not have the native project in your
+			// repository. During the build, we ask Expo to generate it (using the
+			// ExpoDetachStepListItem). The generated native project does not have
+			// codesigning set up (No valid development team selected). Because of this, we
+			// ask for the desired development team during the Add New App process and force
+			// the user-provided Team ID.
+			envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
 		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
