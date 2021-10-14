@@ -366,6 +366,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - configuration: Release
               - distribution_method: $BITRISE_EXPORT_METHOD
+              - xcconfig_content: "DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
