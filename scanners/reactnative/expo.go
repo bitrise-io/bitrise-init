@@ -229,6 +229,21 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: relPackageJSONDir})
 	}
 
+	xcodeArchiveStepListItem := steps.XcodeArchiveStepListItem(
+		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
+		// In case of Expo projects, you do not have the native project in your
+		// repository. During the build, we ask Expo to generate it (using the
+		// ExpoDetachStepListItem). The generated native project does not have
+		// codesigning set up (No valid development team selected). Because of this, we
+		// ask for the desired development team during the Add New App process and force
+		// the user-provided Development Team ID using the DEVELOPMENT_TEAM build setting.
+		envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "COMPILER_INDEX_STORE_ENABLE = NO\n" +
+			"DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
+	)
+
 	if !scanner.hasTest {
 		// if the project has no test script defined,
 		// we can only provide deploy like workflow,
@@ -270,20 +285,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 		// ios build
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
-			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
-			// In case of Expo projects, you do not have the native project in your
-			// repository. During the build, we ask Expo to generate it (using the
-			// ExpoDetachStepListItem). The generated native project does not have
-			// codesigning set up (No valid development team selected). Because of this, we
-			// ask for the desired development team during the Add New App process and force
-			// the user-provided Development Team ID using the DEVELOPMENT_TEAM build setting.
-			envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "COMPILER_INDEX_STORE_ENABLE = NO\n" +
-				"DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
-		))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, xcodeArchiveStepListItem)
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 		configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, deployWorkflowDescription)
@@ -350,12 +352,7 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 
 	// ios build
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
-		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
-	))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, xcodeArchiveStepListItem)
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)

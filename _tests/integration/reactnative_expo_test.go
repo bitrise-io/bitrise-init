@@ -523,9 +523,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
-              - xcconfig_content: |-
-                  COMPILER_INDEX_STORE_ENABLE = NO
-                  DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
