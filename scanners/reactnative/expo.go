@@ -280,8 +280,9 @@ func (scanner *Scanner) expoConfigs() (models.BitriseConfigMap, error) {
 			// ExpoDetachStepListItem). The generated native project does not have
 			// codesigning set up (No valid development team selected). Because of this, we
 			// ask for the desired development team during the Add New App process and force
-			// the user-provided Team ID.
-			envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
+			// the user-provided Development Team ID using the DEVELOPMENT_TEAM build setting.
+			envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "COMPILER_INDEX_STORE_ENABLE = NO\n" +
+				"DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
 		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
