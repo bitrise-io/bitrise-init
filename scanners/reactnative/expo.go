@@ -112,7 +112,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 
 	log.TPrintf("Project name: %v", scanner.expoSettings.name)
 	var iosNode *models.OptionNode
-	var exportMethodOption *models.OptionNode
+	var distributionMethodOption *models.OptionNode
 	if scanner.expoSettings.isIOS { // ios options
 		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeOptionalSelector)
 
@@ -135,8 +135,8 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, iosDevelopmentTeamEnv, models.TypeUserInput)
 		schemeOption.AddOption(projectName, developmentTeamOption)
 
-		exportMethodOption = models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
-		developmentTeamOption.AddOption("", exportMethodOption)
+		distributionMethodOption = models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+		developmentTeamOption.AddOption("", distributionMethodOption)
 	}
 
 	var androidNode *models.OptionNode
@@ -184,7 +184,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 	if iosNode != nil {
 		if androidNode != nil {
 			for _, exportMethod := range ios.IosExportMethods {
-				exportMethodOption.AddOption(exportMethod, androidNode)
+				distributionMethodOption.AddOption(exportMethod, androidNode)
 			}
 		}
 	} else {
@@ -199,7 +199,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error
 			continue
 		}
 
-		// iOS exportMethodOption is last
+		// iOS distributionMethodOption is last
 		for _, exportMethod := range ios.IosExportMethods {
 			lastOption.AddConfig(exportMethod, models.NewConfigOption(expoConfigName, nil))
 		}
@@ -383,13 +383,13 @@ func (Scanner) expoDefaultOptions() models.OptionNode {
 	schemeOption := models.NewOption(schemeInputTitle, schemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
 	bundleIDOption.AddOption("", schemeOption)
 
-	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.IosExportMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
-	schemeOption.AddOption("", exportMethodOption)
+	distributionMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+	schemeOption.AddOption("", distributionMethodOption)
 
 	// android options
 	androidPackageOption := models.NewOption(androidPackageInputTitle, androidPackageInputSummaryDefault, androidPackageEnvKey, models.TypeOptionalUserInput)
 	for _, exportMethod := range ios.IosExportMethods {
-		exportMethodOption.AddOption(exportMethod, androidPackageOption)
+		distributionMethodOption.AddOption(exportMethod, androidPackageOption)
 	}
 
 	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeUserInput)

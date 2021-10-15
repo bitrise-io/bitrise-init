@@ -143,7 +143,7 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -160,7 +160,7 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -329,7 +329,7 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -346,7 +346,7 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -512,7 +512,7 @@ var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -529,7 +529,7 @@ var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files

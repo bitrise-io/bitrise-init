@@ -109,7 +109,7 @@ var fastlaneResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           BitriseFastlaneSample:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the

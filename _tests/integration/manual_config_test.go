@@ -483,7 +483,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     type: user_input
                     value_map:
                       "":
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -518,7 +518,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     type: user_input
                     value_map:
                       "":
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -564,7 +564,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     type: user_input
                     value_map:
                       "":
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -599,7 +599,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     type: user_input
                     value_map:
                       "":
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
@@ -657,7 +657,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
         type: user_input
         value_map:
           "":
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -698,7 +698,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
               stored as an Environment Variable. You can change this at any time,
               or even create several .app files with different export methods in the
               same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
+            env_key: BITRISE_EXPORT_METHOD
             type: selector
             value_map:
               app-store:
@@ -759,7 +759,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                         type: user_input
                         value_map:
                           "":
-                            title: ipa export method
+                            title: Distribution method
                             summary: The export method used to create an .ipa file
                               in your builds, stored as an Environment Variable. You
                               can change this at any time, or even create several
@@ -807,7 +807,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 type: user_input
                 value_map:
                   "":
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
@@ -1705,7 +1705,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_DISTRIBUTION_METHOD
+              - export_method: $BITRISE_EXPORT_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:

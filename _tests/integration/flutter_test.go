@@ -271,7 +271,7 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
                 type: selector
                 value_map:
                   Runner:
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
@@ -306,7 +306,7 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
                 type: selector
                 value_map:
                   Runner:
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
@@ -1475,7 +1475,7 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
                 type: selector
                 value_map:
                   Runner:
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
@@ -1510,7 +1510,7 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
                 type: selector
                 value_map:
                   Runner:
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different

@@ -113,7 +113,7 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                 type: user_input
                 value_map:
                   "":
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
@@ -442,7 +442,7 @@ var sampleAppsExpoBareResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       ExpoSample:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files

@@ -114,7 +114,7 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           BitriseXcode7Sample:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -244,7 +244,7 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           iOSMinimalCocoaPodsSample:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -366,7 +366,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           Complication - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -383,7 +383,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Glance - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -400,7 +400,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Notification - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -417,7 +417,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           watch-test:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -434,7 +434,7 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-test-config
           watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -572,7 +572,7 @@ var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           sample-apps-carthage:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
@@ -666,7 +666,7 @@ var sampleAppClipResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           SampleAppClipApp:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
