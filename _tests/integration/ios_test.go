@@ -114,12 +114,12 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           BitriseXcode7Sample:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -162,7 +162,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -244,12 +244,12 @@ var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           iOSMinimalCocoaPodsSample:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -290,7 +290,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -366,12 +366,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           Complication - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -383,12 +383,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Glance - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -400,12 +400,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           Notification - watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -417,12 +417,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-config
           watch-test:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -434,12 +434,12 @@ var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
               enterprise:
                 config: ios-test-config
           watch-test WatchKit App:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -475,7 +475,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
     ios-test-config: |
@@ -505,7 +505,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -572,12 +572,12 @@ var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           sample-apps-carthage:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -620,7 +620,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
@@ -666,12 +666,12 @@ var sampleAppClipResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           SampleAppClipApp:
-            title: ipa export method
+            title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
               or even create several .ipa files with different export methods in the
               same build.
-            env_key: BITRISE_EXPORT_METHOD
+            env_key: BITRISE_DISTRIBUTION_METHOD
             type: selector
             value_map:
               ad-hoc:
@@ -707,11 +707,11 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - export-xcarchive@%s:
               inputs:
               - product: app-clip
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
     ios-app-clip-app-store-config: |
@@ -737,7 +737,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
     ios-app-clip-development-config: |
@@ -763,11 +763,11 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - export-xcarchive@%s:
               inputs:
               - product: app-clip
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
     ios-app-clip-enterprise-config: |
@@ -793,7 +793,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
 warnings:
