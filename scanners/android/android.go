@@ -169,3 +169,9 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		DefaultConfigName: string(data),
 	}, nil
 }
+
+// ...
+
+// func (scanner *Scanner) GetTemplate() (steps.Template, error) {
+
+// }

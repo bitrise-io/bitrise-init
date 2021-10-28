@@ -131,6 +131,13 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
+// func (scanner *Scanner) getTemplate() steps.Template {
+// 	// steps := steps.Step{}
+
+// 	// primary
+// 	return &steps.Steps{}
+// }
+
 func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
