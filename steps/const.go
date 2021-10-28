@@ -256,3 +256,42 @@ const (
 	// FlutterBuildVersion ...
 	FlutterBuildVersion = "0"
 )
+
+// Builder support
+
+var StepIDToVersion = map[string]string{
+	ActivateSSHKeyID:                         "4",
+	AndroidLintID:                            "0",
+	AndroidUnitTestID:                        "1",
+	AndroidBuildID:                           "1",
+	GitCloneID:                               "6",
+	CachePullID:                              "2",
+	CachePushID:                              "2",
+	CertificateAndProfileInstallerID:         "1",
+	ChangeAndroidVersionCodeAndVersionNameID: "1",
+	DeployToBitriseIoID:                      "2",
+	ScriptID:                                 "1",
+	SignAPKID:                                "1",
+	InstallMissingAndroidToolsID:             "2",
+	FastlaneID:                               "3",
+	CocoapodsInstallID:                       "2",
+	CarthageID:                               "3",
+	RecreateUserSchemesID:                    "1",
+	XcodeArchiveID:                           "3",
+	XcodeTestID:                              "3",
+	XcodeArchiveMacID:                        "1",
+	ExportXCArchiveID:                        "3",
+	XcodeTestMacID:                           "1",
+	CordovaArchiveID:                         "2",
+	IonicArchiveID:                           "2",
+	GenerateCordovaBuildConfigID:             "0",
+	JasmineTestRunnerID:                      "0",
+	KarmaJasmineTestRunnerID:                 "0",
+	NpmID:                                    "1",
+	ExpoDetachID:                             "1",
+	YarnID:                                   "0",
+	FlutterInstallID:                         "0",
+	FlutterTestID:                            "1",
+	FlutterAnalyzeID:                         "0",
+	FlutterBuildID:                           "0",
+}

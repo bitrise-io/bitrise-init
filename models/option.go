@@ -47,8 +47,9 @@ type OptionNode struct {
 	Config string   `json:"config,omitempty" yaml:"config,omitempty"`
 	Icons  []string `json:"icons,omitempty" yaml:"icons,omitempty"`
 
-	Components []string    `json:"-" yaml:"-"`
-	Head       *OptionNode `json:"-" yaml:"-"`
+	// unexported fields will be ignored in tests
+	components []string    `json:"-" yaml:"-"`
+	head       *OptionNode `json:"-" yaml:"-"`
 }
 
 // NewOption ...
@@ -58,7 +59,7 @@ func NewOption(title, summary, envKey string, optionType Type) *OptionNode {
 		Summary:        summary,
 		EnvKey:         envKey,
 		ChildOptionMap: map[string]*OptionNode{},
-		Components:     []string{},
+		components:     []string{},
 		Type:           optionType,
 	}
 }
@@ -69,7 +70,7 @@ func NewConfigOption(name string, icons []string) *OptionNode {
 		ChildOptionMap: map[string]*OptionNode{},
 		Config:         name,
 		Icons:          icons,
-		Components:     []string{},
+		components:     []string{},
 	}
 }
 
@@ -98,48 +99,44 @@ func (option *OptionNode) IsEmpty() bool {
 
 // AddOption ...
 func (option *OptionNode) AddOption(forValue string, newOption *OptionNode) {
-	option.ChildOptionMap[forValue] = newOption
-
-	if newOption != nil {
-		newOption.Components = append(option.Components, forValue)
-
-		if option.Head == nil {
-			// first option's head is nil
-			newOption.Head = option
-		} else {
-			newOption.Head = option.Head
-		}
-	}
+	option.AddConfig(forValue, newOption)
 }
 
 // AddConfig ...
 func (option *OptionNode) AddConfig(forValue string, newConfigOption *OptionNode) {
+	_, exists := option.ChildOptionMap[forValue]
 	option.ChildOptionMap[forValue] = newConfigOption
 
 	if newConfigOption != nil {
-		newConfigOption.Components = append(option.Components, forValue)
+		if !exists {
+			newConfigOption.components = append(option.components, forValue)
+		}
 
-		if option.Head == nil {
+		if option.head == nil {
 			// first option's head is nil
-			newConfigOption.Head = option
+			newConfigOption.head = option
 		} else {
-			newConfigOption.Head = option.Head
+			newConfigOption.head = option.head
 		}
 	}
 }
 
+func (option *OptionNode) AddTemplate(newTemplateOption *OptionNode) {
+	option.AddConfig("", newTemplateOption)
+}
+
 // Parent ...
 func (option *OptionNode) Parent() (*OptionNode, string, bool) {
-	if option.Head == nil {
+	if option.head == nil {
 		return nil, "", false
 	}
 
-	parentComponents := option.Components[:len(option.Components)-1]
-	parentOption, ok := option.Head.Child(parentComponents...)
+	parentComponents := option.components[:len(option.components)-1]
+	parentOption, ok := option.head.Child(parentComponents...)
 	if !ok {
 		return nil, "", false
 	}
-	underKey := option.Components[len(option.Components)-1:][0]
+	underKey := option.components[len(option.components)-1:][0]
 	return parentOption, underKey, true
 }
 
@@ -168,17 +165,9 @@ func (option *OptionNode) LastChilds() []*OptionNode {
 		}
 
 		for _, childOption := range opt.ChildOptionMap {
-			if childOption == nil {
-				lastOptions = append(lastOptions, opt)
-				return
-			}
-
-			if childOption.IsConfigOption() {
-				lastOptions = append(lastOptions, opt)
-				return
-			}
-
-			if childOption.IsEmpty() {
+			if childOption == nil ||
+				childOption.IsEmpty() ||
+				childOption.IsConfigOption() {
 				lastOptions = append(lastOptions, opt)
 				return
 			}
@@ -239,4 +228,9 @@ func (option *OptionNode) GetValues() []string {
 		values = append(values, value)
 	}
 	return values
+}
+
+func (option *OptionNode) GetOption(key string) (*OptionNode, bool) {
+	option, ok := option.ChildOptionMap[key]
+	return option, ok
 }

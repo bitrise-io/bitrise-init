@@ -16,7 +16,7 @@ func TestNewOption(t *testing.T) {
 		Summary:        "test",
 		EnvKey:         "BITRISE_PROJECT_PATH",
 		ChildOptionMap: map[string]*OptionNode{},
-		Components:     []string{},
+		components:     []string{},
 		Type:           TypeSelector,
 	}
 
@@ -276,13 +276,13 @@ func TestComponents(t *testing.T) {
 	opt02121 := NewOption("OPT02121", "", "OPT02121_KEY", TypeSelector) // has no child
 	opt0212.AddOption("value1", opt02121)
 
-	require.Equal(t, []string{}, opt0.Components)
-	require.Equal(t, []string{"value1"}, opt01.Components)
-	require.Equal(t, []string{"value2"}, opt02.Components)
-	require.Equal(t, []string{"value2", "value1"}, opt021.Components)
-	require.Equal(t, []string{"value2", "value1", "value1"}, opt0211.Components)
-	require.Equal(t, []string{"value2", "value1", "value2"}, opt0212.Components)
-	require.Equal(t, []string{"value2", "value1", "value2", "value1"}, opt02121.Components)
+	require.Equal(t, []string{}, opt0.components)
+	require.Equal(t, []string{"value1"}, opt01.components)
+	require.Equal(t, []string{"value2"}, opt02.components)
+	require.Equal(t, []string{"value2", "value1"}, opt021.components)
+	require.Equal(t, []string{"value2", "value1", "value1"}, opt0211.components)
+	require.Equal(t, []string{"value2", "value1", "value2"}, opt0212.components)
+	require.Equal(t, []string{"value2", "value1", "value2", "value1"}, opt02121.components)
 }
 
 func TestHead(t *testing.T) {
@@ -300,10 +300,10 @@ func TestHead(t *testing.T) {
 	opt021 := NewOption("OPT021", "", "OPT021_KEY", TypeSelector)
 	opt02.AddOption("value1", opt021)
 
-	require.Equal(t, (*OptionNode)(nil), opt0.Head)
-	require.Equal(t, opt0, opt01.Head)
-	require.Equal(t, opt0, opt02.Head)
-	require.Equal(t, opt0, opt021.Head)
+	require.Equal(t, (*OptionNode)(nil), opt0.head)
+	require.Equal(t, opt0, opt01.head)
+	require.Equal(t, opt0, opt02.head)
+	require.Equal(t, opt0, opt021.head)
 }
 
 func TestParent(t *testing.T) {
