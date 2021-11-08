@@ -113,12 +113,12 @@ var managedExpoResultsYML = fmt.Sprintf(`options:
                 type: user_input
                 value_map:
                   "":
-                    title: ipa export method
+                    title: Distribution method
                     summary: The export method used to create an .ipa file in your
                       builds, stored as an Environment Variable. You can change this
                       at any time, or even create several .ipa files with different
                       export methods in the same build.
-                    env_key: BITRISE_EXPORT_METHOD
+                    env_key: BITRISE_DISTRIBUTION_METHOD
                     type: selector
                     value_map:
                       ad-hoc:
@@ -365,8 +365,10 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - configuration: Release
-              - export_method: $BITRISE_EXPORT_METHOD
-              - force_team_id: $BITRISE_IOS_DEVELOPMENT_TEAM
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - xcconfig_content: |-
+                  COMPILER_INDEX_STORE_ENABLE = NO
+                  DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -440,12 +442,12 @@ var sampleAppsExpoBareResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       ExpoSample:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -519,7 +521,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:

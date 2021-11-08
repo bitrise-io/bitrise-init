@@ -25,7 +25,7 @@ const (
 	// AndroidBuildID ...
 	AndroidBuildID = "android-build"
 	// AndroidBuildVersion ...
-	AndroidBuildVersion = "0"
+	AndroidBuildVersion = "1"
 )
 
 const (
@@ -67,7 +67,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1"
+	DeployToBitriseIoVersion = "2"
 )
 
 const (
@@ -125,14 +125,14 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "3"
+	XcodeArchiveVersion = "4"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "2"
+	XcodeTestVersion = "4"
 )
 
 const (
@@ -174,7 +174,7 @@ const (
 	// ExportXCArchiveID ...
 	ExportXCArchiveID = "export-xcarchive"
 	// ExportXCArchiveVersion ...
-	ExportXCArchiveVersion = "3"
+	ExportXCArchiveVersion = "4"
 )
 
 const (

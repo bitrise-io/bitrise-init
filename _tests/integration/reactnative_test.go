@@ -143,12 +143,12 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -160,12 +160,12 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -239,7 +239,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -329,12 +329,12 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -346,12 +346,12 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -424,7 +424,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -512,12 +512,12 @@ var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
                     type: selector
                     value_map:
                       SampleAppsReactNativeAndroid:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -529,12 +529,12 @@ var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: react-native-android-ios-test-config
                       SampleAppsReactNativeAndroid-tvOS:
-                        title: ipa export method
+                        title: Distribution method
                         summary: The export method used to create an .ipa file in
                           your builds, stored as an Environment Variable. You can
                           change this at any time, or even create several .ipa files
                           with different export methods in the same build.
-                        env_key: BITRISE_EXPORT_METHOD
+                        env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
                           ad-hoc:
@@ -607,7 +607,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - export_method: $BITRISE_EXPORT_METHOD
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
