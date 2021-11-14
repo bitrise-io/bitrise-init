@@ -47,10 +47,15 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 					NodeKey: input.Key,
 				}]
 				if !ok {
-					panic(fmt.Sprintf("answer not found for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
+					panic(fmt.Sprintf("answer missing for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
 				}
 
-				return answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
+				expandedValue, ok := answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
+				if !ok {
+					panic(fmt.Sprintf("expanded value missing for selected answer (%s), in list (%+v)", answer.SelectedAnswer, answer.Answer.SelectionToExpandedValue))
+				}
+
+				return expandedValue
 			},
 		}).Parse(input.Value)
 		if err != nil {
@@ -196,10 +201,6 @@ func (s *Steps) Execute(values map[string]string, allAnswers ConcreteAnswers) (T
 	return &Steps{
 		Steps: allSteps,
 	}, nil
-}
-
-func (s *Steps) TemplateID() uintptr {
-	return 0
 }
 
 func (s *Steps) Append(step Step) Steps {

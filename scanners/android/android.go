@@ -210,6 +210,6 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 // ...
 
-// func (scanner *Scanner) GetTemplate() (steps.Template, error) {
+// func (scanner *Scanner) GetDefaultTemplate() (builder.TemplateNode, error) {
 
 // }
