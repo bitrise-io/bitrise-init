@@ -4,8 +4,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/models"
 )
 
-type SyntaxNodeType int
-
 type Question struct {
 	ID         string
 	Title      string
@@ -35,9 +33,8 @@ type ConcreteAnswer struct {
 type ConcreteAnswers map[AnswerKey]ConcreteAnswer
 
 type AnswerTree struct {
-	Answer           AnswerExpansion
-	ExpandedTemplate TemplateNode
-	Children         map[string]*AnswerTree
+	Answer   AnswerExpansion
+	Children map[string]*AnswerTree
 }
 
 type TemplateNode interface {
@@ -89,6 +86,8 @@ func newAnswerTree(answerList []AnswerExpansion) *AnswerTree {
 		current = next
 	}
 
+	current.AddChild(nil)
+
 	return root
 }
 
@@ -113,7 +112,13 @@ func (current *AnswerTree) append(next *AnswerTree) {
 		return
 	}
 
-	for _, child := range current.Children {
+	for selectedAnswer, child := range current.Children {
+		if child == nil {
+			current.Children[selectedAnswer] = next
+
+			continue
+		}
+
 		child.append(next)
 	}
 }

@@ -16,6 +16,49 @@ func TestSyntaxNode_Export(t *testing.T) {
 		want1      map[string]Result
 		wantErr    bool
 	}{
+		{
+			name: "One Step, no question",
+			node: &Steps{
+				Steps: []TemplateNode{
+					&Step{
+						ID: "fastlane",
+						Inputs: []Input{
+							{Key: "A", Value: "B"},
+						},
+					},
+				},
+			},
+			answerTree: nil,
+			want: &models.OptionNode{
+				Config:         "",
+				ChildOptionMap: map[string]*models.OptionNode{},
+			},
+			want1: map[string]Result{
+				"": {
+					Config: &bitriseModels.BitriseDataModel{
+						FormatVersion:        "11",
+						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
+						TriggerMap: bitriseModels.TriggerMapModel{
+							bitriseModels.TriggerMapItemModel{
+								PushBranch: "*",
+								WorkflowID: string(models.PrimaryWorkflowID),
+							},
+							bitriseModels.TriggerMapItemModel{
+								PullRequestSourceBranch: "*",
+								WorkflowID:              string(models.PrimaryWorkflowID),
+							},
+						},
+						Workflows: map[string]bitriseModels.WorkflowModel{
+							string(models.PrimaryWorkflowID): {
+								Steps: []bitriseModels.StepListItemModel{
+									newStep("fastlane", "", []Input{{Key: "A", Value: "B"}}, ""),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		/*{
 			name: "One question",
 			node: &SyntaxNode{
