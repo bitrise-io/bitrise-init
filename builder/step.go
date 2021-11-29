@@ -24,8 +24,7 @@ type Step struct {
 }
 
 type Steps struct {
-	IncludeIfTrue Question
-	Steps         []TemplateNode
+	Steps []TemplateNode
 
 	templateID int
 }
@@ -203,8 +202,8 @@ func (s *Steps) Execute(values map[string]string, allAnswers ConcreteAnswers) (T
 	}, nil
 }
 
-func (s *Steps) Append(step Step) Steps {
+func (s *Steps) Append(step Step) *Steps {
 	s.Steps = append(s.Steps, &step)
 
-	return *s
+	return s
 }
