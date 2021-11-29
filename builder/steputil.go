@@ -2,7 +2,7 @@ package builder
 
 import "github.com/bitrise-io/bitrise-init/steps"
 
-func DefaultPrepareStepsTemplate(isIncludeCache bool) Steps {
+func DefaultPrepareStepsTemplate(isIncludeCache bool) *Steps {
 	stepsList := ActivateSSHKeyStepTemplate()
 	stepsList.Append(Step{ID: steps.GitCloneID})
 
@@ -16,7 +16,7 @@ func DefaultPrepareStepsTemplate(isIncludeCache bool) Steps {
 	})
 }
 
-func ActivateSSHKeyStepTemplate() Steps {
+func ActivateSSHKeyStepTemplate() *Steps {
 	stepList := Steps{}
 	return stepList.Append(Step{
 		ID:    steps.ActivateSSHKeyID,
