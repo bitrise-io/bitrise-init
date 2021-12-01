@@ -357,18 +357,6 @@ var customConfigVersions = []interface{}{
 	steps.YarnVersion,
 	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
-
-	// xamarin
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.XamarinUserManagementVersion,
-	steps.NugetRestoreVersion,
-	steps.XamarinComponentsRestoreVersion,
-	steps.XamarinArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 }
 
 var customConfigResultYML = fmt.Sprintf(`options:
@@ -1011,28 +999,6 @@ var customConfigResultYML = fmt.Sprintf(`options:
                                         value_map:
                                           Release:
                                             config: default-react-native-expo-config
-  xamarin:
-    title: Path to the Xamarin Solution file
-    summary: Your solution file has to contain all the solution configurations you
-      wish to use on Bitrise. A solution configuration specifies how projects in the
-      solution are to be built and deployed.
-    env_key: BITRISE_PROJECT_PATH
-    type: user_input
-    value_map:
-      "":
-        title: Xamarin solution configuration
-        summary: The Xamarin solution configuration that you wish to run in your first
-          build. You can change this at any time in your Workflows.
-        env_key: BITRISE_XAMARIN_CONFIGURATION
-        type: user_input
-        value_map:
-          "":
-            title: Xamarin solution platform
-            env_key: BITRISE_XAMARIN_PLATFORM
-            type: user_input
-            value_map:
-              "":
-                config: default-xamarin-config
 configs:
   android:
     default-android-config: |
@@ -1920,34 +1886,5 @@ configs:
               inputs:
               - workdir: $WORKDIR
               - command: test
-          - deploy-to-bitrise-io@%s: {}
-  xamarin:
-    default-xamarin-config: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: xamarin
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
-      workflows:
-        primary:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
-          - xamarin-user-management@%s:
-              run_if: .IsCI
-          - nuget-restore@%s: {}
-          - xamarin-components-restore@%s: {}
-          - xamarin-archive@%s:
-              inputs:
-              - xamarin_solution: $BITRISE_PROJECT_PATH
-              - xamarin_configuration: $BITRISE_XAMARIN_CONFIGURATION
-              - xamarin_platform: $BITRISE_XAMARIN_PLATFORM
           - deploy-to-bitrise-io@%s: {}
 `, customConfigVersions...)
