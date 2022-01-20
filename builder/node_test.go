@@ -28,6 +28,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 		node      TemplateNode
 		values    map[string]string
 		questions map[string]Question
+		context   []interface{}
 		want      *AnswerTree
 		wantErr   bool
 	}{
@@ -73,6 +74,47 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 				},
 				Children: map[string]*AnswerTree{
 					"": nil,
+				},
+			},
+		},
+		{
+			name: "Single Step, template, question with answers from context",
+			node: &Step{
+				ID: "fastlane",
+				Inputs: []Input{
+					{Key: "A", Value: `{{selectFromContext "test_question" "projectPath"}}`},
+				},
+			},
+			questions: map[string]Question{
+				"test_question": {
+					Title: "title",
+					Type:  models.TypeSelector,
+				},
+			},
+			context: []interface{}{
+				[]struct {
+					projectPath string `builder:"projectPath"`
+				}{
+					{projectPath: "path-1"},
+					{projectPath: "path-2"},
+				},
+			},
+			want: &AnswerTree{
+				Answer: AnswerExpansion{
+					Key: AnswerKey{nodeID: 1, NodeKey: "A"},
+					Question: &Question{
+						ID:    "test_question",
+						Title: "title",
+						Type:  models.TypeSelector,
+					},
+					SelectionToExpandedValue: map[string]string{
+						"path-1": "path-1",
+						"path-2": "path-2",
+					},
+				},
+				Children: map[string]*AnswerTree{
+					"path-1": nil,
+					"path-2": nil,
 				},
 			},
 		},
@@ -174,7 +216,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.node.GetAnswers(tt.questions)
+			got, err := tt.node.GetAnswers(tt.questions, tt.context)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("TemplateNode.GetAnswers() error = %v, wantErr %v", err, tt.wantErr)
 				return
