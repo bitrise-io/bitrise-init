@@ -18,6 +18,7 @@ func DefaultPrepareStepsTemplate(isIncludeCache bool) *Steps {
 
 func ActivateSSHKeyStepTemplate() *Steps {
 	stepList := Steps{}
+
 	return stepList.Append(Step{
 		ID:    steps.ActivateSSHKeyID,
 		RunIf: `{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`,

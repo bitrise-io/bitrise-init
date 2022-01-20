@@ -38,7 +38,7 @@ type AnswerTree struct {
 }
 
 type TemplateNode interface {
-	GetAnswers(questions map[string]Question) (*AnswerTree, error)
+	GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error)
 	Execute(values map[string]string, answers ConcreteAnswers) (TemplateNode, error)
 	Export() (ExportFragment, error)
 	SetID(templateIDCounter int) int

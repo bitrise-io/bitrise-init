@@ -3,9 +3,11 @@ package builder
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"text/template"
 
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 const defaultAnswer = ""
@@ -80,7 +82,7 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 	}, nil
 }
 
-func (s *Step) GetAnswers(questions map[string]Question) (*AnswerTree, error) {
+func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
 	var allAnswers []AnswerExpansion
 
 	for _, input := range s.Inputs {
@@ -109,6 +111,9 @@ func (s *Step) GetAnswers(questions map[string]Question) (*AnswerTree, error) {
 				if question.Type == models.TypeUserInput ||
 					question.Type == models.TypeOptionalUserInput ||
 					question.Type == models.TypeOptionalSelector {
+					if len(question.EnvKey) == 0 {
+						panic("Question Environment Key name empty, required for freeform answers")
+					}
 					selectedValueToTemplateExpansion[defaultAnswer] = "$" + question.EnvKey
 				}
 
@@ -122,6 +127,81 @@ func (s *Step) GetAnswers(questions map[string]Question) (*AnswerTree, error) {
 				}
 
 				// Return value is ignored
+				return ""
+			},
+			"selectFromContext": func(questionID string, sourceTag string) string {
+				question, ok := questions[questionID]
+				if !ok {
+					panic(fmt.Sprintf("Question (%s) unknown", questionID))
+				}
+				question.ID = questionID // Used for the config map key generation
+
+				if question.Type != models.TypeSelector &&
+					question.Type != models.TypeOptionalSelector {
+					panic("selectFromContext supported for selector type questions")
+				}
+
+				selectableAnswers := []string{}
+			tagSearch:
+				for _, c := range context {
+					val := reflect.ValueOf(c)
+					if val.Kind() != reflect.Slice {
+						panic("Unsupported context variable, expected slice")
+					}
+
+					tagFound := false
+					for i := 0; i < val.Len(); i++ {
+						elem := val.Index(i)
+						if elem.Kind() != reflect.Struct {
+							log.Debugf("Expected  struct")
+
+							continue
+						}
+
+						for j := 0; j < elem.NumField(); j++ {
+							tag, ok := elem.Type().Field(j).Tag.Lookup("builder")
+							if ok && tag == sourceTag {
+								selectableAnswers = append(selectableAnswers, elem.Field(j).String())
+
+								tagFound = true
+							}
+						}
+					}
+
+					if tagFound {
+						break tagSearch
+					}
+				}
+
+				selectedValueToTemplateExpansion := make(map[string]string)
+				for _, answer := range selectableAnswers {
+					if question.EnvKey == "" {
+						// Actual answer directly written to the config.
+						selectedValueToTemplateExpansion[answer] = answer
+
+						continue
+					}
+
+					// Indirectly added to the config. Environment variable is added as a global env by the frontend.
+					selectedValueToTemplateExpansion[answer] = "$" + question.EnvKey
+				}
+
+				if question.Type == models.TypeOptionalSelector {
+					if len(question.EnvKey) == 0 {
+						panic("Question Environment Key name empty, required for freeform answers")
+					}
+					selectedValueToTemplateExpansion[defaultAnswer] = "$" + question.EnvKey
+				}
+
+				inputQuestionExpansions = &AnswerExpansion{
+					Key: AnswerKey{
+						nodeID:  s.GetID(),
+						NodeKey: input.Key,
+					},
+					Question:                 &question,
+					SelectionToExpandedValue: selectedValueToTemplateExpansion,
+				}
+
 				return ""
 			},
 		}).Parse(input.Value)
@@ -153,11 +233,11 @@ func (s *Step) GetID() int {
 	return s.templateID
 }
 
-func (s *Steps) GetAnswers(questions map[string]Question) (*AnswerTree, error) {
+func (s *Steps) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
 	var answerTrees []*AnswerTree
 
 	for _, step := range s.Steps {
-		answerTree, err := step.GetAnswers(questions)
+		answerTree, err := step.GetAnswers(questions, context)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +255,7 @@ func (s *Steps) SetID(templateIDCounter int) int {
 	s.templateID = templateIDCounter
 
 	for _, step := range s.Steps {
-		step.SetID(templateIDCounter)
+		templateIDCounter = step.SetID(templateIDCounter)
 	}
 
 	return templateIDCounter
