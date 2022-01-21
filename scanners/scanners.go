@@ -1,6 +1,7 @@
 package scanners
 
 import (
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/cordova"
@@ -68,6 +69,15 @@ type AutomationToolScanner interface {
 	SetDetectedProjectTypes(projectTypes []string)
 }
 
+// Template is the v2 scanner interface
+type Template interface {
+	Name() string
+	DetectPlatform(string) (bool, error)
+	ExcludedScannerNames() []string
+	Get() (builder.TemplateNode, error)
+	GetManual() (builder.TemplateNode, error)
+}
+
 // ProjectScanners ...
 var ProjectScanners = []ScannerInterface{
 	reactnative.NewScanner(),
@@ -83,6 +93,11 @@ var ProjectScanners = []ScannerInterface{
 // AutomationToolScanners contains active automation tool scanners
 var AutomationToolScanners = []ScannerInterface{
 	fastlane.NewScanner(),
+}
+
+// Templates are v2 templates
+var Templates = []Template{
+	android.NewTemplate(),
 }
 
 // CustomProjectType ...

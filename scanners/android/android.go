@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -17,6 +18,12 @@ type Scanner struct {
 	ProjectRoots   []string
 	ExcludeTest    bool
 	ExcludeAppIcon bool
+}
+
+// Template is the v2 implementation
+type Template struct {
+	SearchDir    string
+	ProjectRoots []string
 }
 
 // NewScanner ...
@@ -170,8 +177,83 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}, nil
 }
 
-// ...
+// NewTemplate ...
+func NewTemplate() *Template {
+	return &Template{}
+}
 
-// func (scanner *Scanner) GetDefaultTemplate() (builder.TemplateNode, error) {
+// Name ...
+func (*Template) Name() string {
+	return TemplateName
+}
 
-// }
+// ExcludedScannerNames ...
+func (*Template) ExcludedScannerNames() []string {
+	return nil
+}
+
+// DetectPlatform ...
+func (template *Template) DetectPlatform(searchDir string) (_ bool, err error) {
+	scanner := NewScanner()
+	ok, err := scanner.DetectPlatform(searchDir)
+	template.ProjectRoots = scanner.ProjectRoots
+	template.SearchDir = scanner.SearchDir
+
+	return ok, err
+}
+
+func (template *Template) collectAndroidProjects() ([]androidProject, error) {
+	var (
+		lastErr  error = nil
+		projects       = []androidProject{}
+	)
+
+	for _, projectRoot := range template.ProjectRoots {
+		var warnings models.Warnings
+
+		exists, err := containsLocalProperties(projectRoot)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if exists {
+			containsLocalPropertiesWarning := fmt.Sprintf("the local.properties file should NOT be checked into Version Control Systems, as it contains information specific to your local configuration, the location of the file is: %s", filepath.Join(projectRoot, "local.properties"))
+			warnings = []string{containsLocalPropertiesWarning}
+		}
+
+		if err := checkGradlew(projectRoot); err != nil {
+			lastErr = err
+			continue
+		}
+
+		relProjectRoot, err := filepath.Rel(template.SearchDir, projectRoot)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		icons, err := LookupIcons(projectRoot, template.SearchDir)
+		if err != nil {
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+		}
+
+		projects = append(projects, androidProject{
+			projectRelPath: relProjectRoot,
+			icons:          icons,
+			warnings:       warnings,
+		})
+	}
+	if len(projects) == 0 && lastErr != nil {
+		return []androidProject{}, lastErr
+	}
+
+	return projects, nil
+}
+
+func (template *Template) Get() (builder.TemplateNode, error) {
+	return template.getTemplate()
+}
+
+func (template *Template) GetManual() (builder.TemplateNode, error) {
+	panic("not implemented")
+}

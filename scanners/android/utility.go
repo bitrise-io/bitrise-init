@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -19,6 +20,7 @@ var filePathWalk = filepath.Walk
 // Constants ...
 const (
 	ScannerName       = "android"
+	TemplateName      = "android-v2"
 	ConfigName        = "android-config"
 	DefaultConfigName = "default-android-config"
 
@@ -129,6 +131,45 @@ Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
 	return nil
+}
+
+type androidProject struct {
+	projectRelPath string `builder:"projectRelPath"`
+	icons          models.Icons
+	warnings       models.Warnings
+}
+
+func (t *Template) getTemplate() (builder.TemplateNode, error) {
+	projects, err := t.collectAndroidProjects()
+	if err != nil {
+		return nil, nil
+	}
+
+	primary := builder.Context{
+		SelectFrom: projects,
+		Template: &builder.Steps{
+			Steps: []builder.TemplateNode{
+				builder.DefaultPrepareStepsTemplate(true),
+				&builder.Step{
+					ID: steps.InstallMissingAndroidToolsID,
+					Inputs: []builder.Input{
+						{Key: ProjectLocationInputKey, Value: `{{selectFromContext "project-path" "projectRelPath"}}`},
+						{Key: VariantInputKey, Value: `{{askForInputValue "variant"}}`},
+					},
+				},
+				builder.DefaultPrepareStepsTemplate(true),
+				&builder.Step{
+					ID: steps.AndroidUnitTestID,
+					Inputs: []builder.Input{
+						{Key: ProjectLocationInputKey, Value: `{{selectFromContext "project-path" "projectRelPath"}}`},
+						{Key: VariantInputKey, Value: `{{askForInputValue "variant"}}`},
+					},
+				},
+			},
+		},
+	}
+
+	return &primary, nil
 }
 
 func (scanner *Scanner) generateConfigBuilder() models.ConfigBuilderModel {
