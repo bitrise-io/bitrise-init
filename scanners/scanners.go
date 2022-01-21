@@ -1,6 +1,7 @@
 package scanners
 
 import (
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/cordova"
@@ -67,6 +68,15 @@ type AutomationToolScanner interface {
 	SetDetectedProjectTypes(projectTypes []string)
 }
 
+// Template is the v2 scanner interface
+type Template interface {
+	Name() string
+	DetectPlatform(string) (bool, error)
+	ExcludedScannerNames() []string
+	Get() (builder.TemplateNode, error)
+	GetManual() (builder.TemplateNode, error)
+}
+
 // ProjectScanners ...
 func ProjectScanners() []ScannerInterface {
 	return []ScannerInterface{
@@ -85,6 +95,11 @@ func AutomationToolScanners() []ScannerInterface {
 	return []ScannerInterface{
 		fastlane.NewScanner(),
 	}
+}
+
+// Templates are v2 templates
+var Templates = []Template{
+	android.NewTemplate(),
 }
 
 // CustomProjectType ...

@@ -7,12 +7,18 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/go-utils/log"
 )
 
 // Scanner ...
 type Scanner struct {
+	Projects []Project
+}
+
+// Template is the v2 implementation
+type Template struct {
 	Projects []Project
 }
 
@@ -208,8 +214,34 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	}, nil
 }
 
-// ...
+// NewTemplate ...
+func NewTemplate() *Template {
+	return &Template{}
+}
 
-// func (scanner *Scanner) GetDefaultTemplate() (builder.TemplateNode, error) {
+// Name ...
+func (*Template) Name() string {
+	return TemplateName
+}
 
-// }
+// ExcludedScannerNames ...
+func (*Template) ExcludedScannerNames() []string {
+	return nil
+}
+
+// DetectPlatform ...
+func (template *Template) DetectPlatform(searchDir string) (_ bool, err error) {
+	projects, err := detect(searchDir)
+	template.Projects = projects
+
+	detected := len(projects) > 0
+	return detected, err
+}
+
+func (template *Template) Get() (builder.TemplateNode, error) {
+	return template.getTemplate()
+}
+
+func (template *Template) GetManual() (builder.TemplateNode, error) {
+	panic("not implemented")
+}
