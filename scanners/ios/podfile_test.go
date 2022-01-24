@@ -107,7 +107,7 @@ pod 'Alamofire', '~> 3.4'
 		require.Equal(t, expectedTargetDefinition, actualTargetDefinition)
 	}
 
-	t.Log("cocoapods 0.38.0")
+	t.Log("cocoapods 1.11.2")
 	{
 		tmpDir = filepath.Join(tmpDir, "xcodeproj_not_defined")
 		require.NoError(t, os.MkdirAll(tmpDir, 0777))
@@ -134,7 +134,7 @@ end
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{}
-		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("0.38.0")
+		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("1.11.2")
 		require.NoError(t, err)
 		require.Equal(t, expectedTargetDefinition, actualTargetDefinition)
 	}
