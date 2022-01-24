@@ -7,6 +7,12 @@ import (
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
+// PrepareListParams describes the default prepare Step options.
+type PrepareListParams struct {
+	ShouldIncludeCache       bool
+	ShouldIncludeActivateSSH bool
+}
+
 func stepIDComposite(ID, version string) string {
 	if version != "" {
 		return ID + "@" + version
@@ -43,11 +49,6 @@ func DefaultPrepareStepList(isIncludeCache bool) []bitriseModels.StepListItemMod
 	}
 
 	return append(stepList, ScriptSteplistItem(ScriptDefaultTitle))
-}
-
-type PrepareListParams struct {
-	ShouldIncludeCache       bool
-	ShouldIncludeActivateSSH bool
 }
 
 // DefaultPrepareStepListV2 ...

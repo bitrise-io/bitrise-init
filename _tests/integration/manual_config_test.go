@@ -44,15 +44,14 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
 	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1013,44 +1012,16 @@ configs:
       workflows:
         deploy:
           description: |
-            ## How to get a signed APK
+            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
 
-            This workflow contains the **Sign APK** step. To sign your APK all you have to do is to:
-
-            1. Click on **Code Signing** tab
-            1. Find the **ANDROID KEYSTORE FILE** section
-            1. Click or drop your file on the upload file field
-            1. Fill the displayed 3 input fields:
-             1. **Keystore password**
-             1. **Keystore alias**
-             1. **Private key password**
-            1. Click on **[Save metadata]** button
-
-            That's it! From now on, **Sign APK** step will receive your uploaded files.
-
-            ## To run this workflow
-
-            If you want to run this workflow manually:
-
-            1. Open the app's build list page
-            2. Click on **[Start/Schedule a Build]** button
-            3. Select **deploy** in **Workflow** dropdown input
-            4. Click **[Start Build]** button
-
-            Or if you need this workflow to be started by a GIT event:
-
-            1. Click on **Triggers** tab
-            2. Setup your desired event (push/tag/pull) and select **deploy** workflow
-            3. Click on **[Done]** and then **[Save]** buttons
-
-            The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
+            Next steps:
+            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
+            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -1072,8 +1043,8 @@ configs:
               - variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s:
