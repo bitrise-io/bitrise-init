@@ -133,7 +133,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	configBuilder := scanner.generateConfigBuilder()
 
 	config, err := configBuilder.Generate(ScannerName)
