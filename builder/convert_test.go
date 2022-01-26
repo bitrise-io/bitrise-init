@@ -30,11 +30,11 @@ func TestSyntaxNode_Export(t *testing.T) {
 			},
 			answerTree: nil,
 			want: &models.OptionNode{
-				Config:         "",
+				Config:         "prefix",
 				ChildOptionMap: map[string]*models.OptionNode{},
 			},
 			want1: map[string]Result{
-				"": {
+				"prefix": {
 					Config: &bitriseModels.BitriseDataModel{
 						FormatVersion:        "11",
 						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
@@ -59,75 +59,6 @@ func TestSyntaxNode_Export(t *testing.T) {
 				},
 			},
 		},
-		/*{
-			name: "One question",
-			node: &SyntaxNode{
-				Type: QuestionNode,
-				Question: Question{
-					ID:     "question",
-					Title:  "title",
-					Type:   models.TypeOptionalUserInput,
-					EnvKey: "TEST_KEY",
-				},
-				AnswerToNode: map[string]*SyntaxNode{
-					"": {
-						Type: StepListNode,
-						Steps: Steps{
-							Steps: []*SyntaxNode{{
-								Type: StepNode,
-								Step: Step{
-									ID: "fastlane",
-									Inputs: []Input{
-										{Key: "A", Value: "D"},
-										{Key: "B", Value: "$TEST_KEY"},
-									},
-								},
-							}},
-						},
-					},
-				},
-			},
-			want: &models.OptionNode{
-				Title:  "title",
-				Type:   models.TypeOptionalUserInput,
-				EnvKey: "TEST_KEY",
-				ChildOptionMap: map[string]*models.OptionNode{
-					"": {
-						Config:         "config/question.",
-						ChildOptionMap: map[string]*models.OptionNode{},
-					},
-				},
-			},
-			want1: map[string]Result{
-				"config/question.": {
-					Config: &bitriseModels.BitriseDataModel{
-						FormatVersion:        "11",
-						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
-						TriggerMap: bitriseModels.TriggerMapModel{
-							bitriseModels.TriggerMapItemModel{
-								PushBranch: "*",
-								WorkflowID: string(models.PrimaryWorkflowID),
-							},
-							bitriseModels.TriggerMapItemModel{
-								PullRequestSourceBranch: "*",
-								WorkflowID:              string(models.PrimaryWorkflowID),
-							},
-						},
-						Workflows: map[string]bitriseModels.WorkflowModel{
-							string(models.PrimaryWorkflowID): {
-								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "",
-										[]Input{
-											{Key: "A", Value: "D"},
-											{Key: "B", Value: "$TEST_KEY"},
-										}, ""),
-								},
-							},
-						},
-					},
-				},
-			},
-		},*/
 		{
 			name: "2 questions",
 			node: &Steps{
@@ -221,11 +152,11 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Type:  models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"development": {
-								Config:         "/question2.n/export-method.development",
+								Config:         "prefix/question2.n/export-method.development",
 								ChildOptionMap: map[string]*models.OptionNode{},
 							},
 							"app-store": {
-								Config:         "/question2.n/export-method.app-store",
+								Config:         "prefix/question2.n/export-method.app-store",
 								ChildOptionMap: map[string]*models.OptionNode{},
 							},
 						},
@@ -235,11 +166,11 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Type:  models.TypeSelector,
 						ChildOptionMap: map[string]*models.OptionNode{
 							"development": {
-								Config:         "/question2.m/export-method.development",
+								Config:         "prefix/question2.m/export-method.development",
 								ChildOptionMap: map[string]*models.OptionNode{},
 							},
 							"app-store": {
-								Config:         "/question2.m/export-method.app-store",
+								Config:         "prefix/question2.m/export-method.app-store",
 								ChildOptionMap: map[string]*models.OptionNode{},
 							},
 						},
@@ -247,7 +178,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 				},
 			},
 			want1: map[string]Result{
-				"/question2.n/export-method.development": {
+				"prefix/question2.n/export-method.development": {
 					Config: &bitriseModels.BitriseDataModel{
 						FormatVersion:        "11",
 						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
@@ -271,7 +202,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 						},
 					},
 				},
-				"/question2.n/export-method.app-store": {
+				"prefix/question2.n/export-method.app-store": {
 					Config: &bitriseModels.BitriseDataModel{
 						FormatVersion:        "11",
 						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
@@ -295,7 +226,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 						},
 					},
 				},
-				"/question2.m/export-method.development": {
+				"prefix/question2.m/export-method.development": {
 					Config: &bitriseModels.BitriseDataModel{
 						FormatVersion:        "11",
 						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
@@ -319,7 +250,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 						},
 					},
 				},
-				"/question2.m/export-method.app-store": {
+				"prefix/question2.m/export-method.app-store": {
 					Config: &bitriseModels.BitriseDataModel{
 						FormatVersion:        "11",
 						DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
@@ -348,7 +279,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := Export(tt.node, tt.answerTree, nil)
+			got, got1, err := Export(tt.node, tt.answerTree, nil, "prefix")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SyntaxNode.Export() error = %v, wantErr %v", err, tt.wantErr)
 				return

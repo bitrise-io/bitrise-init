@@ -43,9 +43,9 @@ func Append(a, b Artifacts) *Artifacts {
 	return merged
 }
 
-func Export(template TemplateNode, answerTree *AnswerTree, values map[string]string) (*models.OptionNode, map[string]Result, error) {
+func Export(template TemplateNode, answerTree *AnswerTree, values map[string]string, configPrefix string) (*models.OptionNode, map[string]Result, error) {
 	if answerTree == nil {
-		return exportAnswerTreeLeaf(template, values, nil, "")
+		return exportAnswerTreeLeaf(template, values, nil, configPrefix)
 	}
 
 	var (
@@ -60,14 +60,9 @@ func Export(template TemplateNode, answerTree *AnswerTree, values map[string]str
 		}
 
 		currentNode := allOptions
-		for i, concreteAnswer := range answers {
+		for i := 1; i <= len(answers)-1; i++ {
+			concreteAnswer := answers[i]
 			key := concreteAnswer.SelectedAnswer
-
-			if i == len(answers)-1 {
-				currentNode.AddConfig(key, configOption)
-
-				break
-			}
 
 			_, hasChild := currentNode.ChildOptionMap[key]
 			if !hasChild {
@@ -81,11 +76,14 @@ func Export(template TemplateNode, answerTree *AnswerTree, values map[string]str
 			currentNode = currentNode.ChildOptionMap[key]
 		}
 
-		for pathHash, result := range results {
-			if _, exists := mergedResults[pathHash]; exists {
-				panic(fmt.Sprintf("duplicate config result key (%s), unique expected", pathHash))
+		lastKey := answers[len(answers)-1].SelectedAnswer
+		currentNode.AddConfig(lastKey, configOption)
+
+		for configKey, result := range results {
+			if _, exists := mergedResults[configKey]; exists {
+				panic(fmt.Sprintf("duplicate config result key (%s), unique expected", configKey))
 			}
-			mergedResults[pathHash] = result
+			mergedResults[configKey] = result
 		}
 
 		return nil
@@ -111,11 +109,21 @@ func exportAnswerTreeLeaf(template TemplateNode, values map[string]string, answe
 	if err != nil {
 		return nil, nil, err
 	}
+
 	resultMap := map[string]Result{
 		pathHash: result,
 	}
 
 	return models.NewConfigOption(pathHash, result.Artifacts.Icons), resultMap, err
+}
+
+// normalizeConfigKey makes sure config name is not empty and contains platform prefix
+func normalizeConfigKey(pathHash string, commonPrefix string) string {
+	if pathHash == "" {
+		pathHash = "default"
+	}
+
+	return strings.Join([]string{commonPrefix, pathHash, "config"}, "-")
 }
 
 func newOptionNode(question Question) *models.OptionNode {
@@ -127,6 +135,9 @@ func walkPaths(tree *AnswerTree, concreteAnswers []ConcreteAnswer, pathHash stri
 		return nil
 	}
 
+	if len(tree.Answer.Question.Selections) == 0 {
+		return fmt.Errorf("question (%s) has no selections", tree.Answer.Question)
+	}
 	for _, selectedAnswer := range tree.Answer.Question.Selections { // Preserve answer order
 		var (
 			nextConcreteAnswers = append(concreteAnswers, ConcreteAnswer{

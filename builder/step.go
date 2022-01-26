@@ -41,22 +41,27 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 	}
 
 	for _, input := range s.Inputs {
+		expandFunc := func(_ string) string {
+			answer, ok := allAnswers[AnswerKey{
+				nodeID:  s.GetID(),
+				NodeKey: input.Key,
+			}]
+			if !ok {
+				panic(fmt.Sprintf("answer missing for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
+			}
+
+			expandedValue, ok := answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
+			if !ok {
+				panic(fmt.Sprintf("expanded value missing for selected answer (%s), in list (%+v)", answer.SelectedAnswer, answer.Answer.SelectionToExpandedValue))
+			}
+
+			return expandedValue
+		}
+
 		template, err := template.New("Input").Funcs(template.FuncMap{
-			"askForInputValue": func(_ string) string {
-				answer, ok := allAnswers[AnswerKey{
-					nodeID:  s.GetID(),
-					NodeKey: input.Key,
-				}]
-				if !ok {
-					panic(fmt.Sprintf("answer missing for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
-				}
-
-				expandedValue, ok := answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
-				if !ok {
-					panic(fmt.Sprintf("expanded value missing for selected answer (%s), in list (%+v)", answer.SelectedAnswer, answer.Answer.SelectionToExpandedValue))
-				}
-
-				return expandedValue
+			"askForInputValue": expandFunc,
+			"selectFromContext": func(p, _ string) string {
+				return expandFunc(p)
 			},
 		}).Parse(input.Value)
 		if err != nil {
@@ -65,7 +70,7 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 
 		expandedValue := new(bytes.Buffer)
 		if err := template.Execute(expandedValue, values); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Execute() failed: %s", err)
 		}
 
 		expandedInputs = append(expandedInputs, Input{
@@ -92,30 +97,22 @@ func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) 
 			"askForInputValue": func(questionID string) string {
 				question, ok := questions[questionID]
 				if !ok {
-					panic(fmt.Sprintf("Question (%s) unknown", questionID))
+					panic(fmt.Sprintf("Question (%s) undefined", questionID))
 				}
 				question.ID = questionID // Used for the config map key generation
 
 				selectedValueToTemplateExpansion := make(map[string]string)
-				if question.Type == models.TypeSelector || question.Type == models.TypeOptionalSelector {
-					for _, answer := range question.Selections {
-						if question.EnvKey == "" {
-							selectedValueToTemplateExpansion[answer] = answer
 
-							continue
-						}
+				if question.Type != models.TypeUserInput &&
+					question.Type != models.TypeOptionalUserInput {
+					panic("askForInputValue supported for freeform type questions")
+				}
 
-						selectedValueToTemplateExpansion[answer] = "$" + question.EnvKey
-					}
+				if len(question.EnvKey) == 0 {
+					panic("Question Environment Key name empty, required for freeform answers")
 				}
-				if question.Type == models.TypeUserInput ||
-					question.Type == models.TypeOptionalUserInput ||
-					question.Type == models.TypeOptionalSelector {
-					if len(question.EnvKey) == 0 {
-						panic("Question Environment Key name empty, required for freeform answers")
-					}
-					selectedValueToTemplateExpansion[defaultAnswer] = "$" + question.EnvKey
-				}
+				selectedValueToTemplateExpansion[defaultAnswer] = "$" + question.EnvKey
+				question.Selections = []string{defaultAnswer}
 
 				inputQuestionExpansions = &AnswerExpansion{
 					Key: AnswerKey{
@@ -132,7 +129,7 @@ func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) 
 			"selectFromContext": func(questionID string, sourceTag string) string {
 				question, ok := questions[questionID]
 				if !ok {
-					panic(fmt.Sprintf("Question (%s) unknown", questionID))
+					panic(fmt.Sprintf("Question (%s) undefined", questionID))
 				}
 				question.ID = questionID // Used for the config map key generation
 
@@ -190,8 +187,9 @@ func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) 
 					if len(question.EnvKey) == 0 {
 						panic("Question Environment Key name empty, required for freeform answers")
 					}
-					selectedValueToTemplateExpansion[defaultAnswer] = "$" + question.EnvKey
 				}
+
+				question.Selections = selectableAnswers
 
 				inputQuestionExpansions = &AnswerExpansion{
 					Key: AnswerKey{
