@@ -41,21 +41,18 @@ var sampleAppsOSX1011Versions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeTestMacVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var sampleAppsOSX1011ResultYML = fmt.Sprintf(`options:
@@ -109,12 +106,9 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - xcode-test-mac@%s:
               inputs:
@@ -125,23 +119,16 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
-          - xcode-test-mac@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@%s: {}
+          - xcode-test-mac@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   macos: []
 warnings_with_recommendations:
