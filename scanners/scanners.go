@@ -87,6 +87,7 @@ func ProjectScanners() []ScannerInterface {
 		ios.NewScanner(),
 		macos.NewScanner(),
 		android.NewScanner(),
+		NewTemplateAdapter(android.NewTemplate()),
 	}
 }
 

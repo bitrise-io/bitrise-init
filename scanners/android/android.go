@@ -19,7 +19,7 @@ type Scanner struct {
 
 // Template is the v2 implementation
 type Template struct {
-	Projects []Project
+	blueprint []Project
 }
 
 // NewScanner ...
@@ -232,16 +232,16 @@ func (*Template) ExcludedScannerNames() []string {
 // DetectPlatform ...
 func (template *Template) DetectPlatform(searchDir string) (_ bool, err error) {
 	projects, err := detect(searchDir)
-	template.Projects = projects
+	template.blueprint = projects
 
 	detected := len(projects) > 0
 	return detected, err
 }
 
-func (template *Template) Get() (builder.TemplateNode, error) {
-	return template.getTemplate()
+func (t *Template) Get() (builder.TemplateNode, error) {
+	return getTemplate(t.blueprint)
 }
 
-func (template *Template) GetManual() (builder.TemplateNode, error) {
+func (t *Template) GetManual() (builder.TemplateNode, error) {
 	panic("not implemented")
 }

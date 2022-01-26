@@ -140,9 +140,25 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
-func (t *Template) getTemplate() (builder.TemplateNode, error) {
+func getTemplate(blueprint []Project) (builder.TemplateNode, error) {
+	questions := map[string]builder.Question{
+		"project-path": {
+			Title:   ProjectLocationInputTitle,
+			Summary: ProjectLocationInputSummary,
+			EnvKey:  ProjectLocationInputEnvKey,
+			Type:    models.TypeSelector,
+		},
+		"variant": {
+			Title:   VariantInputTitle,
+			Summary: VariantInputSummary,
+			EnvKey:  VariantInputEnvKey,
+			Type:    models.TypeOptionalUserInput,
+		},
+	}
+
 	primary := builder.Context{
-		SelectFrom: t.Projects,
+		SelectFrom: blueprint,
+		Questions:  questions,
 		Template: &builder.Steps{
 			Steps: []builder.TemplateNode{
 				builder.DefaultPrepareStepsTemplate(true),
@@ -153,7 +169,6 @@ func (t *Template) getTemplate() (builder.TemplateNode, error) {
 						{Key: VariantInputKey, Value: `{{askForInputValue "variant"}}`},
 					},
 				},
-				builder.DefaultPrepareStepsTemplate(true),
 				&builder.Step{
 					ID: steps.AndroidUnitTestID,
 					Inputs: []builder.Input{

@@ -7,8 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type TestFileInfo struct {
@@ -223,4 +225,36 @@ func createProjectDirectory(t *testing.T, containsLocalProperties bool) string {
 func createFile(t *testing.T, path, fileName string) {
 	_, err := os.Create(filepath.Join(path, fileName))
 	assert.NoError(t, err)
+}
+
+func Test_getTemplate(t *testing.T) {
+	tests := []struct {
+		name      string
+		blueprint []androidProject
+	}{
+		{
+			name: "Single project",
+			blueprint: []androidProject{
+				{
+					projectRelPath: "aa/bb",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotTemplate, err := getTemplate(tt.blueprint)
+			require.NoError(t, err)
+
+			answerTree, err := gotTemplate.GetAnswers(map[string]builder.Question{}, []interface{}{})
+			require.NoError(t, err)
+			assert.Equal(t, nil, answerTree)
+
+			options, results, err := builder.Export(gotTemplate, answerTree, map[string]string{}, "android")
+			require.NoError(t, err)
+
+			assert.Equal(t, nil, options)
+			assert.Equal(t, nil, results)
+		})
+	}
 }
