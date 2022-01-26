@@ -56,12 +56,10 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
 	steps.InstallMissingAndroidToolsVersion,
-	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	// cordova
 	models.FormatVersion,
@@ -1046,26 +1044,25 @@ configs:
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            Runs tests.
+
+            Next steps:
+            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-lint@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
   cordova:
     default-cordova-config: |
       format_version: "%s"
