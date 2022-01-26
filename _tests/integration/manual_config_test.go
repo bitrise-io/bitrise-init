@@ -1575,6 +1575,7 @@ configs:
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}

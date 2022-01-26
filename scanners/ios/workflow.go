@@ -109,6 +109,7 @@ func addArchiveStep(workflow models.WorkflowID, configBuilder *models.ConfigBuil
 	switch projectType {
 	case XcodeProjectTypeIOS:
 		inputModels := []envmanModels.EnvironmentItemModel{
+			{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
 			{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
 		}
 		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeArchiveStepListItem(inputModels...))

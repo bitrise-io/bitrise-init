@@ -40,13 +40,13 @@ func replaceVersions(str string, versions ...interface{}) (string, error) {
 
 func validateConfigExpectation(t *testing.T, ID, expected, actual string, versions ...interface{}) {
 	if !assert.ObjectsAreEqual(expected, actual) {
-		s, err := replaceVersions(actual, versions...)
-		require.NoError(t, err)
-		fmt.Println("---------------------")
-		fmt.Println("Actual config format:")
-		fmt.Println("---------------------")
-		fmt.Println(s)
-		fmt.Println("---------------------")
+		_, err := replaceVersions(actual, versions...)
+		//require.NoError(t, err)
+		//fmt.Println("---------------------")
+		//fmt.Println("Actual config format:")
+		//fmt.Println("---------------------")
+		//fmt.Println(s)
+		//fmt.Println("---------------------")
 
 		_, err = exec.LookPath("opendiff")
 		if err == nil {

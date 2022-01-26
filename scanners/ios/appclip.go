@@ -27,6 +27,7 @@ func shouldAppendExportAppClipStep(hasAppClip bool, exportMethod string) bool {
 func appendExportAppClipStep(configBuilder *models.ConfigBuilderModel, workflowID models.WorkflowID) {
 	exportXCArchiveStepInputModels := []envmanModels.EnvironmentItemModel{
 		{ExportXCArchiveProductInputKey: ExportXCArchiveProductInputAppClipValue},
+		{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
 		{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
 	}
 	configBuilder.AppendStepListItemsTo(workflowID, steps.ExportXCArchiveStepListItem(exportXCArchiveStepInputModels...))
