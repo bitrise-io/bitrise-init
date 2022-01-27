@@ -126,7 +126,10 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - xcode-test-mac@%s: {}
+          - xcode-test-mac@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:

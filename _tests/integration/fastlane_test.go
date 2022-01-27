@@ -175,9 +175,13 @@ configs:
           - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -194,6 +198,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}

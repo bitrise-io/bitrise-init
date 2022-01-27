@@ -151,12 +151,18 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - recreate-user-schemes@%s: {}
+          - recreate-user-schemes@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -171,9 +177,13 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - recreate-user-schemes@%s: {}
+          - recreate-user-schemes@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -278,9 +288,13 @@ configs:
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -298,6 +312,8 @@ configs:
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -470,6 +486,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -486,6 +504,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -514,9 +534,13 @@ configs:
           - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -533,6 +557,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -627,9 +653,13 @@ configs:
               - carthage_command: bootstrap
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -649,6 +679,8 @@ configs:
               - carthage_command: bootstrap
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -720,10 +752,14 @@ configs:
           - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - export-xcarchive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
@@ -741,6 +777,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -769,6 +807,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -785,6 +825,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -813,10 +855,14 @@ configs:
           - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - export-xcarchive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
@@ -834,6 +880,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -862,6 +910,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -878,6 +928,8 @@ configs:
           - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}

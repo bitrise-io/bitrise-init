@@ -83,14 +83,14 @@ func createDeployWorkflow(params workflowSetupParams) {
 	addDescription(params.projectType, identifier, params.configBuilder, deployDescription)
 }
 
-// Helpers
+// Add steps
 
 func addTestStep(workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, projectType XcodeProjectType) {
 	switch projectType {
 	case XcodeProjectTypeIOS:
 		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestStepListItem(xcodeTestStepInputModels()...))
 	case XcodeProjectTypeMacOS:
-		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestMacStepListItem())
+		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestMacStepListItem(baseXcodeStepInputModels()...))
 	}
 }
 
@@ -99,26 +99,21 @@ func addBuildStep(workflow models.WorkflowID, configBuilder *models.ConfigBuilde
 		return
 	}
 
-	inputModels := []envmanModels.EnvironmentItemModel{
-		{BuildForTestDestinationKey: BuildForTestDestinationValue},
-	}
-	configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(inputModels...))
+	configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(xcodeBuildForTestStepInputModels()...))
 }
 
 func addArchiveStep(workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, projectType XcodeProjectType, hasAppClip bool, exportMethod string) {
+	inputModels := xcodeArchiveStepInputModels(projectType)
+
 	switch projectType {
 	case XcodeProjectTypeIOS:
-		inputModels := []envmanModels.EnvironmentItemModel{
-			{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
-			{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
-		}
 		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeArchiveStepListItem(inputModels...))
 
 		if shouldAppendExportAppClipStep(hasAppClip, exportMethod) {
 			appendExportAppClipStep(configBuilder, workflow)
 		}
 	case XcodeProjectTypeMacOS:
-		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeArchiveMacStepListItem())
+		configBuilder.AppendStepListItemsTo(workflow, steps.XcodeArchiveMacStepListItem(inputModels...))
 	}
 }
 
@@ -161,8 +156,44 @@ func addDescription(projectType XcodeProjectType, workflow models.WorkflowID, co
 	configBuilder.SetWorkflowDescriptionTo(workflow, description)
 }
 
-func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
+// Helpers
+
+func baseXcodeStepInputModels() []envmanModels.EnvironmentItemModel {
 	return []envmanModels.EnvironmentItemModel{
+		{ProjectPathInputKey: "$" + ProjectPathInputEnvKey},
+		{SchemeInputKey: "$" + SchemeInputEnvKey},
+	}
+}
+
+func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
+	inputModels := []envmanModels.EnvironmentItemModel{
 		{TestRepetitionModeKey: TestRepetitionModeRetryOnFailureValue},
 	}
+
+	return append(baseXcodeStepInputModels(), inputModels...)
+}
+
+func xcodeBuildForTestStepInputModels() []envmanModels.EnvironmentItemModel {
+	inputModels := []envmanModels.EnvironmentItemModel{
+		{BuildForTestDestinationKey: BuildForTestDestinationValue},
+	}
+
+	return append(baseXcodeStepInputModels(), inputModels...)
+}
+
+func xcodeArchiveStepInputModels(projectType XcodeProjectType) []envmanModels.EnvironmentItemModel {
+	var inputModels []envmanModels.EnvironmentItemModel
+
+	if projectType == XcodeProjectTypeIOS {
+		inputModels = append(inputModels, []envmanModels.EnvironmentItemModel{
+			{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
+			{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
+		}...)
+	} else {
+		inputModels = []envmanModels.EnvironmentItemModel{
+			{ExportMethodInputKey: "$" + ExportMethodEnvKey},
+		}
+	}
+
+	return append(baseXcodeStepInputModels(), inputModels...)
 }

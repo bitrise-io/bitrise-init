@@ -1568,13 +1568,19 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - recreate-user-schemes@%s: {}
+          - recreate-user-schemes@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - cache-push@%s: {}
@@ -1589,10 +1595,14 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - recreate-user-schemes@%s: {}
+          - recreate-user-schemes@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -1617,8 +1627,15 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s: {}
-          - xcode-test-mac@%s: {}
-          - xcode-archive-mac@%s: {}
+          - xcode-test-mac@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+          - xcode-archive-mac@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - export_method: $BITRISE_EXPORT_METHOD
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1626,9 +1643,14 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - recreate-user-schemes@%s: {}
+          - recreate-user-schemes@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s: {}
-          - xcode-test-mac@%s: {}
+          - xcode-test-mac@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
   other:
