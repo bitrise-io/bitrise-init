@@ -76,23 +76,19 @@ var iosNoSharedSchemesVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
@@ -143,14 +139,18 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -158,22 +158,25 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -181,8 +184,9 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@%s: {}
+              - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -206,23 +210,19 @@ var iosCocoapodsAtRootVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
@@ -273,42 +273,50 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - cocoapods-install@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@%s: {}
+              - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -320,31 +328,32 @@ var sampleAppsIosWatchkitVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
@@ -462,22 +471,44 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        primary:
+        deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            The workflow only builds the project because the project scanner could not find any tests.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+          - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     ios-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -489,40 +520,48 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@%s: {}
+              - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -534,23 +573,19 @@ var sampleAppsCarthageVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.CarthageVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.CarthageVersion,
 	steps.XcodeTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
@@ -601,14 +636,18 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - carthage@%s:
               inputs:
               - carthage_command: bootstrap
@@ -616,22 +655,25 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - carthage@%s:
               inputs:
               - carthage_command: bootstrap
@@ -639,8 +681,9 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - deploy-to-bitrise-io@%s: {}
+              - test_repetition_mode: retry_on_failure
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -694,26 +737,51 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        primary:
+        deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - automatic_code_signing: api-key
           - export-xcarchive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            The workflow only builds the project because the project scanner could not find any tests.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+          - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     ios-app-clip-app-store-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -724,22 +792,44 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        primary:
+        deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            The workflow only builds the project because the project scanner could not find any tests.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+          - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     ios-app-clip-development-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -750,26 +840,51 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        primary:
+        deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - automatic_code_signing: api-key
           - export-xcarchive@%s:
               inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            The workflow only builds the project because the project scanner could not find any tests.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+          - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     ios-app-clip-enterprise-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -780,69 +895,115 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        primary:
+        deploy:
+          description: |
+            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
+
+            For testing the *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
+            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-          - deploy-to-bitrise-io@%s: {}
+              - automatic_code_signing: api-key
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            The workflow only builds the project because the project scanner could not find any tests.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - cache-pull@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+          - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
 warnings_with_recommendations:
   ios: []`,
-	// ios-app-clip-ad-hoc-config/primary
+	// ios-app-clip-ad-hoc-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.ExportXCArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-ad-hoc-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-app-store-config/deploy
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeArchiveVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-app-store-config/primary
-	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
+	steps.XcodeBuildForTestVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
-	// ios-app-clip-development-config/primary
+	// ios-app-clip-development-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.ExportXCArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
-	// ios-app-clip-enterprise-config/primary
+	// ios-app-clip-development-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-enterprise-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CachePullVersion,
-	steps.ScriptVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-enterprise-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 )
