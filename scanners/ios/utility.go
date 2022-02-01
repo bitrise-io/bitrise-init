@@ -90,6 +90,13 @@ const (
 )
 
 const (
+	// AutomaticCodeSigningInputKey ...
+	AutomaticCodeSigningInputKey = "automatic_code_signing"
+	// AutomaticCodeSigningInputAPIKeyValue ...
+	AutomaticCodeSigningInputAPIKeyValue = "api-key"
+)
+
+const (
 	// CarthageCommandInputKey ...
 	CarthageCommandInputKey = "carthage_command"
 )
