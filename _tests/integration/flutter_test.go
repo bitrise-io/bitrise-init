@@ -289,8 +289,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -342,8 +341,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -395,8 +393,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -444,8 +441,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -503,8 +499,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -562,8 +557,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -760,8 +754,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -813,8 +806,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -866,8 +858,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -915,8 +906,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -974,8 +964,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1033,8 +1022,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1265,8 +1253,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1318,8 +1305,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1371,8 +1357,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1420,8 +1405,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1479,8 +1463,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1538,8 +1521,7 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
