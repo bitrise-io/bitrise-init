@@ -1,6 +1,7 @@
 package reactnative
 
-const deployWorkflowDescription = `## Configure Android part of the deploy workflow
+const (
+	deployWorkflowDescription = `## Configure Android part of the deploy workflow
 
 To generate a signed APK:
 
@@ -57,3 +58,4 @@ Or if you need this workflow to be started by a GIT event:
 
 The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
 `
+)
