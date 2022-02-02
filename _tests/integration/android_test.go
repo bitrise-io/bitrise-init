@@ -196,8 +196,7 @@ configs:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
             - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -230,8 +229,7 @@ configs:
             Next steps:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -348,8 +346,7 @@ configs:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
             - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -382,8 +379,7 @@ configs:
             Next steps:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -473,8 +469,7 @@ configs:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
             - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -507,8 +502,7 @@ configs:
             Next steps:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -576,8 +570,7 @@ configs:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
             - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
@@ -610,8 +603,7 @@ configs:
             Next steps:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - cache-pull@%s: {}
           - install-missing-android-tools@%s:
