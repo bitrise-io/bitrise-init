@@ -499,8 +499,7 @@ configs:
             next change in your repository that matches any of your trigger map event will
             start **deploy** workflow.\n"
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
@@ -525,8 +524,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
