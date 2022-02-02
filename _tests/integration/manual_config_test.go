@@ -89,16 +89,7 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 
 	// flutter
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.DeployToBitriseIoVersion,
-	steps.CachePushVersion,
-
+	// flutter-config-notest-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -112,13 +103,12 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
+	// flutter-config-notest-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -134,13 +124,12 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
+	// flutter-config-notest-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -156,24 +145,12 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
-
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.ScriptVersion,
-	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.FlutterTestVersion,
 	steps.DeployToBitriseIoVersion,
-	steps.CachePushVersion,
 
+	// flutter-config-test-app-android
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -188,14 +165,13 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
+	// flutter-config-test-app-both
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -212,14 +188,13 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
+	// flutter-config-test-app-ios
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -236,13 +211,11 @@ var customConfigVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
-	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	// ionic
 	models.FormatVersion,
@@ -429,172 +402,83 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        title: Run tests found in the project
-        summary: Our Flutter Test Step can run the tests found in your project's repository.
+        title: Platform
+        summary: The target platform for your first build. Your options are iOS, Android,
+          both, or neither. You can change this in your Env Vars at any time.
         type: selector
         value_map:
-          "no":
-            title: Platform
-            summary: The target platform for your first build. Your options are iOS,
-              Android, both, or neither. You can change this in your Env Vars at any
-              time.
-            type: selector
+          android:
+            config: flutter-config-test-app-android
+          both:
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
+            env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              android:
-                config: flutter-config-app-android
-              both:
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
+              "":
+                title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
+                env_key: BITRISE_SCHEME
                 type: user_input
                 value_map:
                   "":
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
-                    type: user_input
+                    title: Distribution method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
+                    env_key: BITRISE_DISTRIBUTION_METHOD
+                    type: selector
                     value_map:
-                      "":
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-app-both
-                          app-store:
-                            config: flutter-config-app-both
-                          development:
-                            config: flutter-config-app-both
-                          enterprise:
-                            config: flutter-config-app-both
-              ios:
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: user_input
-                value_map:
-                  "":
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
-                    type: user_input
-                    value_map:
-                      "":
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-app-ios
-                          app-store:
-                            config: flutter-config-app-ios
-                          development:
-                            config: flutter-config-app-ios
-                          enterprise:
-                            config: flutter-config-app-ios
-              none:
-                config: flutter-config
-          "yes":
-            title: Platform
-            summary: The target platform for your first build. Your options are iOS,
-              Android, both, or neither. You can change this in your Env Vars at any
-              time.
-            type: selector
+                      ad-hoc:
+                        config: flutter-config-test-app-both
+                      app-store:
+                        config: flutter-config-test-app-both
+                      development:
+                        config: flutter-config-test-app-both
+                      enterprise:
+                        config: flutter-config-test-app-both
+          ios:
+            title: Project or Workspace path
+            summary: The location of your Xcode project or Xcode workspace files,
+              stored as an Environment Variable. In your Workflows, you can specify
+              paths relative to this path.
+            env_key: BITRISE_PROJECT_PATH
+            type: user_input
             value_map:
-              android:
-                config: flutter-config-test-app-android
-              both:
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
+              "":
+                title: Scheme name
+                summary: An Xcode scheme defines a collection of targets to build,
+                  a configuration to use when building, and a collection of tests
+                  to execute. Only shared schemes are detected automatically but you
+                  can use any scheme as a target on Bitrise. You can change the scheme
+                  at any time in your Env Vars.
+                env_key: BITRISE_SCHEME
                 type: user_input
                 value_map:
                   "":
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
-                    type: user_input
+                    title: Distribution method
+                    summary: The export method used to create an .ipa file in your
+                      builds, stored as an Environment Variable. You can change this
+                      at any time, or even create several .ipa files with different
+                      export methods in the same build.
+                    env_key: BITRISE_DISTRIBUTION_METHOD
+                    type: selector
                     value_map:
-                      "":
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-test-app-both
-                          app-store:
-                            config: flutter-config-test-app-both
-                          development:
-                            config: flutter-config-test-app-both
-                          enterprise:
-                            config: flutter-config-test-app-both
-              ios:
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: user_input
-                value_map:
-                  "":
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
-                    type: user_input
-                    value_map:
-                      "":
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: flutter-config-test-app-ios
-                          app-store:
-                            config: flutter-config-test-app-ios
-                          development:
-                            config: flutter-config-test-app-ios
-                          enterprise:
-                            config: flutter-config-test-app-ios
-              none:
-                config: flutter-config-test
+                      ad-hoc:
+                        config: flutter-config-test-app-ios
+                      app-store:
+                        config: flutter-config-test-app-ios
+                      development:
+                        config: flutter-config-test-app-ios
+                      enterprise:
+                        config: flutter-config-test-app-ios
   ionic:
     title: Directory of the Ionic config.xml file
     summary: The working directory of your Ionic project is where you store your config.xml
@@ -1137,33 +1021,7 @@ configs:
               - work_dir: $FASTLANE_WORK_DIR
           - deploy-to-bitrise-io@%s: {}
   flutter:
-    flutter-config: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: flutter
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
-      workflows:
-        primary:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
-          - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
-          - cache-push@%s: {}
-    flutter-config-app-android: |
+    flutter-config-notest-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -1194,22 +1052,21 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
-    flutter-config-app-both: |
+          - deploy-to-bitrise-io@%s: {}
+    flutter-config-notest-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -1247,22 +1104,21 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
-    flutter-config-app-ios: |
+          - deploy-to-bitrise-io@%s: {}
+    flutter-config-notest-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -1300,50 +1156,20 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
-    flutter-config-test: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: flutter
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
-      workflows:
-        primary:
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
-          - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - deploy-to-bitrise-io@%s: {}
-          - cache-push@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1378,24 +1204,23 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1437,24 +1262,23 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -1496,24 +1320,23 @@ configs:
           - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
         primary:
+          description: |
+            Builds project and runs tests.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
           - cache-pull@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
   ionic:
     default-ionic-config: |
       format_version: "%s"
