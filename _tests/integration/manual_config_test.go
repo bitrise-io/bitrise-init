@@ -310,18 +310,16 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
+	steps.NpmVersion,
 	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidBuildVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// default-react-native-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1714,35 +1712,32 @@ configs:
             next change in your repository that matches any of your trigger map event will
             start **deploy** workflow.\n"
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - npm@%s:
               inputs:
               - command: install
+          - npm@%s:
+              inputs:
+              - command: test
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-          - certificate-and-profile-installer@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
+              - automatic_code_signing: api-key
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - npm@%s:
               inputs:
               - command: install
