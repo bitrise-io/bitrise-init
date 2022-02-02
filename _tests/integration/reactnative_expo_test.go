@@ -382,17 +382,15 @@ var sampleAppsExpoBareVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
+	steps.YarnVersion,
 	steps.YarnVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidBuildVersion,
-	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
@@ -501,21 +499,20 @@ configs:
             next change in your repository that matches any of your trigger map event will
             start **deploy** workflow.\n"
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - yarn@%s:
               inputs:
               - command: install
+          - yarn@%s:
+              inputs:
+              - command: test
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
-          - certificate-and-profile-installer@%s: {}
           - cocoapods-install@2: {}
           - xcode-archive@%s:
               inputs:
@@ -523,14 +520,12 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
+              - automatic_code_signing: api-key
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - yarn@%s:
               inputs:
               - command: install
