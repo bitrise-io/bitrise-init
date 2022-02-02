@@ -10,6 +10,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"gopkg.in/yaml.v2"
@@ -178,7 +179,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
-	scanner.addTestSteps(configBuilder, models.PrimaryWorkflowID, relPackageJSONDir)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
@@ -188,7 +189,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
-	scanner.addTestSteps(configBuilder, models.DeployWorkflowID, relPackageJSONDir)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
 
 	// android cd
 	if scanner.androidScanner != nil {
@@ -318,21 +319,27 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	return configMap, nil
 }
 
-func (scanner *Scanner) addTestSteps(configBuilder *models.ConfigBuilderModel, workflowID models.WorkflowID, workDir string) {
-	workdirEnvList := []envmanModels.EnvironmentItemModel{}
+func (scanner *Scanner) getTestSteps(workDir string) []bitriseModels.StepListItemModel {
+	var (
+		testSteps      = []bitriseModels.StepListItemModel{}
+		workdirEnvList = []envmanModels.EnvironmentItemModel{}
+	)
+
 	if workDir != "" {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: workDir})
 	}
 
 	if scanner.hasYarnLockFile {
-		configBuilder.AppendStepListItemsTo(workflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 		if scanner.hasTest {
-			configBuilder.AppendStepListItemsTo(workflowID, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+			testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 		}
 	} else {
-		configBuilder.AppendStepListItemsTo(workflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 		if scanner.hasTest {
-			configBuilder.AppendStepListItemsTo(workflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+			testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 		}
 	}
+
+	return testSteps
 }
