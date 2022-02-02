@@ -330,7 +330,7 @@ func (scanner *Scanner) Configs(isPrivateRepository bool) (models.BitriseConfigM
 
 // DefaultConfigs ...
 func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return generateConfigMap(false)
+	return generateConfigMap(true)
 }
 
 func generateConfigMap(isPrivateRepository bool) (models.BitriseConfigMap, error) {
