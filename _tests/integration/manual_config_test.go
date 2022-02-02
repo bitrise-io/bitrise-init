@@ -310,8 +310,8 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.NpmVersion,
-	steps.NpmVersion,
+	steps.YarnVersion,
+	steps.YarnVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidBuildVersion,
 	steps.XcodeArchiveVersion,
@@ -320,8 +320,8 @@ var customConfigVersions = []interface{}{
 	// default-react-native-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.NpmVersion,
-	steps.NpmVersion,
+	steps.YarnVersion,
+	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// default-react-native-expo-config/deploy
@@ -341,7 +341,6 @@ var customConfigVersions = []interface{}{
 	// default-react-native-expo-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1714,10 +1713,10 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - command: install
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - command: test
           - install-missing-android-tools@%s:
@@ -1738,10 +1737,10 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - command: install
-          - npm@%s:
+          - yarn@%s:
               inputs:
               - command: test
           - deploy-to-bitrise-io@%s: {}
@@ -1828,11 +1827,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - yarn@%s:
               inputs:
               - workdir: $WORKDIR

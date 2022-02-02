@@ -274,9 +274,9 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,
 	})...)
-	// Assuming project uses npm and has tests
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
+	// Assuming project uses yarn and has tests
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// cd
@@ -285,8 +285,8 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,
 	})...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
 
 	// android
 	projectLocationEnv := "$" + android.ProjectLocationInputEnvKey
