@@ -21,12 +21,15 @@ type ExportFragmentType int
 const (
 	StepFragment ExportFragmentType = iota
 	StepListFragment
+	TextFragment
 )
 
 type ExportFragment struct {
-	Type     ExportFragmentType
+	Type ExportFragmentType
+
 	Step     bitriseModels.StepListItemModel
 	StepList []bitriseModels.StepListItemModel
+	Text     string
 }
 
 type Artifacts struct {

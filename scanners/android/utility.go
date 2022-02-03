@@ -165,15 +165,27 @@ func getTemplate(blueprint []Project) (builder.TemplateNode, error) {
 				&builder.Step{
 					ID: steps.InstallMissingAndroidToolsID,
 					Inputs: []builder.Input{
-						{Key: ProjectLocationInputKey, Value: `{{selectFromContext "project-path" "projectRelPath"}}`},
-						{Key: VariantInputKey, Value: `{{askForInputValue "variant"}}`},
+						{
+							Key:   ProjectLocationInputKey,
+							Value: &builder.InputSelect{QuestionID: "project-path", ContextTag: "projectRelPath"},
+						},
+						{
+							Key:   VariantInputKey,
+							Value: &builder.InputFreeForm{QuestionID: "variant"},
+						},
 					},
 				},
 				&builder.Step{
 					ID: steps.AndroidUnitTestID,
 					Inputs: []builder.Input{
-						{Key: ProjectLocationInputKey, Value: `{{selectFromContext "project-path" "projectRelPath"}}`},
-						{Key: VariantInputKey, Value: `{{askForInputValue "variant"}}`},
+						{
+							Key:   ProjectLocationInputKey,
+							Value: &builder.InputSelect{QuestionID: "project-path", ContextTag: "projectRelPath"},
+						},
+						{
+							Key:   VariantInputKey,
+							Value: &builder.InputFreeForm{QuestionID: "variant"},
+						},
 					},
 				},
 			},

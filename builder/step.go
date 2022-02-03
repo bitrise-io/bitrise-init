@@ -1,19 +1,10 @@
 package builder
 
-import (
-	"bytes"
-	"fmt"
-	"reflect"
-	"text/template"
-
-	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/go-utils/log"
-)
-
 const defaultAnswer = ""
 
 type Input struct {
-	Key, Value string
+	Key   string
+	Value TemplateNode
 }
 
 type Step struct {
@@ -41,41 +32,45 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 	}
 
 	for _, input := range s.Inputs {
-		expandFunc := func(_ string) string {
-			answer, ok := allAnswers[AnswerKey{
-				nodeID:  s.GetID(),
-				NodeKey: input.Key,
-			}]
-			if !ok {
-				panic(fmt.Sprintf("answer missing for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
-			}
+		// expandFunc := func(_ string) string {
+		// 	answer, ok := allAnswers[AnswerKey{
+		// 		nodeID:  s.GetID(),
+		// 		NodeKey: input.Key,
+		// 	}]
+		// 	if !ok {
+		// 		panic(fmt.Sprintf("answer missing for node (%+v) and key (%s) in list (%+v)", s, input.Key, allAnswers))
+		// 	}
 
-			expandedValue, ok := answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
-			if !ok {
-				panic(fmt.Sprintf("expanded value missing for selected answer (%s), in list (%+v)", answer.SelectedAnswer, answer.Answer.SelectionToExpandedValue))
-			}
+		// 	expandedValue, ok := answer.Answer.SelectionToExpandedValue[answer.SelectedAnswer]
+		// 	if !ok {
+		// 		panic(fmt.Sprintf("expanded value missing for selected answer (%s), in list (%+v)", answer.SelectedAnswer, answer.Answer.SelectionToExpandedValue))
+		// 	}
 
-			return expandedValue
-		}
+		// 	return expandedValue
+		// }
 
-		template, err := template.New("Input").Funcs(template.FuncMap{
-			"askForInputValue": expandFunc,
-			"selectFromContext": func(p, _ string) string {
-				return expandFunc(p)
-			},
-		}).Parse(input.Value)
+		// template, err := template.New("Input").Funcs(template.FuncMap{
+		// 	"askForInputValue": expandFunc,
+		// 	"selectFromContext": func(p, _ string) string {
+		// 		return expandFunc(p)
+		// 	},
+		// }).Parse(input.Value)
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// expandedValue := new(bytes.Buffer)
+		// if err := template.Execute(expandedValue, values); err != nil {
+		// 	return nil, fmt.Errorf("Execute() failed: %s", err)
+		// }
+		expandedValue, err := input.Value.Execute(values, allAnswers)
 		if err != nil {
 			return nil, err
 		}
 
-		expandedValue := new(bytes.Buffer)
-		if err := template.Execute(expandedValue, values); err != nil {
-			return nil, fmt.Errorf("Execute() failed: %s", err)
-		}
-
 		expandedInputs = append(expandedInputs, Input{
 			Key:   input.Key,
-			Value: expandedValue.String(),
+			Value: expandedValue,
 		})
 	}
 
@@ -88,12 +83,12 @@ func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 }
 
 func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
-	var allAnswers []AnswerExpansion
+	var allAnswers []*AnswerTree
 
 	for _, input := range s.Inputs {
-		var inputQuestionExpansions *AnswerExpansion
+		// var inputQuestionExpansions *AnswerExpansion
 
-		template, err := template.New("Input").Funcs(template.FuncMap{
+		/*template, err := template.New("Input").Funcs(template.FuncMap{
 			"askForInputValue": func(questionID string) string {
 				question, ok := questions[questionID]
 				if !ok {
@@ -210,14 +205,19 @@ func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) 
 		// Using go templates to call custom expansion logic, ignoring the text output.
 		if err := template.Execute(new(bytes.Buffer), nil); err != nil {
 			return nil, err
+		}*/
+
+		answers, err := input.Value.GetAnswers(questions, context)
+		if err != nil {
+			return nil, err
 		}
 
-		if inputQuestionExpansions != nil {
-			allAnswers = append(allAnswers, *inputQuestionExpansions)
+		if answers != nil {
+			allAnswers = append(allAnswers, answers)
 		}
 	}
 
-	return newAnswerTree(allAnswers), nil
+	return mergeAnswerTrees(allAnswers), nil
 }
 
 func (s *Step) SetID(templateIDCounter int) int {
