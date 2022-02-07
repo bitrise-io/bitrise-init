@@ -210,47 +210,47 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 	}
 
 	// ios cd
-	if scanner.iosScanner != nil {
-		for _, descriptor := range scanner.iosScanner.ConfigDescriptors {
-			if descriptor.MissingSharedSchemes {
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
-					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-				))
-			}
+	if scanner.iosScanner != nil && len(scanner.iosScanner.ConfigDescriptors) != 0 {
+		descriptor := scanner.iosScanner.ConfigDescriptors[0]
 
-			if descriptor.HasPodfile {
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
-			}
-
-			if descriptor.CarthageCommand != "" {
-				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CarthageStepListItem(
-					envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: descriptor.CarthageCommand},
-				))
-			}
-
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
+		if descriptor.MissingSharedSchemes {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RecreateUserSchemesStepListItem(
 				envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-				envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-				envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
-				envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-				envmanModels.EnvironmentItemModel{ios.AutomaticCodeSigningInputKey: ios.AutomaticCodeSigningInputAPIKeyValue},
 			))
-
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepListV2(false)...)
-
-			bitriseDataModel, err := configBuilder.Generate(scannerName)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			data, err := yaml.Marshal(bitriseDataModel)
-			if err != nil {
-				return models.BitriseConfigMap{}, err
-			}
-
-			configName := configName(scanner.androidScanner != nil, true, scanner.hasTest)
-			configMap[configName] = string(data)
 		}
+
+		if descriptor.HasPodfile {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CocoapodsInstallStepListItem())
+		}
+
+		if descriptor.CarthageCommand != "" {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CarthageStepListItem(
+				envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: descriptor.CarthageCommand},
+			))
+		}
+
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.AutomaticCodeSigningInputKey: ios.AutomaticCodeSigningInputAPIKeyValue},
+		))
+
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepListV2(false)...)
+
+		bitriseDataModel, err := configBuilder.Generate(scannerName)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(bitriseDataModel)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		configName := configName(scanner.androidScanner != nil, true, scanner.hasTest)
+		configMap[configName] = string(data)
 	} else {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepListV2(false)...)
 

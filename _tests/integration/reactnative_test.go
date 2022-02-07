@@ -45,6 +45,21 @@ func TestReactNative(t *testing.T) {
 
 	const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
 
+	t.Log("joplin")
+	{
+		sampleAppDir := filepath.Join(tmpDir, "joplin")
+		gitClone(t, sampleAppDir, "https://github.com/bitrise-io/joplin.git")
+
+		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+		result, err := fileutil.ReadStringFromFile(scanResultPth)
+		require.NoError(t, err)
+
+		validateConfigExpectation(t, "joplin", strings.TrimSpace(sampleAppsReactNativeJoplinResultYML), strings.TrimSpace(result))
+	}
+
 	t.Log("sample-apps-react-native-ios-and-android")
 	{
 		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android")
@@ -54,9 +69,7 @@ func TestReactNative(t *testing.T) {
 		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
-
 		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
 
@@ -762,3 +775,175 @@ warnings:
 warnings_with_recommendations:
   react-native: []
 `, sampleAppsReactNativeIosAndAndroidYarnVersions...)
+
+var sampleAppsReactNativeJoplinVersions = []interface{}{
+	models.FormatVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.NpmVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AndroidBuildVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.NpmVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
+var sampleAppsReactNativeJoplinResultYML = fmt.Sprintf(`options:
+  react-native:
+    title: The root directory of an Android project
+    summary: The root directory of your Android project, stored as an Environment
+      Variable. In your Workflows, you can specify paths relative to this path. You
+      can change this at any time.
+    env_key: PROJECT_LOCATION
+    type: selector
+    value_map:
+      packages/app-mobile/android:
+        title: Module
+        summary: Modules provide a container for your Android project's source code,
+          resource files, and app level settings, such as the module-level build file
+          and Android manifest file. Each module can be independently built, tested,
+          and debugged. You can add new modules to your Bitrise builds at any time.
+        env_key: MODULE
+        type: user_input
+        value_map:
+          app:
+            title: Variant
+            summary: Your Android build variant. You can add variants at any time,
+              as well as further configure your existing variants later.
+            env_key: VARIANT
+            type: user_input_optional
+            value_map:
+              "":
+                title: Project or Workspace path
+                summary: The location of your Xcode project or Xcode workspace files,
+                  stored as an Environment Variable. In your Workflows, you can specify
+                  paths relative to this path.
+                env_key: BITRISE_PROJECT_PATH
+                type: selector
+                value_map:
+                  packages/app-mobile/ios/Joplin.xcworkspace:
+                    title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
+                    env_key: BITRISE_SCHEME
+                    type: selector
+                    value_map:
+                      Joplin:
+                        title: Distribution method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
+                        env_key: BITRISE_DISTRIBUTION_METHOD
+                        type: selector
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-config
+                          app-store:
+                            config: react-native-android-ios-config
+                          development:
+                            config: react-native-android-ios-config
+                          enterprise:
+                            config: react-native-android-ios-config
+                      Joplin-tvOS:
+                        title: Distribution method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
+                        env_key: BITRISE_DISTRIBUTION_METHOD
+                        type: selector
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-config
+                          app-store:
+                            config: react-native-android-ios-config
+                          development:
+                            config: react-native-android-ios-config
+                          enterprise:
+                            config: react-native-android-ios-config
+                      ShareExtension:
+                        title: Distribution method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
+                        env_key: BITRISE_DISTRIBUTION_METHOD
+                        type: selector
+                        value_map:
+                          ad-hoc:
+                            config: react-native-android-ios-config
+                          app-store:
+                            config: react-native-android-ios-config
+                          development:
+                            config: react-native-android-ios-config
+                          enterprise:
+                            config: react-native-android-ios-config
+configs:
+  react-native:
+    react-native-android-ios-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: react-native
+      trigger_map:
+      - push_branch: '*'
+        workflow: primary
+      - pull_request_source_branch: '*'
+        workflow: primary
+      workflows:
+        deploy:
+          description: |
+            Tests, builds and deploys the app using *Deploy to bitrise.io* Step.
+
+            Next steps:
+            - Set up an [Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html).
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - npm@%s:
+              inputs:
+              - workdir: packages/app-mobile
+              - command: install
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+          - xcode-archive@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - configuration: Release
+              - automatic_code_signing: api-key
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            Installs dependencies.
+
+            Next steps:
+            - Add tests to your project and configure the workflow to run them.
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - npm@%s:
+              inputs:
+              - workdir: packages/app-mobile
+              - command: install
+          - deploy-to-bitrise-io@%s: {}
+warnings:
+  react-native: []
+warnings_with_recommendations:
+  react-native: []
+`, sampleAppsReactNativeJoplinVersions...)
