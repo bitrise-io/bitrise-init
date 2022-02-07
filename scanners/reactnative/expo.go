@@ -241,7 +241,12 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 
 	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
+	primaryDescription := primaryExpoWorkflowBuildOnlyDescription
+	if scanner.hasTest {
+		primaryDescription = primaryExpoWorkflowWithTestDescription
+	}
 
+	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
@@ -251,6 +256,7 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
+	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployExpoWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
 
@@ -284,7 +290,6 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, xcodeArchiveStepListItem)
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
-	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 
 	bitriseDataModel, err := configBuilder.Generate(scannerName)
 	if err != nil {
@@ -349,6 +354,7 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
 
+	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryExpoWorkflowWithTestDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,
@@ -358,7 +364,7 @@ func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
-	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployExpoWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
 
