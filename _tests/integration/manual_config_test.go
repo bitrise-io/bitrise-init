@@ -1504,35 +1504,12 @@ configs:
         workflow: primary
       workflows:
         deploy:
-          description: "## Configure Android part of the deploy workflow\n\nTo generate
-            a signed APK:\n\n1. Open the **Workflow** tab of your project on Bitrise.io\n1.
-            Add **Sign APK step right after Android Build step**\n1. Click on **Code Signing**
-            tab\n1. Find the **ANDROID KEYSTORE FILE** section\n1. Click or drop your file
-            on the upload file field\n1. Fill the displayed 3 input fields:\n1. **Keystore
-            password**\n1. **Keystore alias**\n1. **Private key password**\n1. Click on
-            **[Save metadata]** button\n\nThat's it! From now on, **Sign APK** step will
-            receive your uploaded files.\n\n## Configure iOS part of the deploy workflow\n\nTo
-            generate IPA:\n\n1. Open the **Workflow** tab of your project on Bitrise.io\n1.
-            Click on **Code Signing** tab\n1. Find the **PROVISIONING PROFILE** section\n1.
-            Click or drop your file on the upload file field\n1. Find the **CODE SIGNING
-            IDENTITY** section\n1. Click or drop your file on the upload file field\n1.
-            Click on **Workflows** tab\n1. Select deploy workflow\n1. Select **Xcode Archive
-            & Export for iOS** step\n1. Open **Force Build Settings** input group\n1. Specify
-            codesign settings\nSet **Force code signing with Development Team**, **Force
-            code signing with Code Signing Identity**  \nand **Force code signing with Provisioning
-            Profile** inputs regarding to the uploaded codesigning files\n1. Specify manual
-            codesign style\nIf the codesigning files, are generated manually on the Apple
-            Developer Portal,  \nyou need to explicitly specify to use manual coedsign settings
-            \ \n(as ejected rn projects have xcode managed codesigning turned on).  \nTo
-            do so, add 'CODE_SIGN_STYLE=\"Manual\"' to 'Additional options for xcodebuild
-            call' input\n\n## To run this workflow\n\nIf you want to run this workflow manually:\n\n1.
-            Open the app's build list page\n2. Click on **[Start/Schedule a Build]** button\n3.
-            Select **deploy** in **Workflow** dropdown input\n4. Click **[Start Build]**
-            button\n\nOr if you need this workflow to be started by a GIT event:\n\n1. Click
-            on **Triggers** tab\n2. Setup your desired event (push/tag/pull) and select
-            **deploy** workflow\n3. Click on **[Done]** and then **[Save]** buttons\n\nThe
-            next change in your repository that matches any of your trigger map event will
-            start **deploy** workflow.\n"
+          description: |
+            Tests, builds and deploys the app using *Deploy to bitrise.io* Step.
+
+            Next steps:
+            - Set up an [Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html).
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1557,6 +1534,11 @@ configs:
               - automatic_code_signing: api-key
           - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            Runs tests.
+
+            Next steps:
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1578,35 +1560,11 @@ configs:
         workflow: primary
       workflows:
         deploy:
-          description: "## Configure Android part of the deploy workflow\n\nTo generate
-            a signed APK:\n\n1. Open the **Workflow** tab of your project on Bitrise.io\n1.
-            Add **Sign APK step right after Android Build step**\n1. Click on **Code Signing**
-            tab\n1. Find the **ANDROID KEYSTORE FILE** section\n1. Click or drop your file
-            on the upload file field\n1. Fill the displayed 3 input fields:\n1. **Keystore
-            password**\n1. **Keystore alias**\n1. **Private key password**\n1. Click on
-            **[Save metadata]** button\n\nThat's it! From now on, **Sign APK** step will
-            receive your uploaded files.\n\n## Configure iOS part of the deploy workflow\n\nTo
-            generate IPA:\n\n1. Open the **Workflow** tab of your project on Bitrise.io\n1.
-            Click on **Code Signing** tab\n1. Find the **PROVISIONING PROFILE** section\n1.
-            Click or drop your file on the upload file field\n1. Find the **CODE SIGNING
-            IDENTITY** section\n1. Click or drop your file on the upload file field\n1.
-            Click on **Workflows** tab\n1. Select deploy workflow\n1. Select **Xcode Archive
-            & Export for iOS** step\n1. Open **Force Build Settings** input group\n1. Specify
-            codesign settings\nSet **Force code signing with Development Team**, **Force
-            code signing with Code Signing Identity**  \nand **Force code signing with Provisioning
-            Profile** inputs regarding to the uploaded codesigning files\n1. Specify manual
-            codesign style\nIf the codesigning files, are generated manually on the Apple
-            Developer Portal,  \nyou need to explicitly specify to use manual coedsign settings
-            \ \n(as ejected rn projects have xcode managed codesigning turned on).  \nTo
-            do so, add 'CODE_SIGN_STYLE=\"Manual\"' to 'Additional options for xcodebuild
-            call' input\n\n## To run this workflow\n\nIf you want to run this workflow manually:\n\n1.
-            Open the app's build list page\n2. Click on **[Start/Schedule a Build]** button\n3.
-            Select **deploy** in **Workflow** dropdown input\n4. Click **[Start Build]**
-            button\n\nOr if you need this workflow to be started by a GIT event:\n\n1. Click
-            on **Triggers** tab\n2. Setup your desired event (push/tag/pull) and select
-            **deploy** workflow\n3. Click on **[Done]** and then **[Save]** buttons\n\nThe
-            next change in your repository that matches any of your trigger map event will
-            start **deploy** workflow.\n"
+          description: |
+            Tests, builds and deploys the app.
+
+            Next steps:
+            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1649,6 +1607,11 @@ configs:
               - configuration: Release
           - deploy-to-bitrise-io@%s: {}
         primary:
+          description: |
+            Runs tests.
+
+            Next steps:
+            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
