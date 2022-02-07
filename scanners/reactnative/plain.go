@@ -175,9 +175,9 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	// ci
-	primaryDescription := primaryWorkflowBuildOnlyDescription
+	primaryDescription := primaryWorkflowNoTestsDescription
 	if scanner.hasTest {
-		primaryDescription = primaryWorkflowWithTestDescription
+		primaryDescription = primaryWorkflowDescription
 	}
 
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryDescription)
@@ -276,7 +276,7 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	// primary
-	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowWithTestDescription)
+	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,

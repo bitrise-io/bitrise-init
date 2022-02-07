@@ -8,16 +8,16 @@ Next steps:
 - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
 `
 
-	primaryWorkflowWithTestDescription = `Runs tests.
+	primaryWorkflowDescription = `Runs tests.
 
 Next steps:
 - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
 `
 
-	primaryWorkflowBuildOnlyDescription = `Installs dependencies.
+	primaryWorkflowNoTestsDescription = `Installs dependencies.
 
 Next steps:
-- Add tests to your project and run them.
+- Add tests to your project and configure the workflow to run them.
 - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
 `
 	deployExpoWorkflowDescription = `Tests, builds and deploys the app.
@@ -26,16 +26,16 @@ Next steps:
 - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
 `
 
-	primaryExpoWorkflowWithTestDescription = `Runs tests.
+	primaryExpoWorkflowDescription = `Runs tests.
 
 Next steps:
 - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
 `
 
-	primaryExpoWorkflowBuildOnlyDescription = `Installs dependencies.
+	primaryExpoWorkflowNoTestsDescription = `Installs dependencies.
 
 Next steps:
-- Add tests to your project and run them.
+- Add tests to your project and configure the workflow to run them.
 - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
 `
 )

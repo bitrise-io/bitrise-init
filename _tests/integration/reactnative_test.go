@@ -588,7 +588,7 @@ configs:
             Installs dependencies.
 
             Next steps:
-            - Add tests to your project and run them.
+            - Add tests to your project and configure the workflow to run them.
             - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
           steps:
           - activate-ssh-key@%s: {}
