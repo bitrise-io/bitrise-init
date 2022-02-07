@@ -69,9 +69,8 @@ end
 	}
 
 	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", absPodfilePth)}
-	podfileDir := filepath.Dir(absPodfilePth)
 
-	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, podfileDir, envs)
+	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, envs)
 	if err != nil {
 		return map[string]string{}, fmt.Errorf("ruby script failed, error: %s", err)
 	}
@@ -161,9 +160,8 @@ end
 	}
 
 	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", absPodfilePth)}
-	podfileDir := filepath.Dir(absPodfilePth)
 
-	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, podfileDir, envs)
+	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, envs)
 	if err != nil {
 		return "", fmt.Errorf("ruby script failed, error: %s", err)
 	}
