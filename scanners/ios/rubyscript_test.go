@@ -17,7 +17,7 @@ puts "#{{ :test_key => 'test_value' }.to_json}"
 `
 
 	expectedOut := "{\"test_key\":\"test_value\"}"
-	actualOut, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, "", []string{})
+	actualOut, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, []string{})
 	require.NoError(t, err)
 	require.Equal(t, expectedOut, actualOut)
 }
