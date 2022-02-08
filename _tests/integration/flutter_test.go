@@ -82,13 +82,12 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -101,15 +100,13 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -122,15 +119,13 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -143,14 +138,13 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -164,16 +158,14 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -187,16 +179,14 @@ var flutterSampleAppVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -217,39 +207,7 @@ var flutterSampleAppResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        title: Project or Workspace path
-        summary: The location of your Xcode project or Xcode workspace files, stored
-          as an Environment Variable. In your Workflows, you can specify paths relative
-          to this path.
-        env_key: BITRISE_PROJECT_PATH
-        type: selector
-        value_map:
-          ios/Runner.xcworkspace:
-            title: Scheme name
-            summary: An Xcode scheme defines a collection of targets to build, a configuration
-              to use when building, and a collection of tests to execute. Only shared
-              schemes are detected automatically but you can use any scheme as a target
-              on Bitrise. You can change the scheme at any time in your Env Vars.
-            env_key: BITRISE_SCHEME
-            type: selector
-            value_map:
-              Runner:
-                title: Distribution method
-                summary: The export method used to create an .ipa file in your builds,
-                  stored as an Environment Variable. You can change this at any time,
-                  or even create several .ipa files with different export methods
-                  in the same build.
-                env_key: BITRISE_DISTRIBUTION_METHOD
-                type: selector
-                value_map:
-                  ad-hoc:
-                    config: flutter-config-test-app-both
-                  app-store:
-                    config: flutter-config-test-app-both
-                  development:
-                    config: flutter-config-test-app-both
-                  enterprise:
-                    config: flutter-config-test-app-both
+        config: flutter-config-test-app-both
 configs:
   flutter:
     flutter-config-notest-app-android: |
@@ -263,12 +221,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -280,8 +243,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -308,12 +271,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -326,14 +294,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -360,12 +323,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -378,14 +346,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -412,12 +375,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -432,8 +400,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -463,12 +431,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -484,14 +457,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -521,12 +489,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -542,14 +515,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -579,13 +547,12 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -598,15 +565,13 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -619,15 +584,13 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -640,14 +603,13 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -661,16 +623,14 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -684,16 +644,14 @@ var flutterSamplePackageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -728,12 +686,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -745,8 +708,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -773,12 +736,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -791,14 +759,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -825,12 +788,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -843,14 +811,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -877,12 +840,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -897,8 +865,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -928,12 +896,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -949,14 +922,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -986,12 +954,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1007,14 +980,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1044,13 +1012,12 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1063,15 +1030,13 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1084,15 +1049,13 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1105,14 +1068,13 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1126,16 +1088,14 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1149,16 +1109,14 @@ var flutterSamplePluginVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
 	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.XcodeArchiveVersion,
-	steps.DeployToBitriseIoVersion,
 	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1181,39 +1139,7 @@ var flutterSamplePluginResultYML = fmt.Sprintf(`options:
       .:
         config: flutter-config-notest-app-android
       example:
-        title: Project or Workspace path
-        summary: The location of your Xcode project or Xcode workspace files, stored
-          as an Environment Variable. In your Workflows, you can specify paths relative
-          to this path.
-        env_key: BITRISE_PROJECT_PATH
-        type: selector
-        value_map:
-          example/ios/Runner.xcworkspace:
-            title: Scheme name
-            summary: An Xcode scheme defines a collection of targets to build, a configuration
-              to use when building, and a collection of tests to execute. Only shared
-              schemes are detected automatically but you can use any scheme as a target
-              on Bitrise. You can change the scheme at any time in your Env Vars.
-            env_key: BITRISE_SCHEME
-            type: selector
-            value_map:
-              Runner:
-                title: Distribution method
-                summary: The export method used to create an .ipa file in your builds,
-                  stored as an Environment Variable. You can change this at any time,
-                  or even create several .ipa files with different export methods
-                  in the same build.
-                env_key: BITRISE_DISTRIBUTION_METHOD
-                type: selector
-                value_map:
-                  ad-hoc:
-                    config: flutter-config-test-app-both
-                  app-store:
-                    config: flutter-config-test-app-both
-                  development:
-                    config: flutter-config-test-app-both
-                  enterprise:
-                    config: flutter-config-test-app-both
+        config: flutter-config-test-app-both
 configs:
   flutter:
     flutter-config-notest-app-android: |
@@ -1227,12 +1153,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -1244,8 +1175,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1272,12 +1203,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1290,14 +1226,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1324,12 +1255,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1342,14 +1278,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1376,12 +1307,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
@@ -1396,8 +1332,8 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - deploy-to-bitrise-io@%s: {}
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1427,12 +1363,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1448,14 +1389,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -1485,12 +1421,17 @@ configs:
         workflow: primary
       workflows:
         deploy:
+          description: |
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+            Next steps:
+            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
+            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -1506,14 +1447,9 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
-          - xcode-archive@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
-              - scheme: $BITRISE_SCHEME
-              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
-              - configuration: Release
-          - deploy-to-bitrise-io@%s: {}
+              - ios_output_type: archive
           - cache-push@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
