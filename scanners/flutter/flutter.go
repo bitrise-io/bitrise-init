@@ -23,12 +23,14 @@ const (
 	scannerName                 = "flutter"
 	configName                  = "flutter-config"
 	projectLocationInputKey     = "project_location"
-	platformInputKey            = "platform"
 	projectLocationInputEnvKey  = "BITRISE_FLUTTER_PROJECT_LOCATION"
 	projectLocationInputTitle   = "Project location"
-	platformInputTitle          = "Platform"
 	projectLocationInputSummary = "The path to your Flutter project, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
+	platformInputKey            = "platform"
+	platformInputTitle          = "Platform"
 	platformInputSummary        = "The target platform for your first build. Your options are iOS, Android, both, or neither. You can change this in your Env Vars at any time."
+	iosOutputTypeKey            = "ios_output_type"
+	iosOutputTypeArchive        = "archive"
 	installerUpdateFlutterKey   = "is_update"
 )
 
@@ -364,10 +366,14 @@ func (scanner Scanner) generateConfigMap(isPrivateRepository bool) (models.Bitri
 			))
 		}
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(
-			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-			envmanModels.EnvironmentItemModel{platformInputKey: variant.platform},
-		))
+		flutterBuildInputs := []envmanModels.EnvironmentItemModel{
+			{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			{platformInputKey: variant.platform},
+		}
+		if variant.platform != "android" {
+			flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
+		}
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, deploySteps...)
 

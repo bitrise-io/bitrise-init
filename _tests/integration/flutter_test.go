@@ -222,7 +222,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -270,7 +272,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -290,6 +294,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -319,7 +324,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -339,6 +346,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -368,7 +376,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -422,7 +432,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -445,6 +457,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -477,7 +490,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -500,6 +515,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -671,7 +687,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -719,7 +737,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -739,6 +759,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -768,7 +789,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -788,6 +811,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -817,7 +841,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -871,7 +897,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -894,6 +922,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -926,7 +955,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -949,6 +980,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1122,7 +1154,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1170,7 +1204,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1190,6 +1226,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1219,7 +1256,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1239,6 +1278,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1268,7 +1308,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1322,7 +1364,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1345,6 +1389,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
@@ -1377,7 +1422,9 @@ configs:
       workflows:
         deploy:
           description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+
+            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
@@ -1400,6 +1447,7 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
+              - ios_output_type: archive
           - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
