@@ -784,6 +784,7 @@ var sampleAppsReactNativeJoplinVersions = []interface{}{
 	steps.NpmVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidBuildVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -919,6 +920,7 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+          - cocoapods-install@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
