@@ -33,7 +33,7 @@ func TestReactNativeExpo(t *testing.T) {
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
 
-		validateConfigExpectation(t, "Managed Expo Workflow, no tests", strings.TrimSpace(managedExpoResultsYML), strings.TrimSpace(result))
+		validateConfigExpectation(t, "Managed Expo Workflow, no tests", strings.TrimSpace(managedWorkflowNoTestsResultsYML), strings.TrimSpace(result))
 	}
 
 	t.Log("Managed workflow with tests")
@@ -52,7 +52,7 @@ func TestReactNativeExpo(t *testing.T) {
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
 
-		validateConfigExpectation(t, "Managed Expo Workflow with tests", strings.TrimSpace(managedExpo2ResultsYML), strings.TrimSpace(result))
+		validateConfigExpectation(t, "Managed Expo Workflow with tests", strings.TrimSpace(managedWorkflowResultsYML), strings.TrimSpace(result))
 	}
 
 	t.Log("Bare workflow")
@@ -70,7 +70,7 @@ func TestReactNativeExpo(t *testing.T) {
 		result, err := fileutil.ReadStringFromFile(scanResultPth)
 		require.NoError(t, err)
 
-		validateConfigExpectation(t, "Bare Expo Workflow", strings.TrimSpace(sampleAppsExpoBareResultYML), strings.TrimSpace(result))
+		validateConfigExpectation(t, "Bare Expo Workflow", strings.TrimSpace(bareWorkflowResultYML), strings.TrimSpace(result))
 	}
 }
 
@@ -89,7 +89,7 @@ var managedExpoVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 }
 
-var managedExpoResultsYML = fmt.Sprintf(`options:
+var managedWorkflowNoTestsResultsYML = fmt.Sprintf(`options:
   react-native: {}
 configs:
   react-native:
@@ -105,10 +105,12 @@ configs:
       workflows:
         deploy:
           description: |
-            Tests, builds and deploys the app.
+            Runs a build on Expo Application Services (EAS).
 
             Next steps:
+            - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -154,7 +156,7 @@ var managedExpo2Versions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 }
 
-var managedExpo2ResultsYML = fmt.Sprintf(`options:
+var managedWorkflowResultsYML = fmt.Sprintf(`options:
   react-native: {}
 configs:
   react-native:
@@ -170,10 +172,12 @@ configs:
       workflows:
         deploy:
           description: |
-            Tests, builds and deploys the app.
+            Tests the app and runs a build on Expo Application Services (EAS).
 
             Next steps:
+            - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -225,7 +229,7 @@ var sampleAppsExpoBareVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 }
 
-var sampleAppsExpoBareResultYML = fmt.Sprintf(`options:
+var bareWorkflowResultYML = fmt.Sprintf(`options:
   react-native: {}
 configs:
   react-native:
@@ -241,10 +245,12 @@ configs:
       workflows:
         deploy:
           description: |
-            Tests, builds and deploys the app.
+            Tests the app and runs a build on Expo Application Services (EAS).
 
             Next steps:
+            - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
