@@ -20,8 +20,8 @@ const (
 )
 
 const (
-	isExpoCLIInputTitle   = "Was your React Native app created with the Expo CLI and using Managed Workflow?"
-	isExpoCLIInputSummary = "Will include *Expo Eject** Step if using Expo Managed Workflow (https://docs.expo.io/introduction/managed-vs-bare/). If ios/android native projects are present in the repository, choose No."
+	isExpoBasedProjectInputTitle   = "Is this an [Expo](https://expo.dev)-based React Native project?"
+	isExpoBasedProjectInputSummary = "Default deploy workflow runs builds on Expo Application Services (EAS) for Expo-based React Native projects.\nOtherwise native iOS and Android build steps will be used."
 )
 
 // Scanner implements the project scanner for plain React Native and Expo based projects.
@@ -215,7 +215,7 @@ func (scanner *Scanner) Configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 
 // DefaultOptions implements ScannerInterface.DefaultOptions function.
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	expoOption := models.NewOption(isExpoCLIInputTitle, isExpoCLIInputSummary, "", models.TypeSelector)
+	expoOption := models.NewOption(isExpoBasedProjectInputSummary, isExpoBasedProjectInputSummary, "", models.TypeSelector)
 
 	expoDefaultOptions := scanner.expoDefaultOptions()
 	expoOption.AddOption("yes", &expoDefaultOptions)
