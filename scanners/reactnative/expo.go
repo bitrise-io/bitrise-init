@@ -3,17 +3,12 @@ package reactnative
 import (
 	"fmt"
 	"path/filepath"
-	"regexp"
-	"strings"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/scanners/android"
-	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -102,110 +97,7 @@ jq '.expo.android |= if has("package") or env.`+androidEnvKey+` == "" or env.`+a
 
 // expoOptions implements ScannerInterface.Options function for Expo based React Native projects.
 func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings, error) {
-	warnings := models.Warnings{}
-	if scanner.expoSettings == nil {
-		return models.OptionNode{}, warnings, errors.New("can not generate expo Options, expoSettings is nil")
-	}
-	if !scanner.expoSettings.isAndroid && !scanner.expoSettings.isIOS {
-		return models.OptionNode{}, warnings, errors.New("can not generate expo Option, neither iOS or Android platform detected")
-	}
-
-	log.TPrintf("Project name: %v", scanner.expoSettings.name)
-	var iosNode *models.OptionNode
-	var distributionMethodOption *models.OptionNode
-	if scanner.expoSettings.isIOS { // ios options
-		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeOptionalSelector)
-
-		// predict the ejected project name
-		projectName := strings.ToLower(regexp.MustCompile(`(?i:[^a-z0-9])`).ReplaceAllString(scanner.expoSettings.name, ""))
-		projectPathOption := models.NewOption(bareIOSProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeOptionalSelector)
-		if projectName != "" {
-			projectPathOption.AddOption(filepath.Join("./", "ios", projectName+".xcworkspace"), schemeOption)
-		} else {
-			projectPathOption.AddOption("", schemeOption)
-		}
-
-		if scanner.expoSettings.bundleIdentifierIOS == "" { // bundle ID Option
-			iosNode = models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummary, iosBundleIDEnvKey, models.TypeUserInput)
-			iosNode.AddOption("", projectPathOption)
-		} else {
-			iosNode = projectPathOption
-		}
-
-		developmentTeamOption := models.NewOption(iosDevelopmentTeamInputTitle, iosDevelopmentTeamInputSummary, iosDevelopmentTeamEnv, models.TypeUserInput)
-		schemeOption.AddOption(projectName, developmentTeamOption)
-
-		distributionMethodOption = models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
-		developmentTeamOption.AddOption("", distributionMethodOption)
-	}
-
-	var androidNode *models.OptionNode
-	var buildVariantOption *models.OptionNode
-	if scanner.expoSettings.isAndroid { // android options
-		packageJSONDir := filepath.Dir(scanner.packageJSONPth)
-		relPackageJSONDir, err := utility.RelPath(scanner.searchDir, packageJSONDir)
-		if err != nil {
-			return models.OptionNode{}, warnings, fmt.Errorf("Failed to get relative package.json dir path, error: %s", err)
-		}
-		if relPackageJSONDir == "." {
-			// package.json placed in the search dir, no need to change-dir in the workflows
-			relPackageJSONDir = ""
-		}
-
-		var projectSettingNode *models.OptionNode
-		var moduleOption *models.OptionNode
-		if relPackageJSONDir == "" {
-			projectSettingNode = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
-
-			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-			projectSettingNode.AddOption("./android", moduleOption)
-		} else {
-			projectSettingNode = models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeSelector)
-
-			projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
-			projectSettingNode.AddOption(relPackageJSONDir, projectLocationOption)
-
-			moduleOption = models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-			projectLocationOption.AddOption(filepath.Join(relPackageJSONDir, "android"), moduleOption)
-		}
-
-		if scanner.expoSettings.packageNameAndroid == "" {
-			androidNode = models.NewOption(androidPackageInputTitle, androidPackageInputSummary, androidPackageEnvKey, models.TypeUserInput)
-			androidNode.AddOption("", projectSettingNode)
-		} else {
-			androidNode = projectSettingNode
-		}
-
-		buildVariantOption = models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
-		moduleOption.AddOption("app", buildVariantOption)
-	}
-
-	rootNode := iosNode
-	if iosNode != nil {
-		if androidNode != nil {
-			for _, exportMethod := range ios.IosExportMethods {
-				distributionMethodOption.AddOption(exportMethod, androidNode)
-			}
-		}
-	} else {
-		rootNode = androidNode
-	}
-
-	for _, lastOption := range rootNode.LastChilds() {
-		lastOption.ChildOptionMap = map[string]*models.OptionNode{}
-		if androidNode != nil {
-			// Android buildVariantOption is last
-			lastOption.AddConfig("Release", models.NewConfigOption(expoConfigName, nil))
-			continue
-		}
-
-		// iOS distributionMethodOption is last
-		for _, exportMethod := range ios.IosExportMethods {
-			lastOption.AddConfig(exportMethod, models.NewConfigOption(expoConfigName, nil))
-		}
-	}
-
-	return *rootNode, warnings, nil
+	return models.OptionNode{}, models.Warnings{}, nil
 }
 
 // expoConfigs implements ScannerInterface.Configs function for Expo based React Native projects.
@@ -269,7 +161,7 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 
 // expoDefaultOptions implements ScannerInterface.DefaultOptions function for Expo based React Native projects.
 func (Scanner) expoDefaultOptions() models.OptionNode {
-	// TODO: update it with Expo wording
+	// TODO: update options with Expo wording
 	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeUserInput)
 	return *workDirOption
 }
