@@ -556,9 +556,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
                               enterprise:
                                 config: default-react-native-config
       "yes":
-        title: Project root directory
-        summary: The directory of the 'app.json' or 'package.json' file of your React
-          Native project.
+        title: Expo project directory
+        summary: Path of the directory containing the project's  `+"`package.json`"+` and
+          app configuration file (`+"`app.json`"+`, `+"`app.config.js`"+`, `+"`app.config.ts`"+`).
         env_key: WORKDIR
         type: user_input
 configs:
@@ -647,8 +647,8 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
               inputs:
-              - command: install
               - workdir: $CORDOVA_WORK_DIR
+              - command: install
           - generate-cordova-build-configuration@%s: {}
           - cordova-archive@%s:
               inputs:
@@ -1056,8 +1056,8 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
               inputs:
-              - command: install
               - workdir: $IONIC_WORK_DIR
+              - command: install
           - generate-cordova-build-configuration@%s: {}
           - ionic-archive@%s:
               inputs:

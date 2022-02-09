@@ -7,7 +7,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
 	"gopkg.in/yaml.v2"
 )
@@ -18,8 +17,8 @@ const (
 )
 
 const (
-	projectRootDirInputTitle   = "Project root directory"
-	projectRootDirInputSummary = "The directory of the 'app.json' or 'package.json' file of your React Native project."
+	expoProjectDirInputTitle   = "Expo project directory"
+	expoProjectDirInputSummary = "Path of the directory containing the project's  `package.json` and app configuration file (`app.json`, `app.config.js`, `app.config.ts`)."
 )
 
 const wordirEnv = "WORKDIR"
@@ -69,7 +68,7 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem(envmanModels.EnvironmentItemModel{"work_dir": relPackageJSONDir}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem(relPackageJSONDir))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// generate bitrise.yml
@@ -91,7 +90,7 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 // expoDefaultOptions implements ScannerInterface.DefaultOptions function for Expo based React Native projects.
 func (Scanner) expoDefaultOptions() models.OptionNode {
 	// TODO: update options with Expo wording
-	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeUserInput)
+	workDirOption := models.NewOption(expoProjectDirInputTitle, expoProjectDirInputSummary, wordirEnv, models.TypeUserInput)
 	return *workDirOption
 }
 
@@ -117,7 +116,7 @@ func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeActivateSSH: true,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, getTestSteps("$WORKDIR", true, true)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem(envmanModels.EnvironmentItemModel{"work_dir": "$WORKDIR"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem("$WORKDIR"))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	// generate bitrise.yml

@@ -282,8 +282,7 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeActivateSSH: true,
 	})...)
 	// Assuming project uses yarn and has tests
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, getTestSteps("", true, true)...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy
@@ -292,8 +291,7 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,
 	})...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, getTestSteps("", true, true)...)
 
 	// android
 	projectLocationEnv := "$" + android.ProjectLocationInputEnvKey
@@ -335,24 +333,17 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 }
 
 func getTestSteps(workDir string, hasYarnLockFile, hasTest bool) []bitriseModels.StepListItemModel {
-	var (
-		testSteps      []bitriseModels.StepListItemModel
-		workdirEnvList []envmanModels.EnvironmentItemModel
-	)
-
-	if workDir != "" {
-		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: workDir})
-	}
+	var testSteps []bitriseModels.StepListItemModel
 
 	if hasYarnLockFile {
-		testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		testSteps = append(testSteps, steps.YarnStepListItem("install", workDir))
 		if hasTest {
-			testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+			testSteps = append(testSteps, steps.YarnStepListItem("test", workDir))
 		}
 	} else {
-		testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
+		testSteps = append(testSteps, steps.NpmStepListItem("install", workDir))
 		if hasTest {
-			testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
+			testSteps = append(testSteps, steps.NpmStepListItem("test", workDir))
 		}
 	}
 

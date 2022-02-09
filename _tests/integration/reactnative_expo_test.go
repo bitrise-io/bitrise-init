@@ -115,9 +115,7 @@ configs:
           - yarn@%s:
               inputs:
               - command: install
-          - run-eas-build@%s:
-              inputs:
-              - work_dir: ""
+          - run-eas-build@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -185,9 +183,7 @@ configs:
           - yarn@%s:
               inputs:
               - command: test
-          - run-eas-build@%s:
-              inputs:
-              - work_dir: ""
+          - run-eas-build@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -258,9 +254,7 @@ configs:
           - yarn@%s:
               inputs:
               - command: test
-          - run-eas-build@%s:
-              inputs:
-              - work_dir: ""
+          - run-eas-build@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
