@@ -37,6 +37,14 @@ func (*Scanner) ExcludedScannerNames() []string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
+	detected, projects, projectRoots, err := detect(searchDir)
+	scanner.ProjectRoots = projectRoots
+	scanner.Projects = projects
+
+	return detected, err
+}
+
+func detect(searchDir string) (bool, []project, []string, error) {
 	projectFiles := fileGroups{
 		{"build.gradle", "build.gradle.kts"},
 		{"settings.gradle", "settings.gradle.kts"},
@@ -45,12 +53,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 	log.TInfof("Searching for android files")
 
-	var projectRoots []string
-	projectRoots, err = walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
+	projectRoots, err := walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
+		return false, []project{}, []string{}, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
-	scanner.ProjectRoots = projectRoots
 
 	log.TSuccessf("Platform detected")
 
@@ -61,12 +67,12 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	log.TPrintf("%d android files detected", len(projectRoots))
 
 	if len(projectRoots) == 0 {
-		return false, err
+		return false, []project{}, []string{}, err
 	}
 
-	scanner.Projects, err = parseProjects(searchDir, projectRoots)
+	projects, err := parseProjects(searchDir, projectRoots)
 
-	return true, err
+	return true, projects, projectRoots, err
 }
 
 func parseProjects(searchDir string, projectRoots []string) ([]project, error) {
