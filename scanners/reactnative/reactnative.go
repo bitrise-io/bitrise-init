@@ -187,7 +187,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		log.TPrintf("Project uses expo: %v", expoPrefs != nil)
 		if expoPrefs != nil {
+			// Treating the project as an Expo based React Native project
 			log.TPrintf("Expo configuration: %+v", expoPrefs)
+			expoSettings = expoPrefs
+			packageFile = packageJSONPth
+			break
 		}
 
 		if scanner.iosScanner == nil {
@@ -212,15 +216,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		}
 		log.TPrintf("Found native android project: %v", isAndroidProject)
 		scanner.androidProjects = androidProjects
-
-		if expoPrefs != nil {
-			if !(isIOSProject || isAndroidProject) {
-				expoSettings = expoPrefs
-				packageFile = packageJSONPth
-				break
-			}
-			log.TPrintf("Native ios/android project present, expo eject step will not be included.")
-		}
 
 		if isIOSProject || isAndroidProject {
 			// Treating the project as a plain React Native project
