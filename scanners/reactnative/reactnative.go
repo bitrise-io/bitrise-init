@@ -229,6 +229,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	scanner.expoSettings = expoSettings
+	log.Warnf("Treating as an Expo project: %v", scanner.expoSettings != nil)
 	scanner.packageJSONPth = packageFile
 
 	// determine Js dependency manager
