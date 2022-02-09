@@ -215,7 +215,7 @@ func (scanner *Scanner) Configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 
 // DefaultOptions implements ScannerInterface.DefaultOptions function.
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	expoOption := models.NewOption(isExpoBasedProjectInputSummary, isExpoBasedProjectInputSummary, "", models.TypeSelector)
+	expoOption := models.NewOption(isExpoBasedProjectInputTitle, isExpoBasedProjectInputSummary, "", models.TypeSelector)
 
 	expoDefaultOptions := scanner.expoDefaultOptions()
 	expoOption.AddOption("yes", &expoDefaultOptions)
