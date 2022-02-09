@@ -30,8 +30,8 @@ func Test_mapRecommendation(t *testing.T) {
 			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t parse your project files.", Description: "You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:\nNo file found at path: ios/App/App/package.json"}),
 		},
 		{
-			name: "optionsFailed gradlew error",
-			args: args{tag: optionsFailedTag, err: `<b>No Gradle Wrapper (gradlew) found.</b>
+			name: "detectPlatformFailed gradlew error",
+			args: args{tag: detectPlatformFailedTag, err: `<b>No Gradle Wrapper (gradlew) found.</b>
 Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`},
 			want: errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{Title: "We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew file in your project’s root directory.", Description: `The Gradle Wrapper ensures that the right Gradle version is installed and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the Gradle Wrapper in the Gradle docs</a>.`}),
 		},
