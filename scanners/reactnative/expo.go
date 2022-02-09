@@ -224,21 +224,6 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 	}
 	log.TPrintf("Working directory: %v", relPackageJSONDir)
 
-	xcodeArchiveStepListItem := steps.XcodeArchiveStepListItem(
-		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
-		// In case of Expo projects, you do not have the native project in your
-		// repository. During the build, we ask Expo to generate it (using the
-		// ExpoDetachStepListItem). The generated native project does not have
-		// codesigning set up (No valid development team selected). Because of this, we
-		// ask for the desired development team during the Add New App process and force
-		// the user-provided Development Team ID using the DEVELOPMENT_TEAM build setting.
-		envmanModels.EnvironmentItemModel{ios.XCConfigContentInputKey: "COMPILER_INDEX_STORE_ENABLE = NO\n" +
-			"DEVELOPMENT_TEAM = $BITRISE_IOS_DEVELOPMENT_TEAM"},
-	)
-
 	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
 	primaryDescription := primaryExpoWorkflowNoTestsDescription
@@ -256,41 +241,17 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
+	// TODO: deploy wf description update
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployExpoWorkflowDescription)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
+		ShouldIncludeCache:       false,
+		ShouldIncludeActivateSSH: isPrivateRepo,
+	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
-
-	projectDir := relPackageJSONDir
-	if relPackageJSONDir == "" {
-		projectDir = "./"
-	}
-
-	if !scanner.expoSettings.isAllIdentifierPresent() {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem(expoBareAddIdentiferScriptTitle,
-			envmanModels.EnvironmentItemModel{"content": expoBareAddIdentifiersScript(filepath.Join(projectDir, expoAppJSONName), androidPackageEnvKey, iosBundleIDEnvKey)},
-		))
-	}
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-		envmanModels.EnvironmentItemModel{"project_path": projectDir},
-	))
-
-	// android build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
-	))
-
-	// ios build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, xcodeArchiveStepListItem)
-
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem(envmanModels.EnvironmentItemModel{"work_dir": relPackageJSONDir}))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
+	// generate bitrise.yml
 	bitriseDataModel, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
@@ -308,95 +269,37 @@ func (scanner *Scanner) expoConfigs(isPrivateRepo bool) (models.BitriseConfigMap
 
 // expoDefaultOptions implements ScannerInterface.DefaultOptions function for Expo based React Native projects.
 func (Scanner) expoDefaultOptions() models.OptionNode {
-	// ios options
-	rootNode := models.NewOption(bareIOSProjectPathInputTitle, bareIOSprojectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeUserInput)
-
-	bundleIDOption := models.NewOption(iosBundleIDInputTitle, iosBundleIDInputSummaryDefault, iosBundleIDEnvKey, models.TypeUserInput)
-	rootNode.AddOption("", bundleIDOption)
-
-	schemeOption := models.NewOption(schemeInputTitle, schemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
-	bundleIDOption.AddOption("", schemeOption)
-
-	distributionMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
-	schemeOption.AddOption("", distributionMethodOption)
-
-	// android options
-	androidPackageOption := models.NewOption(androidPackageInputTitle, androidPackageInputSummaryDefault, androidPackageEnvKey, models.TypeOptionalUserInput)
-	for _, exportMethod := range ios.IosExportMethods {
-		distributionMethodOption.AddOption(exportMethod, androidPackageOption)
-	}
-
+	// TODO: update it with Expo wording
 	workDirOption := models.NewOption(projectRootDirInputTitle, projectRootDirInputSummary, wordirEnv, models.TypeUserInput)
-	androidPackageOption.AddOption("", workDirOption)
-
-	projectLocationOption := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
-	workDirOption.AddOption("", projectLocationOption)
-
-	moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-	projectLocationOption.AddOption("./android", moduleOption)
-
-	buildVariantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
-	moduleOption.AddOption("app", buildVariantOption)
-
-	for _, lastOption := range rootNode.LastChilds() {
-		lastOption.ChildOptionMap = map[string]*models.OptionNode{}
-		// buildVariantOption is the last Option added
-		lastOption.AddConfig("Release", models.NewConfigOption(expoDefaultConfigName, nil))
-	}
-
-	return *rootNode
+	return *workDirOption
 }
 
 // expoDefaultConfigs implements ScannerInterface.DefaultConfigs function for Expo based React Native projects.
-func (Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
+func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
+	// TODO: should we ask if test, if yarn, which platform to deploy?
 	configMap := models.BitriseConfigMap{}
 
 	// primary workflow
 	configBuilder := models.NewDefaultConfigBuilder()
-
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryExpoWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
 		ShouldIncludeCache:       false,
 		ShouldIncludeActivateSSH: true,
 	})...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "test"}))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, getTestSteps("$WORKDIR", true, true)...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployExpoWorkflowDescription)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.YarnStepListItem(envmanModels.EnvironmentItemModel{workDirInputKey: "$WORKDIR"}, envmanModels.EnvironmentItemModel{"command": "install"}))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ScriptSteplistItem(expoBareAddIdentiferScriptTitle,
-		envmanModels.EnvironmentItemModel{"content": expoBareAddIdentifiersScript(filepath.Join(".", expoAppJSONName), androidPackageEnvKey, iosBundleIDEnvKey)},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ExpoDetachStepListItem(
-		envmanModels.EnvironmentItemModel{"project_path": "$WORKDIR"},
-	))
-
-	// android build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-		envmanModels.EnvironmentItemModel{android.GradlewPathInputKey: "$" + android.ProjectLocationInputEnvKey + "/gradlew"},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + android.ProjectLocationInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
-		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
-	))
-
-	// ios build
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
-		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
-		envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
-		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
-	))
-
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
+		ShouldIncludeCache:       false,
+		ShouldIncludeActivateSSH: true,
+	})...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, getTestSteps("$WORKDIR", true, true)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.RunEASBuildStepListItem(envmanModels.EnvironmentItemModel{"work_dir": "$WORKDIR"}))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
 
+	// generate bitrise.yml
 	bitriseDataModel, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
