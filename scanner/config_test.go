@@ -28,7 +28,7 @@ func Test_scannerOutput_AddErrors(t *testing.T) {
 	}{
 		{
 			name: "Mapped error",
-			args: args{tag: optionsFailedTag, errs: []string{"No Gradle Wrapper (gradlew) found."}},
+			args: args{tag: detectPlatformFailedTag, errs: []string{"No Gradle Wrapper (gradlew) found."}},
 			want: scannerOutput{errorsWithRecommendation: []models.ErrorWithRecommendations{{Error: "No Gradle Wrapper (gradlew) found.", Recommendations: GradlewNotFoundRecommendation}}},
 		},
 		{
