@@ -275,6 +275,12 @@ func ExpoDetachStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitrise
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
+// RunEASBuildStepListItem ...
+func RunEASBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(RunEASBuildID, RunEASBuildVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 // YarnStepListItem ...
 func YarnStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(YarnID, YarnVersion)

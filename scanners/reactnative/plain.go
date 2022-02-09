@@ -334,27 +334,31 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	return configMap, nil
 }
 
-func (scanner *Scanner) getTestSteps(workDir string) []bitriseModels.StepListItemModel {
+func getTestSteps(workDir string, hasYarnLockFile, hasTest bool) []bitriseModels.StepListItemModel {
 	var (
-		testSteps      = []bitriseModels.StepListItemModel{}
-		workdirEnvList = []envmanModels.EnvironmentItemModel{}
+		testSteps      []bitriseModels.StepListItemModel
+		workdirEnvList []envmanModels.EnvironmentItemModel
 	)
 
 	if workDir != "" {
 		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: workDir})
 	}
 
-	if scanner.hasYarnLockFile {
+	if hasYarnLockFile {
 		testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-		if scanner.hasTest {
+		if hasTest {
 			testSteps = append(testSteps, steps.YarnStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 		}
 	} else {
 		testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
-		if scanner.hasTest {
+		if hasTest {
 			testSteps = append(testSteps, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "test"})...))
 		}
 	}
 
 	return testSteps
+}
+
+func (scanner *Scanner) getTestSteps(workDir string) []bitriseModels.StepListItemModel {
+	return getTestSteps(workDir, scanner.hasYarnLockFile, scanner.hasTest)
 }
