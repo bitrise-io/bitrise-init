@@ -1262,10 +1262,12 @@ configs:
       workflows:
         deploy:
           description: |
-            Tests, builds and deploys the app.
+            Tests the app and runs a build on Expo Application Services (EAS).
 
             Next steps:
+            - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
