@@ -42,6 +42,12 @@ const (
 	GradlewPathInputKey = "gradlew_path"
 )
 
+type project struct {
+	projectRelPath string
+	icons          models.Icons
+	warnings       models.Warnings
+}
+
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
 	return filePathWalk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

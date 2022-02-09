@@ -13,8 +13,9 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	SearchDir      string
-	ProjectRoots   []string
+	Projects     []project
+	ProjectRoots []string
+
 	ExcludeTest    bool
 	ExcludeAppIcon bool
 }
@@ -36,8 +37,6 @@ func (*Scanner) ExcludedScannerNames() []string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
-	scanner.SearchDir = searchDir
-
 	projectFiles := fileGroups{
 		{"build.gradle", "build.gradle.kts"},
 		{"settings.gradle", "settings.gradle.kts"},
@@ -46,20 +45,77 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 	log.TInfof("Searching for android files")
 
-	scanner.ProjectRoots, err = walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
+	var projectRoots []string
+	projectRoots, err = walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
 	if err != nil {
 		return false, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
+	scanner.ProjectRoots = projectRoots
 
 	log.TSuccessf("Platform detected")
 
 	for _, file := range projectFiles {
 		log.TPrintf("- %s", file)
 	}
-	countDetected := len(scanner.ProjectRoots)
-	log.TPrintf("%d android files detected", countDetected)
-	nonZeroCount := countDetected > 0
-	return nonZeroCount, err
+
+	log.TPrintf("%d android files detected", len(projectRoots))
+
+	if len(projectRoots) == 0 {
+		return false, err
+	}
+
+	scanner.Projects, err = parseProjects(searchDir, projectRoots)
+
+	return true, err
+}
+
+func parseProjects(searchDir string, projectRoots []string) ([]project, error) {
+	var (
+		lastErr  error = nil
+		projects       = []project{}
+	)
+
+	for _, projectRoot := range projectRoots {
+		var warnings models.Warnings
+
+		exists, err := containsLocalProperties(projectRoot)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if exists {
+			containsLocalPropertiesWarning := fmt.Sprintf("the local.properties file should NOT be checked into Version Control Systems, as it contains information specific to your local configuration, the location of the file is: %s", filepath.Join(projectRoot, "local.properties"))
+			warnings = []string{containsLocalPropertiesWarning}
+		}
+
+		if err := checkGradlew(projectRoot); err != nil {
+			lastErr = err
+			continue
+		}
+
+		relProjectRoot, err := filepath.Rel(searchDir, projectRoot)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		icons, err := LookupIcons(projectRoot, searchDir)
+		if err != nil {
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+		}
+
+		projects = append(projects, project{
+			projectRelPath: relProjectRoot,
+			icons:          icons,
+			warnings:       warnings,
+		})
+	}
+
+	if len(projects) == 0 && lastErr != nil {
+		return []project{}, lastErr
+	}
+
+	return projects, nil
 }
 
 // Options ...
@@ -68,37 +124,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	warnings := models.Warnings{}
 	appIconsAllProjects := models.Icons{}
 
-	foundOptions := false
-	var lastErr error = nil
-	for _, projectRoot := range scanner.ProjectRoots {
-		exists, err := containsLocalProperties(projectRoot)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-		if exists {
-			containsLocalPropertiesWarning := fmt.Sprintf("the local.properties file should NOT be checked into Version Control Systems, as it contains information specific to your local configuration, the location of the file is: %s", filepath.Join(projectRoot, "local.properties"))
-			warnings = append(warnings, containsLocalPropertiesWarning)
-		}
+	for _, project := range scanner.Projects {
+		warnings = append(warnings, project.warnings...)
 
-		if err := checkGradlew(projectRoot); err != nil {
-			lastErr = err
-			continue
-		}
-
-		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
-		if err != nil {
-			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
-		}
-		appIconsAllProjects = append(appIconsAllProjects, icons...)
-		iconIDs := make([]string, len(icons))
-		for i, icon := range icons {
+		appIconsAllProjects = append(appIconsAllProjects, project.icons...)
+		iconIDs := make([]string, len(project.icons))
+		for i, icon := range project.icons {
 			iconIDs[i] = icon.Filename
 		}
 
@@ -106,13 +137,9 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-		projectLocationOption.AddOption(relProjectRoot, moduleOption)
+		projectLocationOption.AddOption(project.projectRelPath, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
-		foundOptions = true
-	}
-	if !foundOptions && lastErr != nil {
-		return models.OptionNode{}, warnings, nil, lastErr
 	}
 
 	return *projectLocationOption, warnings, appIconsAllProjects, nil
