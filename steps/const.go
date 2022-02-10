@@ -213,13 +213,6 @@ const (
 )
 
 const (
-	// RunEASBuildID ...
-	RunEASBuildID = "run-eas-build"
-	// RunEASBuildVersion ...
-	RunEASBuildVersion = "0"
-)
-
-const (
 	// YarnID ...
 	YarnID = "yarn"
 	// YarnVersion ...
