@@ -48,6 +48,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 		for _, project := range scanner.androidProjects {
 			warnings = append(warnings, project.Warnings...)
 
+			// This config option is removed when merging with ios config. This way no change is needed for the working options merging.
 			configOption := models.NewConfigOption("glue-only", nil)
 			moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
@@ -192,7 +193,8 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
 
 	// android cd
-	if len(scanner.androidProjects) > 0 {
+	hasAndroidProject := len(scanner.androidProjects) > 0
+	if hasAndroidProject {
 		projectLocationEnv := "$" + android.ProjectLocationInputEnvKey
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
@@ -242,7 +244,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 				return models.BitriseConfigMap{}, err
 			}
 
-			configName := configName(len(scanner.androidProjects) > 0, true, scanner.hasTest)
+			configName := configName(hasAndroidProject, true, scanner.hasTest)
 			configMap[configName] = string(data)
 		}
 	} else {
@@ -258,7 +260,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 			return models.BitriseConfigMap{}, err
 		}
 
-		configName := configName(len(scanner.androidProjects) > 0, false, scanner.hasTest)
+		configName := configName(hasAndroidProject, false, scanner.hasTest)
 		configMap[configName] = string(data)
 	}
 

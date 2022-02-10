@@ -55,21 +55,22 @@ func detect(searchDir string) (bool, []Project, error) {
 		return false, nil, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
-	log.TSuccessf("Platform detected")
-
+	log.TPrintf("%d android files detected", len(projectRoots))
 	for _, file := range projectFiles {
 		log.TPrintf("- %s", file)
 	}
 
-	log.TPrintf("%d android files detected", len(projectRoots))
-
 	if len(projectRoots) == 0 {
-		return false, []Project{}, err
+		return false, nil, nil
 	}
+	log.TSuccessf("Platform detected")
 
 	projects, err := parseProjects(searchDir, projectRoots)
+	if err != nil {
+		return false, nil, err
+	}
 
-	return true, projects, err
+	return true, projects, nil
 }
 
 func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
