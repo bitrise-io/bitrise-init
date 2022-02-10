@@ -11,7 +11,8 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	searchDir         string
+	projects          []ios.Project
+	warnings          models.Warnings
 	configDescriptors []ios.ConfigDescriptor
 }
 
@@ -27,14 +28,17 @@ func (Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	scanner.searchDir = searchDir
-
 	detected, err := ios.Detect(ios.XcodeProjectTypeMacOS, searchDir)
 	if err != nil {
 		return false, err
 	}
+	if !detected {
+		return false, nil
+	}
 
-	return detected, nil
+	scanner.projects, scanner.warnings, err = ios.ParseProjects(ios.XcodeProjectTypeMacOS, searchDir, true, false)
+
+	return true, err
 }
 
 // ExcludedScannerNames ...
@@ -44,7 +48,7 @@ func (Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
-	options, configDescriptors, _, warnings, err := ios.GenerateOptions(ios.XcodeProjectTypeMacOS, scanner.searchDir, true, false)
+	options, configDescriptors, _, warnings, err := ios.GenerateOptions(ios.XcodeProjectTypeMacOS, scanner.projects, scanner.warnings)
 	if err != nil {
 		return models.OptionNode{}, warnings, nil, err
 	}

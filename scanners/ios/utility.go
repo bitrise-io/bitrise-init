@@ -170,6 +170,31 @@ func HasCartfileResolvedInDirectoryOf(pth string) bool {
 	return exist
 }
 
+// Scheme is an Xcode project scheme or target
+type Scheme struct {
+	Name       string
+	Missing    bool
+	HasXCTests bool
+	HasAppClip bool
+
+	Icons       models.Icons
+	IconWarning string
+}
+
+// Project is an Xcode project on the filesystem
+type Project struct {
+	// Is it a standalone project or a workspace?
+	IsWorkspace    bool
+	IsPodWorkspace bool
+
+	RelPath string
+	Schemes []Scheme
+
+	// Carthage command to run: bootstrap/update
+	CarthageCommand string
+	Warnings        models.Warnings
+}
+
 // Detect ...
 func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
@@ -283,46 +308,31 @@ func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string)
 	return ""
 }
 
-// GenerateOptions ...
-func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
-	warnings := models.Warnings{}
+func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) ([]Project, models.Warnings, error) {
+	var (
+		projects []Project
+		warnings models.Warnings
+	)
 
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
+		return nil, nil, err
 	}
 
 	// Separate workspaces and standalon projects
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
+		return nil, nil, err
 	}
 
 	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
+		return nil, nil, err
 	}
 
 	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
-	}
-
-	var exportMethodInputTitle string
-	var exportMethodInputSummary string
-	var exportMethodEnvKey string
-	var exportMethods []string
-
-	if projectType == XcodeProjectTypeIOS {
-		exportMethodInputTitle = DistributionMethodInputTitle
-		exportMethodInputSummary = DistributionMethodInputSummary
-		exportMethodEnvKey = DistributionMethodEnvKey
-		exportMethods = IosExportMethods
-	} else {
-		exportMethodInputTitle = ExportMethodInputTitle
-		exportMethodInputSummary = ExportMethodInputSummary
-		exportMethodEnvKey = ExportMethodEnvKey
-		exportMethods = MacExportMethods
+		return nil, nil, err
 	}
 
 	// Create cocoapods workspace-project mapping
@@ -330,7 +340,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 	podfiles, err := FilterRelevantPodfiles(fileList)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
+		return nil, nil, err
 	}
 
 	log.TPrintf("%d Podfiles detected", len(podfiles))
@@ -368,7 +378,7 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 
 	cartfiles, err := FilterRelevantCartFile(fileList)
 	if err != nil {
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, models.Warnings{}, err
+		return nil, warnings, err
 	}
 
 	log.TPrintf("%d Cartfiles detected", len(cartfiles))
@@ -376,161 +386,133 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 		log.TPrintf("- %s", file)
 	}
 
-	// Create config descriptors & options
-	configDescriptors := []ConfigDescriptor{}
-
 	defaultGitignorePth := filepath.Join(searchDir, ".gitignore")
-
-	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputSummary, ProjectPathInputEnvKey, models.TypeSelector)
-
-	// App icons, merged from every project
-	iconsForAllProjects := models.Icons{}
 
 	// Standalone Projects
 	for _, project := range standaloneProjects {
-		log.TInfof("Inspecting standalone project file: %s", project.Pth)
+		var (
+			projectWarnings []string
+			schemes         []Scheme
+		)
 
-		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputSummary, SchemeInputEnvKey, models.TypeSelector)
-		projectPathOption.AddOption(project.Pth, schemeOption)
+		log.TInfof("Inspecting standalone project file: %s", project.Pth)
 
 		projectPath, err := filepath.Abs(filepath.Join(searchDir, project.Pth))
 		if err != nil {
-			return models.OptionNode{},
-				[]ConfigDescriptor{},
-				nil,
-				warnings,
-				fmt.Errorf("failed to get project path, error: %s", err)
+			return nil, warnings, fmt.Errorf("failed to get project path, error: %s", err)
 		}
 
 		carthageCommand, warning := detectCarthageCommand(project.Pth)
 		if warning != "" {
-			warnings = append(warnings, warning)
+			projectWarnings = append(projectWarnings, warning)
 		}
 
 		log.TPrintf("%d shared schemes detected", len(project.SharedSchemes))
-
 		if len(project.SharedSchemes) == 0 {
 			message := printMissingSharedSchemesAndGenerateWarning(project.Pth, defaultGitignorePth, project.Targets)
 			if message != "" {
-				warnings = append(warnings, message)
+				projectWarnings = append(projectWarnings, message)
 			}
 
 			for _, target := range project.Targets {
-
-				exportMethodOption := models.NewOption(exportMethodInputTitle, exportMethodInputSummary, exportMethodEnvKey, models.TypeSelector)
-				schemeOption.AddOption(target.Name, exportMethodOption)
-
-				iconIDs := []string{}
+				var icons models.Icons
 				if !excludeAppIcon {
-					icons, err := lookupIconByTargetName(projectPath, target.Name, searchDir)
-					if err != nil {
+					if icons, err = lookupIconByTargetName(projectPath, target.Name, searchDir); err != nil {
 						log.Warnf("could not get icons for app: %s, error: %s", projectPath, err)
 						analytics.LogInfo(iconFailureTag, analytics.DetectorErrorData(string(XcodeProjectTypeIOS), err), "Failed to lookup ios icons")
 					}
-					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					for _, icon := range icons {
-						iconIDs = append(iconIDs, icon.Filename)
-					}
 				}
 
-				for _, exportMethod := range exportMethods {
-					configDescriptor := NewConfigDescriptor(false, carthageCommand, target.HasXCTest, target.HasAppClip, exportMethod, true)
-					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
-
-					exportMethodOption.AddConfig(exportMethod, configOption)
-				}
+				schemes = append(schemes, Scheme{
+					Name:       target.Name,
+					Missing:    true,
+					HasXCTests: target.HasXCTest,
+					HasAppClip: target.HasAppClip,
+					Icons:      icons,
+				})
 			}
 		} else {
 			for _, scheme := range project.SharedSchemes {
 				log.TPrintf("- %s", scheme.Name)
 
-				exportMethodOption := models.NewOption(exportMethodInputTitle, exportMethodInputSummary, exportMethodEnvKey, models.TypeSelector)
-				schemeOption.AddOption(scheme.Name, exportMethodOption)
-
-				iconIDs := []string{}
+				var icons models.Icons
 				if !excludeAppIcon {
-					icons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
-					if err != nil {
+					if icons, err = lookupIconBySchemeName(projectPath, scheme.Name, searchDir); err != nil {
 						log.Warnf("could not get icons for app: %s, error: %s", projectPath, err)
 						analytics.LogInfo(iconFailureTag, analytics.DetectorErrorData(string(XcodeProjectTypeIOS), err), "Failed to lookup ios icons")
 					}
-					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					for _, icon := range icons {
-						iconIDs = append(iconIDs, icon.Filename)
-					}
 				}
 
-				for _, exportMethod := range exportMethods {
-					configDescriptor := NewConfigDescriptor(false, carthageCommand, scheme.HasXCTest, schemeHasAppClipTarget(scheme, project.Targets), exportMethod, false)
-					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
-
-					exportMethodOption.AddConfig(exportMethod, configOption)
-				}
+				schemes = append(schemes, Scheme{
+					Name:       scheme.Name,
+					Missing:    false,
+					HasXCTests: scheme.HasXCTest,
+					HasAppClip: schemeHasAppClipTarget(scheme, project.Targets),
+					Icons:      icons,
+				})
 			}
 		}
+
+		projects = append(projects, Project{
+			IsWorkspace:     false,
+			IsPodWorkspace:  false,
+			RelPath:         project.Pth,
+			CarthageCommand: carthageCommand,
+			Warnings:        projectWarnings,
+			Schemes:         schemes,
+		})
 	}
 
 	// Workspaces
 	for _, workspace := range workspaces {
-		log.TInfof("Inspecting workspace file: %s", workspace.Pth)
+		var (
+			projectWarnings []string
+			schemes         []Scheme
+		)
 
-		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputSummary, SchemeInputEnvKey, models.TypeSelector)
-		projectPathOption.AddOption(workspace.Pth, schemeOption)
+		log.TInfof("Inspecting workspace file: %s", workspace.Pth)
 
 		carthageCommand, warning := detectCarthageCommand(workspace.Pth)
 		if warning != "" {
-			warnings = append(warnings, warning)
+			projectWarnings = append(projectWarnings, warning)
 		}
 
-		sharedSchemes := workspace.GetSharedSchemes()
-		log.TPrintf("%d shared schemes detected", len(sharedSchemes))
+		workspaceSharedSchemes := workspace.GetSharedSchemes()
+		log.TPrintf("%d shared schemes detected", len(workspaceSharedSchemes))
 
-		if len(sharedSchemes) == 0 {
-			targets := workspace.GetTargets()
-
-			message := printMissingSharedSchemesAndGenerateWarning(workspace.Pth, defaultGitignorePth, targets)
+		if len(workspaceSharedSchemes) == 0 {
+			message := printMissingSharedSchemesAndGenerateWarning(workspace.Pth, defaultGitignorePth, workspace.GetTargets())
 			if message != "" {
 				warnings = append(warnings, message)
 			}
 
 			// Workspace path need not exist as it could be generated by cocoapods
-			for _, project := range workspace.Projects { // Not reusing targets as project path is needed
+			for _, project := range workspace.Projects {
+				// Not using workspace.GetTargets() as project path is needed
 				for _, target := range project.Targets {
-					exportMethodOption := models.NewOption(exportMethodInputTitle, exportMethodInputSummary, exportMethodEnvKey, models.TypeSelector)
-					schemeOption.AddOption(target.Name, exportMethodOption)
+					var icons models.Icons
 
-					iconIDs := []string{}
 					if !excludeAppIcon {
-						icons, err := lookupIconByTargetName(project.Pth, target.Name, searchDir)
-						if err != nil {
+						if icons, err = lookupIconByTargetName(project.Pth, target.Name, searchDir); err != nil {
 							log.Warnf("could not get icons for app: %s, error: %s", project.Pth, err)
 							analytics.LogInfo(iconFailureTag, analytics.DetectorErrorData(string(XcodeProjectTypeIOS), err), "Failed to lookup ios icons")
 						}
-						iconsForAllProjects = append(iconsForAllProjects, icons...)
-						for _, icon := range icons {
-							iconIDs = append(iconIDs, icon.Filename)
-						}
 					}
 
-					for _, exportMethod := range exportMethods {
-						configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, target.HasXCTest, target.HasAppClip, exportMethod, true)
-						configDescriptors = append(configDescriptors, configDescriptor)
-						configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
-
-						exportMethodOption.AddConfig(exportMethod, configOption)
-					}
+					schemes = append(schemes, Scheme{
+						Name:       target.Name,
+						Missing:    true,
+						HasXCTests: target.HasXCTest,
+						HasAppClip: target.HasAppClip,
+						Icons:      icons,
+					})
 				}
 			}
 		} else {
-			for _, scheme := range sharedSchemes {
+			for _, scheme := range workspaceSharedSchemes {
+				var icons models.Icons
 				log.TPrintf("- %s", scheme.Name)
 
-				exportMethodOption := models.NewOption(exportMethodInputTitle, exportMethodInputSummary, exportMethodEnvKey, models.TypeSelector)
-				schemeOption.AddOption(scheme.Name, exportMethodOption)
-
-				iconIDs := []string{}
 				if !excludeAppIcon {
 					// Workspace path need not exist as it could be generated by cocoapods
 					projectPathRel := projectPathByScheme(workspace.Projects, scheme.Name)
@@ -549,37 +531,98 @@ func GenerateOptions(projectType XcodeProjectType, searchDir string, excludeAppI
 						continue
 					}
 
-					icons, err := lookupIconBySchemeName(projectPath, scheme.Name, searchDir)
-					if err != nil {
+					if icons, err = lookupIconBySchemeName(projectPath, scheme.Name, searchDir); err != nil {
 						log.Warnf("could not get icons for app: %s, error: %s", projectPath, err)
 						analytics.LogInfo(iconFailureTag, analytics.DetectorErrorData(string(XcodeProjectTypeIOS), err), "Failed to lookup ios icons")
 					}
-					iconsForAllProjects = append(iconsForAllProjects, icons...)
-					for _, icon := range icons {
-						iconIDs = append(iconIDs, icon.Filename)
-					}
 				}
 
-				for _, exportMethod := range exportMethods {
-					// only add appclip for development and ad-hoc
-					configDescriptor := NewConfigDescriptor(workspace.IsPodWorkspace, carthageCommand, scheme.HasXCTest, schemeHasAppClipTarget(scheme, workspace.GetTargets()), exportMethod, false)
-					configDescriptors = append(configDescriptors, configDescriptor)
-					configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
+				schemes = append(schemes, Scheme{
+					Name:       scheme.Name,
+					Missing:    false,
+					HasXCTests: scheme.HasXCTest,
+					HasAppClip: schemeHasAppClipTarget(scheme, workspace.GetTargets()),
+					Icons:      icons,
+				})
+			}
+		}
 
-					exportMethodOption.AddConfig(exportMethod, configOption)
-				}
+		projects = append(projects, Project{
+			IsWorkspace:     true,
+			IsPodWorkspace:  workspace.IsPodWorkspace,
+			RelPath:         workspace.Pth,
+			Schemes:         schemes,
+			CarthageCommand: carthageCommand,
+			Warnings:        projectWarnings,
+		})
+	}
+
+	return projects, warnings, nil
+}
+
+// GenerateOptions ...
+func GenerateOptions(projectType XcodeProjectType, projects []Project, platfromWarnings models.Warnings) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
+	var (
+		exportMethodInputTitle   string
+		exportMethodInputSummary string
+		exportMethodEnvKey       string
+		exportMethods            []string
+	)
+
+	if projectType == XcodeProjectTypeIOS {
+		exportMethodInputTitle = DistributionMethodInputTitle
+		exportMethodInputSummary = DistributionMethodInputSummary
+		exportMethodEnvKey = DistributionMethodEnvKey
+		exportMethods = IosExportMethods
+	} else {
+		exportMethodInputTitle = ExportMethodInputTitle
+		exportMethodInputSummary = ExportMethodInputSummary
+		exportMethodEnvKey = ExportMethodEnvKey
+		exportMethods = MacExportMethods
+	}
+
+	var (
+		allWarnings         = platfromWarnings
+		iconsForAllProjects models.Icons
+		configDescriptors   []ConfigDescriptor
+	)
+
+	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputSummary, ProjectPathInputEnvKey, models.TypeSelector)
+	for _, project := range projects {
+		allWarnings = append(allWarnings, project.Warnings...)
+
+		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputSummary, SchemeInputEnvKey, models.TypeSelector)
+		projectPathOption.AddOption(project.RelPath, schemeOption)
+
+		for _, scheme := range project.Schemes {
+			exportMethodOption := models.NewOption(exportMethodInputTitle, exportMethodInputSummary, exportMethodEnvKey, models.TypeSelector)
+			schemeOption.AddOption(scheme.Name, exportMethodOption)
+
+			iconsForAllProjects = append(iconsForAllProjects, scheme.Icons...)
+
+			iconIDs := []string{}
+			for _, icon := range scheme.Icons {
+				iconIDs = append(iconIDs, icon.Filename)
+			}
+
+			for _, exportMethod := range exportMethods {
+				// Wether app-clip export Step is added later depends on the used export method
+				configDescriptor := NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, exportMethod, scheme.Missing)
+				configDescriptors = append(configDescriptors, configDescriptor)
+				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
+
+				exportMethodOption.AddConfig(exportMethod, configOption)
 			}
 		}
 	}
 
 	configDescriptors = RemoveDuplicatedConfigDescriptors(configDescriptors, projectType)
-
 	if len(configDescriptors) == 0 {
 		log.TErrorf("No valid %s config found", string(projectType))
-		return models.OptionNode{}, []ConfigDescriptor{}, nil, warnings, fmt.Errorf("No valid %s config found", string(projectType))
+		return models.OptionNode{}, []ConfigDescriptor{}, nil, allWarnings, fmt.Errorf("No valid %s config found", string(projectType))
 	}
 
-	return *projectPathOption, configDescriptors, iconsForAllProjects, warnings, nil
+	return *projectPathOption, configDescriptors, iconsForAllProjects, allWarnings, nil
 }
 
 // GenerateDefaultOptions ...

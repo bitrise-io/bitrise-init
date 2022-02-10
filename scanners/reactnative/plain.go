@@ -70,10 +70,10 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	if exist, err := pathutil.IsDirExists(iosDir); err != nil {
 		return models.OptionNode{}, warnings, err
 	} else if exist {
+		scanner.iosScanner.SuppressPodFileParseError = true
 		if detected, err := scanner.iosScanner.DetectPlatform(scanner.searchDir); err != nil {
 			return models.OptionNode{}, warnings, err
 		} else if detected {
-			scanner.iosScanner.SuppressPodFileParseError = true
 			options, warns, _, err := scanner.iosScanner.Options()
 			warnings = append(warnings, warns...)
 			if err != nil {
