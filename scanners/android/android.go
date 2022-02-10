@@ -14,8 +14,6 @@ import (
 // Scanner ...
 type Scanner struct {
 	Projects []Project
-
-	ExcludeAppIcon bool
 }
 
 // NewScanner ...

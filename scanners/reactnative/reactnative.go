@@ -195,7 +195,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			scanner.iosScanner.ExcludeAppIcon = true
 		}
 		androidScanner := android.NewScanner()
-		androidScanner.ExcludeAppIcon = true
 
 		projectDir := filepath.Dir(packageJSONPth)
 		isIOSProject, err := hasNativeIOSProject(searchDir, projectDir, scanner.iosScanner)
