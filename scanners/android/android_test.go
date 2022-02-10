@@ -23,9 +23,9 @@ func Test_detect(t *testing.T) {
 		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-android-sdk22.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
 
-		wantProj := []project{{
-			projectRelPath: ".",
-			icons: models.Icons{{
+		wantProj := []Project{{
+			ProjectRelPath: ".",
+			Icons: models.Icons{{
 				Filename: "81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png",
 				Path:     filepath.Join(sampleAppDir, "app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),
 			}},

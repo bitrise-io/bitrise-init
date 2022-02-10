@@ -13,7 +13,7 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	Projects     []project
+	Projects     []Project
 	ProjectRoots []string
 
 	ExcludeTest    bool
@@ -44,7 +44,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	return detected, err
 }
 
-func detect(searchDir string) (bool, []project, []string, error) {
+func detect(searchDir string) (bool, []Project, []string, error) {
 	projectFiles := fileGroups{
 		{"build.gradle", "build.gradle.kts"},
 		{"settings.gradle", "settings.gradle.kts"},
@@ -55,7 +55,7 @@ func detect(searchDir string) (bool, []project, []string, error) {
 
 	projectRoots, err := walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
 	if err != nil {
-		return false, []project{}, []string{}, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
+		return false, []Project{}, []string{}, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
 	}
 
 	log.TSuccessf("Platform detected")
@@ -67,7 +67,7 @@ func detect(searchDir string) (bool, []project, []string, error) {
 	log.TPrintf("%d android files detected", len(projectRoots))
 
 	if len(projectRoots) == 0 {
-		return false, []project{}, []string{}, err
+		return false, []Project{}, []string{}, err
 	}
 
 	projects, err := parseProjects(searchDir, projectRoots)
@@ -75,18 +75,22 @@ func detect(searchDir string) (bool, []project, []string, error) {
 	return true, projects, projectRoots, err
 }
 
-func parseProjects(searchDir string, projectRoots []string) ([]project, error) {
+func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 	var (
-		lastErr  error = nil
-		projects       = []project{}
+		lastErr  error
+		projects []Project
 	)
 
 	for _, projectRoot := range projectRoots {
 		var warnings models.Warnings
 
+		log.TInfof("Investigating Android project: %s", projectRoot)
+
 		exists, err := containsLocalProperties(projectRoot)
 		if err != nil {
 			lastErr = err
+			log.TWarnf("%s", err)
+
 			continue
 		}
 		if exists {
@@ -96,12 +100,16 @@ func parseProjects(searchDir string, projectRoots []string) ([]project, error) {
 
 		if err := checkGradlew(projectRoot); err != nil {
 			lastErr = err
+			log.TWarnf("%s", err)
+
 			continue
 		}
 
 		relProjectRoot, err := filepath.Rel(searchDir, projectRoot)
 		if err != nil {
 			lastErr = err
+			log.TWarnf("%s", err)
+
 			continue
 		}
 
@@ -110,15 +118,15 @@ func parseProjects(searchDir string, projectRoots []string) ([]project, error) {
 			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
 		}
 
-		projects = append(projects, project{
-			projectRelPath: relProjectRoot,
-			icons:          icons,
-			warnings:       warnings,
+		projects = append(projects, Project{
+			ProjectRelPath: relProjectRoot,
+			Icons:          icons,
+			Warnings:       warnings,
 		})
 	}
 
-	if len(projects) == 0 && lastErr != nil {
-		return []project{}, lastErr
+	if len(projects) == 0 {
+		return []Project{}, lastErr
 	}
 
 	return projects, nil
@@ -131,11 +139,11 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	appIconsAllProjects := models.Icons{}
 
 	for _, project := range scanner.Projects {
-		warnings = append(warnings, project.warnings...)
+		warnings = append(warnings, project.Warnings...)
+		appIconsAllProjects = append(appIconsAllProjects, project.Icons...)
 
-		appIconsAllProjects = append(appIconsAllProjects, project.icons...)
-		iconIDs := make([]string, len(project.icons))
-		for i, icon := range project.icons {
+		iconIDs := make([]string, len(project.Icons))
+		for i, icon := range project.Icons {
 			iconIDs[i] = icon.Filename
 		}
 
@@ -143,7 +151,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-		projectLocationOption.AddOption(project.projectRelPath, moduleOption)
+		projectLocationOption.AddOption(project.ProjectRelPath, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
 	}

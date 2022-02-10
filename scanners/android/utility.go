@@ -42,10 +42,11 @@ const (
 	GradlewPathInputKey = "gradlew_path"
 )
 
-type project struct {
-	projectRelPath string
-	icons          models.Icons
-	warnings       models.Warnings
+// Project is an Android project on the filesystem
+type Project struct {
+	ProjectRelPath string
+	Icons          models.Icons
+	Warnings       models.Warnings
 }
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
