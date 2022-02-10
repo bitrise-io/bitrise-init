@@ -31,7 +31,7 @@ func Test_detect(t *testing.T) {
 			}},
 		}}
 
-		got, gotProj, _, err := detect(sampleAppDir)
+		got, gotProj, err := detect(sampleAppDir)
 		require.NoError(t, err)
 		require.True(t, got)
 		require.Equal(t, wantProj, gotProj)
