@@ -2,14 +2,44 @@ package ios
 
 import "github.com/bitrise-io/bitrise-init/models"
 
+// Scheme is an Xcode project scheme or target
+type Scheme struct {
+	Name       string
+	Missing    bool
+	HasXCTests bool
+	HasAppClip bool
+
+	Icons       models.Icons
+	IconWarning string
+}
+
+// Project is an Xcode project on the filesystem
+type Project struct {
+	// Is it a standalone project or a workspace?
+	IsWorkspace    bool
+	IsPodWorkspace bool
+
+	RelPath string
+	Schemes []Scheme
+
+	// Carthage command to run: bootstrap/update
+	CarthageCommand string
+	Warnings        models.Warnings
+}
+
+// DetectResult ...
+type DetectResult struct {
+	Projects []Project
+	Warnings models.Warnings
+}
+
 //------------------
 // ScannerInterface
 //------------------
 
 // Scanner ...
 type Scanner struct {
-	Projects []Project
-	Warnings models.Warnings
+	DetectResult DetectResult
 
 	ConfigDescriptors []ConfigDescriptor
 
@@ -29,15 +59,12 @@ func (Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	detected, err := Detect(XcodeProjectTypeIOS, searchDir)
-	if err != nil {
+	if detected, err := Detect(XcodeProjectTypeIOS, searchDir); err != nil || !detected {
 		return false, err
 	}
-	if !detected {
-		return false, nil
-	}
 
-	scanner.Projects, scanner.Warnings, err = ParseProjects(XcodeProjectTypeIOS, searchDir, scanner.ExcludeAppIcon, scanner.SuppressPodFileParseError)
+	detectResult, err := ParseProjects(XcodeProjectTypeIOS, searchDir, scanner.ExcludeAppIcon, scanner.SuppressPodFileParseError)
+	scanner.DetectResult = detectResult
 
 	return true, err
 }
@@ -49,7 +76,7 @@ func (Scanner) ExcludedScannerNames() []string {
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
-	options, configDescriptors, icons, warnings, err := GenerateOptions(XcodeProjectTypeIOS, scanner.Projects, scanner.Warnings)
+	options, configDescriptors, icons, warnings, err := GenerateOptions(XcodeProjectTypeIOS, scanner.DetectResult)
 	if err != nil {
 		return models.OptionNode{}, warnings, nil, err
 	}

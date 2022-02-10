@@ -170,31 +170,6 @@ func HasCartfileResolvedInDirectoryOf(pth string) bool {
 	return exist
 }
 
-// Scheme is an Xcode project scheme or target
-type Scheme struct {
-	Name       string
-	Missing    bool
-	HasXCTests bool
-	HasAppClip bool
-
-	Icons       models.Icons
-	IconWarning string
-}
-
-// Project is an Xcode project on the filesystem
-type Project struct {
-	// Is it a standalone project or a workspace?
-	IsWorkspace    bool
-	IsPodWorkspace bool
-
-	RelPath string
-	Schemes []Scheme
-
-	// Carthage command to run: bootstrap/update
-	CarthageCommand string
-	Warnings        models.Warnings
-}
-
 // Detect ...
 func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
@@ -308,7 +283,7 @@ func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string)
 	return ""
 }
 
-func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) ([]Project, models.Warnings, error) {
+func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) (DetectResult, error) {
 	var (
 		projects []Project
 		warnings models.Warnings
@@ -316,23 +291,23 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return nil, nil, err
+		return DetectResult{}, err
 	}
 
 	// Separate workspaces and standalon projects
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
-		return nil, nil, err
+		return DetectResult{}, err
 	}
 
 	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
-		return nil, nil, err
+		return DetectResult{}, err
 	}
 
 	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
-		return nil, nil, err
+		return DetectResult{}, err
 	}
 
 	// Create cocoapods workspace-project mapping
@@ -340,7 +315,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	podfiles, err := FilterRelevantPodfiles(fileList)
 	if err != nil {
-		return nil, nil, err
+		return DetectResult{}, err
 	}
 
 	log.TPrintf("%d Podfiles detected", len(podfiles))
@@ -378,7 +353,9 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	cartfiles, err := FilterRelevantCartFile(fileList)
 	if err != nil {
-		return nil, warnings, err
+		return DetectResult{
+			Warnings: warnings,
+		}, err
 	}
 
 	log.TPrintf("%d Cartfiles detected", len(cartfiles))
@@ -399,7 +376,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 		projectPath, err := filepath.Abs(filepath.Join(searchDir, project.Pth))
 		if err != nil {
-			return nil, warnings, fmt.Errorf("failed to get project path, error: %s", err)
+			return DetectResult{Warnings: warnings}, fmt.Errorf("failed to get project path, error: %s", err)
 		}
 
 		carthageCommand, warning := detectCarthageCommand(project.Pth)
@@ -557,11 +534,14 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		})
 	}
 
-	return projects, warnings, nil
+	return DetectResult{
+		Projects: projects,
+		Warnings: warnings,
+	}, nil
 }
 
 // GenerateOptions ...
-func GenerateOptions(projectType XcodeProjectType, projects []Project, platfromWarnings models.Warnings) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
+func GenerateOptions(projectType XcodeProjectType, result DetectResult) (models.OptionNode, []ConfigDescriptor, models.Icons, models.Warnings, error) {
 	var (
 		exportMethodInputTitle   string
 		exportMethodInputSummary string
@@ -582,13 +562,13 @@ func GenerateOptions(projectType XcodeProjectType, projects []Project, platfromW
 	}
 
 	var (
-		allWarnings         = platfromWarnings
+		allWarnings         = result.Warnings
 		iconsForAllProjects models.Icons
 		configDescriptors   []ConfigDescriptor
 	)
 
 	projectPathOption := models.NewOption(ProjectPathInputTitle, ProjectPathInputSummary, ProjectPathInputEnvKey, models.TypeSelector)
-	for _, project := range projects {
+	for _, project := range result.Projects {
 		allWarnings = append(allWarnings, project.Warnings...)
 
 		schemeOption := models.NewOption(SchemeInputTitle, SchemeInputSummary, SchemeInputEnvKey, models.TypeSelector)
