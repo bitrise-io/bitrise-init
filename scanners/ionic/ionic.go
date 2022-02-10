@@ -281,14 +281,12 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
-	workdir := ""
 	if scanner.relCordovaConfigDir != "" {
-		workdir = "$" + workDirInputEnvKey
-		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: workdir})
+		workdirEnvList = append(workdirEnvList, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 
 	if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", workdir))
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 		// CI
 		if scanner.hasKarmaJasmineTest {
@@ -302,7 +300,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem("install", workdir))
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 		if scanner.hasKarmaJasmineTest {
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.KarmaJasmineTestRunnerStepListItem(workdirEnvList...))
@@ -338,7 +336,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	}
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", workdir))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(append(workdirEnvList, envmanModels.EnvironmentItemModel{"command": "install"})...))
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 
@@ -374,7 +372,9 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", "$"+workDirInputEnvKey))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem(
+		envmanModels.EnvironmentItemModel{"command": "install"},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey}))
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.IonicArchiveStepListItem(
