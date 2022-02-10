@@ -115,9 +115,9 @@ func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 		}
 
 		projects = append(projects, Project{
-			ProjectRelPath: relProjectRoot,
-			Icons:          icons,
-			Warnings:       warnings,
+			RelPath:  relProjectRoot,
+			Icons:    icons,
+			Warnings: warnings,
 		})
 	}
 
@@ -147,7 +147,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-		projectLocationOption.AddOption(project.ProjectRelPath, moduleOption)
+		projectLocationOption.AddOption(project.RelPath, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
 	}
