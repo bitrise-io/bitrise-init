@@ -24,7 +24,7 @@ func Test_detect(t *testing.T) {
 		gitClone(t, sampleAppDir, sampleAppURL)
 
 		wantProj := []Project{{
-			ProjectRelPath: ".",
+			RelPath: ".",
 			Icons: models.Icons{{
 				Filename: "81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png",
 				Path:     filepath.Join(sampleAppDir, "app", "src", "main", "res", "mipmap-xxxhdpi", "ic_launcher.png"),

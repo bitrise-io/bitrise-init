@@ -53,7 +53,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 			moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
-			androidOptions.AddOption(project.ProjectRelPath, moduleOption)
+			androidOptions.AddOption(project.RelPath, moduleOption)
 			moduleOption.AddOption("app", variantOption)
 			variantOption.AddConfig("", configOption)
 		}
