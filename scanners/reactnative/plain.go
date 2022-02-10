@@ -134,7 +134,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 
 // defaultOptions implements ScannerInterface.DefaultOptions function for plain React Native projects.
 func (scanner *Scanner) defaultOptions() models.OptionNode {
-	androidOptions := (&android.Scanner{ExcludeTest: true}).DefaultOptions()
+	androidOptions := (&android.Scanner{}).DefaultOptions()
 	androidOptions.RemoveConfigs()
 
 	iosOptions := (&ios.Scanner{}).DefaultOptions()
