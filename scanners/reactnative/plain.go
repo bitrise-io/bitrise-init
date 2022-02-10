@@ -42,26 +42,17 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	projectDir := filepath.Dir(scanner.packageJSONPth)
 
 	// android options
-	var androidOptions *models.OptionNode
-	androidDir := filepath.Join(projectDir, "android")
-	if exist, err := pathutil.IsDirExists(androidDir); err != nil {
-		return models.OptionNode{}, warnings, err
-	} else if exist {
-		if detected, err := scanner.androidScanner.DetectPlatform(scanner.searchDir); err != nil {
-			return models.OptionNode{}, warnings, err
-		} else if detected {
-			// only the first match we need
-			scanner.androidScanner.ExcludeTest = true
-			scanner.androidScanner.ProjectRoots = []string{scanner.androidScanner.ProjectRoots[0]}
+	androidOptions := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+	for _, project := range scanner.androidProjects {
+		warnings = append(warnings, project.Warnings...)
 
-			options, warns, _, err := scanner.androidScanner.Options()
-			warnings = append(warnings, warns...)
-			if err != nil {
-				return models.OptionNode{}, warnings, err
-			}
+		configOption := models.NewConfigOption("glue-only", nil)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+		variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
-			androidOptions = &options
-		}
+		androidOptions.AddOption(project.ProjectRelPath, moduleOption)
+		moduleOption.AddOption("app", variantOption)
+		variantOption.AddConfig("", configOption)
 	}
 
 	// ios options
@@ -122,7 +113,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 					return models.OptionNode{}, warnings, fmt.Errorf("no config for option: %s", child.String())
 				}
 
-				configName := configName(scanner.androidScanner != nil, true, scanner.hasTest)
+				configName := configName(androidOptions != nil, true, scanner.hasTest)
 				child.Config = configName
 			}
 		}
@@ -198,7 +189,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
 
 	// android cd
-	if scanner.androidScanner != nil {
+	if len(scanner.androidProjects) > 0 {
 		projectLocationEnv := "$" + android.ProjectLocationInputEnvKey
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
@@ -248,7 +239,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 				return models.BitriseConfigMap{}, err
 			}
 
-			configName := configName(scanner.androidScanner != nil, true, scanner.hasTest)
+			configName := configName(len(scanner.androidProjects) > 0, true, scanner.hasTest)
 			configMap[configName] = string(data)
 		}
 	} else {
@@ -264,7 +255,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 			return models.BitriseConfigMap{}, err
 		}
 
-		configName := configName(scanner.androidScanner != nil, false, scanner.hasTest)
+		configName := configName(len(scanner.androidProjects) > 0, false, scanner.hasTest)
 		configMap[configName] = string(data)
 	}
 
