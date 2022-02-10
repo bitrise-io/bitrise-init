@@ -42,17 +42,20 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 	projectDir := filepath.Dir(scanner.packageJSONPth)
 
 	// android options
-	androidOptions := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
-	for _, project := range scanner.androidProjects {
-		warnings = append(warnings, project.Warnings...)
+	var androidOptions *models.OptionNode
+	if len(scanner.androidProjects) > 0 {
+		androidOptions = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+		for _, project := range scanner.androidProjects {
+			warnings = append(warnings, project.Warnings...)
 
-		configOption := models.NewConfigOption("glue-only", nil)
-		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
-		variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
+			configOption := models.NewConfigOption("glue-only", nil)
+			moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+			variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
-		androidOptions.AddOption(project.ProjectRelPath, moduleOption)
-		moduleOption.AddOption("app", variantOption)
-		variantOption.AddConfig("", configOption)
+			androidOptions.AddOption(project.ProjectRelPath, moduleOption)
+			moduleOption.AddOption("app", variantOption)
+			variantOption.AddConfig("", configOption)
+		}
 	}
 
 	// ios options

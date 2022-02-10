@@ -203,6 +203,9 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			log.TWarnf("failed to check native iOS projects: %s", err)
 		}
 		log.TPrintf("Found native ios project: %v", isIOSProject)
+		if !isIOSProject {
+			scanner.iosScanner = nil
+		}
 
 		isAndroidProject, androidProjects, err := hasNativeAndroidProject(searchDir, projectDir, androidScanner)
 		if err != nil {
