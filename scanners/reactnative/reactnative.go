@@ -27,8 +27,10 @@ const (
 // Scanner implements the project scanner for plain React Native and Expo based projects.
 type Scanner struct {
 	searchDir       string
-	iosScanner      *ios.Scanner
+	iosProjects     ios.DetectResult
 	androidProjects []android.Project
+
+	configDescriptors []configDescriptor
 
 	hasTest         bool
 	hasYarnLockFile bool
@@ -72,18 +74,20 @@ func isExpoBasedProject(packageJSONPth string) (bool, error) {
 	return false, nil
 }
 
-func hasNativeIOSProject(searchDir, projectDir string, iosScanner *ios.Scanner) (bool, error) {
+func hasNativeIOSProject(searchDir, projectDir string, iosScanner *ios.Scanner) (bool, ios.DetectResult, error) {
 	absProjectDir, err := pathutil.AbsPath(projectDir)
 	if err != nil {
-		return false, err
+		return false, ios.DetectResult{}, err
 	}
 
 	iosDir := filepath.Join(absProjectDir, "ios")
 	if exist, err := pathutil.IsDirExists(iosDir); err != nil || !exist {
-		return false, err
+		return false, ios.DetectResult{}, err
 	}
 
-	return iosScanner.DetectPlatform(searchDir)
+	detected, err := iosScanner.DetectPlatform(searchDir)
+
+	return detected, iosScanner.DetectResult, err
 }
 
 func hasNativeAndroidProject(searchDir, projectDir string, androidScanner *android.Scanner) (bool, []android.Project, error) {
@@ -137,21 +141,20 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		log.TPrintf("Project uses expo: %v", expoBased)
 
-		if scanner.iosScanner == nil {
-			scanner.iosScanner = ios.NewScanner()
-			scanner.iosScanner.ExcludeAppIcon = true
-		}
-		androidScanner := android.NewScanner()
+		var (
+			iosScanner     = ios.NewScanner()
+			androidScanner = android.NewScanner()
+		)
+		iosScanner.ExcludeAppIcon = true
+		iosScanner.SuppressPodFileParseError = true
 
 		projectDir := filepath.Dir(packageJSONPth)
-		isIOSProject, err := hasNativeIOSProject(searchDir, projectDir, scanner.iosScanner)
+		isIOSProject, iosProjects, err := hasNativeIOSProject(searchDir, projectDir, iosScanner)
 		if err != nil {
 			log.TWarnf("failed to check native iOS projects: %s", err)
 		}
 		log.TPrintf("Found native ios project: %v", isIOSProject)
-		if !isIOSProject {
-			scanner.iosScanner = nil
-		}
+		scanner.iosProjects = iosProjects
 
 		isAndroidProject, androidProjects, err := hasNativeAndroidProject(searchDir, projectDir, androidScanner)
 		if err != nil {
@@ -161,7 +164,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		scanner.androidProjects = androidProjects
 
 		if isIOSProject || isAndroidProject {
-			// Treating the project as a plain React Native project
 			packageFile = packageJSONPth
 			break
 		}
