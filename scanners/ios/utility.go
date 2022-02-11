@@ -577,7 +577,7 @@ func GenerateOptions(projectType XcodeProjectType, result DetectResult) (models.
 			}
 
 			for _, exportMethod := range exportMethods {
-				// Wether app-clip export Step is added later depends on the used export method
+				// Whether app-clip export Step is added later depends on the used export method
 				configDescriptor := NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, exportMethod, scheme.Missing)
 				configDescriptors = append(configDescriptors, configDescriptor)
 				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)
