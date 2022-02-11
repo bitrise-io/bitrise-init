@@ -563,7 +563,17 @@ var customConfigResultYML = fmt.Sprintf(`options:
         type: user_input
         value_map:
           "":
-            config: default-react-native-expo-config
+            title: Platform to build
+            summary: Which platform should be built by the deploy workflow?
+            env_key: PLATFORM
+            type: selector
+            value_map:
+              all:
+                config: default-react-native-expo-config
+              android:
+                config: default-react-native-expo-config
+              ios:
+                config: default-react-native-expo-config
 configs:
   android:
     default-android-config: |
@@ -1284,6 +1294,7 @@ configs:
               - command: test
           - run-eas-build@%s:
               inputs:
+              - platform: $PLATFORM
               - work_dir: $WORKDIR
           - deploy-to-bitrise-io@%s: {}
         primary:

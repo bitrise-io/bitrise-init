@@ -91,7 +91,17 @@ var managedExpoVersions = []interface{}{
 
 var managedWorkflowNoTestsResultsYML = fmt.Sprintf(`options:
   react-native:
-    config: react-native-expo-config
+    title: Platform to build
+    summary: Which platform should be built by the deploy workflow?
+    env_key: PLATFORM
+    type: selector
+    value_map:
+      all:
+        config: react-native-expo-config
+      android:
+        config: react-native-expo-config
+      ios:
+        config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
@@ -118,7 +128,9 @@ configs:
           - yarn@%s:
               inputs:
               - command: install
-          - run-eas-build@%s: {}
+          - run-eas-build@%s:
+              inputs:
+              - platform: $PLATFORM
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -159,7 +171,17 @@ var managedExpo2Versions = []interface{}{
 
 var managedWorkflowResultsYML = fmt.Sprintf(`options:
   react-native:
-    config: react-native-expo-config
+    title: Platform to build
+    summary: Which platform should be built by the deploy workflow?
+    env_key: PLATFORM
+    type: selector
+    value_map:
+      all:
+        config: react-native-expo-config
+      android:
+        config: react-native-expo-config
+      ios:
+        config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
@@ -189,7 +211,9 @@ configs:
           - yarn@%s:
               inputs:
               - command: test
-          - run-eas-build@%s: {}
+          - run-eas-build@%s:
+              inputs:
+              - platform: $PLATFORM
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -233,7 +257,17 @@ var sampleAppsExpoBareVersions = []interface{}{
 
 var bareWorkflowResultYML = fmt.Sprintf(`options:
   react-native:
-    config: react-native-expo-config
+    title: Platform to build
+    summary: Which platform should be built by the deploy workflow?
+    env_key: PLATFORM
+    type: selector
+    value_map:
+      all:
+        config: react-native-expo-config
+      android:
+        config: react-native-expo-config
+      ios:
+        config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
@@ -263,7 +297,9 @@ configs:
           - yarn@%s:
               inputs:
               - command: test
-          - run-eas-build@%s: {}
+          - run-eas-build@%s:
+              inputs:
+              - platform: $PLATFORM
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
