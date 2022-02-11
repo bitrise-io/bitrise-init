@@ -59,14 +59,14 @@ func (Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	if detected, err := Detect(XcodeProjectTypeIOS, searchDir); err != nil || !detected {
+	result, err := ParseProjects(XcodeProjectTypeIOS, searchDir, scanner.ExcludeAppIcon, scanner.SuppressPodFileParseError)
+	if err != nil {
 		return false, err
 	}
 
-	detectResult, err := ParseProjects(XcodeProjectTypeIOS, searchDir, scanner.ExcludeAppIcon, scanner.SuppressPodFileParseError)
-	scanner.DetectResult = detectResult
-
-	return true, err
+	scanner.DetectResult = result
+	detected := len(result.Projects) > 0
+	return detected, nil
 }
 
 // ExcludedScannerNames ...

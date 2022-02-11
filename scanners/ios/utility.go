@@ -170,35 +170,6 @@ func HasCartfileResolvedInDirectoryOf(pth string) bool {
 	return exist
 }
 
-// Detect ...
-func Detect(projectType XcodeProjectType, searchDir string) (bool, error) {
-	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
-	if err != nil {
-		return false, err
-	}
-
-	log.TInfof("Filter relevant Xcode project files")
-
-	relevantXcodeprojectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
-	if err != nil {
-		return false, err
-	}
-
-	log.TPrintf("%d Xcode %s project files found", len(relevantXcodeprojectFiles), string(projectType))
-	for _, xcodeprojectFile := range relevantXcodeprojectFiles {
-		log.TPrintf("- %s", xcodeprojectFile)
-	}
-
-	if len(relevantXcodeprojectFiles) == 0 {
-		log.TPrintf("platform not detected")
-		return false, nil
-	}
-
-	log.TSuccessf("Platform detected")
-
-	return true, nil
-}
-
 func fileContains(pth, str string) (bool, error) {
 	content, err := fileutil.ReadStringFromFile(pth)
 	if err != nil {
@@ -294,11 +265,24 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		return DetectResult{}, err
 	}
 
-	// Separate workspaces and standalon projects
+	// Separate workspaces and standalone projects
+	log.TInfof("Filtering relevant Xcode project files")
 	projectFiles, err := FilterRelevantProjectFiles(fileList, projectType)
 	if err != nil {
 		return DetectResult{}, err
 	}
+
+	log.TPrintf("%d Xcode %s project files found", len(projectFiles), string(projectType))
+	for _, xcodeprojectFile := range projectFiles {
+		log.TPrintf("- %s", xcodeprojectFile)
+	}
+
+	if len(projectFiles) == 0 {
+		log.TPrintf("Platform not detected")
+		return DetectResult{}, nil
+	}
+
+	log.TSuccessf("Platform detected")
 
 	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, projectType)
 	if err != nil {
@@ -468,7 +452,6 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 				// Not using workspace.GetTargets() as project path is needed
 				for _, target := range project.Targets {
 					var icons models.Icons
-
 					if !excludeAppIcon {
 						if icons, err = lookupIconByTargetName(project.Pth, target.Name, searchDir); err != nil {
 							log.Warnf("could not get icons for app: %s, error: %s", project.Pth, err)

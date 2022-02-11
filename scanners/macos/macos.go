@@ -28,14 +28,14 @@ func (Scanner) Name() string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	if detected, err := ios.Detect(ios.XcodeProjectTypeMacOS, searchDir); err != nil || !detected {
+	result, err := ios.ParseProjects(ios.XcodeProjectTypeMacOS, searchDir, true, false)
+	if err != nil {
 		return false, err
 	}
 
-	result, err := ios.ParseProjects(ios.XcodeProjectTypeMacOS, searchDir, true, false)
 	scanner.detectResult = result
-
-	return true, err
+	detected := len(result.Projects) > 0
+	return detected, err
 }
 
 // ExcludedScannerNames ...
