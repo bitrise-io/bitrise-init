@@ -561,6 +561,9 @@ var customConfigResultYML = fmt.Sprintf(`options:
           app configuration file (`+"`app.json`"+`, `+"`app.config.js`"+`, `+"`app.config.ts`"+`).
         env_key: WORKDIR
         type: user_input
+        value_map:
+          "":
+            config: default-react-native-expo-config
 configs:
   android:
     default-android-config: |

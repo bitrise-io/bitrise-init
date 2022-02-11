@@ -90,7 +90,8 @@ var managedExpoVersions = []interface{}{
 }
 
 var managedWorkflowNoTestsResultsYML = fmt.Sprintf(`options:
-  react-native: {}
+  react-native:
+    config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
@@ -157,7 +158,8 @@ var managedExpo2Versions = []interface{}{
 }
 
 var managedWorkflowResultsYML = fmt.Sprintf(`options:
-  react-native: {}
+  react-native:
+    config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
@@ -230,7 +232,8 @@ var sampleAppsExpoBareVersions = []interface{}{
 }
 
 var bareWorkflowResultYML = fmt.Sprintf(`options:
-  react-native: {}
+  react-native:
+    config: react-native-expo-config
 configs:
   react-native:
     react-native-expo-config: |
