@@ -23,7 +23,7 @@ func Test_detect(t *testing.T) {
 		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-android-sdk22.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
 
-		wantProj := []Project{{
+		want := []Project{{
 			RelPath: ".",
 			Icons: models.Icons{{
 				Filename: "81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png",
@@ -31,9 +31,8 @@ func Test_detect(t *testing.T) {
 			}},
 		}}
 
-		got, gotProj, err := detect(sampleAppDir)
+		got, err := detect(sampleAppDir)
 		require.NoError(t, err)
-		require.True(t, got)
-		require.Equal(t, wantProj, gotProj)
+		require.Equal(t, want, got)
 	})
 }
