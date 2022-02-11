@@ -49,47 +49,49 @@ func (d configDescriptor) configName() string {
 	return name + "-config"
 }
 
+func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests bool) (*models.OptionNode, models.Warnings, []configDescriptor) {
+	var (
+		warnings    models.Warnings
+		descriptors []configDescriptor
+	)
+
+	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
+	for _, project := range result.Projects {
+		warnings = append(warnings, project.Warnings...)
+
+		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
+		projectPathOption.AddOption(project.RelPath, schemeOption)
+
+		for _, scheme := range project.Schemes {
+			exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+			schemeOption.AddOption(scheme.Name, exportMethodOption)
+
+			for _, exportMethod := range ios.IosExportMethods {
+				iosConfig := ios.NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, exportMethod, scheme.Missing)
+				descriptor := configDescriptor{
+					hasIOS:     true,
+					hasAndroid: hasAndroid,
+					hasTest:    hasTests,
+					ios:        iosConfig,
+				}
+				descriptors = append(descriptors, descriptor)
+
+				exportMethodOption.AddConfig(exportMethod, models.NewConfigOption(descriptor.configName(), nil))
+			}
+		}
+	}
+
+	return projectPathOption, warnings, descriptors
+}
+
 // options implements ScannerInterface.Options function for plain React Native projects.
 func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
-	warnings := models.Warnings{}
 	var (
 		rootOption                 models.OptionNode
 		androidOptions, iosOptions *models.OptionNode
 		allDescriptors             []configDescriptor
 	)
-
-	// iOS
-	generateIOSOptions := func(hasAndroid, hasTests bool) (*models.OptionNode, []configDescriptor) {
-		var descriptors []configDescriptor
-
-		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
-		for _, project := range scanner.iosProjects.Projects {
-			warnings = append(warnings, project.Warnings...)
-
-			schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
-			projectPathOption.AddOption(project.RelPath, schemeOption)
-
-			for _, scheme := range project.Schemes {
-				exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
-				schemeOption.AddOption(scheme.Name, exportMethodOption)
-
-				for _, exportMethod := range ios.IosExportMethods {
-					iosConfig := ios.NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, exportMethod, scheme.Missing)
-					descriptor := configDescriptor{
-						hasIOS:     true,
-						hasAndroid: hasAndroid,
-						hasTest:    hasTests,
-						ios:        iosConfig,
-					}
-					descriptors = append(descriptors, descriptor)
-
-					exportMethodOption.AddConfig(exportMethod, models.NewConfigOption(descriptor.configName(), nil))
-				}
-			}
-		}
-
-		return projectPathOption, descriptors
-	}
+	warnings := models.Warnings{}
 
 	// Android
 	if len(scanner.androidProjects) > 0 {
@@ -115,14 +117,18 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 				continue
 			}
 
-			var descriptors []configDescriptor
-			iosOptions, descriptors = generateIOSOptions(true, scanner.hasTest)
+			options, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, true, scanner.hasTest)
+			iosOptions = options
+			warnings = append(warnings, iosWarnings...)
 			allDescriptors = append(allDescriptors, descriptors...)
 
 			variantOption.AddOption("", iosOptions)
 		}
 	} else {
-		iosOptions, allDescriptors = generateIOSOptions(false, scanner.hasTest)
+		options, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, false, scanner.hasTest)
+		iosOptions = options
+		warnings = append(warnings, iosWarnings...)
+		allDescriptors = descriptors
 	}
 
 	scanner.configDescriptors = removeDuplicatedConfigDescriptors(allDescriptors)
