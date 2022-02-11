@@ -2,13 +2,11 @@ package reactnative
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/bitrise-init/utility"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"gopkg.in/yaml.v2"
@@ -21,6 +19,7 @@ const (
 type configDescriptor struct {
 	hasIOS, hasAndroid bool
 	hasTest            bool
+	hasYarnLockFile    bool
 	ios                ios.ConfigDescriptor
 }
 
@@ -44,11 +43,14 @@ func (d configDescriptor) configName() string {
 	if d.hasTest {
 		name += "-test"
 	}
+	if d.hasYarnLockFile {
+		name += "-yarn"
+	}
 
 	return name + "-config"
 }
 
-func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests bool) (*models.OptionNode, models.Warnings, []configDescriptor) {
+func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests, hasYarnLockFile bool) (*models.OptionNode, models.Warnings, []configDescriptor) {
 	var (
 		warnings    models.Warnings
 		descriptors []configDescriptor
@@ -68,10 +70,11 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests bool) (*mo
 			for _, exportMethod := range ios.IosExportMethods {
 				iosConfig := ios.NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, exportMethod, scheme.Missing)
 				descriptor := configDescriptor{
-					hasIOS:     true,
-					hasAndroid: hasAndroid,
-					hasTest:    hasTests,
-					ios:        iosConfig,
+					hasIOS:          true,
+					hasAndroid:      hasAndroid,
+					hasTest:         hasTests,
+					hasYarnLockFile: hasYarnLockFile,
+					ios:             iosConfig,
 				}
 				descriptors = append(descriptors, descriptor)
 
@@ -84,7 +87,7 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests bool) (*mo
 }
 
 // options implements ScannerInterface.Options function for plain React Native projects.
-func (scanner *Scanner) options() (models.OptionNode, models.Warnings) {
+func (scanner *Scanner) options(project project) (models.OptionNode, models.Warnings) {
 	var (
 		rootOption     models.OptionNode
 		allDescriptors []configDescriptor
@@ -92,23 +95,24 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings) {
 	)
 
 	// Android
-	if len(scanner.androidProjects) > 0 {
+	if len(project.androidProjects) > 0 {
 		androidOptions := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
 		rootOption = *androidOptions
 
-		for _, project := range scanner.androidProjects {
-			warnings = append(warnings, project.Warnings...)
+		for _, androidProject := range project.androidProjects {
+			warnings = append(warnings, androidProject.Warnings...)
 
 			moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
 			variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
-			androidOptions.AddOption(project.RelPath, moduleOption)
+			androidOptions.AddOption(androidProject.RelPath, moduleOption)
 			moduleOption.AddOption("app", variantOption)
 
-			if len(scanner.iosProjects.Projects) == 0 {
+			if len(project.iosProjects.Projects) == 0 {
 				descriptor := configDescriptor{
-					hasAndroid: true,
-					hasTest:    scanner.hasTest,
+					hasAndroid:      true,
+					hasTest:         project.hasTest,
+					hasYarnLockFile: project.hasYarnLockFile,
 				}
 				allDescriptors = append(allDescriptors, descriptor)
 
@@ -117,20 +121,20 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings) {
 				continue
 			}
 
-			iosOptions, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, true, scanner.hasTest)
+			iosOptions, iosWarnings, descriptors := generateIOSOptions(project.iosProjects, true, project.hasTest, project.hasYarnLockFile)
 			warnings = append(warnings, iosWarnings...)
 			allDescriptors = append(allDescriptors, descriptors...)
 
 			variantOption.AddOption("", iosOptions)
 		}
 	} else {
-		options, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, false, scanner.hasTest)
+		options, iosWarnings, descriptors := generateIOSOptions(project.iosProjects, false, project.hasTest, project.hasYarnLockFile)
 		rootOption = *options
 		warnings = append(warnings, iosWarnings...)
-		allDescriptors = descriptors
+		allDescriptors = append(allDescriptors, descriptors...)
 	}
 
-	scanner.configDescriptors = removeDuplicatedConfigDescriptors(allDescriptors)
+	scanner.configDescriptors = removeDuplicatedConfigDescriptors(append(scanner.configDescriptors, allDescriptors...))
 
 	return rootOption, warnings
 }
@@ -156,19 +160,14 @@ func (scanner *Scanner) defaultOptions() models.OptionNode {
 func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
-	packageJSONDir := filepath.Dir(scanner.packageJSONPth)
-	relPackageJSONDir, err := utility.RelPath(scanner.searchDir, packageJSONDir)
-	if err != nil {
-		return models.BitriseConfigMap{}, fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
-	}
-	if relPackageJSONDir == "." {
-		// config.xml placed in the search dir, no need to change-dir in the workflows
-		relPackageJSONDir = ""
+	if len(scanner.configDescriptors) == 0 {
+		return models.BitriseConfigMap{}, fmt.Errorf("invalid state, no config descriptors found")
 	}
 
 	for _, descriptor := range scanner.configDescriptors {
 		configBuilder := models.NewDefaultConfigBuilder()
 
+		testSteps := getTestSteps("$"+projectDirInputEnvKey, descriptor.hasYarnLockFile, descriptor.hasTest)
 		// ci
 		primaryDescription := primaryWorkflowNoTestsDescription
 		if descriptor.hasTest {
@@ -180,7 +179,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 			ShouldIncludeCache:       false,
 			ShouldIncludeActivateSSH: isPrivateRepo,
 		})...)
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, testSteps...)
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
@@ -190,7 +189,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 			ShouldIncludeCache:       false,
 			ShouldIncludeActivateSSH: isPrivateRepo,
 		})...)
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, scanner.getTestSteps(relPackageJSONDir)...)
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, testSteps...)
 
 		// android cd
 		if descriptor.hasAndroid {
@@ -326,10 +325,6 @@ func getTestSteps(workDir string, hasYarnLockFile, hasTest bool) []bitriseModels
 	}
 
 	return testSteps
-}
-
-func (scanner *Scanner) getTestSteps(workDir string) []bitriseModels.StepListItemModel {
-	return getTestSteps(workDir, scanner.hasYarnLockFile, scanner.hasTest)
 }
 
 func removeDuplicatedConfigDescriptors(configDescriptors []configDescriptor) []configDescriptor {
