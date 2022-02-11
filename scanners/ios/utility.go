@@ -2,6 +2,7 @@ package ios
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -254,11 +255,18 @@ func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string)
 	return ""
 }
 
+// ParseProjects collects available iOS/macOS projects
 func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIcon, suppressPodFileParseError bool) (DetectResult, error) {
 	var (
 		projects []Project
 		warnings models.Warnings
 	)
+
+	// While not ideal, the expectation is that the searchDir is the current directory, due to using relative paths.
+	// Enforcing this to allow unit test to pass.
+	if err := os.Chdir(searchDir); err != nil {
+		return DetectResult{}, err
+	}
 
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
