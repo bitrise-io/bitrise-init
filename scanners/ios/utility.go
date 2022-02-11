@@ -106,6 +106,36 @@ const cartfileResolvedBase = "Cartfile.resolved"
 // AllowCartfileBaseFilter ...
 var AllowCartfileBaseFilter = pathutil.BaseFilter(cartfileBase, true)
 
+// Scheme is an Xcode project scheme or target
+type Scheme struct {
+	Name       string
+	Missing    bool
+	HasXCTests bool
+	HasAppClip bool
+
+	Icons models.Icons
+}
+
+// Project is an Xcode project on the filesystem
+type Project struct {
+	// Is it a standalone project or a workspace?
+	IsWorkspace    bool
+	IsPodWorkspace bool
+
+	RelPath string
+	// Carthage command to run: bootstrap/update
+	CarthageCommand string
+	Warnings        models.Warnings
+
+	Schemes []Scheme
+}
+
+// DetectResult ...
+type DetectResult struct {
+	Projects []Project
+	Warnings models.Warnings
+}
+
 // ConfigDescriptor ...
 type ConfigDescriptor struct {
 	HasPodfile           bool
