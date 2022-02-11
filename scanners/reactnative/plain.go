@@ -1,7 +1,6 @@
 package reactnative
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -85,17 +84,18 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests bool) (*mo
 }
 
 // options implements ScannerInterface.Options function for plain React Native projects.
-func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) options() (models.OptionNode, models.Warnings) {
 	var (
-		rootOption                 models.OptionNode
-		androidOptions, iosOptions *models.OptionNode
-		allDescriptors             []configDescriptor
+		rootOption     models.OptionNode
+		allDescriptors []configDescriptor
+		warnings       = models.Warnings{}
 	)
-	warnings := models.Warnings{}
 
 	// Android
 	if len(scanner.androidProjects) > 0 {
-		androidOptions = models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+		androidOptions := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeSelector)
+		rootOption = *androidOptions
+
 		for _, project := range scanner.androidProjects {
 			warnings = append(warnings, project.Warnings...)
 
@@ -117,8 +117,7 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 				continue
 			}
 
-			options, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, true, scanner.hasTest)
-			iosOptions = options
+			iosOptions, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, true, scanner.hasTest)
 			warnings = append(warnings, iosWarnings...)
 			allDescriptors = append(allDescriptors, descriptors...)
 
@@ -126,24 +125,14 @@ func (scanner *Scanner) options() (models.OptionNode, models.Warnings, error) {
 		}
 	} else {
 		options, iosWarnings, descriptors := generateIOSOptions(scanner.iosProjects, false, scanner.hasTest)
-		iosOptions = options
+		rootOption = *options
 		warnings = append(warnings, iosWarnings...)
 		allDescriptors = descriptors
 	}
 
 	scanner.configDescriptors = removeDuplicatedConfigDescriptors(allDescriptors)
 
-	if androidOptions == nil && iosOptions == nil {
-		return models.OptionNode{}, warnings, errors.New("no ios nor android project detected")
-	}
-
-	if androidOptions == nil {
-		rootOption = *iosOptions
-	} else {
-		rootOption = *androidOptions
-	}
-
-	return rootOption, warnings, nil
+	return rootOption, warnings
 }
 
 // defaultOptions implements ScannerInterface.DefaultOptions function for plain React Native projects.

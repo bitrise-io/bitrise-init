@@ -200,7 +200,7 @@ func (scanner *Scanner) Options() (options models.OptionNode, warnings models.Wa
 	if scanner.isExpoBased {
 		options, warnings, err = scanner.expoOptions()
 	} else {
-		options, warnings, err = scanner.options()
+		options, warnings = scanner.options()
 	}
 
 	return
