@@ -155,7 +155,7 @@ func (scanner *Scanner) defaultOptions() models.OptionNode {
 	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
 
 	variantOption.AddOption(defaultVariant, projectPathOption)
-	projectPathOption.AddOption("ios", schemeOption)
+	projectPathOption.AddOption("", schemeOption)
 
 	exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
 	for _, exportMethod := range ios.IosExportMethods {

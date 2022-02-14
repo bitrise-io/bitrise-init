@@ -527,7 +527,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     env_key: BITRISE_PROJECT_PATH
                     type: user_input
                     value_map:
-                      ios:
+                      "":
                         title: Scheme name
                         summary: An Xcode scheme defines a collection of targets to
                           build, a configuration to use when building, and a collection
