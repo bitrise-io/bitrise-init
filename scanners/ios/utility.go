@@ -291,6 +291,18 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		warnings models.Warnings
 	)
 
+	// While not ideal, the expectation is that the searchDir is the current directory, due to using relative paths.
+	// Enforcing this to allow unit test to pass.
+	undoChDir, err := pathutil.RevokableChangeDir(searchDir)
+	if err != nil {
+		return DetectResult{}, err
+	}
+	defer func() {
+		if err := undoChDir(); err != nil {
+			log.TWarnf("failed to restore working dir: %s", err)
+		}
+	}()
+
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
 		return DetectResult{}, err

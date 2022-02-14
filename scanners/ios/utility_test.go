@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/go-utils/command/git"
-	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -113,18 +111,6 @@ Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode
 				}},
 			}},
 		}
-
-		// While not ideal, the expectation is that the searchDir is the current directory, due to using relative paths.
-		// Enforcing this to allow unit test to pass.
-		undoChDir, err := pathutil.RevokableChangeDir(sampleAppDir)
-		if err != nil {
-			t.Fatalf("%s", err)
-		}
-		defer func() {
-			if err := undoChDir(); err != nil {
-				log.TWarnf("failed to restore working dir: %s", err)
-			}
-		}()
 
 		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
 		require.NoError(t, err)
