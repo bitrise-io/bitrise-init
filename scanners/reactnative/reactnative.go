@@ -15,7 +15,7 @@ import (
 const scannerName = "react-native"
 
 const (
-	projectDirInputTitle   = "React-native/Expo project directory"
+	projectDirInputTitle   = "React Native project directory"
 	projectDirInputSummary = "Path of the directory containing the project's `package.json` file."
 	projectDirInputEnvKey  = "WORKDIR"
 
@@ -236,7 +236,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 // Options implements ScannerInterface.Options function.
 func (scanner *Scanner) Options() (options models.OptionNode, allWarnings models.Warnings, icons models.Icons, err error) {
 	if scanner.isExpoBased {
-		options, allWarnings = scanner.expoOptions()
+		options = scanner.expoOptions()
 	} else {
 		projectRootOption := models.NewOption(projectDirInputTitle, projectDirInputSummary, projectDirInputEnvKey, models.TypeSelector)
 		options = *projectRootOption

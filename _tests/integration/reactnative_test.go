@@ -162,7 +162,7 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 
 var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
   react-native:
-    title: React-native/Expo project directory
+    title: React Native project directory
     summary: Path of the directory containing the project's `+"`package.json`"+` file.
     env_key: WORKDIR
     type: selector
@@ -337,7 +337,7 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
   react-native:
-    title: React-native/Expo project directory
+    title: React Native project directory
     summary: Path of the directory containing the project's `+"`package.json`"+` file.
     env_key: WORKDIR
     type: selector
@@ -510,7 +510,7 @@ var sampleAppsReactNativeIosAndAndroidNoTestVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidNoTestResultYML = fmt.Sprintf(`options:
   react-native:
-    title: React-native/Expo project directory
+    title: React Native project directory
     summary: Path of the directory containing the project's `+"`package.json`"+` file.
     env_key: WORKDIR
     type: selector
@@ -678,7 +678,7 @@ var sampleAppsReactNativeIosAndAndroidYarnVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
   react-native:
-    title: React-native/Expo project directory
+    title: React Native project directory
     summary: Path of the directory containing the project's `+"`package.json`"+` file.
     env_key: WORKDIR
     type: selector
@@ -852,7 +852,7 @@ var sampleAppsReactNativeJoplinVersions = []interface{}{
 
 var sampleAppsReactNativeJoplinResultYML = fmt.Sprintf(`options:
   react-native:
-    title: React-native/Expo project directory
+    title: React Native project directory
     summary: Path of the directory containing the project's `+"`package.json`"+` file.
     env_key: WORKDIR
     type: selector

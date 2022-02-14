@@ -22,7 +22,7 @@ const (
 )
 
 // expoOptions implements ScannerInterface.Options function for Expo based React Native projects.
-func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings) {
+func (scanner *Scanner) expoOptions() models.OptionNode {
 	platformOption := models.NewOption(expoPlatformInputTitle, expoPlatformInputSummary, expoPlatformInputEnvKey, models.TypeSelector)
 	configOption := models.NewConfigOption(expoConfigName, nil)
 
@@ -30,7 +30,7 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings) {
 		platformOption.AddConfig(platform, configOption)
 	}
 
-	return *platformOption, nil
+	return *platformOption
 }
 
 // expoConfigs implements ScannerInterface.Configs function for Expo based React Native projects.

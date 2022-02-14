@@ -14,6 +14,9 @@ import (
 
 const (
 	defaultConfigName = "default-react-native-config"
+
+	defaultModule  = "app"
+	defaultVariant = "Debug"
 )
 
 type configDescriptor struct {
@@ -88,11 +91,10 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests, hasYarnLo
 
 // options implements ScannerInterface.Options function for plain React Native projects.
 func (scanner *Scanner) options(project project) (models.OptionNode, models.Warnings) {
-	const defaultVariant = "Debug"
 	var (
 		rootOption     models.OptionNode
 		allDescriptors []configDescriptor
-		warnings       = models.Warnings{}
+		warnings       models.Warnings
 	)
 
 	// Android
@@ -107,7 +109,7 @@ func (scanner *Scanner) options(project project) (models.OptionNode, models.Warn
 			variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
 			androidOptions.AddOption(androidProject.RelPath, moduleOption)
-			moduleOption.AddOption("app", variantOption)
+			moduleOption.AddOption(defaultModule, variantOption)
 
 			if len(project.iosProjects.Projects) == 0 {
 				descriptor := configDescriptor{
@@ -142,19 +144,27 @@ func (scanner *Scanner) options(project project) (models.OptionNode, models.Warn
 
 // defaultOptions implements ScannerInterface.DefaultOptions function for plain React Native projects.
 func (scanner *Scanner) defaultOptions() models.OptionNode {
-	androidOptions := (&android.Scanner{}).DefaultOptions()
-	androidOptions.RemoveConfigs()
+	androidOptions := models.NewOption(android.ProjectLocationInputTitle, android.ProjectLocationInputSummary, android.ProjectLocationInputEnvKey, models.TypeUserInput)
+	moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+	variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
 
-	iosOptions := (&ios.Scanner{}).DefaultOptions()
-	for _, child := range iosOptions.LastChilds() {
-		for _, child := range child.ChildOptionMap {
-			child.Config = defaultConfigName
-		}
+	androidOptions.AddOption("android", moduleOption)
+	moduleOption.AddOption(defaultModule, variantOption)
+
+	projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeUserInput)
+	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
+
+	variantOption.AddOption(defaultVariant, projectPathOption)
+	projectPathOption.AddOption("ios", schemeOption)
+
+	exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+	for _, exportMethod := range ios.IosExportMethods {
+		schemeOption.AddOption("", exportMethodOption)
+
+		exportMethodOption.AddConfig(exportMethod, models.NewConfigOption(defaultConfigName, nil))
 	}
 
-	androidOptions.AttachToLastChilds(&iosOptions)
-
-	return androidOptions
+	return *androidOptions
 }
 
 // configs implements ScannerInterface.Configs function for plain React Native projects.
@@ -281,6 +291,8 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 		envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
+		envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+		envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 	))
 
 	// ios

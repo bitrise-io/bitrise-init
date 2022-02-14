@@ -502,7 +502,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
         env_key: PROJECT_LOCATION
         type: user_input
         value_map:
-          "":
+          android:
             title: Module
             summary: Modules provide a container for your Android project's source
               code, resource files, and app level settings, such as the module-level
@@ -512,14 +512,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
             env_key: MODULE
             type: user_input
             value_map:
-              "":
+              app:
                 title: Variant
                 summary: Your Android build variant. You can add variants at any time,
                   as well as further configure your existing variants later.
                 env_key: VARIANT
                 type: user_input_optional
                 value_map:
-                  "":
+                  Debug:
                     title: Project or Workspace path
                     summary: The location of your Xcode project or Xcode workspace
                       files, stored as an Environment Variable. In your Workflows,
@@ -527,7 +527,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
                     env_key: BITRISE_PROJECT_PATH
                     type: user_input
                     value_map:
-                      "":
+                      ios:
                         title: Scheme name
                         summary: An Xcode scheme defines a collection of targets to
                           build, a configuration to use when building, and a collection
@@ -1239,6 +1239,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
