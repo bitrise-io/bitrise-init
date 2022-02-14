@@ -37,7 +37,12 @@ func (scanner *Scanner) expoOptions() (models.OptionNode, models.Warnings) {
 func (scanner *Scanner) expoConfigs(project project, isPrivateRepo bool) (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
+	if project.projectRelDir == "." {
+		// package.json placed in the search dir, no need to change-dir in the workflows
+		project.projectRelDir = ""
+	}
 	testSteps := getTestSteps(project.projectRelDir, project.hasYarnLockFile, project.hasTest)
+
 	// primary workflow
 	primaryDescription := expoPrimaryWorkflowDescription
 	if !project.hasTest {

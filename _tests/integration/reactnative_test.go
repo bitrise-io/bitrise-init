@@ -162,81 +162,90 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 
 var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
   react-native:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
-    env_key: PROJECT_LOCATION
+    title: React-native/Expo project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
     type: selector
     value_map:
-      project/android:
-        title: Module
-        summary: Modules provide a container for your Android project's source code,
-          resource files, and app level settings, such as the module-level build file
-          and Android manifest file. Each module can be independently built, tested,
-          and debugged. You can add new modules to your Bitrise builds at any time.
-        env_key: MODULE
-        type: user_input
+      project:
+        title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
+        env_key: PROJECT_LOCATION
+        type: selector
         value_map:
-          app:
-            title: Variant
-            summary: Your Android build variant. You can add variants at any time,
-              as well as further configure your existing variants later.
-            env_key: VARIANT
-            type: user_input_optional
+          project/android:
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
             value_map:
-              "":
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: selector
+              app:
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
                 value_map:
-                  project/ios/SampleAppsReactNativeAndroid.xcodeproj:
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
+                  Debug:
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
+                    env_key: BITRISE_PROJECT_PATH
                     type: selector
                     value_map:
-                      SampleAppsReactNativeAndroid:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
+                      project/ios/SampleAppsReactNativeAndroid.xcodeproj:
+                        title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
+                        env_key: BITRISE_SCHEME
                         type: selector
                         value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
-                      SampleAppsReactNativeAndroid-tvOS:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
+                          SampleAppsReactNativeAndroid:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-config
+                              app-store:
+                                config: react-native-android-ios-test-config
+                              development:
+                                config: react-native-android-ios-test-config
+                              enterprise:
+                                config: react-native-android-ios-test-config
+                          SampleAppsReactNativeAndroid-tvOS:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-config
+                              app-store:
+                                config: react-native-android-ios-test-config
+                              development:
+                                config: react-native-android-ios-test-config
+                              enterprise:
+                                config: react-native-android-ios-test-config
 configs:
   react-native:
     react-native-android-ios-test-config: |
@@ -261,11 +270,11 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
-              - workdir: project
+              - workdir: $WORKDIR
               - command: install
           - npm@%s:
               inputs:
-              - workdir: project
+              - workdir: $WORKDIR
               - command: test
           - install-missing-android-tools@%s:
               inputs:
@@ -273,6 +282,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -292,11 +303,11 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
-              - workdir: project
+              - workdir: $WORKDIR
               - command: install
           - npm@%s:
               inputs:
-              - workdir: project
+              - workdir: $WORKDIR
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -326,81 +337,90 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
   react-native:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
-    env_key: PROJECT_LOCATION
+    title: React-native/Expo project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
     type: selector
     value_map:
-      android:
-        title: Module
-        summary: Modules provide a container for your Android project's source code,
-          resource files, and app level settings, such as the module-level build file
-          and Android manifest file. Each module can be independently built, tested,
-          and debugged. You can add new modules to your Bitrise builds at any time.
-        env_key: MODULE
-        type: user_input
+      .:
+        title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
+        env_key: PROJECT_LOCATION
+        type: selector
         value_map:
-          app:
-            title: Variant
-            summary: Your Android build variant. You can add variants at any time,
-              as well as further configure your existing variants later.
-            env_key: VARIANT
-            type: user_input_optional
+          android:
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
             value_map:
-              "":
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: selector
+              app:
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
                 value_map:
-                  ios/SampleAppsReactNativeAndroid.xcodeproj:
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
+                  Debug:
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
+                    env_key: BITRISE_PROJECT_PATH
                     type: selector
                     value_map:
-                      SampleAppsReactNativeAndroid:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
+                      ios/SampleAppsReactNativeAndroid.xcodeproj:
+                        title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
+                        env_key: BITRISE_SCHEME
                         type: selector
                         value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
-                      SampleAppsReactNativeAndroid-tvOS:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
+                          SampleAppsReactNativeAndroid:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-config
+                              app-store:
+                                config: react-native-android-ios-test-config
+                              development:
+                                config: react-native-android-ios-test-config
+                              enterprise:
+                                config: react-native-android-ios-test-config
+                          SampleAppsReactNativeAndroid-tvOS:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-config
+                              app-store:
+                                config: react-native-android-ios-test-config
+                              development:
+                                config: react-native-android-ios-test-config
+                              enterprise:
+                                config: react-native-android-ios-test-config
 configs:
   react-native:
     react-native-android-ios-test-config: |
@@ -425,9 +445,11 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: test
           - install-missing-android-tools@%s:
               inputs:
@@ -435,6 +457,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -454,9 +478,11 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -484,81 +510,90 @@ var sampleAppsReactNativeIosAndAndroidNoTestVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidNoTestResultYML = fmt.Sprintf(`options:
   react-native:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
-    env_key: PROJECT_LOCATION
+    title: React-native/Expo project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
     type: selector
     value_map:
-      android:
-        title: Module
-        summary: Modules provide a container for your Android project's source code,
-          resource files, and app level settings, such as the module-level build file
-          and Android manifest file. Each module can be independently built, tested,
-          and debugged. You can add new modules to your Bitrise builds at any time.
-        env_key: MODULE
-        type: user_input
+      .:
+        title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
+        env_key: PROJECT_LOCATION
+        type: selector
         value_map:
-          app:
-            title: Variant
-            summary: Your Android build variant. You can add variants at any time,
-              as well as further configure your existing variants later.
-            env_key: VARIANT
-            type: user_input_optional
+          android:
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
             value_map:
-              "":
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: selector
+              app:
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
                 value_map:
-                  ios/SampleAppsReactNativeAndroid.xcodeproj:
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
+                  Debug:
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
+                    env_key: BITRISE_PROJECT_PATH
                     type: selector
                     value_map:
-                      SampleAppsReactNativeAndroid:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
+                      ios/SampleAppsReactNativeAndroid.xcodeproj:
+                        title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
+                        env_key: BITRISE_SCHEME
                         type: selector
                         value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-config
-                          app-store:
-                            config: react-native-android-ios-config
-                          development:
-                            config: react-native-android-ios-config
-                          enterprise:
-                            config: react-native-android-ios-config
-                      SampleAppsReactNativeAndroid-tvOS:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-config
-                          app-store:
-                            config: react-native-android-ios-config
-                          development:
-                            config: react-native-android-ios-config
-                          enterprise:
-                            config: react-native-android-ios-config
+                          SampleAppsReactNativeAndroid:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-config
+                              app-store:
+                                config: react-native-android-ios-config
+                              development:
+                                config: react-native-android-ios-config
+                              enterprise:
+                                config: react-native-android-ios-config
+                          SampleAppsReactNativeAndroid-tvOS:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-config
+                              app-store:
+                                config: react-native-android-ios-config
+                              development:
+                                config: react-native-android-ios-config
+                              enterprise:
+                                config: react-native-android-ios-config
 configs:
   react-native:
     react-native-android-ios-config: |
@@ -583,6 +618,7 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - install-missing-android-tools@%s:
               inputs:
@@ -590,6 +626,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -610,6 +648,7 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -639,84 +678,93 @@ var sampleAppsReactNativeIosAndAndroidYarnVersions = []interface{}{
 
 var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
   react-native:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
-    env_key: PROJECT_LOCATION
+    title: React-native/Expo project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
     type: selector
     value_map:
-      android:
-        title: Module
-        summary: Modules provide a container for your Android project's source code,
-          resource files, and app level settings, such as the module-level build file
-          and Android manifest file. Each module can be independently built, tested,
-          and debugged. You can add new modules to your Bitrise builds at any time.
-        env_key: MODULE
-        type: user_input
+      .:
+        title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
+        env_key: PROJECT_LOCATION
+        type: selector
         value_map:
-          app:
-            title: Variant
-            summary: Your Android build variant. You can add variants at any time,
-              as well as further configure your existing variants later.
-            env_key: VARIANT
-            type: user_input_optional
+          android:
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
             value_map:
-              "":
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: selector
+              app:
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
                 value_map:
-                  ios/SampleAppsReactNativeAndroid.xcodeproj:
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
+                  Debug:
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
+                    env_key: BITRISE_PROJECT_PATH
                     type: selector
                     value_map:
-                      SampleAppsReactNativeAndroid:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
+                      ios/SampleAppsReactNativeAndroid.xcodeproj:
+                        title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
+                        env_key: BITRISE_SCHEME
                         type: selector
                         value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
-                      SampleAppsReactNativeAndroid-tvOS:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-test-config
-                          app-store:
-                            config: react-native-android-ios-test-config
-                          development:
-                            config: react-native-android-ios-test-config
-                          enterprise:
-                            config: react-native-android-ios-test-config
+                          SampleAppsReactNativeAndroid:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-yarn-config
+                              app-store:
+                                config: react-native-android-ios-test-yarn-config
+                              development:
+                                config: react-native-android-ios-test-yarn-config
+                              enterprise:
+                                config: react-native-android-ios-test-yarn-config
+                          SampleAppsReactNativeAndroid-tvOS:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-test-yarn-config
+                              app-store:
+                                config: react-native-android-ios-test-yarn-config
+                              development:
+                                config: react-native-android-ios-test-yarn-config
+                              enterprise:
+                                config: react-native-android-ios-test-yarn-config
 configs:
   react-native:
-    react-native-android-ios-test-config: |
+    react-native-android-ios-test-yarn-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
@@ -738,9 +786,11 @@ configs:
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - yarn@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: test
           - install-missing-android-tools@%s:
               inputs:
@@ -748,6 +798,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -767,9 +819,11 @@ configs:
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: install
           - yarn@%s:
               inputs:
+              - workdir: $WORKDIR
               - command: test
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -798,98 +852,108 @@ var sampleAppsReactNativeJoplinVersions = []interface{}{
 
 var sampleAppsReactNativeJoplinResultYML = fmt.Sprintf(`options:
   react-native:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
-    env_key: PROJECT_LOCATION
+    title: React-native/Expo project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
     type: selector
     value_map:
-      packages/app-mobile/android:
-        title: Module
-        summary: Modules provide a container for your Android project's source code,
-          resource files, and app level settings, such as the module-level build file
-          and Android manifest file. Each module can be independently built, tested,
-          and debugged. You can add new modules to your Bitrise builds at any time.
-        env_key: MODULE
-        type: user_input
+      packages/app-mobile:
+        title: The root directory of an Android project
+        summary: The root directory of your Android project, stored as an Environment
+          Variable. In your Workflows, you can specify paths relative to this path.
+          You can change this at any time.
+        env_key: PROJECT_LOCATION
+        type: selector
         value_map:
-          app:
-            title: Variant
-            summary: Your Android build variant. You can add variants at any time,
-              as well as further configure your existing variants later.
-            env_key: VARIANT
-            type: user_input_optional
+          packages/app-mobile/android:
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
             value_map:
-              "":
-                title: Project or Workspace path
-                summary: The location of your Xcode project or Xcode workspace files,
-                  stored as an Environment Variable. In your Workflows, you can specify
-                  paths relative to this path.
-                env_key: BITRISE_PROJECT_PATH
-                type: selector
+              app:
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
                 value_map:
-                  packages/app-mobile/ios/Joplin.xcworkspace:
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
-                    env_key: BITRISE_SCHEME
+                  Debug:
+                    title: Project or Workspace path
+                    summary: The location of your Xcode project or Xcode workspace
+                      files, stored as an Environment Variable. In your Workflows,
+                      you can specify paths relative to this path.
+                    env_key: BITRISE_PROJECT_PATH
                     type: selector
                     value_map:
-                      Joplin:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
+                      packages/app-mobile/ios/Joplin.xcworkspace:
+                        title: Scheme name
+                        summary: An Xcode scheme defines a collection of targets to
+                          build, a configuration to use when building, and a collection
+                          of tests to execute. Only shared schemes are detected automatically
+                          but you can use any scheme as a target on Bitrise. You can
+                          change the scheme at any time in your Env Vars.
+                        env_key: BITRISE_SCHEME
                         type: selector
                         value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-pod-config
-                          app-store:
-                            config: react-native-android-ios-pod-config
-                          development:
-                            config: react-native-android-ios-pod-config
-                          enterprise:
-                            config: react-native-android-ios-pod-config
-                      Joplin-tvOS:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-pod-config
-                          app-store:
-                            config: react-native-android-ios-pod-config
-                          development:
-                            config: react-native-android-ios-pod-config
-                          enterprise:
-                            config: react-native-android-ios-pod-config
-                      ShareExtension:
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
-                        env_key: BITRISE_DISTRIBUTION_METHOD
-                        type: selector
-                        value_map:
-                          ad-hoc:
-                            config: react-native-android-ios-pod-config
-                          app-store:
-                            config: react-native-android-ios-pod-config
-                          development:
-                            config: react-native-android-ios-pod-config
-                          enterprise:
-                            config: react-native-android-ios-pod-config
+                          Joplin:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-pod-config
+                              app-store:
+                                config: react-native-android-ios-pod-config
+                              development:
+                                config: react-native-android-ios-pod-config
+                              enterprise:
+                                config: react-native-android-ios-pod-config
+                          Joplin-tvOS:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-pod-config
+                              app-store:
+                                config: react-native-android-ios-pod-config
+                              development:
+                                config: react-native-android-ios-pod-config
+                              enterprise:
+                                config: react-native-android-ios-pod-config
+                          ShareExtension:
+                            title: Distribution method
+                            summary: The export method used to create an .ipa file
+                              in your builds, stored as an Environment Variable. You
+                              can change this at any time, or even create several
+                              .ipa files with different export methods in the same
+                              build.
+                            env_key: BITRISE_DISTRIBUTION_METHOD
+                            type: selector
+                            value_map:
+                              ad-hoc:
+                                config: react-native-android-ios-pod-config
+                              app-store:
+                                config: react-native-android-ios-pod-config
+                              development:
+                                config: react-native-android-ios-pod-config
+                              enterprise:
+                                config: react-native-android-ios-pod-config
 configs:
   react-native:
     react-native-android-ios-pod-config: |
@@ -914,7 +978,7 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
-              - workdir: packages/app-mobile
+              - workdir: $WORKDIR
               - command: install
           - install-missing-android-tools@%s:
               inputs:
@@ -922,6 +986,8 @@ configs:
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
           - cocoapods-install@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -943,7 +1009,7 @@ configs:
           - git-clone@%s: {}
           - npm@%s:
               inputs:
-              - workdir: packages/app-mobile
+              - workdir: $WORKDIR
               - command: install
           - deploy-to-bitrise-io@%s: {}
 warnings:

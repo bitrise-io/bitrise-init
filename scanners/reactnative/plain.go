@@ -88,6 +88,7 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests, hasYarnLo
 
 // options implements ScannerInterface.Options function for plain React Native projects.
 func (scanner *Scanner) options(project project) (models.OptionNode, models.Warnings) {
+	const defaultVariant = "Debug"
 	var (
 		rootOption     models.OptionNode
 		allDescriptors []configDescriptor
@@ -116,7 +117,7 @@ func (scanner *Scanner) options(project project) (models.OptionNode, models.Warn
 				}
 				allDescriptors = append(allDescriptors, descriptor)
 
-				variantOption.AddConfig("", models.NewConfigOption(descriptor.configName(), nil))
+				variantOption.AddConfig(defaultVariant, models.NewConfigOption(descriptor.configName(), nil))
 
 				continue
 			}
@@ -125,7 +126,7 @@ func (scanner *Scanner) options(project project) (models.OptionNode, models.Warn
 			warnings = append(warnings, iosWarnings...)
 			allDescriptors = append(allDescriptors, descriptors...)
 
-			variantOption.AddOption("", iosOptions)
+			variantOption.AddOption(defaultVariant, iosOptions)
 		}
 	} else {
 		options, iosWarnings, descriptors := generateIOSOptions(project.iosProjects, false, project.hasTest, project.hasYarnLockFile)
@@ -200,6 +201,8 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 			))
 			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
 				envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: projectLocationEnv},
+				envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+				envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 			))
 		}
 

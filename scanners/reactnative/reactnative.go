@@ -16,7 +16,7 @@ const scannerName = "react-native"
 
 const (
 	projectDirInputTitle   = "React-native/Expo project directory"
-	projectDirInputSummary = "Path of the directory containing the project's  `package.json` and/or app configuration file (`app.json`, `app.config.js`, `app.config.ts`)."
+	projectDirInputSummary = "Path of the directory containing the project's `package.json` file."
 	projectDirInputEnvKey  = "WORKDIR"
 
 	isExpoBasedProjectInputTitle   = "Is this an [Expo](https://expo.dev)-based React Native project?"
@@ -182,10 +182,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		relPackageJSONDir, err := utility.RelPath(searchDir, packageJSONDir)
 		if err != nil {
 			return false, fmt.Errorf("failed to get relative package.json dir path: %s", err)
-		}
-		if relPackageJSONDir == "." {
-			// package.json placed in the search dir, no need to change-dir in the workflows
-			relPackageJSONDir = ""
 		}
 
 		var (
