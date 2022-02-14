@@ -147,8 +147,6 @@ func getNativeProjects(packageJSONPth, relPackageJSONDir string) (ios.DetectResu
 	}
 	androidProjects = newAndroidProjects
 
-	log.TPrintf("iosProjects %+v", iosProjects)
-
 	return iosProjects, androidProjects
 }
 
