@@ -130,11 +130,6 @@ configs:
       app:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
       workflows:
         primary:
           steps:
@@ -154,11 +149,6 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
-      trigger_map:
-      - push_branch: '*'
-        workflow: primary
-      - pull_request_source_branch: '*'
-        workflow: primary
       workflows:
         deploy:
           description: |
