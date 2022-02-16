@@ -2,39 +2,33 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestFastlane(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("fastlane")
+	tmpDir, err := pathutil.NormalizedOSTempDirPath("__fastlane__")
 	require.NoError(t, err)
 
-	t.Log("fastlane")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "__fastlane__")
-		sampleAppURL := "https://github.com/bitrise-samples/fastlane.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(fastlaneResultYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"fastlane",
+			"https://github.com/bitrise-samples/fastlane.git",
+			"",
+			fastlaneResultYML,
+			fastlaneVersions,
+		},
 	}
+
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var fastlaneVersions = []interface{}{
 	// fastlane

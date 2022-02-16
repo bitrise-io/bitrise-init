@@ -1,8 +1,7 @@
-package integration
+package helper
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -16,29 +15,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func binPath() string {
-	return os.Getenv("INTEGRATION_TEST_BINARY_PATH")
+func CreateTempDir(name string) (string, error) {
+	return pathutil.NormalizedOSTempDirPath(name)
 }
 
-func replaceVersions(str string, versions ...interface{}) (string, error) {
-	for _, f := range versions {
-		if format, ok := f.(string); ok {
-			beforeCount := strings.Count(str, format)
-			if beforeCount < 1 {
-				return "", fmt.Errorf("format's original value not found, str: %s versions: %+v", str, versions)
-			}
-			str = strings.Replace(str, format, "%s", 1)
-
-			afterCount := strings.Count(str, format)
-			if beforeCount-1 != afterCount {
-				return "", fmt.Errorf("failed to extract all versions")
-			}
-		}
-	}
-	return str, nil
-}
-
-func validateConfigExpectation(t *testing.T, ID, expected, actual string, versions ...interface{}) {
+func ValidateConfigExpectation(t *testing.T, ID, expected, actual string, versions ...interface{}) {
 	if !assert.ObjectsAreEqual(expected, actual) {
 		s, err := replaceVersions(actual, versions...)
 		require.NoError(t, err)
@@ -63,4 +44,22 @@ func validateConfigExpectation(t *testing.T, ID, expected, actual string, versio
 		log.Warnf("opendiff not installed, unable to open config diff")
 		t.FailNow()
 	}
+}
+
+func replaceVersions(str string, versions ...interface{}) (string, error) {
+	for _, f := range versions {
+		if format, ok := f.(string); ok {
+			beforeCount := strings.Count(str, format)
+			if beforeCount < 1 {
+				return "", fmt.Errorf("format's original value not found, str: %s versions: %+v", str, versions)
+			}
+			str = strings.Replace(str, format, "%s", 1)
+
+			afterCount := strings.Count(str, format)
+			if beforeCount-1 != afterCount {
+				return "", fmt.Errorf("failed to extract all versions")
+			}
+		}
+	}
+	return str, nil
 }

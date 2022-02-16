@@ -2,80 +2,47 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
-func TestFlutterIosAndroid(t *testing.T) {
+func TestFlutter(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__flutter__")
 	require.NoError(t, err)
 
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-flutter-ios-android")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-flutter-ios-android.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-flutter-ios-android", strings.TrimSpace(flutterSampleAppResultYML), strings.TrimSpace(result), flutterSampleAppVersions...)
+	var testCases = []helper.TestCase{
+		{
+			"sample-apps-flutter-ios-android",
+			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android.git",
+			"",
+			flutterSampleAppResultYML,
+			flutterSampleAppVersions,
+		},
+		{
+			"sample-apps-flutter-ios-android-package",
+			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-package.git",
+			"",
+			flutterSamplePackageResultYML,
+			flutterSamplePackageVersions,
+		},
+		{
+			"sample-apps-flutter-ios-android-plugin",
+			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-plugin.git",
+			"",
+			flutterSamplePluginResultYML,
+			flutterSamplePluginVersions,
+		},
 	}
+
+	helper.Execute(t, tmpDir, testCases)
 }
 
-func TestFlutterIosAndroidPackage(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__flutter__")
-	require.NoError(t, err)
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-flutter-ios-android-package")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-flutter-ios-android-package.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-flutter-ios-android-package", strings.TrimSpace(flutterSamplePackageResultYML), strings.TrimSpace(result), flutterSamplePackageVersions...)
-	}
-}
-func TestFlutterIosAndroidPlugin(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__flutter__")
-	require.NoError(t, err)
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-flutter-ios-android-plugin")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-flutter-ios-android-plugin.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-flutter-ios-android-plugin", strings.TrimSpace(flutterSamplePluginResultYML), strings.TrimSpace(result), flutterSamplePluginVersions...)
-	}
-}
+// Expected results
 
 var flutterSampleAppVersions = []interface{}{
 	// flutter-config-notest-app-android

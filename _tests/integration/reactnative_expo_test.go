@@ -2,14 +2,11 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
@@ -18,61 +15,34 @@ func TestReactNativeExpo(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__reactnative_expo__")
 	require.NoError(t, err)
 
-	t.Log("Managed workflow, no tests")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "managed-notest")
-		sampleAppURL := "https://github.com/bitrise-io/sample-apps-expo.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "Managed Expo Workflow, no tests", strings.TrimSpace(managedWorkflowNoTestsResultsYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"managed-workflow-no-tests",
+			"https://github.com/bitrise-io/sample-apps-expo.git",
+			"",
+			managedWorkflowNoTestsResultsYML,
+			managedExpoVersions,
+		},
+		{
+			"managed-workflow-with-tests",
+			"https://github.com/bitrise-io/Bitrise-React-Native-Expo-Sample.git",
+			"",
+			managedWorkflowResultsYML,
+			managedExpo2Versions,
+		},
+		{
+			"bare-workflow",
+			"https://github.com/bitrise-io/sample-apps-expo.git",
+			"bare",
+			bareWorkflowResultYML,
+			sampleAppsExpoBareVersions,
+		},
 	}
 
-	t.Log("Managed workflow with tests")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "managed-test")
-		sampleAppURL := "https://github.com/bitrise-io/Bitrise-React-Native-Expo-Sample.git"
-
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "Managed Expo Workflow with tests", strings.TrimSpace(managedWorkflowResultsYML), strings.TrimSpace(result))
-	}
-
-	t.Log("Bare workflow")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "bare")
-		sampleAppURL := "https://github.com/bitrise-io/sample-apps-expo.git"
-		gitCloneBranch(t, sampleAppDir, sampleAppURL, "bare")
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "Bare Expo Workflow", strings.TrimSpace(bareWorkflowResultYML), strings.TrimSpace(result))
-	}
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var managedExpoVersions = []interface{}{
 	models.FormatVersion,

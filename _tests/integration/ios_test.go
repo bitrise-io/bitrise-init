@@ -2,14 +2,11 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
@@ -18,58 +15,48 @@ func TestIOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ios__")
 	require.NoError(t, err)
 
-	type testCase struct {
-		name           string
-		repoURL        string
-		expectedResult string
+	var testCases = []helper.TestCase{
+		{
+			"ios-no-shared-schemes",
+			"https://github.com/bitrise-samples/ios-no-shared-schemes.git",
+			"",
+			iosNoSharedSchemesResultYML,
+			iosNoSharedSchemesVersions,
+		},
+		{
+			"ios-cocoapods-at-root",
+			"https://github.com/bitrise-samples/ios-cocoapods-at-root.git",
+			"",
+			iosCocoapodsAtRootResultYML,
+			iosCocoapodsAtRootVersions,
+		},
+		{
+			"sample-apps-ios-watchkit",
+			"https://github.com/bitrise-io/sample-apps-ios-watchkit.git",
+			"",
+			sampleAppsIosWatchkitResultYML,
+			sampleAppsIosWatchkitVersions,
+		},
+		{
+			"sample-apps-carthage",
+			"https://github.com/bitrise-samples/sample-apps-carthage.git",
+			"",
+			sampleAppsCarthageResultYML,
+			sampleAppsCarthageVersions,
+		},
+		{
+			"sample-apps-appclip",
+			"https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
+			"",
+			sampleAppClipResultYML,
+			sampleAppClipVersions,
+		},
 	}
 
-	testCases := []testCase{
-		{
-			name:           "ios-no-shared-schemes",
-			repoURL:        "https://github.com/bitrise-samples/ios-no-shared-schemes.git",
-			expectedResult: iosNoSharedSchemesResultYML,
-		},
-		{
-			name:           "ios-cocoapods-at-root",
-			repoURL:        "https://github.com/bitrise-samples/ios-cocoapods-at-root.git",
-			expectedResult: iosCocoapodsAtRootResultYML,
-		},
-		{
-			name:           "sample-apps-ios-watchkit",
-			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-watchkit.git",
-			expectedResult: sampleAppsIosWatchkitResultYML,
-		},
-		{
-			name:           "sample-apps-carthage",
-			repoURL:        "https://github.com/bitrise-samples/sample-apps-carthage.git",
-			expectedResult: sampleAppsCarthageResultYML,
-		},
-		{
-			name:           "sample-apps-appclip",
-			repoURL:        "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
-			expectedResult: sampleAppClipResultYML,
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Log(testCase.name)
-		{
-			sampleAppDir := filepath.Join(tmpDir, testCase.name)
-			gitClone(t, sampleAppDir, testCase.repoURL)
-
-			cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-			out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-			require.NoError(t, err, out)
-
-			scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-			result, err := fileutil.ReadStringFromFile(scanResultPth)
-			require.NoError(t, err)
-			require.Equal(t, strings.TrimSpace(testCase.expectedResult), strings.TrimSpace(result))
-		}
-	}
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var iosNoSharedSchemesVersions = []interface{}{
 	models.FormatVersion,
@@ -665,6 +652,78 @@ warnings_with_recommendations:
   ios: []
 `, sampleAppsCarthageVersions...)
 
+var sampleAppClipVersions = []interface{}{
+	// ios-app-clip-ad-hoc-config/deploy
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeArchiveVersion,
+	steps.ExportXCArchiveVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-ad-hoc-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-app-store-config/deploy
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeArchiveVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-app-store-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-development-config/deploy
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeArchiveVersion,
+	steps.ExportXCArchiveVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-development-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-enterprise-config/deploy
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeArchiveVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-enterprise-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CachePullVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CachePushVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
 var sampleAppClipResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
@@ -891,74 +950,5 @@ configs:
 warnings:
   ios: []
 warnings_with_recommendations:
-  ios: []`,
-	// ios-app-clip-ad-hoc-config/deploy
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeArchiveVersion,
-	steps.ExportXCArchiveVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-ad-hoc-config/primary
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-app-store-config/deploy
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-app-store-config/primary
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-development-config/deploy
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeArchiveVersion,
-	steps.ExportXCArchiveVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-development-config/primary
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-enterprise-config/deploy
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// ios-app-clip-enterprise-config/primary
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CachePullVersion,
-	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
-	steps.DeployToBitriseIoVersion,
-)
+  ios: []
+`, sampleAppClipVersions...)

@@ -7,9 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
@@ -19,24 +21,24 @@ func TestManualConfig(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
 	require.NoError(t, err)
 
-	t.Log("manual-config")
-	{
-		manualConfigDir := filepath.Join(tmpDir, "manual-config")
-		require.NoError(t, os.MkdirAll(manualConfigDir, 0777))
-		fmt.Printf("manualConfigDir: %s\n", manualConfigDir)
+	testName := "manual-config"
+	manualConfigDir := filepath.Join(tmpDir, testName)
+	require.NoError(t, os.MkdirAll(manualConfigDir, 0777))
+	fmt.Printf("manualConfigDir: %s\n", manualConfigDir)
 
-		cmd := command.New(binPath(), "--ci", "manual-config", "--output-dir", manualConfigDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
+	scanResult, err := scanner.ManualConfig()
+	require.NoError(t, err)
 
-		scanResultPth := filepath.Join(manualConfigDir, "result.yml")
+	outputPth, err := output.WriteToFile(scanResult, output.YAMLFormat, filepath.Join(manualConfigDir, "result"))
+	require.NoError(t, err)
 
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
+	result, err := fileutil.ReadStringFromFile(outputPth)
+	require.NoError(t, err)
 
-		validateConfigExpectation(t, "manual-config", strings.TrimSpace(customConfigResultYML), strings.TrimSpace(result), customConfigVersions...)
-	}
+	helper.ValidateConfigExpectation(t, testName, strings.TrimSpace(customConfigResultYML), strings.TrimSpace(result), customConfigVersions...)
 }
+
+// Expected results
 
 var customConfigVersions = []interface{}{
 	// android

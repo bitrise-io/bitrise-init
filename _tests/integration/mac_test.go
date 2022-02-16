@@ -2,14 +2,11 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
@@ -18,23 +15,20 @@ func TestMacOS(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__macos__")
 	require.NoError(t, err)
 
-	t.Log("sample-apps-osx-10-11")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-osx-10-11")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-osx-10-11.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsOSX1011ResultYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"sample-apps-osx-10-11",
+			"https://github.com/bitrise-samples/sample-apps-osx-10-11.git",
+			"",
+			sampleAppsOSX1011ResultYML,
+			sampleAppsOSX1011Versions,
+		},
 	}
+
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var sampleAppsOSX1011Versions = []interface{}{
 	models.FormatVersion,

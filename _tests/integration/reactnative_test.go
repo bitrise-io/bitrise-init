@@ -7,16 +7,17 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	noTestPackageJSON = `{
+const noTestPackageJSON = `{
   "name": "SampleAppsReactNativeAndroid",
   "version": "0.0.1",
   "private": true,
@@ -37,109 +38,87 @@ const (
     "preset": "react-native"
   }
 }`
-)
+
+const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
 
 func TestReactNative(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__reactnative__")
+	tmpDir, err := helper.CreateTempDir("__reactnative__")
 	require.NoError(t, err)
 
-	const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
-
-	t.Log("joplin")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "joplin")
-		gitClone(t, sampleAppDir, "https://github.com/bitrise-io/joplin.git")
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "joplin", strings.TrimSpace(sampleAppsReactNativeJoplinResultYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"joplin",
+			"https://github.com/bitrise-io/joplin.git",
+			"",
+			sampleAppsReactNativeJoplinResultYML,
+			sampleAppsReactNativeJoplinVersions,
+		},
+		{
+			"sample-apps-react-native-ios-and-android",
+			simpleSample,
+			"",
+			sampleAppsReactNativeIosAndAndroidResultYML,
+			sampleAppsReactNativeIosAndAndroidVersions,
+		},
+		{
+			"sample-apps-react-native-subdir",
+			"https://github.com/bitrise-samples/sample-apps-react-native-subdir.git",
+			"",
+			sampleAppsReactNativeSubdirResultYML,
+			sampleAppsReactNativeSubdirVersions,
+		},
 	}
 
-	t.Log("sample-apps-react-native-ios-and-android")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android")
-		sampleAppURL := simpleSample
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidVersions...)
-	}
-
-	t.Log("sample-apps-react-native-ios-and-android-no-test")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android-no-test")
-		sampleAppURL := simpleSample
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		err := ioutil.WriteFile(filepath.Join(sampleAppDir, "package.json"), []byte(noTestPackageJSON), 0600)
-		require.NoError(t, err)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android-no-test", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidNoTestResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidNoTestVersions...)
-	}
-
-	t.Log("sample-apps-react-native-ios-and-android-yarn")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-ios-and-android-yarn")
-		sampleAppURL := simpleSample
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		yarnCommand := command.New("yarn", "install")
-		yarnCommand.SetDir(sampleAppDir)
-		out, err := yarnCommand.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err = cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-react-native-ios-and-android-yarn", strings.TrimSpace(sampleAppsReactNativeIosAndAndroidYarnResultYML), strings.TrimSpace(result), sampleAppsReactNativeIosAndAndroidYarnVersions...)
-	}
-
-	t.Log("sample-apps-react-native-subdir")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-react-native-subdir")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-react-native-subdir.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-react-native-subdir", strings.TrimSpace(sampleAppsReactNativeSubdirResultYML), strings.TrimSpace(result), sampleAppsReactNativeSubdirVersions...)
-	}
+	helper.Execute(t, tmpDir, testCases)
 }
+
+func TestNoTests(t *testing.T) {
+	testName := "sample-apps-react-native-ios-and-android-no-test"
+	dir := setupSample(t, testName, simpleSample)
+
+	err := ioutil.WriteFile(filepath.Join(dir, "package.json"), []byte(noTestPackageJSON), 0600)
+	require.NoError(t, err)
+
+	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidNoTestResultYML, sampleAppsReactNativeIosAndAndroidNoTestVersions)
+}
+
+func TestYarn(t *testing.T) {
+	testName := "sample-apps-react-native-ios-and-android-yarn"
+	dir := setupSample(t, testName, simpleSample)
+
+	yarnCommand := command.New("yarn", "install")
+	yarnCommand.SetDir(dir)
+	out, err := yarnCommand.RunAndReturnTrimmedCombinedOutput()
+	require.NoError(t, err, out)
+
+	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidYarnResultYML, sampleAppsReactNativeIosAndAndroidYarnVersions)
+}
+
+// Helpers
+
+func setupSample(t *testing.T, name, repoURL string) string {
+	tmpDir, err := helper.CreateTempDir("__reactnative__")
+	require.NoError(t, err)
+
+	sampleAppDir := filepath.Join(tmpDir, name)
+	helper.GitClone(t, sampleAppDir, repoURL)
+
+	return sampleAppDir
+}
+
+func generateAndValidateResult(t *testing.T, name, dir, expectedResult string, expectedVersions []interface{}) {
+	_, err := scanner.GenerateAndWriteResults(dir, dir, output.YAMLFormat)
+	require.NoError(t, err)
+
+	scanResultPth := filepath.Join(dir, "result.yml")
+
+	result, err := fileutil.ReadStringFromFile(scanResultPth)
+	require.NoError(t, err)
+
+	helper.ValidateConfigExpectation(t, name, strings.TrimSpace(expectedResult), strings.TrimSpace(result), expectedVersions...)
+}
+
+// Expected results
 
 var sampleAppsReactNativeSubdirVersions = []interface{}{
 	models.FormatVersion,

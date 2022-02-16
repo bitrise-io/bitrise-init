@@ -2,14 +2,11 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
@@ -18,23 +15,20 @@ func TestIonic(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ionic__")
 	require.NoError(t, err)
 
-	t.Log("ionic-2")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "ionic-2")
-		sampleAppURL := "https://github.com/bitrise-samples/ionic-2.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(ionic2ResultYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"ionic-2",
+			"https://github.com/bitrise-samples/ionic-2.git",
+			"",
+			ionic2ResultYML,
+			ionic2Versions,
+		},
 	}
+
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var ionic2Versions = []interface{}{
 	models.FormatVersion,
