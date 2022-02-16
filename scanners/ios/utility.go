@@ -117,11 +117,11 @@ type Scheme struct {
 
 // Project is an Xcode project on the filesystem
 type Project struct {
+	RelPath string
 	// Is it a standalone project or a workspace?
 	IsWorkspace    bool
 	IsPodWorkspace bool
 
-	RelPath string
 	// Carthage command to run: bootstrap/update
 	CarthageCommand string
 	Warnings        models.Warnings
@@ -458,9 +458,9 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		}
 
 		projects = append(projects, Project{
+			RelPath:         project.Pth,
 			IsWorkspace:     false,
 			IsPodWorkspace:  false,
-			RelPath:         project.Pth,
 			CarthageCommand: carthageCommand,
 			Warnings:        projectWarnings,
 			Schemes:         schemes,
@@ -551,9 +551,9 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		}
 
 		projects = append(projects, Project{
+			RelPath:         workspace.Pth,
 			IsWorkspace:     true,
 			IsPodWorkspace:  workspace.IsPodWorkspace,
-			RelPath:         workspace.Pth,
 			Schemes:         schemes,
 			CarthageCommand: carthageCommand,
 			Warnings:        projectWarnings,
