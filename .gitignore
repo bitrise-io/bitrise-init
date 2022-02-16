@@ -7,3 +7,4 @@ _bin/
 bitrise-init
 .vscode/
 .idea/
+.DS_Store
