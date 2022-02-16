@@ -31,6 +31,7 @@ var UnknownToolDetectors = []UnknownToolDetector{
 	toolDetector{toolName: "Tuist", primaryFile: "Project.swift"},
 	toolDetector{toolName: "Xcodegen", primaryFile: "project.yml"},
 	toolDetector{toolName: "Swift Package Manager", primaryFile: "Package.swift"},
+	toolDetector{toolName: "Bazel", primaryFile: "WORKSPACE", optionalFiles: []string{"WORKSPACE.bazel", "BUILD", "BUILD.bazel", ".bazelrc", ".bazelversion", ".bazelignore"}},
 	toolDetector{toolName: "Buck", primaryFile: "BUCK", optionalFiles: []string{".buckversion", ".buckconfig", ".buckjavaargs"}},
 	kotlinMultiplatformDetector{},
 }
