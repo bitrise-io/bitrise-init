@@ -12,7 +12,7 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-const maxDepth = 3
+const maxDepth = 4
 
 type UnknownToolDetector interface {
 	// ToolName is the human-readable name of a tool/framework/platform
@@ -179,8 +179,10 @@ func walkProjectDir(rootPath string) (fileNames []string, filePaths []string, tr
 		if d.IsDir() {
 			entryName = entryName + "/"
 		}
-		treeBuilder.WriteString(treePrefix + entryName + "\n")
-		log.Debugf(treePrefix + entryName)
+		if relativePath != "." {
+			treeBuilder.WriteString(treePrefix + entryName + "\n")
+			log.Debugf(treePrefix + entryName)
+		}
 
 		return nil
 	})
