@@ -29,7 +29,7 @@ type DetectionResult struct {
 	ProjectTree string
 }
 
-var UnknownToolDetectors = []UnknownToolDetector{
+var unknownToolDetectors = []UnknownToolDetector{
 	toolDetector{toolName: "Tuist", primaryFile: "Project.swift"},
 	toolDetector{toolName: "Xcodegen", primaryFile: "project.yml"},
 	toolDetector{toolName: "Swift Package Manager", primaryFile: "Package.swift"},
