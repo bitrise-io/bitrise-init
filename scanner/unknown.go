@@ -28,10 +28,10 @@ type DetectionResult struct {
 }
 
 var UnknownToolDetectors = []UnknownToolDetector{
-	singleFileToolDetector{toolName: "Tuist", file: "Project.swift"},
-	singleFileToolDetector{toolName: "Xcodegen", file: "project.yml"},
-	singleFileToolDetector{toolName: "Swift Package Manager", file: "Package.swift"},
-	multiFileToolDetector{toolName: "Buck", primaryFile: "BUCK", optionalFiles: []string{".buckversion", ".buckconfig", ".buckjavaargs"}},
+	toolDetector{toolName: "Tuist", primaryFile: "Project.swift"},
+	toolDetector{toolName: "Xcodegen", primaryFile: "project.yml"},
+	toolDetector{toolName: "Swift Package Manager", primaryFile: "Package.swift"},
+	toolDetector{toolName: "Buck", primaryFile: "BUCK", optionalFiles: []string{".buckversion", ".buckconfig", ".buckjavaargs"}},
 	kotlinMultiplatformDetector{},
 }
 
@@ -42,43 +42,22 @@ var excludedDirs = []string{
 	"Pods",
 	"Carthage",
 	"CordovaLib",
-	"Framework",
+	".framework",
 }
 
-type singleFileToolDetector struct {
-	toolName string
-	file     string
-}
-
-func (d singleFileToolDetector) ToolName() string {
-	return d.toolName
-}
-
-func (d singleFileToolDetector) DetectToolIn(rootPath string) (DetectionResult, error) {
-	fileNames, _, tree, err := walkProjectDir(rootPath)
-	if err != nil {
-		return DetectionResult{}, err
-	}
-
-	return DetectionResult{
-		Detected:    sliceutil.IsStringInSlice(d.file, fileNames),
-		ProjectTree: tree,
-	}, err
-}
-
-// multiFileToolDetector first tries to detect primaryFile in the directory, then one of optionalFiles as a fallback.
+// toolDetector first tries to detect primaryFile in the directory, then one of optionalFiles as a fallback.
 // It detects the tool if primaryFile is found OR one of optionalFiles
-type multiFileToolDetector struct {
+type toolDetector struct {
 	toolName      string
 	primaryFile   string
 	optionalFiles []string
 }
 
-func (d multiFileToolDetector) ToolName() string {
+func (d toolDetector) ToolName() string {
 	return d.toolName
 }
 
-func (d multiFileToolDetector) DetectToolIn(rootPath string) (DetectionResult, error) {
+func (d toolDetector) DetectToolIn(rootPath string) (DetectionResult, error) {
 	fileNames, _, tree, err := walkProjectDir(rootPath)
 	if err != nil {
 		return DetectionResult{}, err
@@ -193,13 +172,13 @@ func walkProjectDir(rootPath string) (fileNames []string, filePaths []string, tr
 
 		var treePrefix = ""
 		if depth > 1 {
-			treePrefix = strings.Repeat("· ", depth)
+			treePrefix = strings.Repeat("· ", depth-1)
 		}
 		var entryName = d.Name()
 		if d.IsDir() {
 			entryName = entryName + "/"
 		}
-		treeBuilder.WriteString(treePrefix + entryName)
+		treeBuilder.WriteString(treePrefix + entryName + "\n")
 		log.Debugf(treePrefix + entryName)
 
 		return nil
