@@ -14,6 +14,7 @@ import (
 
 const maxDepth = 4
 
+// UnknownToolDetector ...
 type UnknownToolDetector interface {
 	// ToolName is the human-readable name of a tool/framework/platform
 	ToolName() string
@@ -22,6 +23,7 @@ type UnknownToolDetector interface {
 	DetectToolIn(rootPath string) (DetectionResult, error)
 }
 
+// DetectionResult ...
 type DetectionResult struct {
 	Detected    bool
 	ProjectTree string
