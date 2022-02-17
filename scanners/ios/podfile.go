@@ -249,8 +249,8 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 	}
 
 	if workspacePth == "" {
-		projectName := strings.TrimSuffix(projectPth, ".xcodeproj")
-		workspacePth = projectName + ".xcworkspace"
+		projectName := filepath.Base(strings.TrimSuffix(projectPth, ".xcodeproj"))
+		workspacePth = filepath.Join(podfileDir, projectName+".xcworkspace")
 	}
 
 	return map[string]string{
