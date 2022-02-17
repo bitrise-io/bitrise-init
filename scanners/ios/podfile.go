@@ -111,17 +111,17 @@ func (podfileParser podfileParser) shouldRaiseReadDefinitionError(err string) bo
 	return true
 }
 
-func (podfileParser podfileParser) getUserDefinedProjectRelavtivePath(cocoapodsVersion string) (string, error) {
+func (podfileParser podfileParser) getUserDefinedProjectRelativePath(cocoapodsVersion string) (string, error) {
 	targetProjectMap, err := podfileParser.getTargetDefinitionProjectMap(cocoapodsVersion)
 	if err != nil {
 		return "", fmt.Errorf("failed to get target definition map: %s", err)
 	}
 
-	for target, project := range targetProjectMap {
-		if target == "Pods" {
-			return project, nil
-		}
+	// Return the first custom project
+	for _, project := range targetProjectMap {
+		return project, nil
 	}
+
 	return "", nil
 }
 
@@ -209,7 +209,7 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 		return map[string]string{}, err
 	}
 
-	projectRelPth, err := podfileParser.getUserDefinedProjectRelavtivePath(cocoapodsVersion)
+	projectRelPth, err := podfileParser.getUserDefinedProjectRelativePath(cocoapodsVersion)
 	if err != nil {
 		return map[string]string{}, fmt.Errorf("failed to get user defined project path: %s", err)
 	}
