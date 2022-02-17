@@ -29,7 +29,8 @@ type DetectionResult struct {
 	ProjectTree string
 }
 
-var unknownToolDetectors = []UnknownToolDetector{
+// UnknownToolDetectors ...
+var UnknownToolDetectors = []UnknownToolDetector{
 	toolDetector{toolName: "Tuist", primaryFile: "Project.swift"},
 	toolDetector{toolName: "Xcodegen", primaryFile: "project.yml"},
 	toolDetector{toolName: "Swift Package Manager", primaryFile: "Package.swift"},
@@ -113,8 +114,6 @@ func (d kotlinMultiplatformDetector) DetectToolIn(rootPath string) (DetectionRes
 		}
 	}
 
-	log.Debugf("%v", potentialFilePaths)
-
 	detected := false
 	for _, path := range potentialFilePaths {
 		bytes, err := ioutil.ReadFile(path)
@@ -125,7 +124,6 @@ func (d kotlinMultiplatformDetector) DetectToolIn(rootPath string) (DetectionRes
 
 		if d.canFindPatternIn(string(bytes)) {
 			detected = true
-			log.Debugf("%s detected in file: %s", d.ToolName(), path)
 			break
 		}
 	}
@@ -183,7 +181,6 @@ func walkProjectDir(rootPath string) (fileNames []string, filePaths []string, tr
 		}
 		if relativePath != "." {
 			treeBuilder.WriteString(treePrefix + entryName + "\n")
-			log.Debugf(treePrefix + entryName)
 		}
 
 		return nil

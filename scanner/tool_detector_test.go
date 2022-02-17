@@ -5,13 +5,9 @@ import (
 	"path"
 	"reflect"
 	"testing"
-
-	"github.com/bitrise-io/go-utils/log"
 )
 
 func Test_kotlinMultiplatformDetector(t *testing.T) {
-	log.SetEnableDebugLog(true)
-
 	tests := []struct {
 		name     string
 		rootPath string
@@ -74,8 +70,6 @@ shared/
 }
 
 func Test_toolDetector(t *testing.T) {
-	log.SetEnableDebugLog(true)
-
 	tests := []struct {
 		name         string
 		toolDetector toolDetector
