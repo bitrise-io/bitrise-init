@@ -49,12 +49,15 @@ begin
 	podfile = Pod::Podfile.from_file(podfile_path)
 	targets = podfile.target_definitions
 	
-	puts "#{{}.to_json}" unless targets
+	if !targets
+		puts "#{{}.to_json}"
+		exit
+	end
 
 	target_project_map = {}
 	targets.each do |name, target_definition|
 		next unless target_definition.user_project_path
-		target_project_map[name] = target_definition.user_project_path
+		target_project_map[name] = File.expand_path(target_definition.user_project_path)
 	end
 
 	puts "#{{ :data => target_project_map }.to_json}"
@@ -111,7 +114,7 @@ func (podfileParser podfileParser) shouldRaiseReadDefinitionError(err string) bo
 	return true
 }
 
-func (podfileParser podfileParser) getUserDefinedProjectRelativePath(cocoapodsVersion string) (string, error) {
+func (podfileParser podfileParser) getUserDefinedProjectAbsPath(cocoapodsVersion string) (string, error) {
 	targetProjectMap, err := podfileParser.getTargetDefinitionProjectMap(cocoapodsVersion)
 	if err != nil {
 		return "", fmt.Errorf("failed to get target definition map: %s", err)
@@ -125,7 +128,7 @@ func (podfileParser podfileParser) getUserDefinedProjectRelativePath(cocoapodsVe
 	return "", nil
 }
 
-func (podfileParser podfileParser) getUserDefinedWorkspaceRelativePath(cocoapodsVersion string) (string, error) {
+func (podfileParser podfileParser) getUserDefinedWorkspaceAbsPath(cocoapodsVersion string) (string, error) {
 	gemfileCocoapodsVersion := ""
 	if cocoapodsVersion != "" {
 		gemfileCocoapodsVersion = fmt.Sprintf(`, '%s'`, cocoapodsVersion)
@@ -148,7 +151,12 @@ begin
 	# For example: require_relative '../node_modules/react-native/scripts/react_native_pods'
 	Dir.chdir(File.dirname(podfile_path))
 	podfile = Pod::Podfile.from_file(podfile_path)
-	pth = podfile.workspace_path
+	if !podfile.workspace_path
+		puts "#{{ :data => "" }.to_json}"
+		exit
+	end
+
+	pth = File.expand_path(podfile.workspace_path)
 	puts "#{{ :data => pth }.to_json}"
 rescue => e
 	puts "#{{ :error => "#{e.to_s} Reason: #{e.message}"}.to_json}"
@@ -209,12 +217,12 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 		return map[string]string{}, err
 	}
 
-	projectRelPth, err := podfileParser.getUserDefinedProjectRelativePath(cocoapodsVersion)
+	projectPth, err := podfileParser.getUserDefinedProjectAbsPath(cocoapodsVersion)
 	if err != nil {
 		return map[string]string{}, fmt.Errorf("failed to get user defined project path: %s", err)
 	}
 
-	if projectRelPth == "" {
+	if projectPth == "" {
 		projects, err := pathutil.FilterPaths(projects, pathutil.InDirectoryFilter(podfileDir, true))
 		if err != nil {
 			return map[string]string{}, fmt.Errorf("failed to filter projects: %s", err)
@@ -226,9 +234,8 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 			return map[string]string{}, errors.New("failed to determine workspace - project mapping: no explicit project specified and more than one project found in the Podfile's directory")
 		}
 
-		projectRelPth = filepath.Base(projects[0])
+		projectPth = projects[0]
 	}
-	projectPth := filepath.Join(podfileDir, projectRelPth)
 
 	if exist, err := pathutil.IsPathExists(projectPth); err != nil {
 		return map[string]string{}, fmt.Errorf("failed to check if path (%s) exists: %s", projectPth, err)
@@ -236,16 +243,15 @@ func (podfileParser podfileParser) GetWorkspaceProjectMap(projects []string) (ma
 		return map[string]string{}, fmt.Errorf("project not found at: %s", projectPth)
 	}
 
-	workspaceRelPth, err := podfileParser.getUserDefinedWorkspaceRelativePath(cocoapodsVersion)
+	workspacePth, err := podfileParser.getUserDefinedWorkspaceAbsPath(cocoapodsVersion)
 	if err != nil {
 		return map[string]string{}, fmt.Errorf("failed to get user defined workspace path: %s", err)
 	}
 
-	if workspaceRelPth == "" {
-		projectName := filepath.Base(strings.TrimSuffix(projectPth, ".xcodeproj"))
-		workspaceRelPth = projectName + ".xcworkspace"
+	if workspacePth == "" {
+		projectName := strings.TrimSuffix(projectPth, ".xcodeproj")
+		workspacePth = projectName + ".xcworkspace"
 	}
-	workspacePth := filepath.Join(podfileDir, workspaceRelPth)
 
 	return map[string]string{
 		workspacePth: projectPth,

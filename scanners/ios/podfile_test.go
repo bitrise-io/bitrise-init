@@ -81,7 +81,7 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{
-			"Pods": "MyXcodeProject.xcodeproj",
+			"Pods": filepath.Join("/private", tmpDir, "MyXcodeProject.xcodeproj"),
 		}
 
 		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("")
@@ -140,7 +140,7 @@ end
 	}
 }
 
-func TestGetUserDefinedProjectRelavtivePath(t *testing.T) {
+func TestGetUserDefinedProjectAbsPath(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
 	require.NoError(t, err)
 	defer func() {
@@ -160,8 +160,8 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedProject := "MyXcodeProject.xcodeproj"
-		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
+		expectedProject := filepath.Join("/private", tmpDir, "MyXcodeProject.xcodeproj")
+		actualProject, err := podparser.getUserDefinedProjectAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
@@ -179,13 +179,13 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedProject := ""
-		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
+		actualProject, err := podparser.getUserDefinedProjectAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
 }
 
-func TestGetUserDefinedWorkspaceRelativePath(t *testing.T) {
+func TestGetUserDefinedWorkspaceAbsPath(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
 	require.NoError(t, err)
 	defer func() {
@@ -205,8 +205,8 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedWorkspace := "MyWorkspace.xcworkspace"
-		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
+		expectedWorkspace := filepath.Join("/private", tmpDir, "MyWorkspace.xcworkspace")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
@@ -224,7 +224,7 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedWorkspace := ""
-		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
