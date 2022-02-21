@@ -12,7 +12,7 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/go-xcode/xcodeproj"
+	"github.com/bitrise-io/go-utils/sliceutil"
 	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
 )
 
@@ -136,6 +136,12 @@ type DetectResult struct {
 	Warnings models.Warnings
 }
 
+type containers struct {
+	standaloneProjects []container
+	workspaces         []container
+	podWorkspacePaths  []string
+}
+
 // ConfigDescriptor ...
 type ConfigDescriptor struct {
 	HasPodfile           bool
@@ -224,7 +230,7 @@ func printMissingSharedSchemesAndGenerateWarning(projectRelPth, defaultGitignore
 	}
 
 	log.TPrintf("")
-	log.TErrorf("No shared schemes found, adding recreate-user-schemes step...")
+	log.TErrorf("No shared schemes found, adding recreate-user-schemes Step...")
 	log.TErrorf("The newly generated schemes may differ from the ones in your project.")
 
 	message := `No shared schemes found for project: ` + projectRelPth + `.` + "\n"
@@ -274,17 +280,6 @@ It is <a href="https://github.com/Carthage/Carthage/blob/master/Documentation/Ar
 	return carthageCommand, warning
 }
 
-func projectPathByScheme(projects []xcodeproj.ProjectModel, targetScheme string) string {
-	for _, p := range projects {
-		for _, s := range p.SharedSchemes {
-			if s.Name == targetScheme {
-				return p.Pth
-			}
-		}
-	}
-	return ""
-}
-
 func relPathForLog(searchDir string, path string) string {
 	relPath, err := filepath.Rel(searchDir, path)
 	if err != nil {
@@ -301,9 +296,6 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		projects []Project
 		warnings models.Warnings
 	)
-
-	// While not ideal, the expectation is that the searchDir is the current directory, due to using relative paths.
-	// Enforcing this to allow unit test to pass.
 
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, false)
 	if err != nil {
@@ -334,7 +326,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		return DetectResult{}, err
 	}
 
-	standaloneProjects, workspaces, err := CreateStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
+	detectedContainers, err := createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
 	if err != nil {
 		return DetectResult{}, err
 	}
@@ -348,34 +340,33 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 	}
 
 	log.TPrintf("%d Podfiles detected", len(podfiles))
-	/*
-		for _, podfile := range podfiles {
-			log.TPrintf("- %s", relPathForLog(searchDir, podfile))
 
-			podfileParser := podfileParser{
-				podfilePth:                podfile,
-				suppressPodFileParseError: suppressPodFileParseError,
-			}
+	for _, podfile := range podfiles {
+		log.TPrintf("- %s", relPathForLog(searchDir, podfile))
 
-			workspaceProjectMap, err := podfileParser.GetWorkspaceProjectMap(projectFiles)
-			if err != nil {
-				warning := fmt.Sprintf("Failed to determine cocoapods project-workspace mapping, error: %s", err)
-				warnings = append(warnings, warning)
-				log.Warnf(warning)
-				continue
-			}
+		podfileParser := podfileParser{
+			podfilePth:                podfile,
+			suppressPodFileParseError: suppressPodFileParseError,
+		}
 
-			aStandaloneProjects, aWorkspaces, err := MergePodWorkspaceProjectMap(workspaceProjectMap, standaloneProjects, workspaces)
-			if err != nil {
-				warning := fmt.Sprintf("Failed to create cocoapods project-workspace mapping, error: %s", err)
-				warnings = append(warnings, warning)
-				log.Warnf(warning)
-				continue
-			}
+		workspaceProjectMap, err := podfileParser.GetWorkspaceProjectMap(projectFiles)
+		if err != nil {
+			warning := fmt.Sprintf("Failed to determine cocoapods project-workspace mapping, error: %s", err)
+			warnings = append(warnings, warning)
+			log.Warnf(warning)
 
-			standaloneProjects = aStandaloneProjects
-			workspaces = aWorkspaces
-		}*/
+			continue
+		}
+
+		detectedContainers, err = mergePodWorkspaceProjectMap(workspaceProjectMap, detectedContainers)
+		if err != nil {
+			warning := fmt.Sprintf("Failed to create cocoapods project-workspace mapping, error: %s", err)
+			warnings = append(warnings, warning)
+			log.Warnf(warning)
+
+			continue
+		}
+	}
 
 	// Carthage
 	log.TInfof("Searching for Cartfile")
@@ -394,7 +385,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	defaultGitignorePth := filepath.Join(searchDir, ".gitignore")
 
-	for _, container := range append(standaloneProjects, workspaces...) {
+	for _, container := range append(detectedContainers.standaloneProjects, detectedContainers.workspaces...) {
 		var (
 			projectWarnings []string
 			detectedSchemes []Scheme
@@ -430,21 +421,26 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 			log.Warnf("Skipping Project (%s), as it is not present", pathRelativeToWorkspace(missingProject, containerPath))
 		}
 
+		if shouldRecreateSchemes {
+			message := printMissingSharedSchemesAndGenerateWarning(containerRelPath, defaultGitignorePth, nil)
+			if message != "" {
+				warnings = append(warnings, message)
+			}
+		}
+
 		for _, project := range containerProjects {
-			projectSchemes := projectToSchemes[project.Path]
-			if shouldRecreateSchemes {
-				projectSchemes = project.ReCreateSchemes()
-				message := printMissingSharedSchemesAndGenerateWarning(containerRelPath, defaultGitignorePth, projectSchemes)
-				if message != "" {
-					warnings = append(warnings, message)
+			var sharedSchemes []xcscheme.Scheme
+			for _, s := range projectToSchemes[project.Path] {
+				if s.IsShared {
+					sharedSchemes = append(sharedSchemes, s)
 				}
 			}
 
-			for _, scheme := range projectSchemes {
-				// if !scheme.IsShared {
-				// 	continue
-				// }
+			if shouldRecreateSchemes {
+				sharedSchemes = project.ReCreateSchemes()
+			}
 
+			for _, scheme := range sharedSchemes {
 				log.TPrintf("- %s", scheme.Name)
 
 				var icons models.Icons
@@ -463,13 +459,12 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 					Icons:      icons,
 				})
 			}
-
 		}
 
 		projects = append(projects, Project{
 			RelPath:         containerRelPath,
 			IsWorkspace:     container.isWorkspace(),
-			IsPodWorkspace:  false, // Unknown at this point
+			IsPodWorkspace:  sliceutil.IsStringInSlice(containerPath, detectedContainers.podWorkspacePaths),
 			Schemes:         detectedSchemes,
 			CarthageCommand: carthageCommand,
 			Warnings:        projectWarnings,
