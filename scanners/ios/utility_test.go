@@ -98,7 +98,7 @@ func TestParseProjects(t *testing.T) {
 				Warnings: []string{
 					`No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
 Automatically generated schemes may differ from the ones in your project.
-Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`,
+Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`,
 				},
 				Schemes: []Scheme{{
 					Name:       "BitriseXcode7Sample",
