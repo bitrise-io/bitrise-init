@@ -21,7 +21,7 @@ func getMainTarget(project xcodeproj.XcodeProj, scheme xcscheme.Scheme) (xcodepr
 	blueprintID := entry.BuildableReference.BlueprintIdentifier
 	mainTarget, found := project.Proj.Target(blueprintID)
 	if !found {
-		return xcodeproj.Target{}, fmt.Errorf("no target found for blueprint ID (%s) project (%s)", blueprintID, project.Path)
+		return xcodeproj.Target{}, fmt.Errorf("no target found for blueprint ID (%s) in project (%s)", blueprintID, project.Path)
 	}
 
 	return mainTarget, nil

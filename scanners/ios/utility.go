@@ -411,7 +411,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		}
 
 		for _, missingProject := range missingProjects {
-			log.Warnf("Skipping Project (%s), as it is not present", pathRelativeToWorkspace(missingProject, containerPath))
+			log.Warnf("Skipping Project (%s), as it is not present", relPathForLog(searchDir, missingProject))
 		}
 
 		if shouldRecreateSchemes {

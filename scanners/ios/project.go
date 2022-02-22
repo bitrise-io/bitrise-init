@@ -2,10 +2,7 @@ package ios
 
 import (
 	"fmt"
-	"path/filepath"
 
-	"github.com/bitrise-io/go-utils/colorstring"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	xcodeproject "github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj"
 	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
@@ -149,28 +146,4 @@ func numberOfSharedSchemes(containerToSchemes map[string][]xcscheme.Scheme) int 
 	}
 
 	return count
-}
-
-func pathRelativeToWorkspace(project, workspace string) string {
-	parentDir, _ := filepath.Split(workspace)
-	relPath, err := filepath.Rel(filepath.Join(parentDir), project)
-	if err != nil {
-		log.Warnf("%s", err)
-		return project
-	}
-
-	return relPath
-}
-
-func printSchemes(includeUserSchemes bool, containerToSchemes map[string][]xcscheme.Scheme, containerPath string) {
-	for container, schemes := range containerToSchemes {
-		log.Printf("- %s", pathRelativeToWorkspace(container, containerPath))
-		for _, scheme := range schemes {
-			if scheme.IsShared {
-				log.Printf("  - %s (Shared)", scheme.Name)
-			} else if includeUserSchemes {
-				log.Printf(colorstring.Yellow(fmt.Sprintf("  - %s (User)", scheme.Name)))
-			}
-		}
-	}
 }

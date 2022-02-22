@@ -151,7 +151,7 @@ begin
 	Dir.chdir(File.dirname(podfile_path))
 	podfile = Pod::Podfile.from_file(podfile_path)
 	if !podfile.workspace_path
-		puts "#{{ :data => "" }.to_json}"
+		puts "#{{}.to_json}"
 		exit
 	end
 
@@ -333,7 +333,7 @@ func mergePodWorkspaceProjectMap(podWorkspaceProjectMap map[string]string, detec
 			}
 		} else {
 			// Workspace not found, this means workspace is not in the repository,
-			// but it will created by `pod install`.
+			// but it will be created by `pod install`.
 			detected.podWorkspacePaths = append(detected.podWorkspacePaths, podWorkspaceFile)
 
 			// This case the pod project was marked previously as standalone project.
