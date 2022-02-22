@@ -56,7 +56,7 @@ begin
 	target_project_map = {}
 	targets.each do |name, target_definition|
 		next unless target_definition.user_project_path
-		target_project_map[name] = File.expand_path(target_definition.user_project_path)
+		target_project_map[name] = target_definition.user_project_path
 	end
 
 	puts "#{{ :data => target_project_map }.to_json}"
@@ -65,12 +65,7 @@ rescue => e
 end
 `
 
-	absPodfilePth, err := filepath.Abs(podfileParser.podfilePth)
-	if err != nil {
-		return map[string]string{}, fmt.Errorf("failed to expand path (%s): %s", podfileParser.podfilePth, err)
-	}
-
-	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", absPodfilePth)}
+	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", podfileParser.podfilePth)}
 
 	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, envs)
 	if err != nil {
@@ -120,8 +115,13 @@ func (podfileParser podfileParser) getUserDefinedProjectAbsPath(cocoapodsVersion
 	}
 
 	// Return the first custom project
-	for _, project := range targetProjectMap {
-		return project, nil
+	for _, projectRelPath := range targetProjectMap {
+		if projectRelPath == "" { // this should not happen
+			continue
+		}
+
+		projectAbsPath := filepath.Join(filepath.Dir(podfileParser.podfilePth), projectRelPath)
+		return projectAbsPath, nil
 	}
 
 	return "", nil
@@ -155,18 +155,13 @@ begin
 		exit
 	end
 
-	pth = File.expand_path(podfile.workspace_path)
-	puts "#{{ :data => pth }.to_json}"
+	puts "#{{ :data => podfile.workspace_path }.to_json}"
 rescue => e
 	puts "#{{ :error => "#{e.to_s} Reason: #{e.message}"}.to_json}"
 end
 `
-	absPodfilePth, err := filepath.Abs(podfileParser.podfilePth)
-	if err != nil {
-		return "", fmt.Errorf("failed to expand path (%s): %s", podfileParser.podfilePth, err)
-	}
 
-	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", absPodfilePth)}
+	envs := []string{fmt.Sprintf("PODFILE_PATH=%s", podfileParser.podfilePth)}
 
 	out, err := runRubyScriptForOutput(rubyScriptContent, gemfileContent, envs)
 	if err != nil {
@@ -191,7 +186,12 @@ end
 		return "", fmt.Errorf("failed to read workspace path: %s", workspacePathOutput.Error)
 	}
 
-	return workspacePathOutput.Data, nil
+	if workspacePathOutput.Data == "" { // no custom workspace path
+		return "", nil
+	}
+
+	workspaceAbsPath := filepath.Join(filepath.Dir(podfileParser.podfilePth), workspacePathOutput.Data)
+	return workspaceAbsPath, nil
 }
 
 // GetWorkspaceProjectMap ...

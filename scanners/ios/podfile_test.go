@@ -82,7 +82,7 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedTargetDefinition := map[string]string{
-			"Pods": filepath.Join("/private", tmpDir, "MyXcodeProject.xcodeproj"),
+			"Pods": "MyXcodeProject.xcodeproj",
 		}
 
 		actualTargetDefinition, err := podparser.getTargetDefinitionProjectMap("")
@@ -161,7 +161,7 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedProject := filepath.Join("/private", tmpDir, "MyXcodeProject.xcodeproj")
+		expectedProject := filepath.Join(tmpDir, "MyXcodeProject.xcodeproj")
 		actualProject, err := podparser.getUserDefinedProjectAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
@@ -206,7 +206,7 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedWorkspace := filepath.Join("/private", tmpDir, "MyWorkspace.xcworkspace")
+		expectedWorkspace := filepath.Join(tmpDir, "MyWorkspace.xcworkspace")
 		actualWorkspace, err := podparser.getUserDefinedWorkspaceAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
