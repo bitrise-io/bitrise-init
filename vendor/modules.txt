@@ -25,7 +25,7 @@ github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
 github.com/bitrise-io/go-utils/pretty
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-xcode v1.0.3-0.20220222074440-0c316f01fa68
+# github.com/bitrise-io/go-xcode v1.0.3
 ## explicit
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/xcodebuild
