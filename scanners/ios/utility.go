@@ -216,7 +216,7 @@ func fileContains(pth, str string) (bool, error) {
 	return strings.Contains(content, str), nil
 }
 
-func printMissingSharedSchemesAndGenerateWarning(projectRelPth, defaultGitignorePth string, recreatedSchemes []xcscheme.Scheme) string {
+func printMissingSharedSchemesAndGenerateWarning(projectRelPth, defaultGitignorePth string) string {
 	isXcshareddataGitignored := false
 	if exist, err := pathutil.IsPathExists(defaultGitignorePth); err != nil {
 		log.TWarnf("Failed to check if .gitignore file exists at: %s, error: %s", defaultGitignorePth, err)
@@ -245,14 +245,7 @@ func printMissingSharedSchemesAndGenerateWarning(projectRelPth, defaultGitignore
 	}
 
 	message += `Automatically generated schemes may differ from the ones in your project.
-Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`
-
-	log.TPrintf("")
-
-	log.TWarnf("%d user schemes will be generated", len(recreatedSchemes))
-	for _, scheme := range recreatedSchemes {
-		log.TWarnf("- %s", scheme.Name)
-	}
+Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`
 
 	log.TPrintf("")
 
@@ -422,9 +415,9 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		}
 
 		if shouldRecreateSchemes {
-			message := printMissingSharedSchemesAndGenerateWarning(containerRelPath, defaultGitignorePth, nil)
+			message := printMissingSharedSchemesAndGenerateWarning(containerRelPath, defaultGitignorePth)
 			if message != "" {
-				warnings = append(warnings, message)
+				projectWarnings = append(projectWarnings, message)
 			}
 		}
 

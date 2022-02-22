@@ -13,11 +13,12 @@ import (
 )
 
 func getMainTarget(project xcodeproj.XcodeProj, scheme xcscheme.Scheme) (xcodeproj.Target, error) {
-	blueprintID := getBlueprintID(scheme)
-	if blueprintID == "" {
+	entry, found := scheme.AppBuildActionEntry()
+	if !found {
 		return xcodeproj.Target{}, fmt.Errorf("scheme (%s) does not contain app buildable reference in project (%s)", scheme.Name, project.Path)
 	}
 
+	blueprintID := entry.BuildableReference.BlueprintIdentifier
 	mainTarget, found := project.Proj.Target(blueprintID)
 	if !found {
 		return xcodeproj.Target{}, fmt.Errorf("no target found for blueprint ID (%s) project (%s)", blueprintID, project.Path)
@@ -70,15 +71,4 @@ func lookupIconByTarget(projectPath string, target xcodeproj.Target, basepath st
 		return nil, err
 	}
 	return icons, nil
-}
-
-func getBlueprintID(scheme xcscheme.Scheme) string {
-	var blueprintID string
-	for _, entry := range scheme.BuildAction.BuildActionEntries {
-		if entry.BuildableReference.IsAppReference() {
-			blueprintID = entry.BuildableReference.BlueprintIdentifier
-			break
-		}
-	}
-	return blueprintID
 }
