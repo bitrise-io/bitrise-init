@@ -93,21 +93,118 @@ func TestParseProjects(t *testing.T) {
 		want := DetectResult{
 			Warnings: nil,
 			Projects: []Project{{
-				IsWorkspace:     false,
-				IsPodWorkspace:  false,
-				RelPath:         "BitriseXcode7Sample.xcodeproj",
-				CarthageCommand: "",
+				RelPath:     "BitriseXcode7Sample.xcodeproj",
+				IsWorkspace: false,
 				Warnings: []string{
 					`No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
 Automatically generated schemes may differ from the ones in your project.
-Make sure to <a href="http://devcenter.bitrise.io/ios/frequent-ios-issues/#xcode-scheme-not-found">share your schemes</a> for the expected behaviour.`,
+Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`,
 				},
 				Schemes: []Scheme{{
 					Name:       "BitriseXcode7Sample",
 					Missing:    true,
 					HasXCTests: true,
-					HasAppClip: false,
 					Icons:      nil,
+				}},
+			}},
+		}
+
+		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("ios-cocoapods-at-root", func(t *testing.T) {
+		sampleAppDir := t.TempDir()
+		sampleAppURL := "https://github.com/bitrise-io/ios-cocoapods-at-root"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		want := DetectResult{
+			Projects: []Project{{
+				RelPath:        "iOSMinimalCocoaPodsSample.xcworkspace",
+				IsWorkspace:    true,
+				IsPodWorkspace: true,
+				Schemes: []Scheme{{
+					Name:       "iOSMinimalCocoaPodsSample",
+					HasXCTests: true,
+				}},
+			}},
+		}
+
+		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("sample-apps-ios-watchkit", func(t *testing.T) {
+		sampleAppDir := t.TempDir()
+		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-watchkit.git"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		want := DetectResult{
+			Projects: []Project{{
+				RelPath:     "watch-test.xcodeproj",
+				IsWorkspace: false,
+				Schemes: []Scheme{
+					{
+						Name: "Complication - watch-test WatchKit App",
+					},
+					{
+						Name: "Glance - watch-test WatchKit App",
+					},
+					{
+						Name: "Notification - watch-test WatchKit App",
+					},
+					{
+						Name: "watch-test WatchKit App",
+					},
+					{
+						Name:       "watch-test",
+						HasXCTests: true,
+					},
+				},
+			}},
+		}
+
+		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("sample-apps-carthage", func(t *testing.T) {
+		sampleAppDir := t.TempDir()
+		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-carthage.git"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		want := DetectResult{
+			Projects: []Project{{
+				RelPath:         "sample-apps-carthage.xcodeproj",
+				IsWorkspace:     false,
+				CarthageCommand: "bootstrap",
+				Schemes: []Scheme{{
+					Name:       "sample-apps-carthage",
+					HasXCTests: true,
+				}},
+			}},
+		}
+
+		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("sample-apps-appclip", func(t *testing.T) {
+		sampleAppDir := t.TempDir()
+		sampleAppURL := "https://github.com/bitrise-io/sample-apps-ios-with-appclip.git"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		want := DetectResult{
+			Projects: []Project{{
+				IsWorkspace: true,
+				RelPath:     "Sample.xcworkspace",
+				Schemes: []Scheme{{
+					Name:       "SampleAppClipApp",
+					HasAppClip: true,
 				}},
 			}},
 		}

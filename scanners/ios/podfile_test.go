@@ -9,7 +9,8 @@ import (
 
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/go-xcode/xcodeproj"
+	"github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj"
+	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
 	"github.com/stretchr/testify/require"
 )
 
@@ -140,7 +141,7 @@ end
 	}
 }
 
-func TestGetUserDefinedProjectRelavtivePath(t *testing.T) {
+func TestGetUserDefinedProjectAbsPath(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
 	require.NoError(t, err)
 	defer func() {
@@ -160,8 +161,8 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedProject := "MyXcodeProject.xcodeproj"
-		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
+		expectedProject := filepath.Join(tmpDir, "MyXcodeProject.xcodeproj")
+		actualProject, err := podparser.getUserDefinedProjectAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
@@ -179,13 +180,13 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedProject := ""
-		actualProject, err := podparser.getUserDefinedProjectRelavtivePath("")
+		actualProject, err := podparser.getUserDefinedProjectAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedProject, actualProject)
 	}
 }
 
-func TestGetUserDefinedWorkspaceRelativePath(t *testing.T) {
+func TestGetUserDefinedWorkspaceAbsPath(t *testing.T) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("__utility_test__")
 	require.NoError(t, err)
 	defer func() {
@@ -205,8 +206,8 @@ pod 'Alamofire', '~> 3.4'
 		require.NoError(t, fileutil.WriteStringToFile(podfilePth, podfile))
 		podparser := podfileParser{podfilePth: podfilePth}
 
-		expectedWorkspace := "MyWorkspace.xcworkspace"
-		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
+		expectedWorkspace := filepath.Join(tmpDir, "MyWorkspace.xcworkspace")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
@@ -224,7 +225,7 @@ pod 'Alamofire', '~> 3.4'
 		podparser := podfileParser{podfilePth: podfilePth}
 
 		expectedWorkspace := ""
-		actualWorkspace, err := podparser.getUserDefinedWorkspaceRelativePath("")
+		actualWorkspace, err := podparser.getUserDefinedWorkspaceAbsPath("")
 		require.NoError(t, err)
 		require.Equal(t, expectedWorkspace, actualWorkspace)
 	}
@@ -487,44 +488,59 @@ pod 'Alamofire', '~> 3.4'
 	}
 }
 
+type mockContainer struct {
+	containerPath string
+	innerProjects []string
+}
+
+func (m mockContainer) path() string {
+	return m.containerPath
+}
+
+func (m mockContainer) isWorkspace() bool {
+	panic("not implemented")
+}
+
+func (m mockContainer) projectPaths() ([]string, error) {
+	return m.innerProjects, nil
+}
+
+func (m mockContainer) projects() ([]xcodeproj.XcodeProj, []string, error) {
+	panic("not implemented")
+}
+
+func (m mockContainer) schemes() (map[string][]xcscheme.Scheme, error) {
+	panic("not implemented")
+}
+
 func TestMergePodWorkspaceProjectMap(t *testing.T) {
 	t.Log("workspace is in the repository")
 	{
 		podWorkspaceMap := map[string]string{
 			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
 		}
-
-		standaloneProjects := []xcodeproj.ProjectModel{}
-		expectedStandaloneProjects := []xcodeproj.ProjectModel{}
-
-		workspaces := []xcodeproj.WorkspaceModel{
-			xcodeproj.WorkspaceModel{
-				Pth:  "MyWorkspace.xcworkspace",
-				Name: "MyWorkspace",
-				Projects: []xcodeproj.ProjectModel{
-					xcodeproj.ProjectModel{
-						Pth: "MyXcodeProject.xcodeproj",
-					},
+		detected := containers{
+			workspaces: []container{
+				mockContainer{
+					containerPath: "MyWorkspace.xcworkspace",
+					innerProjects: []string{"MyXcodeProject.xcodeproj"},
 				},
 			},
 		}
-		expectedWorkspaces := []xcodeproj.WorkspaceModel{
-			xcodeproj.WorkspaceModel{
-				Pth:  "MyWorkspace.xcworkspace",
-				Name: "MyWorkspace",
-				Projects: []xcodeproj.ProjectModel{
-					xcodeproj.ProjectModel{
-						Pth: "MyXcodeProject.xcodeproj",
-					},
+
+		wantDetected := containers{
+			workspaces: []container{
+				mockContainer{
+					containerPath: "MyWorkspace.xcworkspace",
+					innerProjects: []string{"MyXcodeProject.xcodeproj"},
 				},
-				IsPodWorkspace: true,
 			},
+			podWorkspacePaths: []string{"MyWorkspace.xcworkspace"},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		gotDetected, err := mergePodWorkspaceProjectMap(podWorkspaceMap, detected)
 		require.NoError(t, err)
-		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
-		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
+		require.Equal(t, wantDetected, gotDetected)
 	}
 
 	t.Log("workspace is in the repository, but project not attached - ERROR")
@@ -533,44 +549,42 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
 		}
 
-		standaloneProjects := []xcodeproj.ProjectModel{}
-
-		workspaces := []xcodeproj.WorkspaceModel{
-			xcodeproj.WorkspaceModel{
-				Pth:  "MyWorkspace.xcworkspace",
-				Name: "MyWorkspace",
+		detected := containers{
+			workspaces: []container{
+				mockContainer{
+					containerPath: "MyWorkspace.xcworkspace",
+				},
 			},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		gotDetected, err := mergePodWorkspaceProjectMap(podWorkspaceMap, detected)
 		require.Error(t, err)
-		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
-		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
+		require.Equal(t, containers{}, gotDetected)
 	}
 
-	t.Log("workspace is in the repository, but project is marged as standalon - ERROR")
+	t.Log("workspace is in the repository, but project is also standalone - ERROR")
 	{
 		podWorkspaceMap := map[string]string{
 			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
 		}
 
-		standaloneProjects := []xcodeproj.ProjectModel{
-			xcodeproj.ProjectModel{
-				Pth: "MyXcodeProject.xcodeproj",
+		detected := containers{
+			standaloneProjects: []container{
+				mockContainer{
+					containerPath: "MyXcodeProject.xcodeproj",
+					innerProjects: []string{"MyXcodeProject.xcodeproj"},
+				},
+			},
+			workspaces: []container{
+				mockContainer{
+					containerPath: "MyWorkspace.xcworkspace",
+				},
 			},
 		}
 
-		workspaces := []xcodeproj.WorkspaceModel{
-			xcodeproj.WorkspaceModel{
-				Pth:  "MyWorkspace.xcworkspace",
-				Name: "MyWorkspace",
-			},
-		}
-
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		gotDetected, err := mergePodWorkspaceProjectMap(podWorkspaceMap, detected)
 		require.Error(t, err)
-		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
-		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
+		require.Equal(t, containers{}, gotDetected)
 	}
 
 	t.Log("workspace is gitignored")
@@ -578,47 +592,46 @@ func TestMergePodWorkspaceProjectMap(t *testing.T) {
 		podWorkspaceMap := map[string]string{
 			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
 		}
-
-		standaloneProjects := []xcodeproj.ProjectModel{
-			xcodeproj.ProjectModel{
-				Pth: "MyXcodeProject.xcodeproj",
+		detected := containers{
+			standaloneProjects: []container{
+				mockContainer{
+					containerPath: "MyXcodeProject.xcodeproj",
+					innerProjects: []string{"MyXcodeProject.xcodeproj"},
+				},
 			},
 		}
-		expectedStandaloneProjects := []xcodeproj.ProjectModel{}
 
-		workspaces := []xcodeproj.WorkspaceModel{}
-		expectedWorkspaces := []xcodeproj.WorkspaceModel{
-			xcodeproj.WorkspaceModel{
-				Pth:  "MyWorkspace.xcworkspace",
-				Name: "MyWorkspace",
-				Projects: []xcodeproj.ProjectModel{
-					xcodeproj.ProjectModel{
-						Pth: "MyXcodeProject.xcodeproj",
+		want := containers{
+			standaloneProjects: []container{},
+			workspaces: []container{
+				podWorkspace{
+					workspacePath: "MyWorkspace.xcworkspace",
+					workspaceProjects: []container{
+						mockContainer{
+							containerPath: "MyXcodeProject.xcodeproj",
+							innerProjects: []string{"MyXcodeProject.xcodeproj"},
+						},
 					},
 				},
-				IsPodWorkspace: true,
 			},
+			podWorkspacePaths: []string{"MyWorkspace.xcworkspace"},
 		}
 
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		got, err := mergePodWorkspaceProjectMap(podWorkspaceMap, detected)
 		require.NoError(t, err)
-		require.Equal(t, expectedStandaloneProjects, mergedStandaloneProjects)
-		require.Equal(t, expectedWorkspaces, mergedWorkspaces)
+		require.Equal(t, want, got)
 	}
 
-	t.Log("workspace is gitignored, but standalon project missing - ERROR")
+	t.Log("workspace is gitignored, but standalone project missing - ERROR")
 	{
 		podWorkspaceMap := map[string]string{
 			"MyWorkspace.xcworkspace": "MyXcodeProject.xcodeproj",
 		}
 
-		standaloneProjects := []xcodeproj.ProjectModel{}
+		detected := containers{}
 
-		workspaces := []xcodeproj.WorkspaceModel{}
-
-		mergedStandaloneProjects, mergedWorkspaces, err := MergePodWorkspaceProjectMap(podWorkspaceMap, standaloneProjects, workspaces)
+		got, err := mergePodWorkspaceProjectMap(podWorkspaceMap, detected)
 		require.Error(t, err)
-		require.Equal(t, []xcodeproj.ProjectModel{}, mergedStandaloneProjects)
-		require.Equal(t, []xcodeproj.WorkspaceModel{}, mergedWorkspaces)
+		require.Equal(t, containers{}, got)
 	}
 }
