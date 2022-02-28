@@ -15,10 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateTempDir(name string) (string, error) {
-	return pathutil.NormalizedOSTempDirPath(name)
-}
-
 func ValidateConfigExpectation(t *testing.T, ID, expected, actual string, versions ...interface{}) {
 	if !assert.ObjectsAreEqual(expected, actual) {
 		s, err := replaceVersions(actual, versions...)

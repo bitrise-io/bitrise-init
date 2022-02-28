@@ -13,14 +13,11 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestManualConfig(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__manual-config__")
-	require.NoError(t, err)
-
+	tmpDir := t.TempDir()
 	testName := "manual-config"
 	manualConfigDir := filepath.Join(tmpDir, testName)
 	require.NoError(t, os.MkdirAll(manualConfigDir, 0777))

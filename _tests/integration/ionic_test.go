@@ -7,13 +7,10 @@ import (
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/stretchr/testify/require"
 )
 
 func TestIonic(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__ionic__")
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
 	var testCases = []helper.TestCase{
 		{

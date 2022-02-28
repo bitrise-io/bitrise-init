@@ -16,8 +16,7 @@ import (
 )
 
 func TestAndroid(t *testing.T) {
-	tmpDir, err := helper.CreateTempDir("__android__")
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
 	var testCases = []helper.TestCase{
 		{
@@ -54,15 +53,13 @@ func TestAndroid(t *testing.T) {
 }
 
 func TestMissingGradlewWrapper(t *testing.T) {
-	tmpDir, err := helper.CreateTempDir("__android__")
-	require.NoError(t, err)
-
+	tmpDir := t.TempDir()
 	testName := "android-sdk22-no-gradlew"
 	sampleAppDir := filepath.Join(tmpDir, testName)
 	sampleAppURL := "https://github.com/bitrise-samples/android-sdk22-no-gradlew.git"
 	helper.GitClone(t, sampleAppDir, sampleAppURL)
 
-	_, err = scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
 	require.EqualError(t, err, "No known platform detected")
 
 	scanResultPth := filepath.Join(sampleAppDir, "result.yml")

@@ -42,8 +42,7 @@ const noTestPackageJSON = `{
 const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
 
 func TestReactNative(t *testing.T) {
-	tmpDir, err := helper.CreateTempDir("__reactnative__")
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
 	var testCases = []helper.TestCase{
 		{
@@ -97,9 +96,7 @@ func TestYarn(t *testing.T) {
 // Helpers
 
 func setupSample(t *testing.T, name, repoURL string) string {
-	tmpDir, err := helper.CreateTempDir("__reactnative__")
-	require.NoError(t, err)
-
+	tmpDir := t.TempDir()
 	sampleAppDir := filepath.Join(tmpDir, name)
 	helper.GitClone(t, sampleAppDir, repoURL)
 
