@@ -1,3 +1,5 @@
+// This main package provides and easy way to generate the manual configuration yaml file which needs to be updated on
+// the website whenever any of the default scanner configurations changes.
 package main
 
 import (
