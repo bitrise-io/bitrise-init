@@ -2,42 +2,6 @@ format_version: "7"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 workflows:
-  # ----------------------------------------------------------------
-  # --- workflows for CI and testing
-  ci-docker:
-    steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/env bash
-            set -ex
-            docker-compose build
-            docker-compose run --rm app bitrise run ci
-  maintenance:
-    steps:
-    - script:
-        title: Check step version change
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            go get -u github.com/godrei/stepper
-
-            # explanation:
-            # 1. run stepper tool
-            # 2. extract relevant part
-            # https://stackoverflow.com/questions/7103531/how-to-get-the-part-of-a-file-after-the-first-line-that-matches-a-regular-expres
-            stepper stepLatests --steps-const-file=$BITRISE_SOURCE_DIR/steps/const.go | sed -n -e '/package steps/,$p' > stepper_output.go
-
-            # 3. diff the generated const file with current one
-            diff $BITRISE_SOURCE_DIR/steps/const.go stepper_output.go
-
-            # 4. diff returns nonzero if diff not empty 
-            exit $?
-    - go-test:
-        title: Check available stack change
-        inputs:
-          - packages: ./maintenance
-
   ci:
     after_run:
     - test
@@ -53,19 +17,6 @@ workflows:
   integration-test:
     steps:
     - script:
-        title: Go build
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-
-            # build the new bitrise
-            current_dir=$(pwd)
-            current_bitrise_init=$current_dir/_tmp/ci-bin
-            go build -o $current_bitrise_init
-
-            envman add --key CURRENT_BITRISE_INIT --value $current_bitrise_init
-    - script:
         title: Run integration tests
         inputs:
         - content: |-
@@ -73,63 +24,29 @@ workflows:
             echo "Running integration tests ..."
             set -ex
 
-            export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BITRISE_INIT"
             go test -v ./_tests/integration/...
 
-  # ----------------------------------------------------------------
-  # --- workflows for Utility
-
-  create-binaries:
-    title: Create binaries
-    description: |
-        Creates Linux and Darwin binaries
+  maintenance:
     steps:
     - script:
-        title: Create binaries
+        title: Check step version change
         inputs:
-        - content: |
-            #!/bin/bash
-            set -e
-            set -x
-
-            BIN_NAME="bitrise-init"
-
-            echo
-            echo "Create final binaries"
-            echo "  Build number: $BITRISE_BUILD_NUMBER"
-
-            export ARCH=x86_64
-            export GOARCH=amd64
-
-            # Create Darwin bin
-            export OS=Darwin
-            export GOOS=darwin
-
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Darwin binary at: $DEPLOY_PATH"
-
-            version_package="github.com/bitrise-io/bitrise-init/version"
-
-            go build \
-              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
-
-            envman add --key OSX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
-
-
-            # Create Linux binary
-            export OS=Linux
-            export GOOS=linux
-
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Linux binary at: $DEPLOY_PATH"
-
-            go build \
-              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
-
-            envman add --key LINUX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
+          - content: |-
+              #!/usr/bin/env bash
+              go get -u github.com/godrei/stepper
+              
+              # explanation:
+              # 1. run stepper tool
+              # 2. extract relevant part
+              # https://stackoverflow.com/questions/7103531/how-to-get-the-part-of-a-file-after-the-first-line-that-matches-a-regular-expres
+              stepper stepLatests --steps-const-file=$BITRISE_SOURCE_DIR/steps/const.go | sed -n -e '/package steps/,$p' > stepper_output.go
+              
+              # 3. diff the generated const file with current one
+              diff $BITRISE_SOURCE_DIR/steps/const.go stepper_output.go
+              
+              # 4. diff returns nonzero if diff not empty 
+              exit $?
+    - go-test:
+        title: Check available stack change
+        inputs:
+          - packages: ./maintenance

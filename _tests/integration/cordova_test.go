@@ -2,56 +2,37 @@ package integration
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCordova(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__cordova__")
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
-	t.Log("sample-apps-cordova-with-jasmine")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-cordova-with-jasmine")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsCordovaWithJasmineResultYML), strings.TrimSpace(result))
+	var testCases = []helper.TestCase{
+		{
+			"sample-apps-cordova-with-jasmine",
+			"https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git",
+			"",
+			sampleAppsCordovaWithJasmineResultYML,
+			sampleAppsCordovaWithJasmineVersions,
+		},
+		{
+			"sample-apps-cordova-with-karma-jasmine",
+			"https://github.com/bitrise-samples/sample-apps-cordova-with-karma-jasmine.git",
+			"",
+			sampleAppsCordovaWithKarmaJasmineResultYML,
+			sampleAppsCordovaWithKarmaJasmineVersions,
+		},
 	}
 
-	t.Log("sample-apps-cordova-with-karma-jasmine")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-cordova-with-karma-jasmine")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-cordova-with-karma-jasmine.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-		require.Equal(t, strings.TrimSpace(sampleAppsCordovaWithKarmaJasmineResultYML), strings.TrimSpace(result))
-	}
+	helper.Execute(t, tmpDir, testCases)
 }
+
+// Expected results
 
 var sampleAppsCordovaWithJasmineVersions = []interface{}{
 	models.FormatVersion,

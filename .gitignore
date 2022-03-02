@@ -8,3 +8,4 @@ bitrise-init
 .vscode/
 .idea/
 .DS_Store
+generated

@@ -6,123 +6,71 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/command/git"
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
 
-func gitClone(t *testing.T, dir, uri string) {
-	fmt.Printf("cloning into: %s\n", dir)
-	g, err := git.New(dir)
-	require.NoError(t, err)
-	require.NoError(t, g.Clone(uri).Run())
-}
-
-func gitCloneBranch(t *testing.T, dir, uri, branch string) {
-	fmt.Printf("cloning into: %s\n", dir)
-	g, err := git.New(dir)
-	require.NoError(t, err)
-	require.NoError(t, g.CloneTagOrBranch(uri, branch).Run())
-}
-
 func TestAndroid(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("__android__")
+	tmpDir := t.TempDir()
+
+	var testCases = []helper.TestCase{
+		{
+			"sample-apps-android-sdk22",
+			"https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
+			"",
+			sampleAppsAndroid22ResultYML,
+			sampleAppsAndroid22Versions,
+		},
+		{
+			"android-non-executable-gradlew",
+			"https://github.com/bitrise-samples/android-non-executable-gradlew.git",
+			"",
+			androidNonExecutableGradlewResultYML,
+			androidNonExecutableGradlewVersions,
+		},
+		{
+			"android-sdk22-subdir",
+			"https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
+			"",
+			sampleAppsAndroidSDK22SubdirResultYML,
+			sampleAppsAndroidSDK22SubdirVersions,
+		},
+		{
+			"android-gradle-kotlin-dsl",
+			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
+			"",
+			sampleAppsKotlinDSLResultYML,
+			sampleAppsAndroidSDK22SubdirVersions,
+		},
+	}
+
+	helper.Execute(t, tmpDir, testCases)
+}
+
+func TestMissingGradlewWrapper(t *testing.T) {
+	tmpDir := t.TempDir()
+	testName := "android-sdk22-no-gradlew"
+	sampleAppDir := filepath.Join(tmpDir, testName)
+	sampleAppURL := "https://github.com/bitrise-samples/android-sdk22-no-gradlew.git"
+	helper.GitClone(t, sampleAppDir, sampleAppURL)
+
+	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+	require.EqualError(t, err, "No known platform detected")
+
+	scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+
+	result, err := fileutil.ReadStringFromFile(scanResultPth)
 	require.NoError(t, err)
 
-	t.Log("sample-apps-android-sdk22")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "sample-apps-android-sdk22")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-android-sdk22.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "sample-apps-android-sdk22", strings.TrimSpace(sampleAppsAndroid22ResultYML), strings.TrimSpace(result), sampleAppsAndroid22Versions...)
-	}
-
-	t.Log("android-non-executable-gradlew")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "android-non-executable-gradlew")
-		sampleAppURL := "https://github.com/bitrise-samples/android-non-executable-gradlew.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "android-non-executable-gradlew", strings.TrimSpace(androidNonExecutableGradlewResultYML), strings.TrimSpace(result), androidNonExecutableGradlewVersions...)
-	}
-
-	t.Log("android-sdk22-no-gradlew")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "android-sdk22-no-gradlew")
-		sampleAppURL := "https://github.com/bitrise-samples/android-sdk22-no-gradlew.git"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		_, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.EqualError(t, err, "exit status 1")
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "android-sdk22-no-gradlew", strings.TrimSpace(sampleAppsSDK22NoGradlewResultYML), strings.TrimSpace(result))
-	}
-
-	t.Log("android-sdk22-subdir")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "android-sdk22-subdir")
-		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		_, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "android-sdk22-subdir", strings.TrimSpace(sampleAppsAndroidSDK22SubdirResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
-	}
-
-	t.Log("android-gradle-kotlin-dsl")
-	{
-		sampleAppDir := filepath.Join(tmpDir, "android-gradle-kotlin-dsl")
-		sampleAppURL := "https://github.com/bitrise-samples/android-gradle-kotlin-dsl"
-		gitClone(t, sampleAppDir, sampleAppURL)
-
-		cmd := command.New(binPath(), "--ci", "config", "--dir", sampleAppDir, "--output-dir", sampleAppDir)
-		_, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err)
-
-		scanResultPth := filepath.Join(sampleAppDir, "result.yml")
-
-		result, err := fileutil.ReadStringFromFile(scanResultPth)
-		require.NoError(t, err)
-
-		validateConfigExpectation(t, "android-gradle-kotlin-dsl", strings.TrimSpace(sampleAppsKotlinDSLResultYML), strings.TrimSpace(result), sampleAppsAndroidSDK22SubdirVersions...)
-	}
+	helper.ValidateConfigExpectation(t, testName, strings.TrimSpace(sampleAppsSDK22NoGradlewResultYML), strings.TrimSpace(result))
 }
+
+// Expected results
 
 var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	models.FormatVersion,
