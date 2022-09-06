@@ -231,16 +231,16 @@ func createFile(t *testing.T, path, fileName string) {
 func Test_getTemplate(t *testing.T) {
 	tests := []struct {
 		name      string
-		blueprint []androidProject
+		blueprint []Project
 	}{
 		{
 			name: "Single project",
-			blueprint: []androidProject{
+			blueprint: []Project{
 				{
-					projectRelPath: "aa/bb",
+					RelPath: "aa/bb",
 				},
 				{
-					projectRelPath: "cc/dd",
+					RelPath: "cc/dd",
 				},
 			},
 		},

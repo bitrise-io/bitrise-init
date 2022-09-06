@@ -23,14 +23,16 @@ const (
 	StepFragment ExportFragmentType = iota
 	StepListFragment
 	TextFragment
+	WorkflowsFragment
 )
 
 type ExportFragment struct {
 	Type ExportFragmentType
 
-	Step     bitriseModels.StepListItemModel
-	StepList []bitriseModels.StepListItemModel
-	Text     string
+	Step      bitriseModels.StepListItemModel
+	StepList  []bitriseModels.StepListItemModel
+	Text      string
+	Workflows bitriseModels.BitriseDataModel
 }
 
 type Artifacts struct {
@@ -201,18 +203,10 @@ func exportResult(node TemplateNode) (Result, error) {
 	}
 
 	switch exportFragment.Type {
-	case StepListFragment:
+	case WorkflowsFragment:
 		{
-			configBuilder := models.NewDefaultConfigBuilder()
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, exportFragment.StepList...)
-
-			config, err := configBuilder.Generate("")
-			if err != nil {
-				return Result{}, err
-			}
-
 			return Result{
-				Config: &config,
+				Config: &exportFragment.Workflows,
 			}, nil
 		}
 	default:
@@ -270,4 +264,48 @@ func newStep(id string, title string, inputs []Input, runIf string) bitriseModel
 	}
 
 	return steps.StepListItem(id, title, runIf, inputEnvs...)
+}
+
+func (w *Workflows) Export() (ExportFragment, error) {
+	const (
+		formatVersion        = bitriseModels.Version
+		defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
+	)
+
+	if len(w.Workflows) == 0 {
+		return ExportFragment{}, errors.New("no workflows defined")
+	}
+
+	workflows := map[string]bitriseModels.WorkflowModel{}
+	for _, workflow := range w.Workflows {
+		if workflow.ID == "" {
+			return ExportFragment{}, errors.New("workflow ID empty")
+		}
+
+		fragment, err := workflow.Steps.Export()
+		if err != nil {
+			return ExportFragment{}, err
+		}
+
+		if fragment.Type != StepListFragment {
+			return ExportFragment{}, errors.New("failed to export workflow, unsupported fragment")
+		}
+
+		workflows[workflow.ID] = bitriseModels.WorkflowModel{
+			Steps:       fragment.StepList,
+			Description: workflow.Description,
+		}
+	}
+
+	config := bitriseModels.BitriseDataModel{
+		FormatVersion:        formatVersion,
+		DefaultStepLibSource: defaultSteplibSource,
+		ProjectType:          w.ProjectType,
+		Workflows:            workflows,
+	}
+
+	return ExportFragment{
+		Type:      WorkflowsFragment,
+		Workflows: config,
+	}, nil
 }

@@ -272,7 +272,7 @@ var StepIDToVersion = map[string]string{
 	DeployToBitriseIoID:                      "2",
 	ScriptID:                                 "1",
 	SignAPKID:                                "1",
-	InstallMissingAndroidToolsID:             "2",
+	InstallMissingAndroidToolsID:             "3",
 	FastlaneID:                               "3",
 	CocoapodsInstallID:                       "2",
 	CarthageID:                               "3",

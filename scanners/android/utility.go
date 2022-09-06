@@ -141,14 +141,26 @@ that the right Gradle version is installed and used for the build. More info/gui
 }
 
 func getTemplate(blueprint []Project) (builder.TemplateNode, error) {
+	const (
+		projectPathQuestion = "project-path"
+		moduleQuestion      = "module"
+		variantQuestion     = "variant"
+	)
+
 	questions := map[string]builder.Question{
-		"project-path": {
+		projectPathQuestion: {
 			Title:   ProjectLocationInputTitle,
 			Summary: ProjectLocationInputSummary,
 			EnvKey:  ProjectLocationInputEnvKey,
 			Type:    models.TypeSelector,
 		},
-		"variant": {
+		moduleQuestion: {
+			Title:   ModuleInputTitle,
+			Summary: ModuleInputSummary,
+			EnvKey:  ModuleInputEnvKey,
+			Type:    models.TypeUserInput,
+		},
+		variantQuestion: {
 			Title:   VariantInputTitle,
 			Summary: VariantInputSummary,
 			EnvKey:  VariantInputEnvKey,
@@ -159,36 +171,42 @@ func getTemplate(blueprint []Project) (builder.TemplateNode, error) {
 	primary := builder.Context{
 		SelectFrom: blueprint,
 		Questions:  questions,
-		Template: &builder.Steps{
-			Steps: []builder.TemplateNode{
-				builder.DefaultPrepareStepsTemplate(true),
-				&builder.Step{
-					ID: steps.InstallMissingAndroidToolsID,
-					Inputs: []builder.Input{
-						{
-							Key:   ProjectLocationInputKey,
-							Value: &builder.InputSelect{QuestionID: "project-path", ContextTag: "projectRelPath"},
+		Template: &builder.Workflows{
+			ProjectType: "android",
+			Workflows: []builder.Workflow{{
+				ID:          "primary",
+				Description: primaryWorkflowDescription,
+				Steps: &builder.Steps{
+					Steps: []builder.TemplateNode{
+						builder.DefaultPrepareStepsTemplate(builder.PrepareListParams{
+							ShouldIncludeCache:       true,
+							ShouldIncludeActivateSSH: false,
+						}),
+						&builder.Step{
+							ID: steps.InstallMissingAndroidToolsID,
+							Inputs: []builder.Input{
+								{
+									Key:   GradlewPathInputKey,
+									Value: builder.NewText("$PROJECT_LOCATION/gradlew"),
+								},
+							},
 						},
-						{
-							Key:   VariantInputKey,
-							Value: &builder.InputFreeForm{QuestionID: "variant"},
+						&builder.Step{
+							ID: steps.AndroidUnitTestID,
+							Inputs: []builder.Input{
+								{
+									Key:   ProjectLocationInputKey,
+									Value: &builder.InputSelect{QuestionID: projectPathQuestion, ContextTag: "projectRelPath"},
+								},
+								{
+									Key:   VariantInputKey,
+									Value: &builder.InputFreeForm{QuestionID: variantQuestion},
+								},
+							},
 						},
 					},
 				},
-				&builder.Step{
-					ID: steps.AndroidUnitTestID,
-					Inputs: []builder.Input{
-						{
-							Key:   ProjectLocationInputKey,
-							Value: &builder.InputSelect{QuestionID: "project-path", ContextTag: "projectRelPath"},
-						},
-						{
-							Key:   VariantInputKey,
-							Value: &builder.InputFreeForm{QuestionID: "variant"},
-						},
-					},
-				},
-			},
+			}},
 		},
 	}
 

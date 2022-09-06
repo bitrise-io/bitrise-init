@@ -86,7 +86,6 @@ func ProjectScanners() []ScannerInterface {
 		cordova.NewScanner(),
 		ios.NewScanner(),
 		macos.NewScanner(),
-		android.NewScanner(),
 		NewTemplateAdapter(android.NewTemplate()),
 	}
 }

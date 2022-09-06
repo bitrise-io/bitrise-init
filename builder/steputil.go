@@ -2,25 +2,25 @@ package builder
 
 import "github.com/bitrise-io/bitrise-init/steps"
 
-func DefaultPrepareStepsTemplate(isIncludeCache bool) *Steps {
-	stepsList := ActivateSSHKeyStepTemplate()
-	stepsList.Append(Step{ID: steps.GitCloneID})
-
-	if isIncludeCache {
-		stepsList.Append(Step{ID: steps.CachePullID})
-	}
-
-	return stepsList.Append(Step{
-		ID:    steps.ScriptID,
-		Title: steps.ScriptDefaultTitle,
-	})
+type PrepareListParams struct {
+	ShouldIncludeCache       bool
+	ShouldIncludeActivateSSH bool
 }
 
-func ActivateSSHKeyStepTemplate() *Steps {
-	stepList := Steps{}
+func DefaultPrepareStepsTemplate(params PrepareListParams) *Steps {
+	var stepList Steps
+	if params.ShouldIncludeActivateSSH {
+		stepList.Append(Step{ID: steps.ActivateSSHKeyID})
+	}
+
+	stepList.Append(Step{ID: steps.GitCloneID})
+
+	if params.ShouldIncludeCache {
+		stepList.Append(Step{ID: steps.CachePullID})
+	}
 
 	return stepList.Append(Step{
-		ID:    steps.ActivateSSHKeyID,
-		RunIf: `{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`,
+		ID:    steps.ScriptID,
+		Title: steps.ScriptDefaultTitle,
 	})
 }
