@@ -12,8 +12,8 @@ func assertEqual(t *testing.T, want, got interface{}) {
 	opts := []cmp.Option{
 		cmpopts.IgnoreUnexported(models.OptionNode{}),
 		// cmpopts.IgnoreUnexported(AnswerTree{}),
-		cmpopts.IgnoreUnexported(AnswerKey{}),
 		cmpopts.IgnoreUnexported(Step{}),
+		cmpopts.IgnoreUnexported(Text{}),
 		// cmp.Comparer(func(x, y AnswerKey) bool { return x.NodeKey == y.NodeKey }),
 	}
 
@@ -38,7 +38,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			node: &Step{
 				ID: "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "B"},
+					{Key: "A", Value: &Text{Contents: "B"}},
 				},
 			},
 			want: nil,
@@ -48,8 +48,8 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			node: &Step{
 				ID: "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "{{.C}}"},
-					{Key: "B", Value: `{{askForInputValue "test_question"}}`},
+					{Key: "A", Value: &Text{Contents: "C"}},
+					{Key: "B", Value: &InputFreeForm{QuestionID: "test_question"}},
 				},
 			},
 			questions: map[string]Question{
@@ -61,7 +61,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			},
 			want: &AnswerTree{
 				Answer: AnswerExpansion{
-					Key: AnswerKey{nodeID: 1, NodeKey: "B"},
+					Key: "test_question",
 					Question: &Question{
 						ID:     "test_question",
 						Title:  "title",
@@ -82,7 +82,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			node: &Step{
 				ID: "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: `{{selectFromContext "test_question" "projectPath"}}`},
+					{Key: "A", Value: &InputSelect{QuestionID: "test_question", ContextTag: "projectPath"}},
 				},
 			},
 			questions: map[string]Question{
@@ -101,7 +101,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			},
 			want: &AnswerTree{
 				Answer: AnswerExpansion{
-					Key: AnswerKey{nodeID: 1, NodeKey: "A"},
+					Key: "test_question",
 					Question: &Question{
 						ID:    "test_question",
 						Title: "title",
@@ -125,13 +125,13 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 					&Step{
 						ID: "fastlane",
 						Inputs: []Input{
-							{Key: "A", Value: `{{askForInputValue "question2"}}`},
+							{Key: "A", Value: &InputSelect{QuestionID: "question2"}},
 						},
 					},
 					&Step{
 						ID: "xcode-archive",
 						Inputs: []Input{
-							{Key: "export_method", Value: `{{askForInputValue "export-method"}}`},
+							{Key: "export_method", Value: &InputSelect{QuestionID: "export-method"}},
 						},
 					},
 				},
@@ -150,10 +150,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 			},
 			want: &AnswerTree{
 				Answer: AnswerExpansion{
-					Key: AnswerKey{
-						nodeID:  1,
-						NodeKey: "A",
-					},
+					Key: "question2",
 					Question: &Question{
 						ID:         "question2",
 						Title:      "title2",
@@ -168,10 +165,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 				Children: map[string]*AnswerTree{
 					"n": {
 						Answer: AnswerExpansion{
-							Key: AnswerKey{
-								nodeID:  2,
-								NodeKey: "export_method",
-							},
+							Key: "export_method",
 							Question: &Question{
 								ID:         "export-method",
 								Title:      "title",
@@ -190,10 +184,7 @@ func TestTemplateNode_GetAnswers(t *testing.T) {
 					},
 					"m": {
 						Answer: AnswerExpansion{
-							Key: AnswerKey{
-								nodeID:  2,
-								NodeKey: "export_method",
-							},
+							Key: "export_method",
 							Question: &Question{
 								ID:         "export-method",
 								Title:      "title",

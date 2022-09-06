@@ -9,6 +9,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 type Result struct {
@@ -56,20 +57,30 @@ func Export(template TemplateNode, answerTree *AnswerTree, values map[string]str
 		mergedResults                    = make(map[string]Result)
 	)
 
-	if err := walkPaths(answerTree, []ConcreteAnswer{}, "", func(answers []ConcreteAnswer, treePathHash string) error {
+	if err := walkPaths(answerTree, []ConcreteAnswer{}, configPrefix, func(answers []ConcreteAnswer, treePathHash string) error {
 		configOption, results, err := exportAnswerTreeLeaf(template, values, answers, treePathHash)
 		if err != nil {
 			return err
 		}
 
+		for configKey, result := range results {
+			if _, exists := mergedResults[configKey]; exists {
+				log.Debugf(fmt.Sprintf("duplicate config result key (%s), unique expected", configKey))
+			}
+			mergedResults[configKey] = result
+		}
+
+		log.Printf("Answers: %+v", answers)
+
 		currentNode := allOptions
-		for i := 1; i <= len(answers)-1; i++ {
+		for i := 0; i <= len(answers)-2; i++ {
 			concreteAnswer := answers[i]
+			nextAnswer := answers[i+1]
 			key := concreteAnswer.SelectedAnswer
 
 			_, hasChild := currentNode.ChildOptionMap[key]
 			if !hasChild {
-				newOption := newOptionNode(*concreteAnswer.Answer.Question)
+				newOption := newOptionNode(*nextAnswer.Answer.Question)
 				currentNode.AddOption(key, newOption)
 				currentNode = newOption
 
@@ -81,13 +92,6 @@ func Export(template TemplateNode, answerTree *AnswerTree, values map[string]str
 
 		lastKey := answers[len(answers)-1].SelectedAnswer
 		currentNode.AddConfig(lastKey, configOption)
-
-		for configKey, result := range results {
-			if _, exists := mergedResults[configKey]; exists {
-				panic(fmt.Sprintf("duplicate config result key (%s), unique expected", configKey))
-			}
-			mergedResults[configKey] = result
-		}
 
 		return nil
 	}); err != nil {

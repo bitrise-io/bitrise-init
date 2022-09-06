@@ -20,13 +20,13 @@ func TestTemplateNode_Execute(t *testing.T) {
 			node: &Step{
 				ID: "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "B"},
+					{Key: "A", Value: &Text{Contents: "B"}},
 				},
 			},
 			want: &Step{
 				ID: "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "B"},
+					{Key: "A", Value: &Text{Contents: "B"}},
 				},
 			},
 		},
@@ -36,15 +36,15 @@ func TestTemplateNode_Execute(t *testing.T) {
 				templateID: 1,
 				ID:         "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "{{.C}}"},
-					{Key: "B", Value: `{{askForInputValue "test_question"}}`},
+					{Key: "A", Value: &Text{Contents: "C"}},
+					{Key: "B", Value: &InputFreeForm{QuestionID: "test_question"}},
 				},
 			},
 			allAnswers: ConcreteAnswers{
-				AnswerKey{nodeID: 1, NodeKey: "B"}: ConcreteAnswer{
+				"test_question": ConcreteAnswer{
 					SelectedAnswer: "",
 					Answer: AnswerExpansion{
-						Key: AnswerKey{nodeID: 1, NodeKey: "B"},
+						Key: "test_question",
 						Question: &Question{
 							ID:     "test_question",
 							Title:  "title",
@@ -57,13 +57,13 @@ func TestTemplateNode_Execute(t *testing.T) {
 					},
 				},
 			},
-			values: map[string]string{"C": "D"},
+			// values: map[string]string{"C": "D"},
 			want: &Step{
 				templateID: 1,
 				ID:         "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "D"},
-					{Key: "B", Value: "$TEST_KEY"},
+					{Key: "A", Value: &Text{Contents: "C"}},
+					{Key: "B", Value: &Text{Contents: "$TEST_KEY"}},
 				},
 			},
 		},
@@ -73,15 +73,15 @@ func TestTemplateNode_Execute(t *testing.T) {
 				templateID: 1,
 				ID:         "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "{{.C}}"},
-					{Key: "B", Value: `{{askForInputValue "test_question"}}`},
+					{Key: "A", Value: &Text{Contents: "C"}},
+					{Key: "B", Value: &InputSelect{QuestionID: "test_question"}},
 				},
 			},
 			allAnswers: ConcreteAnswers{
-				AnswerKey{nodeID: 1, NodeKey: "B"}: ConcreteAnswer{
+				"test_question": ConcreteAnswer{
 					SelectedAnswer: "C",
 					Answer: AnswerExpansion{
-						Key: AnswerKey{nodeID: 1, NodeKey: "B"},
+						Key: "test_question",
 						Question: &Question{
 							ID:    "test_question",
 							Title: "title",
@@ -93,13 +93,13 @@ func TestTemplateNode_Execute(t *testing.T) {
 					},
 				},
 			},
-			values: map[string]string{"C": "D"},
+			// values: map[string]string{"C": "D"},
 			want: &Step{
 				templateID: 1,
 				ID:         "fastlane",
 				Inputs: []Input{
-					{Key: "A", Value: "D"},
-					{Key: "B", Value: "C"},
+					{Key: "A", Value: &Text{Contents: "D"}},
+					{Key: "B", Value: &Text{Contents: "C"}},
 				},
 			},
 		},

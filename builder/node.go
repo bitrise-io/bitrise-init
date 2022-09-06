@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"strings"
+
 	"github.com/bitrise-io/bitrise-init/models"
 )
 
@@ -13,13 +15,8 @@ type Question struct {
 	Selections []string
 }
 
-type AnswerKey struct {
-	nodeID  int
-	NodeKey string
-}
-
 type AnswerExpansion struct {
-	Key                      AnswerKey
+	Key                      string
 	Question                 *Question
 	SelectionToExpandedValue map[string]string
 }
@@ -30,7 +27,7 @@ type ConcreteAnswer struct {
 	HasEqualChildren bool
 }
 
-type ConcreteAnswers map[AnswerKey]ConcreteAnswer
+type ConcreteAnswers map[string]ConcreteAnswer
 
 type AnswerTree struct {
 	Answer   AnswerExpansion
@@ -43,6 +40,30 @@ type TemplateNode interface {
 	Export() (ExportFragment, error)
 	SetID(templateIDCounter int) int
 	GetID() int
+}
+
+func (a *AnswerTree) String() string {
+	return printTree(a, nil, nil)
+}
+
+func printTree(a *AnswerTree, visitedNode []*AnswerTree, visitedAnswerKey []string) string {
+	for _, v := range visitedNode {
+		if v == a {
+			panic("node already visited")
+		}
+	}
+
+	visitedNode = append(visitedNode, a)
+
+	out := a.Answer.Key + "\n"
+	for _, c := range a.Children {
+		if c != nil {
+			out += strings.Repeat("  ", len(visitedNode))
+			out += "|- " + printTree(c, visitedNode, nil)
+		}
+	}
+
+	return out
 }
 
 func (a *AnswerTree) HasEqualChildren() bool {
@@ -103,6 +124,10 @@ func (current *AnswerTree) AddChild(next *AnswerTree) {
 
 func (current *AnswerTree) append(next *AnswerTree) {
 	if next == nil {
+		return
+	}
+
+	if current == next {
 		return
 	}
 

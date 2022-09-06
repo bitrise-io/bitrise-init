@@ -23,7 +23,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 					&Step{
 						ID: "fastlane",
 						Inputs: []Input{
-							{Key: "A", Value: "B"},
+							{Key: "A", Value: &Text{Contents: "B"}},
 						},
 					},
 				},
@@ -51,7 +51,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Workflows: map[string]bitriseModels.WorkflowModel{
 							string(models.PrimaryWorkflowID): {
 								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "", []Input{{Key: "A", Value: "B"}}, ""),
+									newStep("fastlane", "", []Input{{Key: "A", Value: &Text{Contents: "B"}}}, ""),
 								},
 							},
 						},
@@ -66,25 +66,22 @@ func TestSyntaxNode_Export(t *testing.T) {
 					&Step{
 						ID: "fastlane",
 						Inputs: []Input{
-							{Key: "A", Value: `{{askForInputValue "question2"}}`},
+							{Key: "A", Value: &InputSelect{QuestionID: "question2"}},
 						},
-						templateID: 1,
+						// templateID: 1,
 					},
 					&Step{
 						ID: "xcode-archive",
 						Inputs: []Input{
-							{Key: "export_method", Value: `{{askForInputValue "export-method"}}`},
+							{Key: "export-method", Value: &InputSelect{QuestionID: "export-method"}},
 						},
-						templateID: 2,
+						// templateID: 2,
 					},
 				},
 			},
 			answerTree: &AnswerTree{
 				Answer: AnswerExpansion{
-					Key: AnswerKey{
-						nodeID:  1,
-						NodeKey: "A",
-					},
+					Key: "question2",
 					Question: &Question{
 						ID:         "question2",
 						Title:      "title2",
@@ -99,10 +96,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 				Children: map[string]*AnswerTree{
 					"n": {
 						Answer: AnswerExpansion{
-							Key: AnswerKey{
-								nodeID:  2,
-								NodeKey: "export_method",
-							},
+							Key: "export-method",
 							Question: &Question{
 								ID:         "export-method",
 								Title:      "title2",
@@ -121,10 +115,7 @@ func TestSyntaxNode_Export(t *testing.T) {
 					},
 					"m": {
 						Answer: AnswerExpansion{
-							Key: AnswerKey{
-								nodeID:  2,
-								NodeKey: "export_method",
-							},
+							Key: "export-method",
 							Question: &Question{
 								ID:         "export-method",
 								Title:      "title2",
@@ -195,8 +186,8 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Workflows: map[string]bitriseModels.WorkflowModel{
 							string(models.PrimaryWorkflowID): {
 								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "", []Input{{Key: "A", Value: "n"}}, ""),
-									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: "development"}}, ""),
+									newStep("fastlane", "", []Input{{Key: "A", Value: &Text{Contents: "n"}}}, ""),
+									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: &Text{Contents: "development"}}}, ""),
 								},
 							},
 						},
@@ -219,8 +210,8 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Workflows: map[string]bitriseModels.WorkflowModel{
 							string(models.PrimaryWorkflowID): {
 								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "", []Input{{Key: "A", Value: "n"}}, ""),
-									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: "app-store"}}, ""),
+									newStep("fastlane", "", []Input{{Key: "A", Value: &Text{Contents: "n"}}}, ""),
+									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: &Text{Contents: "app-store"}}}, ""),
 								},
 							},
 						},
@@ -243,8 +234,8 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Workflows: map[string]bitriseModels.WorkflowModel{
 							string(models.PrimaryWorkflowID): {
 								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "", []Input{{Key: "A", Value: "m"}}, ""),
-									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: "development"}}, ""),
+									newStep("fastlane", "", []Input{{Key: "A", Value: &Text{Contents: "m"}}}, ""),
+									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: &Text{Contents: "development"}}}, ""),
 								},
 							},
 						},
@@ -267,8 +258,8 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Workflows: map[string]bitriseModels.WorkflowModel{
 							string(models.PrimaryWorkflowID): {
 								Steps: []bitriseModels.StepListItemModel{
-									newStep("fastlane", "", []Input{{Key: "A", Value: "m"}}, ""),
-									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: "app-store"}}, ""),
+									newStep("fastlane", "", []Input{{Key: "A", Value: &Text{Contents: "m"}}}, ""),
+									newStep("xcode-archive", "", []Input{{Key: "export_method", Value: &Text{Contents: "app-store"}}}, ""),
 								},
 							},
 						},

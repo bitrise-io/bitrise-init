@@ -9,12 +9,12 @@ import (
 )
 
 type Text struct {
-	contents   string
+	Contents   string
 	templateID int
 }
 
 func NewText(contents string) TemplateNode {
-	return &Text{contents: contents}
+	return &Text{Contents: contents}
 }
 
 func (t *Text) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
@@ -26,7 +26,7 @@ func (t *Text) Execute(values map[string]string, allAnswers ConcreteAnswers) (Te
 }
 
 func (t *Text) Export() (ExportFragment, error) {
-	return ExportFragment{Text: t.contents}, nil
+	return ExportFragment{Text: t.Contents}, nil
 }
 
 func (t *Text) GetID() int {
@@ -117,10 +117,7 @@ tagSearch:
 	question.Selections = selectableAnswers
 
 	return newAnswerTree([]AnswerExpansion{{
-		Key: AnswerKey{
-			nodeID:  input.GetID(),
-			NodeKey: input.QuestionID,
-		},
+		Key:                      input.QuestionID,
 		Question:                 &question,
 		SelectionToExpandedValue: selectedValueToTemplateExpansion,
 	}}), nil
@@ -172,10 +169,7 @@ func (input *InputFreeForm) GetAnswers(questions map[string]Question, context []
 	question.Selections = []string{defaultAnswer}
 
 	return newAnswerTree([]AnswerExpansion{{
-		Key: AnswerKey{
-			nodeID:  input.GetID(),
-			NodeKey: input.QuestionID,
-		},
+		Key:                      input.QuestionID,
 		Question:                 &question,
 		SelectionToExpandedValue: selectedValueToTemplateExpansion,
 	}}), nil
@@ -201,10 +195,7 @@ func executeInput(questionID string, templateID int, values map[string]string, a
 		return nil, fmt.Errorf("no question ID provided")
 	}
 
-	answer, ok := allAnswers[AnswerKey{
-		nodeID:  templateID,
-		NodeKey: questionID,
-	}]
+	answer, ok := allAnswers[questionID]
 	if !ok {
 		return nil, fmt.Errorf(fmt.Sprintf("answer missing for key (%s) in list (%+v)", questionID, allAnswers))
 	}

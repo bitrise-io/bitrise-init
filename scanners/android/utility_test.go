@@ -9,6 +9,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-init/builder"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -238,6 +239,9 @@ func Test_getTemplate(t *testing.T) {
 				{
 					projectRelPath: "aa/bb",
 				},
+				{
+					projectRelPath: "cc/dd",
+				},
 			},
 		},
 	}
@@ -248,13 +252,16 @@ func Test_getTemplate(t *testing.T) {
 
 			answerTree, err := gotTemplate.GetAnswers(map[string]builder.Question{}, []interface{}{})
 			require.NoError(t, err)
-			assert.Equal(t, nil, answerTree)
+			cmp.Equal(nil, answerTree)
+
+			out := answerTree.String()
+			t.Logf("Tree: \n%s", out)
 
 			options, results, err := builder.Export(gotTemplate, answerTree, map[string]string{}, "android")
 			require.NoError(t, err)
 
-			assert.Equal(t, nil, options)
-			assert.Equal(t, nil, results)
+			cmp.Equal(nil, options)
+			cmp.Equal(nil, results)
 		})
 	}
 }
