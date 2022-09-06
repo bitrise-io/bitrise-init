@@ -33,8 +33,7 @@ func TestTemplateNode_Execute(t *testing.T) {
 		{
 			name: "Single Step, template, optional question",
 			node: &Step{
-				templateID: 1,
-				ID:         "fastlane",
+				ID: "fastlane",
 				Inputs: []Input{
 					{Key: "A", Value: &Text{Contents: "C"}},
 					{Key: "B", Value: &InputFreeForm{QuestionID: "test_question"}},
@@ -59,8 +58,7 @@ func TestTemplateNode_Execute(t *testing.T) {
 			},
 			// values: map[string]string{"C": "D"},
 			want: &Step{
-				templateID: 1,
-				ID:         "fastlane",
+				ID: "fastlane",
 				Inputs: []Input{
 					{Key: "A", Value: &Text{Contents: "C"}},
 					{Key: "B", Value: &Text{Contents: "$TEST_KEY"}},
@@ -70,8 +68,7 @@ func TestTemplateNode_Execute(t *testing.T) {
 		{
 			name: "Single Step, template, multiple selection question",
 			node: &Step{
-				templateID: 1,
-				ID:         "fastlane",
+				ID: "fastlane",
 				Inputs: []Input{
 					{Key: "A", Value: &Text{Contents: "C"}},
 					{Key: "B", Value: &InputSelect{QuestionID: "test_question"}},
@@ -95,8 +92,7 @@ func TestTemplateNode_Execute(t *testing.T) {
 			},
 			// values: map[string]string{"C": "D"},
 			want: &Step{
-				templateID: 1,
-				ID:         "fastlane",
+				ID: "fastlane",
 				Inputs: []Input{
 					{Key: "A", Value: &Text{Contents: "D"}},
 					{Key: "B", Value: &Text{Contents: "C"}},

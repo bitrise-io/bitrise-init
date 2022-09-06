@@ -68,14 +68,12 @@ func TestSyntaxNode_Export(t *testing.T) {
 						Inputs: []Input{
 							{Key: "A", Value: &InputSelect{QuestionID: "question2"}},
 						},
-						// templateID: 1,
 					},
 					&Step{
 						ID: "xcode-archive",
 						Inputs: []Input{
 							{Key: "export-method", Value: &InputSelect{QuestionID: "export-method"}},
 						},
-						// templateID: 2,
 					},
 				},
 			},

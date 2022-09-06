@@ -5,7 +5,6 @@ import "fmt"
 type Context struct {
 	SelectFrom interface{}
 	Questions  map[string]Question
-	templateID int
 
 	Template TemplateNode
 }
@@ -32,17 +31,4 @@ func (c *Context) Execute(values map[string]string, answers ConcreteAnswers) (Te
 
 func (c *Context) Export() (ExportFragment, error) {
 	return c.Template.Export()
-}
-
-func (c *Context) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	c.templateID = templateIDCounter
-
-	templateIDCounter = c.Template.SetID(templateIDCounter)
-
-	return templateIDCounter
-}
-
-func (c *Context) GetID() int {
-	return c.templateID
 }

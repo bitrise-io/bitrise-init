@@ -9,8 +9,7 @@ import (
 )
 
 type Text struct {
-	Contents   string
-	templateID int
+	Contents string
 }
 
 func NewText(contents string) TemplateNode {
@@ -29,26 +28,13 @@ func (t *Text) Export() (ExportFragment, error) {
 	return ExportFragment{Text: t.Contents}, nil
 }
 
-func (t *Text) GetID() int {
-	return t.templateID
-}
-
-func (t *Text) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	t.templateID = templateIDCounter
-
-	return templateIDCounter
-}
-
 type InputSelect struct {
 	QuestionID string
 	ContextTag string
-
-	templateID int
 }
 
 func (input *InputSelect) Execute(values map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
-	return executeInput(input.QuestionID, input.templateID, values, allAnswers)
+	return executeInput(input.QuestionID, values, allAnswers)
 }
 
 func (input *InputSelect) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
@@ -127,25 +113,12 @@ func (t *InputSelect) Export() (ExportFragment, error) {
 	return ExportFragment{}, fmt.Errorf("Unsupported operation")
 }
 
-func (input *InputSelect) GetID() int {
-	return input.templateID
-}
-
-func (input *InputSelect) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	input.templateID = templateIDCounter
-
-	return templateIDCounter
-}
-
 type InputFreeForm struct {
 	QuestionID string
-
-	templateID int
 }
 
 func (input *InputFreeForm) Execute(values map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
-	return executeInput(input.QuestionID, input.templateID, values, allAnswers)
+	return executeInput(input.QuestionID, values, allAnswers)
 }
 
 func (input *InputFreeForm) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
@@ -179,18 +152,7 @@ func (t *InputFreeForm) Export() (ExportFragment, error) {
 	return ExportFragment{}, fmt.Errorf("Unsupported operation")
 }
 
-func (input *InputFreeForm) GetID() int {
-	return input.templateID
-}
-
-func (input *InputFreeForm) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	input.templateID = templateIDCounter
-
-	return templateIDCounter
-}
-
-func executeInput(questionID string, templateID int, values map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
+func executeInput(questionID string, _ map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
 	if questionID == "" {
 		return nil, fmt.Errorf("no question ID provided")
 	}

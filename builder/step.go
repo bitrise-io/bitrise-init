@@ -12,14 +12,10 @@ type Step struct {
 	Title  string
 	RunIf  string
 	Inputs []Input
-
-	templateID int
 }
 
 type Steps struct {
 	Steps []TemplateNode
-
-	templateID int
 }
 
 func (s *Step) Execute(values map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
@@ -68,17 +64,6 @@ func (s *Step) GetAnswers(questions map[string]Question, context []interface{}) 
 	return mergeAnswerTrees(allAnswers), nil
 }
 
-func (s *Step) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	s.templateID = templateIDCounter
-
-	return templateIDCounter
-}
-
-func (s *Step) GetID() int {
-	return s.templateID
-}
-
 func (s *Steps) GetAnswers(questions map[string]Question, context []interface{}) (*AnswerTree, error) {
 	var answerTrees []*AnswerTree
 
@@ -94,21 +79,6 @@ func (s *Steps) GetAnswers(questions map[string]Question, context []interface{})
 	}
 
 	return mergeAnswerTrees(answerTrees), nil
-}
-
-func (s *Steps) SetID(templateIDCounter int) int {
-	templateIDCounter++
-	s.templateID = templateIDCounter
-
-	for _, step := range s.Steps {
-		templateIDCounter = step.SetID(templateIDCounter)
-	}
-
-	return templateIDCounter
-}
-
-func (s *Steps) GetID() int {
-	return s.templateID
 }
 
 func (s *Steps) Execute(values map[string]string, allAnswers ConcreteAnswers) (TemplateNode, error) {
