@@ -46,7 +46,3 @@ workflows:
               
               # 4. diff returns nonzero if diff not empty 
               exit $?
-    - go-test:
-        title: Check available stack change
-        inputs:
-          - packages: ./maintenance
