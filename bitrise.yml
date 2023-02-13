@@ -9,7 +9,6 @@ workflows:
 
   test:
     steps:
-  - script:
     - git::https://github.com/bitrise-steplib/steps-check.git:
         inputs:
         - skip_step_yml_validation: "yes"
