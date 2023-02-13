@@ -19,7 +19,6 @@ const scannerName = "fastlane"
 
 const (
 	unknownProjectType = "other"
-	fastlaneWorkflowID = scannerName
 )
 
 const (
