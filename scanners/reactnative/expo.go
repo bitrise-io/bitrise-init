@@ -52,7 +52,7 @@ func (scanner *Scanner) expoConfigs(project project, isPrivateRepo bool) (models
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, testSteps...)
@@ -67,7 +67,7 @@ func (scanner *Scanner) expoConfigs(project project, isPrivateRepo bool) (models
 
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, testSteps...)
@@ -112,7 +112,7 @@ func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, expoPrimaryWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: true,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, getTestSteps("$"+expoProjectDirInputEnvKey, true, true)...)
@@ -121,7 +121,7 @@ func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	// deploy workflow
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, expoDeployWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: true,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, getTestSteps("$"+expoProjectDirInputEnvKey, true, true)...)

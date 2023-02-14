@@ -10,8 +10,6 @@ import (
 )
 
 func TestFastlane(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"fastlane",
@@ -22,7 +20,7 @@ func TestFastlane(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results
@@ -41,17 +39,13 @@ var fastlaneVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -153,7 +147,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -165,7 +158,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -176,13 +168,11 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   fastlane: []

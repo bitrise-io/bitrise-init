@@ -42,22 +42,20 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
 	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidUnitTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// cordova
@@ -221,43 +219,39 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreCocoapodsVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveCocoapodsVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// macos
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreCocoapodsVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveCocoapodsVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// other
@@ -590,7 +584,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -612,7 +605,6 @@ configs:
               - variant: $VARIANT
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -623,7 +615,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -631,7 +623,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - cache-push@%s: {}
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   cordova:
     default-cordova-config: |
@@ -1040,7 +1032,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1056,7 +1047,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1067,7 +1057,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-cocoapods-cache@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1077,7 +1067,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
+          - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
@@ -1089,7 +1079,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - certificate-and-profile-installer@%s: {}
           - recreate-user-schemes@%s:
               inputs:
@@ -1104,13 +1093,12 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-cocoapods-cache@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1119,7 +1107,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - cache-push@%s: {}
+          - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   other:
     other-config: |

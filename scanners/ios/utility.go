@@ -575,8 +575,7 @@ func GenerateConfigBuilder(
 	hasPodfile,
 	hasTest,
 	hasAppClip,
-	missingSharedSchemes,
-	includeCache bool,
+	missingSharedSchemes bool,
 	carthageCommand,
 	exportMethod string,
 ) models.ConfigBuilderModel {
@@ -586,7 +585,6 @@ func GenerateConfigBuilder(
 		projectType:          projectType,
 		configBuilder:        configBuilder,
 		isPrivateRepository:  isPrivateRepository,
-		includeCache:         includeCache,
 		missingSharedSchemes: missingSharedSchemes,
 		hasTests:             hasTest,
 		hasAppClip:           hasAppClip,
@@ -628,7 +626,6 @@ func GenerateConfig(projectType XcodeProjectType, configDescriptors []ConfigDesc
 			descriptor.HasTest,
 			descriptor.HasAppClip,
 			descriptor.MissingSharedSchemes,
-			true,
 			descriptor.CarthageCommand,
 			descriptor.ExportMethod)
 
@@ -656,7 +653,6 @@ func GenerateDefaultConfig(projectType XcodeProjectType) (models.BitriseConfigMa
 		true,
 		true,
 		false,
-		true,
 		true,
 		"",
 		"")

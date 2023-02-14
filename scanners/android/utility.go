@@ -145,9 +145,10 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 
 	//-- primary
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       true,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: isPrivateRepository,
 	})...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreGradleCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
@@ -159,12 +160,13 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 			VariantInputKey: variantEnv,
 		},
 	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(true)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveGradleCache())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
 
 	//-- deploy
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       true,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: isPrivateRepository,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
@@ -204,7 +206,7 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepListV2(true)...)
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 

@@ -317,7 +317,7 @@ func (scanner Scanner) generateConfigMap(isPrivateRepository bool) (models.Bitri
 
 		// Common steps to all workflows
 		prepareSteps := steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-			ShouldIncludeCache:       false,
+			ShouldIncludeLegacyCache: false,
 			ShouldIncludeActivateSSH: isPrivateRepository,
 		})
 		flutterInstallStep := steps.FlutterInstallStepListItem(

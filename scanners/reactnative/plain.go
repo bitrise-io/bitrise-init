@@ -187,7 +187,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 
 		configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryDescription)
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-			ShouldIncludeCache:       false,
+			ShouldIncludeLegacyCache: false,
 			ShouldIncludeActivateSSH: isPrivateRepo,
 		})...)
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, testSteps...)
@@ -197,7 +197,7 @@ func (scanner *Scanner) configs(isPrivateRepo bool) (models.BitriseConfigMap, er
 		// cd
 		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-			ShouldIncludeCache:       false,
+			ShouldIncludeLegacyCache: false,
 			ShouldIncludeActivateSSH: isPrivateRepo,
 		})...)
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, testSteps...)
@@ -268,7 +268,7 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	// primary
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: true,
 	})...)
 	// Assuming project uses yarn and has tests
@@ -278,7 +278,7 @@ func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
 	// deploy
 	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       false,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: true,
 	})...)
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, getTestSteps("", true, true)...)

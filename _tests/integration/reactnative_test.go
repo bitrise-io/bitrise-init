@@ -42,8 +42,6 @@ const noTestPackageJSON = `{
 const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-native-ios-and-android.git"
 
 func TestReactNative(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"joplin",
@@ -68,7 +66,7 @@ func TestReactNative(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 func TestNoTests(t *testing.T) {

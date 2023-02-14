@@ -10,8 +10,6 @@ import (
 )
 
 func TestReactNativeExpo(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"managed-workflow-no-tests",
@@ -36,7 +34,7 @@ func TestReactNativeExpo(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results
