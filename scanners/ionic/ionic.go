@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
@@ -207,7 +207,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	log.TPrintf("config.xml: %s", filepath.Join(projectRootDir, "config.xml"))
 
 	if !cordovaConfigExist {
-		warning := fmt.Sprintf("Cordova config.xml not found.")
+		warning := "Cordova config.xml not found."
 		warnings = append(warnings, warning)
 	}
 
@@ -218,7 +218,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		return models.OptionNode{},
 			warnings,
 			nil,
-			fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
+			fmt.Errorf("failed to get relative config.xml dir path, error: %s", err)
 	}
 	if relCordovaConfigDir == "." {
 		// config.xml placed in the search dir, no need to change-dir in the workflows
@@ -313,8 +313,8 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 
 		ionicArchiveEnvs := []envmanModels.EnvironmentItemModel{
-			envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
-			envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator},
+			{platformInputKey: "$" + platformInputEnvKey},
+			{targetInputKey: targetEmulator},
 		}
 		if scanner.relCordovaConfigDir != "" {
 			ionicArchiveEnvs = append(ionicArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
@@ -343,8 +343,8 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 
 	ionicArchiveEnvs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
-		envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator},
+		{platformInputKey: "$" + platformInputEnvKey},
+		{targetInputKey: targetEmulator},
 	}
 	if scanner.relCordovaConfigDir != "" {
 		ionicArchiveEnvs = append(ionicArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})

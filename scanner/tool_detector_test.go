@@ -5,6 +5,8 @@ import (
 	"path"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_kotlinMultiplatformDetector(t *testing.T) {
@@ -297,7 +299,7 @@ func createTuistFiles(t *testing.T) string {
 	projectSwift := `
 let Project = Project(name: "MyProject")
 `
-	err = os.WriteFile(path.Join(projectPath, "Project.swift"), []byte(projectSwift), 0777)
+	assert.NoError(t, os.WriteFile(path.Join(projectPath, "Project.swift"), []byte(projectSwift), 0777))
 
 	return projectPath
 }
@@ -319,7 +321,7 @@ func createBazelFiles(t *testing.T) string {
 		t.Fatal(err)
 	}
 
-	err = os.WriteFile(path.Join(projectPath, "WORKSPACE.bazel"), []byte(""), 0777)
+	assert.NoError(t, os.WriteFile(path.Join(projectPath, "WORKSPACE.bazel"), []byte(""), 0777))
 
 	return projectPath
 }
