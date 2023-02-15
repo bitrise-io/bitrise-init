@@ -54,6 +54,11 @@ const (
 	fastlaneXcodeListTimeoutEnvValue = "120"
 )
 
+const (
+	cacheInputKey = "enable_cache"
+	cacheInputNo  = "no"
+)
+
 //------------------
 // ScannerInterface
 //------------------
@@ -198,6 +203,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
 			envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 			envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+			envmanModels.EnvironmentItemModel{cacheInputKey: cacheInputNo},
 		))
 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
@@ -249,6 +255,7 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FastlaneStepListItem(
 			envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
 			envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+			envmanModels.EnvironmentItemModel{cacheInputKey: cacheInputNo},
 		))
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 

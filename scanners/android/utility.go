@@ -40,6 +40,9 @@ const (
 	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
 
 	GradlewPathInputKey = "gradlew_path"
+
+	CacheLevelInputKey = "cache_level"
+	CacheLevelNone     = "none"
 )
 
 // Project is an Android project on the filesystem
@@ -159,6 +162,9 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
 		},
+		envmanModels.EnvironmentItemModel{
+			CacheLevelInputKey: CacheLevelNone,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveGradleCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
@@ -184,6 +190,9 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
 		},
+		envmanModels.EnvironmentItemModel{
+			CacheLevelInputKey: CacheLevelNone,
+		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
 		envmanModels.EnvironmentItemModel{
@@ -191,6 +200,9 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 		},
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			CacheLevelInputKey: CacheLevelNone,
 		},
 	))
 
@@ -203,6 +215,9 @@ func (scanner *Scanner) generateConfigBuilder(isPrivateRepository bool) models.C
 		},
 		envmanModels.EnvironmentItemModel{
 			VariantInputKey: variantEnv,
+		},
+		envmanModels.EnvironmentItemModel{
+			CacheLevelInputKey: CacheLevelNone,
 		},
 	))
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())

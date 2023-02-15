@@ -7,18 +7,14 @@ import (
 )
 
 const (
-	// TestRepetitionModeKey ...
-	TestRepetitionModeKey = "test_repetition_mode"
-	// TestRepetitionModeRetryOnFailureValue ...
+	TestRepetitionModeKey                 = "test_repetition_mode"
 	TestRepetitionModeRetryOnFailureValue = "retry_on_failure"
-	// BuildForTestDestinationKey ...
-	BuildForTestDestinationKey = "destination"
-	// BuildForTestDestinationValue ...
-	BuildForTestDestinationValue = "platform=iOS Simulator,name=iPhone 8 Plus,OS=latest"
-	// AutomaticCodeSigningKey ...
-	AutomaticCodeSigningKey = "automatic_code_signing"
-	// AutomaticCodeSigningValue ...
-	AutomaticCodeSigningValue = "api-key"
+	BuildForTestDestinationKey            = "destination"
+	BuildForTestDestinationValue          = "platform=iOS Simulator,name=iPhone 8 Plus,OS=latest"
+	AutomaticCodeSigningKey               = "automatic_code_signing"
+	AutomaticCodeSigningValue             = "api-key"
+	CacheLevelKey                         = "cache_level"
+	CacheLevelNone                        = "none"
 )
 
 const primaryTestDescription = `The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.`
@@ -185,6 +181,7 @@ func baseXcodeStepInputModels() []envmanModels.EnvironmentItemModel {
 func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
 	inputModels := []envmanModels.EnvironmentItemModel{
 		{TestRepetitionModeKey: TestRepetitionModeRetryOnFailureValue},
+		{CacheLevelKey: CacheLevelNone},
 	}
 
 	return append(baseXcodeStepInputModels(), inputModels...)
@@ -193,6 +190,7 @@ func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
 func xcodeBuildForTestStepInputModels() []envmanModels.EnvironmentItemModel {
 	inputModels := []envmanModels.EnvironmentItemModel{
 		{BuildForTestDestinationKey: BuildForTestDestinationValue},
+		{CacheLevelKey: CacheLevelNone},
 	}
 
 	return append(baseXcodeStepInputModels(), inputModels...)
@@ -205,6 +203,7 @@ func xcodeArchiveStepInputModels(projectType XcodeProjectType) []envmanModels.En
 		inputModels = append(inputModels, []envmanModels.EnvironmentItemModel{
 			{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
 			{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
+			{CacheLevelKey: CacheLevelNone},
 		}...)
 	} else {
 		inputModels = []envmanModels.EnvironmentItemModel{

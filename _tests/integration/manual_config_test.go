@@ -594,15 +594,18 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -623,6 +626,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   cordova:
@@ -670,6 +674,7 @@ configs:
               inputs:
               - lane: $FASTLANE_LANE
               - work_dir: $FASTLANE_WORK_DIR
+              - enable_cache: "no"
           - deploy-to-bitrise-io@%s: {}
     default-fastlane-ios-config: |
       format_version: "%s"
@@ -691,6 +696,7 @@ configs:
               inputs:
               - lane: $FASTLANE_LANE
               - work_dir: $FASTLANE_WORK_DIR
+              - enable_cache: "no"
           - deploy-to-bitrise-io@%s: {}
   flutter:
     flutter-config-notest-app-android: |
@@ -1041,12 +1047,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1067,6 +1075,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   macos:

@@ -128,6 +128,7 @@ configs:
               inputs:
               - lane: $FASTLANE_LANE
               - work_dir: $FASTLANE_WORK_DIR
+              - enable_cache: "no"
           - deploy-to-bitrise-io@%s: {}
   ios:
     ios-test-config: |

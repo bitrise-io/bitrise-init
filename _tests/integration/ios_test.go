@@ -130,12 +130,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -154,6 +156,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -251,12 +254,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -274,6 +279,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -435,6 +441,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -450,6 +457,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-test-config: |
       format_version: "%s"
@@ -473,12 +481,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -494,6 +504,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -581,12 +592,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -606,6 +619,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - save-carthage-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -730,6 +744,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -752,6 +767,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-app-store-config: |
       format_version: "%s"
@@ -776,6 +792,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -791,6 +808,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-development-config: |
       format_version: "%s"
@@ -815,6 +833,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -837,6 +856,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-enterprise-config: |
       format_version: "%s"
@@ -861,6 +881,7 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -876,6 +897,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []

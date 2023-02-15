@@ -147,15 +147,18 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -176,6 +179,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -288,15 +292,18 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -317,6 +324,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -402,15 +410,18 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -431,6 +442,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
@@ -496,15 +508,18 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
@@ -525,6 +540,7 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
