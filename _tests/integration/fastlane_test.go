@@ -153,12 +153,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -174,6 +176,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   fastlane: []
