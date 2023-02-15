@@ -937,7 +937,9 @@ configs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
