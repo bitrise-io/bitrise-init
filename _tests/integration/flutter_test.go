@@ -10,8 +10,6 @@ import (
 )
 
 func TestFlutter(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"sample-apps-flutter-ios-android",
@@ -36,7 +34,7 @@ func TestFlutter(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results

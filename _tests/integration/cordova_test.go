@@ -10,8 +10,6 @@ import (
 )
 
 func TestCordova(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"sample-apps-cordova-with-jasmine",
@@ -29,7 +27,7 @@ func TestCordova(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results

@@ -10,8 +10,6 @@ import (
 )
 
 func TestIonic(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"ionic-2",
@@ -22,7 +20,7 @@ func TestIonic(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results

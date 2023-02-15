@@ -7,18 +7,14 @@ import (
 )
 
 const (
-	// TestRepetitionModeKey ...
-	TestRepetitionModeKey = "test_repetition_mode"
-	// TestRepetitionModeRetryOnFailureValue ...
+	TestRepetitionModeKey                 = "test_repetition_mode"
 	TestRepetitionModeRetryOnFailureValue = "retry_on_failure"
-	// BuildForTestDestinationKey ...
-	BuildForTestDestinationKey = "destination"
-	// BuildForTestDestinationValue ...
-	BuildForTestDestinationValue = "platform=iOS Simulator,name=iPhone 8 Plus,OS=latest"
-	// AutomaticCodeSigningKey ...
-	AutomaticCodeSigningKey = "automatic_code_signing"
-	// AutomaticCodeSigningValue ...
-	AutomaticCodeSigningValue = "api-key"
+	BuildForTestDestinationKey            = "destination"
+	BuildForTestDestinationValue          = "platform=iOS Simulator,name=iPhone 8 Plus,OS=latest"
+	AutomaticCodeSigningKey               = "automatic_code_signing"
+	AutomaticCodeSigningValue             = "api-key"
+	CacheLevelKey                         = "cache_level"
+	CacheLevelNone                        = "none"
 )
 
 const primaryTestDescription = `The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.`
@@ -42,7 +38,6 @@ type workflowSetupParams struct {
 	projectType          XcodeProjectType
 	configBuilder        *models.ConfigBuilderModel
 	isPrivateRepository  bool
-	includeCache         bool
 	missingSharedSchemes bool
 	hasTests             bool
 	hasAppClip           bool
@@ -53,7 +48,7 @@ type workflowSetupParams struct {
 
 func createPrimaryWorkflow(params workflowSetupParams) {
 	identifier := models.PrimaryWorkflowID
-	addSharedSetupSteps(identifier, params, false)
+	addSharedSetupSteps(identifier, params, false, true)
 
 	var description string
 
@@ -65,21 +60,21 @@ func createPrimaryWorkflow(params workflowSetupParams) {
 		addBuildStep(identifier, params.configBuilder, params.projectType)
 	}
 
-	addSharedTeardownSteps(identifier, params.configBuilder, params.includeCache)
+	addSharedTeardownSteps(identifier, params, true)
 	addDescription(params.projectType, identifier, params.configBuilder, description+"\n\n"+primaryCommonDescription)
 }
 
 func createDeployWorkflow(params workflowSetupParams) {
 	identifier := models.DeployWorkflowID
 	includeCertificateAndProfileInstallStep := params.projectType == XcodeProjectTypeMacOS
-	addSharedSetupSteps(identifier, params, includeCertificateAndProfileInstallStep)
+	addSharedSetupSteps(identifier, params, includeCertificateAndProfileInstallStep, false)
 
 	if params.hasTests {
 		addTestStep(identifier, params.configBuilder, params.projectType)
 	}
 
 	addArchiveStep(identifier, params.configBuilder, params.projectType, params.hasAppClip, params.exportMethod)
-	addSharedTeardownSteps(identifier, params.configBuilder, params.includeCache)
+	addSharedTeardownSteps(identifier, params, false) // No cache in deploy workflows
 	addDescription(params.projectType, identifier, params.configBuilder, deployDescription)
 }
 
@@ -117,11 +112,20 @@ func addArchiveStep(workflow models.WorkflowID, configBuilder *models.ConfigBuil
 	}
 }
 
-func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams, includeCertificateAndProfileInstallStep bool) {
+func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams, includeCertificateAndProfileInstallStep, includeCache bool) {
 	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeCache:       params.includeCache,
+		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: params.isPrivateRepository,
 	})...)
+
+	if includeCache {
+		if params.hasPodfile {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.RestoreCocoapodsCache())
+		}
+		if params.carthageCommand != "" {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.RestoreCarthageCache())
+		}
+	}
 
 	if includeCertificateAndProfileInstallStep {
 		params.configBuilder.AppendStepListItemsTo(workflow, steps.CertificateAndProfileInstallerStepListItem())
@@ -144,8 +148,17 @@ func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams,
 	}
 }
 
-func addSharedTeardownSteps(workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, includeCache bool) {
-	configBuilder.AppendStepListItemsTo(workflow, steps.DefaultDeployStepListV2(includeCache)...)
+func addSharedTeardownSteps(workflow models.WorkflowID, params workflowSetupParams, includeCache bool) {
+	if includeCache {
+		if params.hasPodfile {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCocoapodsCache())
+		}
+		if params.carthageCommand != "" {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCarthageCache())
+		}
+	}
+
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultDeployStepListV2(false)...)
 }
 
 func addDescription(projectType XcodeProjectType, workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, description string) {
@@ -168,6 +181,7 @@ func baseXcodeStepInputModels() []envmanModels.EnvironmentItemModel {
 func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
 	inputModels := []envmanModels.EnvironmentItemModel{
 		{TestRepetitionModeKey: TestRepetitionModeRetryOnFailureValue},
+		{CacheLevelKey: CacheLevelNone},
 	}
 
 	return append(baseXcodeStepInputModels(), inputModels...)
@@ -176,6 +190,7 @@ func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
 func xcodeBuildForTestStepInputModels() []envmanModels.EnvironmentItemModel {
 	inputModels := []envmanModels.EnvironmentItemModel{
 		{BuildForTestDestinationKey: BuildForTestDestinationValue},
+		{CacheLevelKey: CacheLevelNone},
 	}
 
 	return append(baseXcodeStepInputModels(), inputModels...)
@@ -188,6 +203,7 @@ func xcodeArchiveStepInputModels(projectType XcodeProjectType) []envmanModels.En
 		inputModels = append(inputModels, []envmanModels.EnvironmentItemModel{
 			{DistributionMethodInputKey: "$" + DistributionMethodEnvKey},
 			{AutomaticCodeSigningKey: AutomaticCodeSigningValue},
+			{CacheLevelKey: CacheLevelNone},
 		}...)
 	} else {
 		inputModels = []envmanModels.EnvironmentItemModel{

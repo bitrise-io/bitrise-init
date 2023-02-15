@@ -10,8 +10,6 @@ import (
 )
 
 func TestIOS(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"ios-no-shared-schemes",
@@ -50,7 +48,7 @@ func TestIOS(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results
@@ -59,19 +57,14 @@ var iosNoSharedSchemesVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
-
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -129,7 +122,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -138,13 +130,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -155,7 +148,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -164,7 +156,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -188,19 +180,17 @@ var iosCocoapodsAtRootVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreCocoapodsVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveCocoapodsVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -258,20 +248,22 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -282,14 +274,17 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
-          - cocoapods-install@%s: {}
+          - restore-cocoapods-cache@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -301,32 +296,24 @@ var sampleAppsIosWatchkitVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -452,14 +439,13 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -470,13 +456,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-test-config: |
       format_version: "%s"
@@ -495,19 +480,19 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -518,13 +503,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -536,19 +520,17 @@ var sampleAppsCarthageVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.CarthageVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreCarthageVersion,
 	steps.CarthageVersion,
 	steps.XcodeTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveCarthageVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -606,7 +588,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - carthage@%s:
               inputs:
               - carthage_command: bootstrap
@@ -615,13 +596,14 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
+              - cache_level: none
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -632,7 +614,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-carthage-cache@%s: {}
           - carthage@%s:
               inputs:
               - carthage_command: bootstrap
@@ -641,7 +623,8 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-carthage-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
@@ -654,70 +637,54 @@ var sampleAppClipVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeArchiveVersion,
 	steps.ExportXCArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-ad-hoc-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-app-store-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-app-store-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-development-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeArchiveVersion,
 	steps.ExportXCArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-development-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-enterprise-config/deploy
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeArchiveVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios-app-clip-enterprise-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeBuildForTestVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -775,13 +742,13 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -789,7 +756,6 @@ configs:
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -800,13 +766,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-app-store-config: |
       format_version: "%s"
@@ -825,14 +790,13 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -843,13 +807,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-development-config: |
       format_version: "%s"
@@ -868,13 +831,13 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
+              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -882,7 +845,6 @@ configs:
               - product: app-clip
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -893,13 +855,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
     ios-app-clip-enterprise-config: |
       format_version: "%s"
@@ -918,14 +879,13 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -936,13 +896,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
-          - cache-push@%s: {}
+              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []

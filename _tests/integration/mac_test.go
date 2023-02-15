@@ -10,8 +10,6 @@ import (
 )
 
 func TestMacOS(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"sample-apps-osx-10-11",
@@ -22,7 +20,7 @@ func TestMacOS(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 // Expected results
@@ -31,18 +29,14 @@ var sampleAppsOSX1011Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.XcodeTestMacVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -94,7 +88,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - certificate-and-profile-installer@%s: {}
           - xcode-test-mac@%s:
               inputs:
@@ -105,18 +98,15 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - export_method: $BITRISE_EXPORT_METHOD
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   macos: []

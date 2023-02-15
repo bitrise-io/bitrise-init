@@ -16,8 +16,6 @@ import (
 )
 
 func TestAndroid(t *testing.T) {
-	tmpDir := t.TempDir()
-
 	var testCases = []helper.TestCase{
 		{
 			"sample-apps-android-sdk22",
@@ -49,7 +47,7 @@ func TestAndroid(t *testing.T) {
 		},
 	}
 
-	helper.Execute(t, tmpDir, testCases)
+	helper.Execute(t, testCases)
 }
 
 func TestMissingGradlewWrapper(t *testing.T) {
@@ -76,22 +74,20 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
 	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidUnitTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -141,7 +137,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -152,18 +147,20 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -174,7 +171,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -182,7 +179,8 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
@@ -221,22 +219,20 @@ var sampleAppsAndroid22Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
 	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidUnitTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -286,7 +282,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -297,18 +292,20 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -319,7 +316,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -327,7 +324,8 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
@@ -339,22 +337,20 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
 	steps.AndroidLintVersion,
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidUnitTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -404,7 +400,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -415,18 +410,20 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -437,7 +434,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -445,7 +442,8 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
@@ -500,7 +498,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -511,18 +508,20 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
+              - cache_level: none
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
+              - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -533,7 +532,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cache-pull@%s: {}
+          - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -541,7 +540,8 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-          - cache-push@%s: {}
+              - cache_level: none
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
