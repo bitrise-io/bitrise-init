@@ -163,7 +163,9 @@ func FastlaneStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseMo
 
 func CocoapodsInstallStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(CocoapodsInstallID, CocoapodsInstallVersion)
-	return stepListItem(stepIDComposite, "", "")
+	return stepListItem(stepIDComposite, "", "", envmanModels.EnvironmentItemModel{
+		"is_cache_disabled": "true", // Disable legacy caching when used in workflows with KV caching
+	})
 }
 
 func CarthageStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {

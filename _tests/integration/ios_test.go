@@ -248,7 +248,9 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -273,7 +275,9 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH

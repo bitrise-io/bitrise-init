@@ -1041,7 +1041,9 @@ configs:
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1069,7 +1071,9 @@ configs:
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1092,7 +1096,9 @@ configs:
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1111,7 +1117,9 @@ configs:
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
-          - cocoapods-install@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
