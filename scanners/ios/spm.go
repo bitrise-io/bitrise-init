@@ -30,5 +30,8 @@ func HasSPMDependencies(fileList []string) (bool, error) {
 		pathfilters.ForbidCarthageDirComponentFilter,
 	}
 	matches, err = pathutil.FilterPaths(fileList, xcodeFilters...)
+	if err != nil {
+		return false, fmt.Errorf("couldn't detect SPM dependencies: %w", err)
+	}
 	return len(matches) > 0, nil
 }
