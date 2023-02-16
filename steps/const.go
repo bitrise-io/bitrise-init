@@ -44,6 +44,8 @@ const (
 	CacheRestoreCarthageVersion  = "1"
 	CacheRestoreNPMID            = "restore-npm-cache"
 	CacheRestoreNPMVersion       = "1"
+	CacheRestoreSPMID            = "restore-spm-cache"
+	CacheRestoreSPMVersion       = "1"
 
 	CacheSaveGradleID         = "save-gradle-cache"
 	CacheSaveGradleVersion    = "1"
@@ -53,6 +55,8 @@ const (
 	CacheSaveCarthageVersion  = "1"
 	CacheSaveNPMID            = "save-npm-cache"
 	CacheSaveNPMVersion       = "1"
+	CacheSaveSPMID            = "save-spm-cache"
+	CacheSaveSPMVersion       = "1"
 )
 
 const (
