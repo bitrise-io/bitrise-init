@@ -31,3 +31,13 @@ func SaveCarthageCache() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(CacheSaveCarthageID, CacheSaveCarthageVersion)
 	return stepListItem(stepIDComposite, "", "")
 }
+
+func RestoreNPMCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheRestoreNPMID, CacheRestoreNPMVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
+func SaveNPMCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheSaveNPMID, CacheSaveNPMVersion)
+	return stepListItem(stepIDComposite, "", "")
+}

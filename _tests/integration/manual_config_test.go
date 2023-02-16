@@ -64,9 +64,11 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.GenerateCordovaBuildConfigVersion,
 	steps.CordovaArchiveVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// fastlane
@@ -210,9 +212,11 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.GenerateCordovaBuildConfigVersion,
 	steps.IonicArchiveVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// ios
@@ -276,8 +280,10 @@ var customConfigVersions = []interface{}{
 	// default-react-native-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// default-react-native-expo-config/deploy
@@ -292,8 +298,10 @@ var customConfigVersions = []interface{}{
 	// default-react-native-expo-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -643,6 +651,7 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $CORDOVA_WORK_DIR
@@ -653,6 +662,7 @@ configs:
               - workdir: $CORDOVA_WORK_DIR
               - platform: $CORDOVA_PLATFORM
               - target: emulator
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   fastlane:
     default-fastlane-android-config: |
@@ -1009,6 +1019,7 @@ configs:
           - script@%s:
               title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $IONIC_WORK_DIR
@@ -1019,6 +1030,7 @@ configs:
               - workdir: $IONIC_WORK_DIR
               - platform: $IONIC_PLATFORM
               - target: emulator
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   ios:
     default-ios-config: |
@@ -1187,12 +1199,14 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - command: install
           - yarn@%s:
               inputs:
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     default-react-native-expo-config: |
       format_version: "%s"
@@ -1232,6 +1246,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - workdir: $WORKDIR
@@ -1240,5 +1255,6 @@ configs:
               inputs:
               - workdir: $WORKDIR
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 `, customConfigVersions...)

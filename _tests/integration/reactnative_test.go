@@ -129,8 +129,10 @@ var sampleAppsReactNativeSubdirVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -270,6 +272,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $WORKDIR
@@ -278,6 +281,7 @@ configs:
               inputs:
               - workdir: $WORKDIR
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -299,8 +303,10 @@ var sampleAppsReactNativeIosAndAndroidVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -440,6 +446,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $WORKDIR
@@ -448,6 +455,7 @@ configs:
               inputs:
               - workdir: $WORKDIR
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -468,7 +476,9 @@ var sampleAppsReactNativeIosAndAndroidNoTestVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -605,10 +615,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $WORKDIR
               - command: install
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -630,8 +642,10 @@ var sampleAppsReactNativeIosAndAndroidYarnVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -771,6 +785,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - workdir: $WORKDIR
@@ -779,6 +794,7 @@ configs:
               inputs:
               - workdir: $WORKDIR
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -800,7 +816,9 @@ var sampleAppsReactNativeJoplinVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -958,10 +976,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $WORKDIR
               - command: install
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []

@@ -42,6 +42,8 @@ const (
 	CacheRestoreCocoapodsVersion = "1"
 	CacheRestoreCarthageID       = "restore-carthage-cache"
 	CacheRestoreCarthageVersion  = "1"
+	CacheRestoreNPMID            = "restore-npm-cache"
+	CacheRestoreNPMVersion       = "1"
 
 	CacheSaveGradleID         = "save-gradle-cache"
 	CacheSaveGradleVersion    = "1"
@@ -49,6 +51,8 @@ const (
 	CacheSaveCocoapodsVersion = "1"
 	CacheSaveCarthageID       = "save-carthage-cache"
 	CacheSaveCarthageVersion  = "1"
+	CacheSaveNPMID            = "save-npm-cache"
+	CacheSaveNPMVersion       = "1"
 )
 
 const (
