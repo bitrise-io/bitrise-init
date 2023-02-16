@@ -302,6 +302,9 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 	// Detect SPM
 	log.TInfof("Searching for Swift Package Manager dependencies")
 	hasSPMDeps, err := HasSPMDependencies(fileList)
+	if err != nil {
+		return DetectResult{}, err
+	}
 	if hasSPMDeps {
 		log.TPrintf("Swift Package Manager usage detected")
 	}
