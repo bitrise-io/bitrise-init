@@ -13,6 +13,7 @@ func HasSPMDependencies(fileList []string) (bool, error) {
 		pathutil.BaseFilter("Package.swift", true), // match nested project folders too
 		pathfilters.ForbidPodsDirComponentFilter,   // don't match dependency source checkouts
 		pathfilters.ForbidCarthageDirComponentFilter,
+		pathfilters.ForbidNodeModulesComponentFilter,
 	}
 	matches, err := pathutil.FilterPaths(fileList, pureSwiftFilters...)
 	if err != nil {
@@ -28,6 +29,7 @@ func HasSPMDependencies(fileList []string) (bool, error) {
 		pathutil.BaseFilter("Package.resolved", true), // match nested project folders too
 		pathfilters.ForbidPodsDirComponentFilter,      // don't match dependency source checkouts
 		pathfilters.ForbidCarthageDirComponentFilter,
+		pathfilters.ForbidNodeModulesComponentFilter,
 	}
 	matches, err = pathutil.FilterPaths(fileList, xcodeFilters...)
 	if err != nil {
