@@ -62,7 +62,6 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
@@ -75,14 +74,12 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.FastlaneVersion,
 	steps.DeployToBitriseIoVersion,
 
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FastlaneVersion,
 	steps.DeployToBitriseIoVersion,
@@ -210,7 +207,6 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
@@ -262,7 +258,6 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// react native
@@ -648,8 +643,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
@@ -678,8 +671,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - fastlane@%s:
               inputs:
               - lane: $FASTLANE_LANE
@@ -699,8 +690,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - fastlane@%s:
               inputs:
@@ -1016,8 +1005,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
@@ -1149,8 +1136,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - deploy-to-bitrise-io@%s: {}
   react-native:
     default-react-native-config: |

@@ -30,7 +30,6 @@ var fastlaneVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FastlaneVersion,
 	steps.DeployToBitriseIoVersion,
@@ -121,8 +120,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - fastlane@%s:
               inputs:

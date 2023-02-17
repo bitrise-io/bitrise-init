@@ -36,7 +36,6 @@ var sampleAppsCordovaWithJasmineVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.NpmVersion,
 	steps.JasmineTestRunnerVersion,
@@ -46,7 +45,6 @@ var sampleAppsCordovaWithJasmineVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.JasmineTestRunnerVersion,
@@ -81,8 +79,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
               inputs:
@@ -99,8 +95,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
@@ -118,7 +112,6 @@ var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.NpmVersion,
 	steps.KarmaJasmineTestRunnerVersion,
@@ -128,7 +121,6 @@ var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.KarmaJasmineTestRunnerVersion,
@@ -163,8 +155,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
               inputs:
@@ -181,8 +171,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:

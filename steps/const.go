@@ -71,12 +71,6 @@ const (
 )
 
 const (
-	ScriptID           = "script"
-	ScriptVersion      = "1"
-	ScriptDefaultTitle = "Do anything with Script step"
-)
-
-const (
 	SignAPKID      = "sign-apk"
 	SignAPKVersion = "1"
 )
