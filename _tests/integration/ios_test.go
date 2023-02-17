@@ -48,7 +48,7 @@ func TestIOS(t *testing.T) {
 		},
 		{
 			"sample-apps-ios-swiftpm",
-			"https://github.com/bitrise-io/sample-apps-ios-swiftpm",
+			"https://github.com/bitrise-io/aci-xcode-spm-sample",
 			"",
 			sampleSPMResultYML,
 			sampleSPMVersions,
@@ -919,19 +919,17 @@ warnings_with_recommendations:
 var sampleSPMVersions = []interface{}{
 	models.FormatVersion,
 
-	// ios-spm-test-missing-shared-schemes-config/deploy
+	// ios-spm-test-config/deploy
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// ios-spm-test-missing-shared-schemes-config/primary
+	// ios-spm-test-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreSPMVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
@@ -945,7 +943,7 @@ var sampleSPMResultYML = fmt.Sprintf(`options:
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
-      sample-swiftpm2/sample-swiftpm2.xcodeproj:
+      aci-xcode-spm-sample.xcodeproj:
         title: Scheme name
         summary: An Xcode scheme defines a collection of targets to build, a configuration
           to use when building, and a collection of tests to execute. Only shared
@@ -954,7 +952,7 @@ var sampleSPMResultYML = fmt.Sprintf(`options:
         env_key: BITRISE_SCHEME
         type: selector
         value_map:
-          sample-swiftpm2:
+          aci-xcode-spm-sample:
             title: Distribution method
             summary: The export method used to create an .ipa file in your builds,
               stored as an Environment Variable. You can change this at any time,
@@ -964,198 +962,16 @@ var sampleSPMResultYML = fmt.Sprintf(`options:
             type: selector
             value_map:
               ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
+                config: ios-spm-test-config
               app-store:
-                config: ios-spm-test-missing-shared-schemes-config
+                config: ios-spm-test-config
               development:
-                config: ios-spm-test-missing-shared-schemes-config
+                config: ios-spm-test-config
               enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm3/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm4/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm5/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm6/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm7/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm8/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
-      sample-swiftpm9/sample-swiftpm2.xcodeproj:
-        title: Scheme name
-        summary: An Xcode scheme defines a collection of targets to build, a configuration
-          to use when building, and a collection of tests to execute. Only shared
-          schemes are detected automatically but you can use any scheme as a target
-          on Bitrise. You can change the scheme at any time in your Env Vars.
-        env_key: BITRISE_SCHEME
-        type: selector
-        value_map:
-          sample-swiftpm2:
-            title: Distribution method
-            summary: The export method used to create an .ipa file in your builds,
-              stored as an Environment Variable. You can change this at any time,
-              or even create several .ipa files with different export methods in the
-              same build.
-            env_key: BITRISE_DISTRIBUTION_METHOD
-            type: selector
-            value_map:
-              ad-hoc:
-                config: ios-spm-test-missing-shared-schemes-config
-              app-store:
-                config: ios-spm-test-missing-shared-schemes-config
-              development:
-                config: ios-spm-test-missing-shared-schemes-config
-              enterprise:
-                config: ios-spm-test-missing-shared-schemes-config
+                config: ios-spm-test-config
 configs:
   ios:
-    ios-spm-test-missing-shared-schemes-config: |
+    ios-spm-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
@@ -1172,9 +988,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1199,9 +1012,6 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-spm-cache@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1213,17 +1023,5 @@ configs:
 warnings:
   ios: []
 warnings_with_recommendations:
-  ios:
-  - error: |-
-      No shared schemes found for project: sample-swiftpm9/sample-swiftpm2.xcodeproj.
-      Automatically generated schemes may differ from the ones in your project.
-      Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
-    recommendations:
-      DetailedError:
-        title: We couldn’t parse your project files.
-        description: |-
-          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
-          No shared schemes found for project: sample-swiftpm9/sample-swiftpm2.xcodeproj.
-          Automatically generated schemes may differ from the ones in your project.
-          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
+  ios: []
 `, sampleSPMVersions...)
