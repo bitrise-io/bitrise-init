@@ -48,7 +48,7 @@ func DefaultPrepareStepList(isIncludeCache bool) []bitriseModels.StepListItemMod
 		stepList = append(stepList, CachePullStepListItem())
 	}
 
-	return append(stepList, ScriptSteplistItem(ScriptDefaultTitle))
+	return stepList
 }
 
 func DefaultPrepareStepListV2(params PrepareListParams) []bitriseModels.StepListItemModel {
@@ -139,11 +139,6 @@ func ChangeAndroidVersionCodeAndVersionNameStepListItem(inputs ...envmanModels.E
 func DeployToBitriseIoStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(DeployToBitriseIoID, DeployToBitriseIoVersion)
 	return stepListItem(stepIDComposite, "", "")
-}
-
-func ScriptSteplistItem(title string, inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(ScriptID, ScriptVersion)
-	return stepListItem(stepIDComposite, title, "", inputs...)
 }
 
 func SignAPKStepListItem() bitriseModels.StepListItemModel {

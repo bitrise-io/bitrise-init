@@ -281,7 +281,6 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 	return *workDirOption
 }
 
-// Configs ...
 func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
@@ -294,6 +293,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	}
 
 	if scanner.hasJasmineTest || scanner.hasKarmaJasmineTest {
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreNPMCache())
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", workdir))
 
 		// CI
@@ -302,6 +302,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 		} else if scanner.hasJasmineTest {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.JasmineTestRunnerStepListItem(workdirEnvList...))
 		}
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 		// CD
@@ -319,8 +320,8 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 
 		cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
-			envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
-			envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator},
+			{platformInputKey: "$" + platformInputEnvKey},
+			{targetInputKey: targetEmulator},
 		}
 		if scanner.relCordovaConfigDir != "" {
 			cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
@@ -344,18 +345,20 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	}
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", workdir))
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
 
 	cordovaArchiveEnvs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
-		envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator},
+		{platformInputKey: "$" + platformInputEnvKey},
+		{targetInputKey: targetEmulator},
 	}
 	if scanner.relCordovaConfigDir != "" {
 		cordovaArchiveEnvs = append(cordovaArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 	}
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CordovaArchiveStepListItem(cordovaArchiveEnvs...))
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 
 	config, err := configBuilder.Generate(ScannerName)
@@ -380,6 +383,8 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreNPMCache())
+
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.NpmStepListItem("install", "$"+workDirInputEnvKey))
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.GenerateCordovaBuildConfigStepListItem())
@@ -388,6 +393,8 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
 		envmanModels.EnvironmentItemModel{platformInputKey: "$" + platformInputEnvKey},
 		envmanModels.EnvironmentItemModel{targetInputKey: targetEmulator}))
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
 

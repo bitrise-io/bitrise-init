@@ -29,11 +29,12 @@ var ionic2Versions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CertificateAndProfileInstallerVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.GenerateCordovaBuildConfigVersion,
 	steps.IonicArchiveVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -72,9 +73,8 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Do anything with Script step
           - certificate-and-profile-installer@%s: {}
+          - restore-npm-cache@%s: {}
           - npm@%s:
               inputs:
               - workdir: $IONIC_WORK_DIR
@@ -85,6 +85,7 @@ configs:
               - platform: $IONIC_PLATFORM
               - target: emulator
               - workdir: $IONIC_WORK_DIR
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ionic: []

@@ -50,7 +50,9 @@ var managedExpoVersions = []interface{}{
 	// primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -102,9 +104,11 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - command: install
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -124,8 +128,10 @@ var managedExpo2Versions = []interface{}{
 	// primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -179,12 +185,14 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - command: install
           - yarn@%s:
               inputs:
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []
@@ -205,8 +213,10 @@ var sampleAppsExpoBareVersions = []interface{}{
 	// primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -260,12 +270,14 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
           - yarn@%s:
               inputs:
               - command: install
           - yarn@%s:
               inputs:
               - command: test
+          - save-npm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   react-native: []

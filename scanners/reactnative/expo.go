@@ -55,8 +55,9 @@ func (scanner *Scanner) expoConfigs(project project, isPrivateRepo bool) (models
 		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: isPrivateRepo,
 	})...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, testSteps...)
-
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
@@ -115,7 +116,9 @@ func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 		ShouldIncludeLegacyCache: false,
 		ShouldIncludeActivateSSH: true,
 	})...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, getTestSteps("$"+expoProjectDirInputEnvKey, true, true)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepListV2(false)...)
 
 	// deploy workflow
