@@ -228,10 +228,12 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreCocoapodsVersion,
+	steps.CacheRestoreSPMVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.CacheSaveCocoapodsVersion,
+	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// macos
@@ -248,10 +250,12 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreCocoapodsVersion,
+	steps.CacheRestoreSPMVersion,
 	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.CacheSaveCocoapodsVersion,
+	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// other
@@ -1067,6 +1071,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
+          - restore-spm-cache@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1080,6 +1085,7 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - save-cocoapods-cache@%s: {}
+          - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
@@ -1113,6 +1119,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
+          - restore-spm-cache@%s: {}
           - recreate-user-schemes@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1124,6 +1131,7 @@ configs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
           - save-cocoapods-cache@%s: {}
+          - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   other:
     other-config: |

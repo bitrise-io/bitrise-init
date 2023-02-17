@@ -42,6 +42,7 @@ type workflowSetupParams struct {
 	hasTests             bool
 	hasAppClip           bool
 	hasPodfile           bool
+	hasSPMDependencies   bool
 	carthageCommand      string
 	exportMethod         string
 }
@@ -125,6 +126,9 @@ func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams,
 		if params.carthageCommand != "" {
 			params.configBuilder.AppendStepListItemsTo(workflow, steps.RestoreCarthageCache())
 		}
+		if params.hasSPMDependencies {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.RestoreSPMCache())
+		}
 	}
 
 	if includeCertificateAndProfileInstallStep {
@@ -155,6 +159,9 @@ func addSharedTeardownSteps(workflow models.WorkflowID, params workflowSetupPara
 		}
 		if params.carthageCommand != "" {
 			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCarthageCache())
+		}
+		if params.hasSPMDependencies {
+			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveSPMCache())
 		}
 	}
 
