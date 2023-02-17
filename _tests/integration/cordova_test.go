@@ -34,7 +34,6 @@ func TestCordova(t *testing.T) {
 
 var sampleAppsCordovaWithJasmineVersions = []interface{}{
 	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.NpmVersion,
@@ -43,7 +42,6 @@ var sampleAppsCordovaWithJasmineVersions = []interface{}{
 	steps.CordovaArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
@@ -76,8 +74,6 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
@@ -92,8 +88,6 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
@@ -110,7 +104,6 @@ warnings_with_recommendations:
 
 var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
 	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.NpmVersion,
@@ -119,7 +112,6 @@ var sampleAppsCordovaWithKarmaJasmineVersions = []interface{}{
 	steps.CordovaArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
@@ -152,8 +144,6 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
@@ -168,8 +158,6 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:

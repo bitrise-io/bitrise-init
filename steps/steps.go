@@ -9,7 +9,6 @@ import (
 
 // PrepareListParams describes the default prepare Step options.
 type PrepareListParams struct {
-	ShouldIncludeLegacyCache bool
 	ShouldIncludeActivateSSH bool
 }
 
@@ -37,21 +36,7 @@ func stepListItem(stepIDComposite, title, runIf string, inputs ...envmanModels.E
 	}
 }
 
-func DefaultPrepareStepList(isIncludeCache bool) []bitriseModels.StepListItemModel {
-	runIfCondition := `{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`
-	stepList := []bitriseModels.StepListItemModel{
-		ActivateSSHKeyStepListItem(runIfCondition),
-		GitCloneStepListItem(),
-	}
-
-	if isIncludeCache {
-		stepList = append(stepList, CachePullStepListItem())
-	}
-
-	return stepList
-}
-
-func DefaultPrepareStepListV2(params PrepareListParams) []bitriseModels.StepListItemModel {
+func DefaultPrepareStepList(params PrepareListParams) []bitriseModels.StepListItemModel {
 	stepList := []bitriseModels.StepListItemModel{}
 
 	if params.ShouldIncludeActivateSSH {
@@ -60,31 +45,11 @@ func DefaultPrepareStepListV2(params PrepareListParams) []bitriseModels.StepList
 
 	stepList = append(stepList, GitCloneStepListItem())
 
-	if params.ShouldIncludeLegacyCache {
-		stepList = append(stepList, CachePullStepListItem())
-	}
-
 	return stepList
 }
 
-func DefaultDeployStepList(isIncludeCache bool) []bitriseModels.StepListItemModel {
-	stepList := []bitriseModels.StepListItemModel{
-		DeployToBitriseIoStepListItem(),
-	}
-
-	if isIncludeCache {
-		stepList = append(stepList, CachePushStepListItem())
-	}
-
-	return stepList
-}
-
-func DefaultDeployStepListV2(shouldIncludeLegacyCache bool) []bitriseModels.StepListItemModel {
+func DefaultDeployStepList() []bitriseModels.StepListItemModel {
 	stepList := []bitriseModels.StepListItemModel{}
-
-	if shouldIncludeLegacyCache {
-		stepList = append(stepList, CachePushStepListItem())
-	}
 
 	stepList = append(stepList, DeployToBitriseIoStepListItem())
 
@@ -113,16 +78,6 @@ func AndroidBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitri
 
 func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(GitCloneID, GitCloneVersion)
-	return stepListItem(stepIDComposite, "", "")
-}
-
-func CachePullStepListItem() bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(CachePullID, CachePullVersion)
-	return stepListItem(stepIDComposite, "", "")
-}
-
-func CachePushStepListItem() bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(CachePushID, CachePushVersion)
 	return stepListItem(stepIDComposite, "", "")
 }
 

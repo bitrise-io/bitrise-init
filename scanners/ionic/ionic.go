@@ -278,7 +278,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 // Configs ...
 func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
 
 	workdirEnvList := []envmanModels.EnvironmentItemModel{}
 	workdir := ""
@@ -298,10 +298,10 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.JasmineTestRunnerStepListItem(workdirEnvList...))
 		}
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList()...)
 
 		// CD
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.NpmStepListItem("install", workdir))
@@ -322,7 +322,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 			ionicArchiveEnvs = append(ionicArchiveEnvs, envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey})
 		}
 		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.IonicArchiveStepListItem(ionicArchiveEnvs...))
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList(false)...)
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList()...)
 
 		config, err := configBuilder.Generate(scannerName)
 		if err != nil {
@@ -354,7 +354,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 	}
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.IonicArchiveStepListItem(ionicArchiveEnvs...))
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList()...)
 
 	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
@@ -374,7 +374,7 @@ func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
 // DefaultConfigs ...
 func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{ShouldIncludeActivateSSH: true})...)
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 
@@ -390,7 +390,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveNPMCache())
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList(false)...)
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList()...)
 
 	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
