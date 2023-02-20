@@ -191,10 +191,12 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs(_ bool) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs(isPrivateRepository bool) (models.BitriseConfigMap, error) {
 	generateConfig := func(isIOS bool) (bitriseModels.BitriseDataModel, error) {
 		configBuilder := models.NewDefaultConfigBuilder()
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			ShouldIncludeActivateSSH: isPrivateRepository,
+		})...)
 
 		if isIOS {
 			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.CertificateAndProfileInstallerStepListItem())

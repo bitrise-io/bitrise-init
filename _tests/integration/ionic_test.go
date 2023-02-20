@@ -27,6 +27,7 @@ func TestIonic(t *testing.T) {
 
 var ionic2Versions = []interface{}{
 	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.CacheRestoreNPMVersion,
@@ -69,6 +70,7 @@ configs:
       workflows:
         primary:
           steps:
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
