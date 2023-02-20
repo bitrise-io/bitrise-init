@@ -51,3 +51,13 @@ func SaveSPMCache() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(CacheSaveSPMID, CacheSaveSPMVersion)
 	return stepListItem(stepIDComposite, "", "")
 }
+
+func RestoreDartCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheRestoreDartID, CacheRestoreDartVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
+func SaveDartCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheSaveDartID, CacheSaveDartVersion)
+	return stepListItem(stepIDComposite, "", "")
+}

@@ -9,7 +9,7 @@ import (
 
 func TestConfigGenerateHaveProjectType(t *testing.T) {
 	config := NewDefaultConfigBuilder()
-	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(false)...)
+	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
 
 	model, err := config.Generate("iOS")
 
@@ -19,7 +19,7 @@ func TestConfigGenerateHaveProjectType(t *testing.T) {
 
 func TestConfigGenerateDoesNotHaveTriggerMap(t *testing.T) {
 	config := NewDefaultConfigBuilder()
-	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(false)...)
+	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
 
 	model, err := config.Generate("iOS")
 

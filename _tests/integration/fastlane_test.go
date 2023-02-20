@@ -117,8 +117,7 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - fastlane@%s:

@@ -76,8 +76,7 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
@@ -92,8 +91,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
@@ -152,8 +150,7 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
@@ -168,8 +165,7 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:

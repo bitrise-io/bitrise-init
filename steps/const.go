@@ -26,16 +26,6 @@ const (
 )
 
 const (
-	CachePullID      = "cache-pull"
-	CachePullVersion = "2"
-)
-
-const (
-	CachePushID      = "cache-push"
-	CachePushVersion = "2"
-)
-
-const (
 	CacheRestoreGradleID         = "restore-gradle-cache"
 	CacheRestoreGradleVersion    = "1"
 	CacheRestoreCocoapodsID      = "restore-cocoapods-cache"
@@ -46,6 +36,8 @@ const (
 	CacheRestoreNPMVersion       = "1"
 	CacheRestoreSPMID            = "restore-spm-cache"
 	CacheRestoreSPMVersion       = "1"
+	CacheRestoreDartID           = "restore-dart-cache"
+	CacheRestoreDartVersion      = "1"
 
 	CacheSaveGradleID         = "save-gradle-cache"
 	CacheSaveGradleVersion    = "1"
@@ -57,6 +49,8 @@ const (
 	CacheSaveNPMVersion       = "1"
 	CacheSaveSPMID            = "save-spm-cache"
 	CacheSaveSPMVersion       = "1"
+	CacheSaveDartID           = "save-dart-cache"
+	CacheSaveDartVersion      = "1"
 )
 
 const (

@@ -45,17 +45,15 @@ var flutterSampleAppVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-both
@@ -64,17 +62,15 @@ var flutterSampleAppVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-ios
@@ -83,17 +79,15 @@ var flutterSampleAppVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-android
@@ -101,19 +95,17 @@ var flutterSampleAppVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-both
@@ -122,19 +114,17 @@ var flutterSampleAppVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-ios
@@ -143,19 +133,17 @@ var flutterSampleAppVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -192,7 +180,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -200,7 +187,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -214,8 +200,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-both: |
       format_version: "%s"
@@ -238,7 +224,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -247,7 +232,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -261,8 +245,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-ios: |
       format_version: "%s"
@@ -285,7 +269,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -294,7 +277,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -308,8 +290,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
@@ -331,7 +313,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -342,7 +323,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -356,11 +336,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
@@ -383,7 +363,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -395,7 +374,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -409,11 +387,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
@@ -436,7 +414,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -448,7 +425,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -462,11 +438,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   flutter: []
@@ -480,17 +456,15 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-both
@@ -499,17 +473,15 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-ios
@@ -518,17 +490,15 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-android
@@ -536,19 +506,17 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-both
@@ -557,19 +525,17 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-ios
@@ -578,19 +544,17 @@ var flutterSamplePackageVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -627,7 +591,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -635,7 +598,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -649,8 +611,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-both: |
       format_version: "%s"
@@ -673,7 +635,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -682,7 +643,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -696,8 +656,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-ios: |
       format_version: "%s"
@@ -720,7 +680,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -729,7 +688,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -743,8 +701,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
@@ -766,7 +724,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -777,7 +734,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -791,11 +747,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
@@ -818,7 +774,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -830,7 +785,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -844,11 +798,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
@@ -871,7 +825,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -883,7 +836,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -897,11 +849,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   flutter: []
@@ -915,17 +867,15 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-both
@@ -934,17 +884,15 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-notest-app-ios
@@ -953,17 +901,15 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
-	steps.CachePushVersion,
+	steps.CacheRestoreDartVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-android
@@ -971,19 +917,17 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-both
@@ -992,19 +936,17 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// flutter-config-test-app-ios
@@ -1013,19 +955,17 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
 	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
-	steps.CachePushVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
-	steps.CachePullVersion,
+	steps.CacheRestoreDartVersion,
 	steps.FlutterTestVersion,
-	steps.CachePushVersion,
+	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -1064,7 +1004,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1072,7 +1011,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1086,8 +1024,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-both: |
       format_version: "%s"
@@ -1110,7 +1048,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1119,7 +1056,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1133,8 +1069,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-notest-app-ios: |
       format_version: "%s"
@@ -1157,7 +1093,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1166,7 +1101,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1180,8 +1114,8 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
-          - cache-push@%s: {}
+          - restore-dart-cache@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-android: |
       format_version: "%s"
@@ -1203,7 +1137,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1214,7 +1147,6 @@ configs:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1228,11 +1160,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-both: |
       format_version: "%s"
@@ -1255,7 +1187,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1267,7 +1198,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: both
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1281,11 +1211,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-app-ios: |
       format_version: "%s"
@@ -1308,7 +1238,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1320,7 +1249,6 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: ios
               - ios_output_type: archive
-          - cache-push@%s: {}
           - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
@@ -1334,11 +1262,11 @@ configs:
           - flutter-installer@%s:
               inputs:
               - is_update: "false"
-          - cache-pull@%s: {}
+          - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - cache-push@%s: {}
+          - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   flutter: []

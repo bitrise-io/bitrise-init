@@ -114,8 +114,7 @@ func addArchiveStep(workflow models.WorkflowID, configBuilder *models.ConfigBuil
 }
 
 func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams, includeCertificateAndProfileInstallStep, includeCache bool) {
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultPrepareStepListV2(steps.PrepareListParams{
-		ShouldIncludeLegacyCache: false,
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		ShouldIncludeActivateSSH: params.isPrivateRepository,
 	})...)
 
@@ -165,7 +164,7 @@ func addSharedTeardownSteps(workflow models.WorkflowID, params workflowSetupPara
 		}
 	}
 
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultDeployStepListV2(false)...)
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultDeployStepList()...)
 }
 
 func addDescription(projectType XcodeProjectType, workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, description string) {
