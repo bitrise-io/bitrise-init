@@ -3,13 +3,16 @@ package models
 import (
 	"testing"
 
-	"github.com/bitrise-io/bitrise-init/steps"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 	"github.com/stretchr/testify/require"
 )
 
 func TestConfigGenerateHaveProjectType(t *testing.T) {
 	config := NewDefaultConfigBuilder()
-	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
+	config.AppendStepListItemsTo("primary", []bitriseModels.StepListItemModel{
+		{"step-id": stepmanModels.StepModel{}},
+	}...)
 
 	model, err := config.Generate("iOS")
 
@@ -19,7 +22,9 @@ func TestConfigGenerateHaveProjectType(t *testing.T) {
 
 func TestConfigGenerateDoesNotHaveTriggerMap(t *testing.T) {
 	config := NewDefaultConfigBuilder()
-	config.AppendStepListItemsTo("primary", steps.DefaultPrepareStepList(steps.PrepareListParams{})...)
+	config.AppendStepListItemsTo("primary", []bitriseModels.StepListItemModel{
+		{"step-id": stepmanModels.StepModel{}},
+	}...)
 
 	model, err := config.Generate("iOS")
 
