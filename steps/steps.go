@@ -11,18 +11,6 @@ import (
 // PrepareListParams describes the default prepare Step options.
 type PrepareListParams struct {
 	RepoAccess models.RepoAccess
-
-	// Include `activate-ssh-key` step.
-	// This needs the `SSH_RSA_PRIVATE_KEY` env to be defined, which depends on the selected path in the website
-	// add-new-app flow.
-	// If it's known that the repo is public and doesn't need an SSH key, this field should be false.
-	//ShouldIncludeActivateSSH bool
-
-	// RunActivateSSHConditionally adds the `activate-ssh-key` with a run condition that checks the presence of the
-	// `SSH_RSA_PRIVATE_KEY` env var.
-	// This should be set when the add-new-app flow doesn't set up an SSH key to the private repo, and we don't have
-	// enough information about the repo's visibility.
-	//RunActivateSSHConditionally bool
 }
 
 func stepIDComposite(ID, version string) string {
@@ -56,10 +44,13 @@ func DefaultPrepareStepList(params PrepareListParams) []bitriseModels.StepListIt
 	case models.RepoAccessPublic: // No SSH key setup needed
 	case models.RepoAccessPrivate:
 		{
+			// This needs the `SSH_RSA_PRIVATE_KEY` env to be defined, which depends on the selected path in the website
+			// add-new-app flow.
 			stepList = append(stepList, ActivateSSHKeyStepListItem(""))
 		}
 	case models.RepoAccessUnknown:
 		{
+			// Add the SSH key step just in case, but only run it if the required env var is available.
 			runCondition := `{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}`
 			stepList = append(stepList, ActivateSSHKeyStepListItem(runCondition))
 		}
