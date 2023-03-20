@@ -577,7 +577,8 @@ configs:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
             - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - install-missing-android-tools@%s:
               inputs:
@@ -611,7 +612,8 @@ configs:
             Next steps:
             - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
           - install-missing-android-tools@%s:
@@ -632,7 +634,8 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
@@ -659,7 +662,8 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - fastlane@%s:
               inputs:
@@ -677,7 +681,8 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - fastlane@%s:
@@ -702,7 +707,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -722,7 +728,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -745,7 +752,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
@@ -767,7 +775,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -790,7 +799,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
@@ -812,7 +822,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -835,7 +846,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -858,7 +870,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -884,7 +897,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
@@ -909,7 +923,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -935,7 +950,8 @@ configs:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
             - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
@@ -960,7 +976,8 @@ configs:
             Next steps:
             - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
@@ -979,7 +996,8 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
@@ -1011,7 +1029,8 @@ configs:
             - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
             - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - recreate-user-schemes@%s:
               inputs:
@@ -1040,7 +1059,8 @@ configs:
             Next steps:
             - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
           - restore-spm-cache@%s: {}
@@ -1067,7 +1087,8 @@ configs:
       workflows:
         deploy:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - recreate-user-schemes@%s:
@@ -1088,7 +1109,8 @@ configs:
           - deploy-to-bitrise-io@%s: {}
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
           - restore-spm-cache@%s: {}
@@ -1113,7 +1135,8 @@ configs:
       workflows:
         primary:
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - deploy-to-bitrise-io@%s: {}
   react-native:
@@ -1130,7 +1153,8 @@ configs:
             - Set up an [Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html).
             - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
@@ -1161,7 +1185,8 @@ configs:
             Next steps:
             - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
@@ -1186,7 +1211,8 @@ configs:
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
             - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - yarn@%s:
               inputs:
@@ -1208,7 +1234,8 @@ configs:
             Next steps:
             - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
           steps:
-          - activate-ssh-key@%s: {}
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
