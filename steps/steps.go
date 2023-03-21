@@ -41,7 +41,10 @@ func DefaultPrepareStepList(params PrepareListParams) []bitriseModels.StepListIt
 	stepList := []bitriseModels.StepListItemModel{}
 
 	switch params.RepoAccess {
-	case models.RepoAccessPublic: // No SSH key setup needed
+	case models.RepoAccessPublic:
+		{
+			// No SSH key setup needed
+		}
 	case models.RepoAccessPrivate:
 		{
 			// This needs the `SSH_RSA_PRIVATE_KEY` env to be defined, which depends on the selected path in the website
