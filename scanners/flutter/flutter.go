@@ -6,15 +6,17 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/go-xcode/pathfilters"
-
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
+	"github.com/bitrise-io/bitrise-init/scanners/flutter/flutterproject"
+	"github.com/bitrise-io/bitrise-init/scanners/flutter/tracker"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
+	v2log "github.com/bitrise-io/go-utils/v2/log"
+	"github.com/bitrise-io/go-xcode/pathfilters"
 	"github.com/bitrise-io/go-xcode/xcodeproject/xcworkspace"
 	"gopkg.in/yaml.v2"
 )
@@ -49,6 +51,7 @@ var (
 // Scanner ...
 type Scanner struct {
 	projects []project
+	tracker  tracker.FlutterTracker
 }
 
 type project struct {
@@ -65,7 +68,9 @@ type pubspec struct {
 
 // NewScanner ...
 func NewScanner() *Scanner {
-	return &Scanner{}
+	return &Scanner{
+		tracker: tracker.NewStepTracker(v2log.NewLogger()),
+	}
 }
 
 // Name ...
@@ -225,11 +230,15 @@ projects:
 		scanner.projects = append(scanner.projects, proj)
 	}
 
-	if len(scanner.projects) == 0 {
-		return false, nil
+	for _, project := range scanner.projects {
+		proj := flutterproject.New(project.path)
+		sdkVersions, err := proj.FlutterAndDartSDKVersions()
+		if err == nil {
+			scanner.tracker.LogSDKVersions(sdkVersions)
+		}
 	}
 
-	return true, nil
+	return len(scanner.projects) > 0, nil
 }
 
 // ExcludedScannerNames ...
