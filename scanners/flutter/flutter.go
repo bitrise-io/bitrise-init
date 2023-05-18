@@ -69,7 +69,7 @@ func NewScanner() *Scanner {
 }
 
 // Name ...
-func (Scanner) Name() string {
+func (scanner *Scanner) Name() string {
 	return scannerName
 }
 
@@ -233,7 +233,7 @@ projects:
 }
 
 // ExcludedScannerNames ...
-func (Scanner) ExcludedScannerNames() []string {
+func (scanner *Scanner) ExcludedScannerNames() []string {
 	return []string{
 		string(ios.XcodeProjectTypeIOS),
 		android.ScannerName,
@@ -272,7 +272,7 @@ func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
 }
 
 // DefaultOptions ...
-func (Scanner) DefaultOptions() models.OptionNode {
+func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
 
 	cfg := configName + "-test"
@@ -292,11 +292,11 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseCon
 	return scanner.generateConfigMap(repoAccess)
 }
 
-func (scanner Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	return scanner.generateConfigMap(models.RepoAccessUnknown)
 }
 
-func (scanner Scanner) generateConfigMap(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) generateConfigMap(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
 	configs := models.BitriseConfigMap{}
 
 	for _, variant := range []struct {
