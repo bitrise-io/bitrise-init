@@ -237,6 +237,7 @@ projects:
 			scanner.tracker.LogSDKVersions(sdkVersions)
 		}
 	}
+	scanner.tracker.Wait()
 
 	return len(scanner.projects) > 0, nil
 }

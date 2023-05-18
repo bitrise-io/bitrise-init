@@ -53,3 +53,7 @@ func (t *FlutterTracker) LogSDKVersions(versions flutterproject.FlutterAndDartSD
 
 	t.tracker.Enqueue("flutter_scanner_project_sdk_versions", p)
 }
+
+func (t *FlutterTracker) Wait() {
+	t.tracker.Wait()
+}
