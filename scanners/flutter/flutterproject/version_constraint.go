@@ -12,6 +12,7 @@ const (
 	PubspecLockVersionSource VersionConstraintSource = "pubspec.lock"
 	PubspecVersionSource     VersionConstraintSource = "pubspec.yaml"
 	FVMConfigVersionSource   VersionConstraintSource = "fvm_config.json"
+	ASDFConfigVersionSource  VersionConstraintSource = ".tool-versions"
 )
 
 /*

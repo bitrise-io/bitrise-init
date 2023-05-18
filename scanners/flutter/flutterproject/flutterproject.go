@@ -22,6 +22,7 @@ type FlutterAndDartSDKVersions struct {
 func (p Project) FlutterAndDartSDKVersions() (FlutterAndDartSDKVersions, error) {
 	versionReaders := []SDKVersionsReader{
 		FVMVersionReader{},
+		ASDFVersionReader{},
 		PubspecLockVersionReader{},
 		PubspecVersionReader{},
 	}
