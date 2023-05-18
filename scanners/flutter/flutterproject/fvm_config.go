@@ -26,6 +26,9 @@ func (r FVMVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConstr
 	if err != nil {
 		return nil, nil, err
 	}
+	if versionStr == "" {
+		return nil, nil, nil
+	}
 
 	flutterSDKVersion, err := NewVersionConstraint(versionStr, FVMConfigVersionSource)
 	if err != nil {
