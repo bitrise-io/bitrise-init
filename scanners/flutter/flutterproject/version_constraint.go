@@ -9,10 +9,10 @@ import (
 type VersionConstraintSource string
 
 const (
-	PubspecLockVersionSource VersionConstraintSource = "pubspec.lock"
-	PubspecVersionSource     VersionConstraintSource = "pubspec.yaml"
-	FVMConfigVersionSource   VersionConstraintSource = "fvm_config.json"
-	ASDFConfigVersionSource  VersionConstraintSource = ".tool-versions"
+	PubspecLockVersionSource VersionConstraintSource = "pubspec_lock"
+	PubspecVersionSource     VersionConstraintSource = "pubspec_yaml"
+	FVMConfigVersionSource   VersionConstraintSource = "fvm_config_json"
+	ASDFConfigVersionSource  VersionConstraintSource = "tool_versions"
 )
 
 /*
