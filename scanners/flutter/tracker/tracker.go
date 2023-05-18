@@ -25,24 +25,32 @@ func (t *FlutterTracker) LogSDKVersions(versions flutterproject.FlutterAndDartSD
 	p := analytics.Properties{}
 	for _, flutterSDK := range versions.FlutterSDKVersions {
 		key := "flutter_sdk_" + string(flutterSDK.Source)
+		value := ""
 
-		value := flutterSDK.Version.String()
-		if value == "" {
+		if flutterSDK.Version != nil {
+			value = flutterSDK.Version.String()
+		} else if flutterSDK.Constraint != nil {
 			value = flutterSDK.Constraint.String()
 		}
 
-		p[key] = value
+		if value != "" {
+			p[key] = value
+		}
 	}
 
 	for _, dartSDK := range versions.DartSDKVersions {
 		key := "dart_sdk_" + string(dartSDK.Source)
+		value := ""
 
-		value := dartSDK.Version.String()
-		if value == "" {
+		if dartSDK.Version != nil {
+			value = dartSDK.Version.String()
+		} else if dartSDK.Constraint != nil {
 			value = dartSDK.Constraint.String()
 		}
 
-		p[key] = value
+		if value != "" {
+			p[key] = value
+		}
 	}
 
 	//t.tracker.Enqueue("flutter_scanner_sdk_versions", p)
