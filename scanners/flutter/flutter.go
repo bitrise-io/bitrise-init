@@ -231,7 +231,7 @@ projects:
 	}
 
 	for _, project := range scanner.projects {
-		proj := flutterproject.New(project.path)
+		proj := flutterproject.New(project.path, flutterproject.NewFileOpener())
 		sdkVersions, err := proj.FlutterAndDartSDKVersions()
 		if err == nil {
 			scanner.tracker.LogSDKVersions(sdkVersions)

@@ -12,6 +12,10 @@ type FileOpener interface {
 type fileOpener struct {
 }
 
+func NewFileOpener() FileOpener {
+	return fileOpener{}
+}
+
 func (o fileOpener) OpenFile(pth string) (io.Reader, error) {
 	f, err := os.Open(pth)
 	if err != nil && !os.IsNotExist(err) {
