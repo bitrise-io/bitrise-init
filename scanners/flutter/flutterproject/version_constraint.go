@@ -37,16 +37,17 @@ type VersionConstraint struct {
 	Source     VersionConstraintSource
 }
 
-func NewVersionConstraint(constraint string, source VersionConstraintSource) (*VersionConstraint, error) {
+func NewVersionConstraint(version string, source VersionConstraintSource) (*VersionConstraint, error) {
 	var v *semver.Version
 	var c *semver.Constraints
-	var err error
 
-	v, err = semver.NewVersion(constraint)
-	if err != nil {
-		c, err = semver.NewConstraint(constraint)
-		if err != nil {
-			return nil, err
+	var vErr error
+	v, vErr = semver.NewVersion(version)
+	if vErr != nil {
+		var cErr error
+		c, cErr = semver.NewConstraint(version)
+		if cErr != nil {
+			return nil, fmt.Errorf("invalid version (%s): not a semantic version (%s) nor a version constraint (%s)", version, vErr, cErr)
 		}
 	}
 
@@ -55,14 +56,4 @@ func NewVersionConstraint(constraint string, source VersionConstraintSource) (*V
 		Constraint: c,
 		Source:     source,
 	}, nil
-}
-
-func (v VersionConstraint) String() string {
-	if v.Version != nil {
-		return fmt.Sprintf("%s (%s)", v.Version.String(), v.Source)
-	}
-	if v.Constraint != nil {
-		return fmt.Sprintf("%s (%s)", v.Constraint.String(), v.Source)
-	}
-	return ""
 }
