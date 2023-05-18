@@ -46,7 +46,6 @@ func (r ASDFVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConst
 	return flutterSDKVersion, nil, nil
 }
 
-// flutter 3.7.12
 func parseASDFFlutterVersion(asdfConfigReader io.Reader) (string, error) {
 	scanner := bufio.NewScanner(asdfConfigReader)
 	scanner.Split(bufio.ScanLines)

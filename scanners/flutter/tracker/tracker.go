@@ -1,8 +1,6 @@
 package tracker
 
 import (
-	"encoding/json"
-
 	"github.com/bitrise-io/bitrise-init/scanners/flutter/flutterproject"
 	"github.com/bitrise-io/go-utils/v2/analytics"
 	"github.com/bitrise-io/go-utils/v2/log"
@@ -53,13 +51,5 @@ func (t *FlutterTracker) LogSDKVersions(versions flutterproject.FlutterAndDartSD
 		}
 	}
 
-	//t.tracker.Enqueue("flutter_scanner_sdk_versions", p)
-	t.debugPrint(p)
-}
-
-func (t *FlutterTracker) debugPrint(p analytics.Properties) {
-	b, err := json.MarshalIndent(p, "", "  ")
-	if err == nil {
-		t.logger.Printf(string(b))
-	}
+	t.tracker.Enqueue("flutter_scanner_project_sdk_versions", p)
 }
