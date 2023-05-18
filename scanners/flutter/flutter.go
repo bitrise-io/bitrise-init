@@ -69,7 +69,7 @@ type pubspec struct {
 // NewScanner ...
 func NewScanner() *Scanner {
 	return &Scanner{
-		tracker: tracker.NewStepTracker(v2log.NewLogger()),
+		tracker: tracker.NewFlutterTracker(v2log.NewLogger()),
 	}
 }
 

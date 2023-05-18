@@ -13,7 +13,7 @@ type FlutterTracker struct {
 	logger  log.Logger
 }
 
-func NewStepTracker(logger log.Logger) FlutterTracker {
+func NewFlutterTracker(logger log.Logger) FlutterTracker {
 	p := analytics.Properties{}
 	return FlutterTracker{
 		tracker: analytics.NewDefaultTracker(logger, p),
