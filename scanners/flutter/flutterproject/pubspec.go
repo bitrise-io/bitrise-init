@@ -2,7 +2,6 @@ package flutterproject
 
 import (
 	"io"
-	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
@@ -10,12 +9,20 @@ import (
 
 const pubspecRelPath = "pubspec.yaml"
 
-type PubspecVersionReader struct{}
+type PubspecVersionReader struct {
+	fileOpener FileOpener
+}
+
+func NewPubspecVersionReader(fileOpener FileOpener) PubspecVersionReader {
+	return PubspecVersionReader{
+		fileOpener: fileOpener,
+	}
+}
 
 func (r PubspecVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConstraint, *VersionConstraint, error) {
 	pubspecPth := filepath.Join(projectRootDir, pubspecRelPath)
-	f, err := os.Open(pubspecPth)
-	if err != nil && !os.IsNotExist(err) {
+	f, err := r.fileOpener.OpenFile(pubspecPth)
+	if err != nil {
 		return nil, nil, err
 	}
 

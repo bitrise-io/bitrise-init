@@ -5,12 +5,14 @@ type SDKVersionsReader interface {
 }
 
 type Project struct {
-	rootDir string
+	rootDir    string
+	fileOpener FileOpener
 }
 
-func New(rootDir string) Project {
+func New(rootDir string, fileOpener FileOpener) Project {
 	return Project{
-		rootDir: rootDir,
+		rootDir:    rootDir,
+		fileOpener: fileOpener,
 	}
 }
 
@@ -21,10 +23,10 @@ type FlutterAndDartSDKVersions struct {
 
 func (p Project) FlutterAndDartSDKVersions() (FlutterAndDartSDKVersions, error) {
 	versionReaders := []SDKVersionsReader{
-		FVMVersionReader{},
-		ASDFVersionReader{},
-		PubspecLockVersionReader{},
-		PubspecVersionReader{},
+		NewFVMVersionReader(p.fileOpener),
+		NewASDFVersionReader(p.fileOpener),
+		NewPubspecLockVersionReader(p.fileOpener),
+		NewPubspecVersionReader(p.fileOpener),
 	}
 
 	var flutterSDKVersions []VersionConstraint

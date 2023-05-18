@@ -3,19 +3,26 @@ package flutterproject
 import (
 	"bufio"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 )
 
 const asdfConfigRelPath = ".tool-versions"
 
-type ASDFVersionReader struct{}
+type ASDFVersionReader struct {
+	fileOpener FileOpener
+}
+
+func NewASDFVersionReader(fileOpener FileOpener) ASDFVersionReader {
+	return ASDFVersionReader{
+		fileOpener: fileOpener,
+	}
+}
 
 func (r ASDFVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConstraint, *VersionConstraint, error) {
 	asdfConfigPth := filepath.Join(projectRootDir, asdfConfigRelPath)
-	f, err := os.Open(asdfConfigPth)
-	if err != nil && !os.IsNotExist(err) {
+	f, err := r.fileOpener.OpenFile(asdfConfigPth)
+	if err != nil {
 		return nil, nil, err
 	}
 

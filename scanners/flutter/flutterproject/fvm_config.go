@@ -3,18 +3,25 @@ package flutterproject
 import (
 	"encoding/json"
 	"io"
-	"os"
 	"path/filepath"
 )
 
 const fvmConfigRelPath = ".fvm/fvm_config.json"
 
-type FVMVersionReader struct{}
+type FVMVersionReader struct {
+	fileOpener FileOpener
+}
+
+func NewFVMVersionReader(fileOpener FileOpener) FVMVersionReader {
+	return FVMVersionReader{
+		fileOpener: fileOpener,
+	}
+}
 
 func (r FVMVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConstraint, *VersionConstraint, error) {
 	fvmConfigPth := filepath.Join(projectRootDir, fvmConfigRelPath)
-	f, err := os.Open(fvmConfigPth)
-	if err != nil && !os.IsNotExist(err) {
+	f, err := r.fileOpener.OpenFile(fvmConfigPth)
+	if err != nil {
 		return nil, nil, err
 	}
 
