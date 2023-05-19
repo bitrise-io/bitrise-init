@@ -56,6 +56,7 @@ type Scanner struct {
 
 type project struct {
 	path              string
+	sdkVersions       flutterproject.FlutterAndDartSDKVersions
 	xcodeProjectPaths map[string][]string
 	hasTest           bool
 	hasIosProject     bool
@@ -230,12 +231,13 @@ projects:
 		scanner.projects = append(scanner.projects, proj)
 	}
 
-	for _, project := range scanner.projects {
+	for i, project := range scanner.projects {
 		proj := flutterproject.New(project.path, flutterproject.NewFileOpener())
 		sdkVersions, err := proj.FlutterAndDartSDKVersions()
 		if err == nil {
 			scanner.tracker.LogSDKVersions(sdkVersions)
 		}
+		scanner.projects[i].sdkVersions = sdkVersions
 	}
 	scanner.tracker.Wait()
 
