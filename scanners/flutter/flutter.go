@@ -1,6 +1,7 @@
 package flutter
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,7 +18,6 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	v2log "github.com/bitrise-io/go-utils/v2/log"
 	"github.com/bitrise-io/go-xcode/pathfilters"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcworkspace"
 	"gopkg.in/yaml.v2"
 )
 
@@ -55,12 +55,24 @@ type Scanner struct {
 }
 
 type project struct {
-	path              string
-	sdkVersions       flutterproject.FlutterAndDartSDKVersions
-	xcodeProjectPaths map[string][]string
+	id   int
+	path string
+	// TODO: merge project and flutterproject.Project
+	flutterProject    flutterproject.Project
 	hasTest           bool
 	hasIosProject     bool
 	hasAndroidProject bool
+}
+
+func (proj project) platform() string {
+	switch {
+	case proj.hasAndroidProject && !proj.hasIosProject:
+		return "android"
+	case !proj.hasAndroidProject && proj.hasIosProject:
+		return "ios"
+	default:
+		return "both"
+	}
 }
 
 type pubspec struct {
@@ -142,7 +154,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TPrintf("")
 
 	log.TInfof("Fetching pubspec.yaml files")
-projects:
+
+	currentID := -1
 	for _, projectLocation := range projectLocations {
 		var proj project
 
@@ -196,48 +209,18 @@ projects:
 
 		proj.path = projectLocation
 
-		if proj.hasIosProject {
-			if workspaceLocations, err := findWorkspaceLocations(filepath.Join(projectLocation, "ios")); err != nil {
-				log.TWarnf("Failed to check path at: %s, error: %s", filepath.Join(projectLocation, "ios"), err)
-			} else {
-				log.TPrintf("  XCWorkspaces(%d):", len(workspaceLocations))
-
-				for _, workspaceLocation := range workspaceLocations {
-					log.TPrintf("    Path: %s", workspaceLocation)
-					ws, err := xcworkspace.Open(workspaceLocation)
-					if err != nil {
-						continue projects
-					}
-					schemeMap, err := ws.Schemes()
-					if err != nil {
-						continue projects
-					}
-
-					proj.xcodeProjectPaths = map[string][]string{}
-
-					for _, schemes := range schemeMap {
-						if len(schemes) > 0 {
-							log.TPrintf("    Schemes(%d):", len(schemes))
-						}
-						for _, scheme := range schemes {
-							log.TPrintf("    - %s", scheme.Name)
-							proj.xcodeProjectPaths[workspaceLocation] = append(proj.xcodeProjectPaths[workspaceLocation], scheme.Name)
-						}
-					}
-				}
-			}
-		}
-
+		currentID++
+		proj.id = currentID
 		scanner.projects = append(scanner.projects, proj)
 	}
 
 	for i, project := range scanner.projects {
-		proj := flutterproject.New(project.path, flutterproject.NewFileOpener())
-		sdkVersions, err := proj.FlutterAndDartSDKVersions()
+		proj, err := flutterproject.New(project.path, flutterproject.NewFileOpener())
 		if err == nil {
+			sdkVersions := proj.FlutterAndDartSDKVersions()
+			scanner.projects[i].flutterProject = *proj
 			scanner.tracker.LogSDKVersions(sdkVersions)
 		}
-		scanner.projects[i].sdkVersions = sdkVersions
 	}
 	scanner.tracker.Wait()
 
@@ -257,30 +240,11 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeSelector)
 
 	for _, project := range scanner.projects {
-		var testKey string
-		if project.hasTest {
-			testKey = "test"
-		} else {
-			testKey = "notest"
-		}
-		cfg := configName + "-" + testKey
-
-		configOption := models.NewConfigOption(cfg+"-app-"+getBuildablePlatform(project.hasAndroidProject, project.hasIosProject), nil)
+		configOption := models.NewConfigOption(configNameForProject(project), nil)
 		flutterProjectLocationOption.AddOption(project.path, configOption)
 	}
 
 	return *flutterProjectLocationOption, models.Warnings{}, nil, nil
-}
-
-func getBuildablePlatform(hasAndroidProject, hasIosProject bool) string {
-	switch {
-	case hasAndroidProject && !hasIosProject:
-		return "android"
-	case !hasAndroidProject && hasIosProject:
-		return "ios"
-	default:
-		return "both"
-	}
 }
 
 // DefaultOptions ...
@@ -301,14 +265,100 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
-	return scanner.generateConfigMap(repoAccess)
+	configs := models.BitriseConfigMap{}
+
+	for _, proj := range scanner.projects {
+		config, err := generateConfig(repoAccess, proj)
+		if err != nil {
+			return nil, err
+		}
+
+		configs[configNameForProject(proj)] = config
+	}
+
+	return configs, nil
 }
 
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return scanner.generateConfigMap(models.RepoAccessUnknown)
+	return generateDefaultConfigMap(models.RepoAccessUnknown)
 }
 
-func (scanner *Scanner) generateConfigMap(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func generateConfig(repoAccess models.RepoAccess, proj project) (string, error) {
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	// Common steps to all workflows
+	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{RepoAccess: repoAccess})
+	version := proj.flutterProject.FlutterSDKVersionToUse()
+	flutterInstallStep := steps.FlutterInstallStepListItem(version, false)
+	deploySteps := steps.DefaultDeployStepList()
+
+	// primary
+	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, prepareSteps...)
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, flutterInstallStep)
+
+	// restore cache is after flutter-installer, to prevent removal of pub system cache
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreDartCache())
+
+	if proj.hasTest {
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
+			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		))
+	}
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveDartCache())
+
+	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, deploySteps...)
+
+	// deploy
+	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, prepareSteps...)
+
+	if proj.hasIosProject {
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+	}
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, flutterInstallStep)
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
+		envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+	))
+
+	if proj.hasTest {
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
+			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		))
+	}
+
+	flutterBuildInputs := []envmanModels.EnvironmentItemModel{
+		{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		{platformInputKey: proj.platform()},
+	}
+	if proj.platform() != "android" {
+		flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
+	}
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
+
+	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, deploySteps...)
+
+	config, err := configBuilder.Generate(scannerName)
+	if err != nil {
+		return "", err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+// TODO: merge with generateConfig
+func generateDefaultConfigMap(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
 	configs := models.BitriseConfigMap{}
 
 	for _, variant := range []struct {
@@ -327,9 +377,7 @@ func (scanner *Scanner) generateConfigMap(repoAccess models.RepoAccess) (models.
 
 		// Common steps to all workflows
 		prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{RepoAccess: repoAccess})
-		flutterInstallStep := steps.FlutterInstallStepListItem(
-			envmanModels.EnvironmentItemModel{installerUpdateFlutterKey: "false"},
-		)
+		flutterInstallStep := steps.FlutterInstallStepListItem("", false)
 		deploySteps := steps.DefaultDeployStepList()
 
 		// primary
@@ -398,4 +446,26 @@ func (scanner *Scanner) generateConfigMap(repoAccess models.RepoAccess) (models.
 	}
 
 	return configs, nil
+}
+
+func configNameForProject(proj project) string {
+	name := configName
+	if proj.hasTest {
+		name += "-test"
+	} else {
+		name += "-notest"
+	}
+
+	switch proj.platform() {
+	case "android":
+		name += "-android"
+	case "ios":
+		name += "-ios"
+	default:
+		name += "-both"
+	}
+
+	name += fmt.Sprintf("-%d", proj.id)
+
+	return name
 }
