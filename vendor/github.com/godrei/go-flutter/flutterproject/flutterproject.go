@@ -1,0 +1,253 @@
+package flutterproject
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/Masterminds/semver/v3"
+	"github.com/bitrise-io/go-utils/v2/fileutil"
+	"github.com/bitrise-io/go-utils/v2/pathutil"
+	"github.com/godrei/go-flutter/flutterproject/internal/sdk"
+	"github.com/godrei/go-flutter/fluttersdk"
+	"gopkg.in/yaml.v3"
+)
+
+type FlutterAndDartSDKVersions struct {
+	FVMFlutterVersion         *semver.Version
+	ASDFFlutterVersion        *semver.Version
+	PubspecFlutterVersion     *sdk.VersionConstraint
+	PubspecDartVersion        *sdk.VersionConstraint
+	PubspecLockFlutterVersion *sdk.VersionConstraint
+	PubspecLockDartVersion    *sdk.VersionConstraint
+}
+
+type Pubspec struct {
+	Name string `yaml:"name"`
+}
+
+type Project struct {
+	rootDir    string
+	pubspecPth string
+	pubspec    Pubspec
+
+	fileManager fileutil.FileManager
+	pathChecker pathutil.PathChecker
+	fileOpener  FileOpener
+
+	flutterAndDartSDKVersions *FlutterAndDartSDKVersions
+	testDirPth                *string
+	iosProjectPth             *string
+	androidProjectPth         *string
+}
+
+func New(rootDir string, fileManager fileutil.FileManager, pathChecker pathutil.PathChecker) (*Project, error) {
+	pubspecPth := filepath.Join(rootDir, sdk.PubspecRelPath)
+	exists, err := pathChecker.IsPathExists(pubspecPth)
+	if err != nil {
+		return nil, err
+	} else if !exists {
+		return nil, fmt.Errorf("not a Flutter project: pubspec.yaml not found at: %s", pubspecPth)
+	}
+
+	var pubspec Pubspec
+	pubspecFile, err := fileManager.Open(pubspecPth)
+	if err != nil {
+		return nil, err
+	}
+	if err := yaml.NewDecoder(pubspecFile).Decode(&pubspec); err != nil {
+		return nil, err
+	}
+
+	return &Project{
+		rootDir:     rootDir,
+		pubspecPth:  pubspecPth,
+		fileManager: fileManager,
+		pathChecker: pathChecker,
+		fileOpener:  NewFileOpener(fileManager),
+		pubspec:     pubspec,
+	}, nil
+}
+
+func (p *Project) RootDir() string {
+	return p.rootDir
+}
+
+func (p *Project) Pubspec() Pubspec {
+	return p.pubspec
+}
+
+func (p *Project) TestDirPth() string {
+	if p.testDirPth != nil {
+		return *p.testDirPth
+	}
+
+	const testDirRelPth = "test"
+
+	hasTests := false
+	testsDirPath := filepath.Join(p.rootDir, testDirRelPth)
+
+	if exists, err := p.pathChecker.IsDirExists(testsDirPath); err == nil && exists {
+		// TODO: make os.ReadDir testable
+		if entries, err := os.ReadDir(testsDirPath); err == nil && len(entries) > 0 {
+			for _, entry := range entries {
+				if strings.HasSuffix(entry.Name(), "_test.dart") {
+					hasTests = true
+					break
+				}
+			}
+		}
+	}
+
+	if !hasTests {
+		testsDirPath = ""
+	}
+
+	p.testDirPth = &testsDirPath
+
+	return testsDirPath
+}
+
+func (p *Project) IOSProjectPth() string {
+	if p.iosProjectPth != nil {
+		return *p.iosProjectPth
+	}
+
+	const iosProjectRelPth = "ios/Runner.xcworkspace"
+
+	hasIOSProject := false
+	iosProjectPth := filepath.Join(p.rootDir, iosProjectRelPth)
+	if exists, err := p.pathChecker.IsPathExists(iosProjectPth); err == nil && exists {
+		hasIOSProject = true
+	}
+
+	if !hasIOSProject {
+		iosProjectPth = ""
+	}
+
+	p.iosProjectPth = &iosProjectPth
+
+	return iosProjectPth
+
+}
+
+func (p *Project) AndroidProjectPth() string {
+	const androidProjectRelPth = "android/build.gradle"
+	const androidProjectKtsRelPth = "android/build.gradle.kts"
+
+	hasAndroidProject := false
+	androidProjectPth := filepath.Join(p.rootDir, androidProjectRelPth)
+	if exists, err := p.pathChecker.IsPathExists(androidProjectPth); err == nil && exists {
+		hasAndroidProject = true
+	}
+
+	if !hasAndroidProject {
+		androidProjectPth = filepath.Join(p.rootDir, androidProjectKtsRelPth)
+		if exists, err := p.pathChecker.IsPathExists(androidProjectPth); err == nil && exists {
+			hasAndroidProject = true
+		}
+	}
+
+	if !hasAndroidProject {
+		androidProjectPth = ""
+	}
+
+	p.androidProjectPth = &androidProjectPth
+
+	return androidProjectPth
+}
+
+func (p *Project) FlutterAndDartSDKVersions() (FlutterAndDartSDKVersions, error) {
+	if p.flutterAndDartSDKVersions != nil {
+		return *p.flutterAndDartSDKVersions, nil
+	}
+
+	sdkVersions := FlutterAndDartSDKVersions{}
+
+	fvmFlutterVersion, err := sdk.NewFVMVersionReader(p.fileOpener).ReadSDKVersion(p.rootDir)
+	if err != nil {
+		return FlutterAndDartSDKVersions{}, err
+	} else {
+		sdkVersions.FVMFlutterVersion = fvmFlutterVersion
+	}
+
+	asdfFlutterVersion, err := sdk.NewASDFVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	if err != nil {
+		return FlutterAndDartSDKVersions{}, err
+	} else {
+		sdkVersions.ASDFFlutterVersion = asdfFlutterVersion
+	}
+
+	pubspecLockFlutterVersion, pubspecLockDartVersion, err := sdk.NewPubspecLockVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	if err != nil {
+		return FlutterAndDartSDKVersions{}, err
+	} else {
+		sdkVersions.PubspecLockFlutterVersion = pubspecLockFlutterVersion
+		sdkVersions.PubspecLockDartVersion = pubspecLockDartVersion
+	}
+
+	pubspecFlutterVersion, pubspecDartVersion, err := sdk.NewPubspecVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	if err != nil {
+		return FlutterAndDartSDKVersions{}, err
+	} else {
+		sdkVersions.PubspecFlutterVersion = pubspecFlutterVersion
+		sdkVersions.PubspecDartVersion = pubspecDartVersion
+	}
+
+	p.flutterAndDartSDKVersions = &sdkVersions
+
+	return sdkVersions, nil
+}
+
+func (p *Project) FlutterSDKVersionToUse() (string, error) {
+	sdkVersions, err := p.FlutterAndDartSDKVersions()
+	if err != nil {
+		return "", err
+	}
+
+	// todo: move this to a separate func
+	var flutterVersion *semver.Version
+	var flutterVersionConstraint *semver.Constraints
+	switch {
+	case sdkVersions.FVMFlutterVersion != nil:
+		flutterVersion = sdkVersions.FVMFlutterVersion
+	case sdkVersions.ASDFFlutterVersion != nil:
+		flutterVersion = sdkVersions.ASDFFlutterVersion
+	case sdkVersions.PubspecLockFlutterVersion.Version != nil:
+		flutterVersion = sdkVersions.PubspecLockFlutterVersion.Version
+	case sdkVersions.PubspecLockFlutterVersion.Constraint != nil:
+		flutterVersionConstraint = sdkVersions.PubspecLockFlutterVersion.Constraint
+	case sdkVersions.PubspecFlutterVersion.Version != nil:
+		flutterVersion = sdkVersions.PubspecFlutterVersion.Version
+	case sdkVersions.PubspecFlutterVersion.Constraint != nil:
+		flutterVersionConstraint = sdkVersions.PubspecFlutterVersion.Constraint
+	}
+
+	var dartVersion *semver.Version
+	var dartVersionConstraint *semver.Constraints
+	switch {
+	case sdkVersions.PubspecLockDartVersion.Version != nil:
+		dartVersion = sdkVersions.PubspecLockDartVersion.Version
+	case sdkVersions.PubspecLockDartVersion.Constraint != nil:
+		dartVersionConstraint = sdkVersions.PubspecLockDartVersion.Constraint
+	case sdkVersions.PubspecDartVersion.Version != nil:
+		dartVersion = sdkVersions.PubspecDartVersion.Version
+	case sdkVersions.PubspecDartVersion.Constraint != nil:
+		dartVersionConstraint = sdkVersions.PubspecDartVersion.Constraint
+	}
+
+	sdkQuery := fluttersdk.SDKQuery{
+		FlutterVersion:           flutterVersion,
+		FlutterVersionConstraint: flutterVersionConstraint,
+		DartVersion:              dartVersion,
+		DartVersionConstraint:    dartVersionConstraint,
+	}
+
+	release, err := fluttersdk.FindLatestRelease(fluttersdk.MacOS, fluttersdk.ARM64, fluttersdk.Stable, sdkQuery)
+	if err != nil {
+		return "", err
+	}
+
+	return release.Version, nil
+}
