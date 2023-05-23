@@ -146,8 +146,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	currentID := -1
 	for _, projectLocation := range projectLocations {
-		var proj project
-
 		flutterProj, err := flutterproject.New(projectLocation, fileutil.NewFileManager(), pathutilv2.NewPathChecker())
 		if err != nil {
 			log.TErrorf(err.Error())
@@ -159,19 +157,23 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			log.Warnf(err.Error())
 		}
 
-		log.TPrintf("- Project name: %s", flutterProj.Pubspec().Name)
-		log.TPrintf("  Path: %s", projectLocation)
+		currentID++
+		proj := project{
+			Project:             *flutterProj,
+			id:                  currentID,
+			flutterVersionToUse: flutterVersion,
+		}
+
+		scanner.projects = append(scanner.projects, proj)
+
+		log.TPrintf("- Project name: %s", proj.Pubspec().Name)
+		log.TPrintf("  Path: %s", proj.RootDir())
 		log.TPrintf("  HasTest: %s", proj.TestDirPth() != "")
 		log.TPrintf("  HasAndroidProject: %s", proj.AndroidProjectPth() != "")
 		log.TPrintf("  HasIosProject: %s", proj.IOSProjectPth() != "")
 		if flutterVersion != "" {
-			log.TPrintf("  Flutter version to use: %s", flutterVersion)
+			log.TPrintf("  Flutter version to use: %s", proj.flutterVersionToUse)
 		}
-
-		currentID++
-		proj.id = currentID
-		proj.flutterVersionToUse = flutterVersion
-		scanner.projects = append(scanner.projects, proj)
 	}
 
 	return len(scanner.projects) > 0, nil
