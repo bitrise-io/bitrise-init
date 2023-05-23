@@ -166,11 +166,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 		scanner.projects = append(scanner.projects, proj)
 
-		log.TPrintf("- Project name: %s", proj.Pubspec().Name)
-		log.TPrintf("  Path: %s", proj.RootDir())
-		log.TPrintf("  HasTest: %v", proj.TestDirPth() != "")
-		log.TPrintf("  HasAndroidProject: %v", proj.AndroidProjectPth() != "")
-		log.TPrintf("  HasIosProject: %v", proj.IOSProjectPth() != "")
+		log.TPrintf("- Project path: %s", proj.RootDir())
+		log.TPrintf("  Project name: %s", proj.Pubspec().Name)
+		log.TPrintf("  Has test: %v", proj.TestDirPth() != "")
+		log.TPrintf("  Has Android project: %v", proj.AndroidProjectPth() != "")
+		log.TPrintf("  Has iOS project: %v", proj.IOSProjectPth() != "")
 		if flutterVersion != "" {
 			log.TPrintf("  Flutter version to use: %s", proj.flutterVersionToUse)
 		}
