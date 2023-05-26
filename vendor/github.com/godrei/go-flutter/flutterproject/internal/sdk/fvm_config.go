@@ -22,7 +22,7 @@ func NewFVMVersionReader(fileOpener FileOpener) FVMVersionReader {
 
 func (r FVMVersionReader) ReadSDKVersion(projectRootDir string) (*semver.Version, error) {
 	fvmConfigPth := filepath.Join(projectRootDir, fvmConfigRelPath)
-	f, err := r.fileOpener.OpenFile(fvmConfigPth)
+	f, err := r.fileOpener.OpenReaderIfExists(fvmConfigPth)
 	if err != nil {
 		return nil, err
 	}

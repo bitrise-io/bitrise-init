@@ -21,7 +21,7 @@ func NewPubspecLockVersionReader(fileOpener FileOpener) PubspecLockVersionReader
 
 func (r PubspecLockVersionReader) ReadSDKVersions(projectRootDir string) (*VersionConstraint, *VersionConstraint, error) {
 	pubspecLockPth := filepath.Join(projectRootDir, pubspecLockRelPath)
-	f, err := r.fileOpener.OpenFile(pubspecLockPth)
+	f, err := r.fileOpener.OpenReaderIfExists(pubspecLockPth)
 	if err != nil {
 		return nil, nil, err
 	}

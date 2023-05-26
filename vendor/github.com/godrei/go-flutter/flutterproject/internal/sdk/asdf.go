@@ -23,7 +23,7 @@ func NewASDFVersionReader(fileOpener FileOpener) ASDFVersionReader {
 
 func (r ASDFVersionReader) ReadSDKVersions(projectRootDir string) (*semver.Version, error) {
 	asdfConfigPth := filepath.Join(projectRootDir, asdfConfigRelPath)
-	f, err := r.fileOpener.OpenFile(asdfConfigPth)
+	f, err := r.fileOpener.OpenReaderIfExists(asdfConfigPth)
 	if err != nil {
 		return nil, err
 	}

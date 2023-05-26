@@ -2,7 +2,6 @@ package flutterproject
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -34,30 +33,18 @@ type Project struct {
 
 	fileManager fileutil.FileManager
 	pathChecker pathutil.PathChecker
-	fileOpener  FileOpener
-
-	flutterAndDartSDKVersions *FlutterAndDartSDKVersions
-	testDirPth                *string
-	iosProjectPth             *string
-	androidProjectPth         *string
 }
 
 func New(rootDir string, fileManager fileutil.FileManager, pathChecker pathutil.PathChecker) (*Project, error) {
 	pubspecPth := filepath.Join(rootDir, sdk.PubspecRelPath)
-	exists, err := pathChecker.IsPathExists(pubspecPth)
+	pubspecFile, err := fileManager.Open(pubspecPth)
 	if err != nil {
-		return nil, err
-	} else if !exists {
-		return nil, fmt.Errorf("not a Flutter project: pubspec.yaml not found at: %s", pubspecPth)
+		return nil, fmt.Errorf("failed to open %s: %s", pubspecPth, err)
 	}
 
 	var pubspec Pubspec
-	pubspecFile, err := fileManager.Open(pubspecPth)
-	if err != nil {
-		return nil, err
-	}
 	if err := yaml.NewDecoder(pubspecFile).Decode(&pubspec); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse pubspec.yaml at %s: %s", pubspecPth, err)
 	}
 
 	return &Project{
@@ -65,7 +52,6 @@ func New(rootDir string, fileManager fileutil.FileManager, pathChecker pathutil.
 		pubspecPth:  pubspecPth,
 		fileManager: fileManager,
 		pathChecker: pathChecker,
-		fileOpener:  NewFileOpener(fileManager),
 		pubspec:     pubspec,
 	}, nil
 }
@@ -79,20 +65,15 @@ func (p *Project) Pubspec() Pubspec {
 }
 
 func (p *Project) TestDirPth() string {
-	if p.testDirPth != nil {
-		return *p.testDirPth
-	}
-
 	const testDirRelPth = "test"
 
 	hasTests := false
 	testsDirPath := filepath.Join(p.rootDir, testDirRelPth)
 
 	if exists, err := p.pathChecker.IsDirExists(testsDirPath); err == nil && exists {
-		// TODO: make os.ReadDir testable
-		if entries, err := os.ReadDir(testsDirPath); err == nil && len(entries) > 0 {
+		if entries, err := p.fileManager.ReadDirEntryNames(testsDirPath); err == nil && len(entries) > 0 {
 			for _, entry := range entries {
-				if strings.HasSuffix(entry.Name(), "_test.dart") {
+				if strings.HasSuffix(entry, "_test.dart") {
 					hasTests = true
 					break
 				}
@@ -104,16 +85,10 @@ func (p *Project) TestDirPth() string {
 		testsDirPath = ""
 	}
 
-	p.testDirPth = &testsDirPath
-
 	return testsDirPath
 }
 
 func (p *Project) IOSProjectPth() string {
-	if p.iosProjectPth != nil {
-		return *p.iosProjectPth
-	}
-
 	const iosProjectRelPth = "ios/Runner.xcworkspace"
 
 	hasIOSProject := false
@@ -125,8 +100,6 @@ func (p *Project) IOSProjectPth() string {
 	if !hasIOSProject {
 		iosProjectPth = ""
 	}
-
-	p.iosProjectPth = &iosProjectPth
 
 	return iosProjectPth
 
@@ -153,33 +126,27 @@ func (p *Project) AndroidProjectPth() string {
 		androidProjectPth = ""
 	}
 
-	p.androidProjectPth = &androidProjectPth
-
 	return androidProjectPth
 }
 
 func (p *Project) FlutterAndDartSDKVersions() (FlutterAndDartSDKVersions, error) {
-	if p.flutterAndDartSDKVersions != nil {
-		return *p.flutterAndDartSDKVersions, nil
-	}
-
 	sdkVersions := FlutterAndDartSDKVersions{}
 
-	fvmFlutterVersion, err := sdk.NewFVMVersionReader(p.fileOpener).ReadSDKVersion(p.rootDir)
+	fvmFlutterVersion, err := sdk.NewFVMVersionReader(p.fileManager).ReadSDKVersion(p.rootDir)
 	if err != nil {
 		return FlutterAndDartSDKVersions{}, err
 	} else {
 		sdkVersions.FVMFlutterVersion = fvmFlutterVersion
 	}
 
-	asdfFlutterVersion, err := sdk.NewASDFVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	asdfFlutterVersion, err := sdk.NewASDFVersionReader(p.fileManager).ReadSDKVersions(p.rootDir)
 	if err != nil {
 		return FlutterAndDartSDKVersions{}, err
 	} else {
 		sdkVersions.ASDFFlutterVersion = asdfFlutterVersion
 	}
 
-	pubspecLockFlutterVersion, pubspecLockDartVersion, err := sdk.NewPubspecLockVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	pubspecLockFlutterVersion, pubspecLockDartVersion, err := sdk.NewPubspecLockVersionReader(p.fileManager).ReadSDKVersions(p.rootDir)
 	if err != nil {
 		return FlutterAndDartSDKVersions{}, err
 	} else {
@@ -187,15 +154,13 @@ func (p *Project) FlutterAndDartSDKVersions() (FlutterAndDartSDKVersions, error)
 		sdkVersions.PubspecLockDartVersion = pubspecLockDartVersion
 	}
 
-	pubspecFlutterVersion, pubspecDartVersion, err := sdk.NewPubspecVersionReader(p.fileOpener).ReadSDKVersions(p.rootDir)
+	pubspecFlutterVersion, pubspecDartVersion, err := sdk.NewPubspecVersionReader(p.fileManager).ReadSDKVersions(p.rootDir)
 	if err != nil {
 		return FlutterAndDartSDKVersions{}, err
 	} else {
 		sdkVersions.PubspecFlutterVersion = pubspecFlutterVersion
 		sdkVersions.PubspecDartVersion = pubspecDartVersion
 	}
-
-	p.flutterAndDartSDKVersions = &sdkVersions
 
 	return sdkVersions, nil
 }
@@ -206,7 +171,16 @@ func (p *Project) FlutterSDKVersionToUse() (string, error) {
 		return "", err
 	}
 
-	// todo: move this to a separate func
+	sdkQuery := createSDKQuery(sdkVersions)
+	release, err := fluttersdk.FindLatestRelease(fluttersdk.MacOS, fluttersdk.ARM64, fluttersdk.Stable, sdkQuery)
+	if err != nil {
+		return "", err
+	}
+
+	return release.Version, nil
+}
+
+func createSDKQuery(sdkVersions FlutterAndDartSDKVersions) fluttersdk.SDKQuery {
 	var flutterVersion *semver.Version
 	var flutterVersionConstraint *semver.Constraints
 	switch {
@@ -237,17 +211,10 @@ func (p *Project) FlutterSDKVersionToUse() (string, error) {
 		dartVersionConstraint = sdkVersions.PubspecDartVersion.Constraint
 	}
 
-	sdkQuery := fluttersdk.SDKQuery{
+	return fluttersdk.SDKQuery{
 		FlutterVersion:           flutterVersion,
 		FlutterVersionConstraint: flutterVersionConstraint,
 		DartVersion:              dartVersion,
 		DartVersionConstraint:    dartVersionConstraint,
 	}
-
-	release, err := fluttersdk.FindLatestRelease(fluttersdk.MacOS, fluttersdk.ARM64, fluttersdk.Stable, sdkQuery)
-	if err != nil {
-		return "", err
-	}
-
-	return release.Version, nil
 }

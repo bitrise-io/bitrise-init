@@ -17,8 +17,8 @@ github.com/bitrise-io/go-utils v0.0.0-20210505091801-98b7dc39ee61/go.mod h1:nhda
 github.com/bitrise-io/go-utils v0.0.0-20210505121718-07411d72e36e/go.mod h1:nhdaDQFvaMny1CugVV6KjK92/q97ENo0RuKSW5I4fbA=
 github.com/bitrise-io/go-utils v1.0.1 h1:e7mepVBkVN1DXRPESNXb0djEw6bxB6B93p/Q74zzcvk=
 github.com/bitrise-io/go-utils v1.0.1/go.mod h1:ZY1DI+fEpZuFpO9szgDeICM4QbqoWVt0RSY3tRI1heY=
-github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17 h1:6L+FwY73MiXL61h7gm2c4umFNBCCnNNDRNZY4dzgeCw=
-github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17/go.mod h1:Laih4ji980SQkRgdnMCH0g4u2GZI/5nnbqmYT9UfKFQ=
+github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17.0.20230523121129-33e644c3c5f3 h1:iOrLG6nLLde0HwEpFTyVgu0xXbJ/4XNGzOns/58dWvo=
+github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17.0.20230523121129-33e644c3c5f3/go.mod h1:Laih4ji980SQkRgdnMCH0g4u2GZI/5nnbqmYT9UfKFQ=
 github.com/bitrise-io/go-xcode v1.0.6 h1:hSKwkDXUn9/gMk6HiJRUvurGWelfQEBWcO7JAvXi+y8=
 github.com/bitrise-io/go-xcode v1.0.6/go.mod h1:Y0Wu2dXm0MilJ/4D3+gPHaNMlUcP+1DjIPoLPykq7wY=
 github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1 h1:iQZl/dKHp14xol7ye4e9FaSrw8o27TF5/nv3aUDfdD0=
@@ -34,8 +34,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fullsailor/pkcs7 v0.0.0-20190404230743-d7302db945fa/go.mod h1:KnogPXtdwXqoenmZCw6S+25EAm2MkxbG0deNDu4cbSA=
-github.com/godrei/go-flutter v0.0.0-20230522145729-aa19712306b7 h1:P94QBKtXwD4b6NNM2pAR+oulHjLqThn5OXHupIa6hnY=
-github.com/godrei/go-flutter v0.0.0-20230522145729-aa19712306b7/go.mod h1:ieYvh0cAYuba0SUX7ulR4fnlYpm2JyxbS0/yZipKba8=
+github.com/godrei/go-flutter v0.0.0-20230525115703-8c327d9d588d h1:nogvtE5+CK1aOrd7aAgtJUjIJvO395OLM/MJPGunwVM=
+github.com/godrei/go-flutter v0.0.0-20230525115703-8c327d9d588d/go.mod h1:ERUBTwUIuRcMwqVwPsoBShVD1vJuCH0yKfVuyeM9VX0=
 github.com/gofrs/uuid v4.3.1+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.6 h1:BKbKCqvP6I+rmFHt06ZmyQtvB8xAkWdhFyr0ZUNZcxQ=
