@@ -25,14 +25,18 @@ func ValidateConfigExpectation(t *testing.T, ID, expected, actual string, versio
 		fmt.Println(s)
 		fmt.Println("---------------------")
 
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("__diffs__")
+		require.NoError(t, err)
+
+		expPth := filepath.Join(tmpDir, ID+"-expected.yml")
+		actPth := filepath.Join(tmpDir, ID+"-actual.yml")
+		require.NoError(t, fileutil.WriteStringToFile(expPth, expected))
+		require.NoError(t, fileutil.WriteStringToFile(actPth, actual))
+		fmt.Println("Expected: ", expPth)
+		fmt.Println("Actual: ", actPth)
+
 		_, err = exec.LookPath("opendiff")
 		if err == nil {
-			tmpDir, err := pathutil.NormalizedOSTempDirPath("__diffs__")
-			require.NoError(t, err)
-			expPth := filepath.Join(tmpDir, ID+"-expected.yml")
-			actPth := filepath.Join(tmpDir, ID+"-actual.yml")
-			require.NoError(t, fileutil.WriteStringToFile(expPth, expected))
-			require.NoError(t, fileutil.WriteStringToFile(actPth, actual))
 			require.NoError(t, exec.Command("opendiff", expPth, actPth).Start())
 			t.FailNow()
 			return

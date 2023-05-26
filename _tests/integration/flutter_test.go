@@ -138,17 +138,8 @@ warnings_with_recommendations:
 `, flutterSampleAppVersions...)
 
 var flutterSamplePackageVersions = []interface{}{
-	// flutter-config-test-both-0
+	// flutter-config-test-0
 	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.FlutterInstallVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.FlutterTestVersion,
-	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
-
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -168,10 +159,10 @@ var flutterSamplePackageResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        config: flutter-config-test-both-0
+        config: flutter-config-test-0
 configs:
   flutter:
-    flutter-config-test-both-0: |
+    flutter-config-test-0: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -181,35 +172,6 @@ configs:
       - pull_request_source_branch: '*'
         workflow: primary
       workflows:
-        deploy:
-          description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
-
-            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
-
-            Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
-            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - version: 3.7.12
-              - is_update: "false"
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-build@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-              - platform: both
-              - ios_output_type: archive
-          - deploy-to-bitrise-io@%s: {}
         primary:
           description: |
             Builds project and runs tests.
@@ -249,6 +211,7 @@ var flutterSamplePluginVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
 	steps.CacheRestoreDartVersion,
+	steps.FlutterAnalyzeVersion,
 	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -335,6 +298,9 @@ configs:
               - version: 3.7.12
               - is_update: "false"
           - restore-dart-cache@%s: {}
+          - flutter-analyze@%s:
+              inputs:
+              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     flutter-config-test-both-1: |

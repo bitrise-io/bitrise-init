@@ -44,14 +44,16 @@ type project struct {
 	flutterVersionToUse string
 }
 
-func (proj project) platform() string {
+func (proj project) appPlatform() string {
 	switch {
 	case proj.hasAndroidProject && !proj.hasIosProject:
 		return "android"
 	case !proj.hasAndroidProject && proj.hasIosProject:
 		return "ios"
-	default:
+	case proj.hasAndroidProject && proj.hasIosProject:
 		return "both"
+	default:
+		return ""
 	}
 }
 
@@ -62,7 +64,9 @@ func (proj project) configName() string {
 	} else {
 		name += "-notest"
 	}
-	name += "-" + proj.platform()
+	if proj.appPlatform() != "" {
+		name += "-" + proj.appPlatform()
+	}
 	name += fmt.Sprintf("-%d", proj.id)
 
 	return name
@@ -163,6 +167,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	return *flutterProjectLocationOption, models.Warnings{}, nil, nil
 }
 
+var defaultProjects = []project{
+	{hasTest: true, hasAndroidProject: true, hasIosProject: true},
+	{hasTest: true, hasAndroidProject: false, hasIosProject: true},
+	{hasTest: true, hasAndroidProject: true, hasIosProject: false},
+}
+
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
@@ -170,13 +180,10 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterPlatformOption := models.NewOption(platformInputTitle, platformInputSummary, "", models.TypeSelector)
 	flutterProjectLocationOption.AddOption("$"+projectLocationInputEnvKey, flutterPlatformOption)
 
-	for _, proj := range []project{
-		{hasTest: true, hasAndroidProject: true, hasIosProject: true},
-		{hasTest: true, hasAndroidProject: false, hasIosProject: true},
-		{hasTest: true, hasAndroidProject: true, hasIosProject: false},
-	} {
+	for i, proj := range defaultProjects {
+		proj.id = i
 		configOption := models.NewConfigOption(proj.configName(), nil)
-		flutterPlatformOption.AddConfig(proj.platform(), configOption)
+		flutterPlatformOption.AddConfig(proj.appPlatform(), configOption)
 	}
 
 	return *flutterProjectLocationOption
@@ -198,7 +205,19 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseCon
 }
 
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	return generateDefaultConfigMap(models.RepoAccessUnknown)
+	configs := models.BitriseConfigMap{}
+
+	for i, proj := range defaultProjects {
+		proj.id = i
+
+		config, err := generateConfig(models.RepoAccessUnknown, proj)
+		if err != nil {
+			return nil, err
+		}
+		configs[proj.configName()] = config
+	}
+
+	return configs, nil
 }
 
 func findProjectLocations(searchDir string) ([]string, error) {
@@ -246,43 +265,49 @@ func generateConfig(repoAccess models.RepoAccess, proj project) (string, error) 
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
+	} else {
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
+			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		))
 	}
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveDartCache())
 
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, deploySteps...)
 
-	// deploy
-	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+	if proj.hasIosProject || proj.hasAndroidProject {
+		// deploy
+		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, prepareSteps...)
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, prepareSteps...)
 
-	if proj.hasIosProject {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
-	}
+		if proj.hasIosProject {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+		}
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, flutterInstallStep)
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, flutterInstallStep)
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
-		envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-	))
-
-	if proj.hasTest {
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
-	}
 
-	flutterBuildInputs := []envmanModels.EnvironmentItemModel{
-		{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-		{platformInputKey: proj.platform()},
-	}
-	if proj.platform() != "android" {
-		flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
-	}
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
+		if proj.hasTest {
+			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
+				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			))
+		}
 
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, deploySteps...)
+		flutterBuildInputs := []envmanModels.EnvironmentItemModel{
+			{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			{platformInputKey: proj.appPlatform()},
+		}
+		if proj.hasIosProject {
+			flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
+		}
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
+
+		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, deploySteps...)
+	}
 
 	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
@@ -295,27 +320,4 @@ func generateConfig(repoAccess models.RepoAccess, proj project) (string, error) 
 	}
 
 	return string(data), nil
-}
-
-func generateDefaultConfigMap(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
-	configs := models.BitriseConfigMap{}
-
-	for i, proj := range []project{
-		{hasTest: false, hasAndroidProject: true, hasIosProject: true},
-		{hasTest: true, hasAndroidProject: true, hasIosProject: true},
-		{hasTest: false, hasAndroidProject: true, hasIosProject: false},
-		{hasTest: true, hasAndroidProject: true, hasIosProject: false},
-		{hasTest: false, hasAndroidProject: false, hasIosProject: true},
-		{hasTest: true, hasAndroidProject: false, hasIosProject: true},
-	} {
-		proj.id = i
-
-		config, err := generateConfig(repoAccess, proj)
-		if err != nil {
-			return nil, err
-		}
-		configs[proj.configName()] = config
-	}
-
-	return configs, nil
 }
