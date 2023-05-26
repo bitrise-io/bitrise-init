@@ -712,7 +712,7 @@ configs:
               - enable_cache: "no"
           - deploy-to-bitrise-io@%s: {}
   flutter:
-    flutter-config-notest-app-android: |
+    flutter-config-notest-android-2: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -762,7 +762,7 @@ configs:
           - restore-dart-cache@%s: {}
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-notest-app-both: |
+    flutter-config-notest-both-0: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -814,7 +814,7 @@ configs:
           - restore-dart-cache@%s: {}
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-notest-app-ios: |
+    flutter-config-notest-ios-4: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -866,7 +866,7 @@ configs:
           - restore-dart-cache@%s: {}
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-app-android: |
+    flutter-config-test-android-3: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -922,7 +922,7 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-app-both: |
+    flutter-config-test-both-1: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -980,7 +980,7 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-app-ios: |
+    flutter-config-test-ios-5: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter

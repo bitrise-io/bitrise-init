@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/bitrise-io/go-utils/pathutil"
-
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/v2/fileutil"
 	pathutilv2 "github.com/bitrise-io/go-utils/v2/pathutil"
 	"github.com/godrei/go-flutter/flutterproject"
@@ -30,14 +29,6 @@ const (
 	platformInputSummary        = "The target platform for your first build. Your options are iOS, Android, both, or neither. You can change this in your Env Vars at any time."
 	iosOutputTypeKey            = "ios_output_type"
 	iosOutputTypeArchive        = "archive"
-)
-
-var (
-	platforms = []string{
-		"android",
-		"ios",
-		"both",
-	}
 )
 
 //------------------
@@ -176,14 +167,16 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
 
-	cfg := configName + "-test"
-
 	flutterPlatformOption := models.NewOption(platformInputTitle, platformInputSummary, "", models.TypeSelector)
-	flutterProjectLocationOption.AddOption("", flutterPlatformOption)
+	flutterProjectLocationOption.AddOption("$"+projectLocationInputEnvKey, flutterPlatformOption)
 
-	for _, platform := range platforms {
-		configOption := models.NewConfigOption(cfg+"-app-"+platform, nil)
-		flutterPlatformOption.AddConfig(platform, configOption)
+	for _, proj := range []project{
+		{hasTest: true, hasAndroidProject: true, hasIosProject: true},
+		{hasTest: true, hasAndroidProject: false, hasIosProject: true},
+		{hasTest: true, hasAndroidProject: true, hasIosProject: false},
+	} {
+		configOption := models.NewConfigOption(proj.configName(), nil)
+		flutterPlatformOption.AddConfig(proj.platform(), configOption)
 	}
 
 	return *flutterProjectLocationOption

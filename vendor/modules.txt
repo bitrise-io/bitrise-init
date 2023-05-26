@@ -50,7 +50,7 @@ github.com/bitrise-io/stepman/models
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/godrei/go-flutter v0.0.0-20230525115703-8c327d9d588d
+# github.com/godrei/go-flutter v0.0.0-20230526075716-fd4515dc1f48
 ## explicit; go 1.20
 github.com/godrei/go-flutter/flutterproject
 github.com/godrei/go-flutter/flutterproject/internal/sdk

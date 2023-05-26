@@ -242,10 +242,17 @@ func FlutterInstallStepListItem(version string, isUpdate bool) bitriseModels.Ste
 	const isUpdateInputKey = "is_update"
 
 	var inputs []envmanModels.EnvironmentItemModel
+
 	if version != "" {
 		inputs = append(inputs, envmanModels.EnvironmentItemModel{versionInputKey: version})
 	}
-	inputs = append(inputs, envmanModels.EnvironmentItemModel{isUpdateInputKey: isUpdate})
+
+	isUpdateStr := "false"
+	if isUpdate {
+		isUpdateStr = "true"
+	}
+
+	inputs = append(inputs, envmanModels.EnvironmentItemModel{isUpdateInputKey: isUpdateStr})
 
 	stepIDComposite := stepIDComposite(FlutterInstallID, FlutterInstallVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)

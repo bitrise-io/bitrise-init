@@ -188,26 +188,26 @@ func createSDKQuery(sdkVersions FlutterAndDartSDKVersions) fluttersdk.SDKQuery {
 		flutterVersion = sdkVersions.FVMFlutterVersion
 	case sdkVersions.ASDFFlutterVersion != nil:
 		flutterVersion = sdkVersions.ASDFFlutterVersion
-	case sdkVersions.PubspecLockFlutterVersion.Version != nil:
+	case sdkVersions.PubspecLockFlutterVersion != nil && sdkVersions.PubspecLockFlutterVersion.Version != nil:
 		flutterVersion = sdkVersions.PubspecLockFlutterVersion.Version
-	case sdkVersions.PubspecLockFlutterVersion.Constraint != nil:
+	case sdkVersions.PubspecLockFlutterVersion != nil && sdkVersions.PubspecLockFlutterVersion.Constraint != nil:
 		flutterVersionConstraint = sdkVersions.PubspecLockFlutterVersion.Constraint
-	case sdkVersions.PubspecFlutterVersion.Version != nil:
+	case sdkVersions.PubspecFlutterVersion != nil && sdkVersions.PubspecFlutterVersion.Version != nil:
 		flutterVersion = sdkVersions.PubspecFlutterVersion.Version
-	case sdkVersions.PubspecFlutterVersion.Constraint != nil:
+	case sdkVersions.PubspecFlutterVersion != nil && sdkVersions.PubspecFlutterVersion.Constraint != nil:
 		flutterVersionConstraint = sdkVersions.PubspecFlutterVersion.Constraint
 	}
 
 	var dartVersion *semver.Version
 	var dartVersionConstraint *semver.Constraints
 	switch {
-	case sdkVersions.PubspecLockDartVersion.Version != nil:
+	case sdkVersions.PubspecLockDartVersion != nil && sdkVersions.PubspecLockDartVersion.Version != nil:
 		dartVersion = sdkVersions.PubspecLockDartVersion.Version
-	case sdkVersions.PubspecLockDartVersion.Constraint != nil:
+	case sdkVersions.PubspecLockDartVersion != nil && sdkVersions.PubspecLockDartVersion.Constraint != nil:
 		dartVersionConstraint = sdkVersions.PubspecLockDartVersion.Constraint
-	case sdkVersions.PubspecDartVersion.Version != nil:
+	case sdkVersions.PubspecDartVersion != nil && sdkVersions.PubspecDartVersion.Version != nil:
 		dartVersion = sdkVersions.PubspecDartVersion.Version
-	case sdkVersions.PubspecDartVersion.Constraint != nil:
+	case sdkVersions.PubspecDartVersion != nil && sdkVersions.PubspecDartVersion.Constraint != nil:
 		dartVersionConstraint = sdkVersions.PubspecDartVersion.Constraint
 	}
 
