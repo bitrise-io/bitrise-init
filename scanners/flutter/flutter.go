@@ -9,11 +9,11 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-flutter/flutterproject"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/v2/fileutil"
 	pathutilv2 "github.com/bitrise-io/go-utils/v2/pathutil"
-	"github.com/godrei/go-flutter/flutterproject"
 	"gopkg.in/yaml.v2"
 )
 

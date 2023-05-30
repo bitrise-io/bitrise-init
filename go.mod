@@ -6,13 +6,13 @@ require (
 	github.com/beevik/etree v1.1.0
 	github.com/bitrise-io/bitrise v0.0.0-20210519130014-380842fb41c1
 	github.com/bitrise-io/envman v0.0.0-20210517135508-b2b4fe89eac5
+	github.com/bitrise-io/go-flutter v0.0.0-20230530073929-7d57a06fe569
 	github.com/bitrise-io/go-steputils v1.0.1
 	github.com/bitrise-io/go-utils v1.0.1
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17.0.20230523121129-33e644c3c5f3
 	github.com/bitrise-io/go-xcode v1.0.6
 	github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 	github.com/bitrise-io/stepman v0.0.0-20210517135458-203f7a48d37a
-	github.com/godrei/go-flutter v0.0.0-20230526075716-fd4515dc1f48
 	github.com/google/go-cmp v0.5.6
 	github.com/stretchr/testify v1.8.3
 	gopkg.in/yaml.v2 v2.4.0

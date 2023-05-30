@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/bitrise-io/go-flutter/flutterproject/internal/sdk"
+	"github.com/bitrise-io/go-flutter/fluttersdk"
 	"github.com/bitrise-io/go-utils/v2/fileutil"
 	"github.com/bitrise-io/go-utils/v2/pathutil"
-	"github.com/godrei/go-flutter/flutterproject/internal/sdk"
-	"github.com/godrei/go-flutter/fluttersdk"
 	"gopkg.in/yaml.v3"
 )
 
