@@ -10,7 +10,7 @@ github.com/bitrise-io/bitrise/models
 # github.com/bitrise-io/envman v0.0.0-20210517135508-b2b4fe89eac5
 ## explicit
 github.com/bitrise-io/envman/models
-# github.com/bitrise-io/go-flutter v0.0.0-20230530073929-7d57a06fe569
+# github.com/bitrise-io/go-flutter v0.1.0
 ## explicit; go 1.20
 github.com/bitrise-io/go-flutter/flutterproject
 github.com/bitrise-io/go-flutter/flutterproject/internal/sdk
@@ -34,7 +34,7 @@ github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
 github.com/bitrise-io/go-utils/pretty
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.17.0.20230523121129-33e644c3c5f3
+# github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.18
 ## explicit; go 1.17
 github.com/bitrise-io/go-utils/v2/fileutil
 github.com/bitrise-io/go-utils/v2/pathutil
