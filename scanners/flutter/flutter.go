@@ -178,7 +178,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
 
 	flutterPlatformOption := models.NewOption(platformInputTitle, platformInputSummary, "", models.TypeSelector)
-	flutterProjectLocationOption.AddOption("$"+projectLocationInputEnvKey, flutterPlatformOption)
+	flutterProjectLocationOption.AddOption("", flutterPlatformOption)
 
 	for i, proj := range defaultProjects {
 		proj.id = i

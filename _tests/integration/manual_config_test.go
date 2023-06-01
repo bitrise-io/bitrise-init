@@ -321,7 +321,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
     env_key: BITRISE_FLUTTER_PROJECT_LOCATION
     type: user_input
     value_map:
-      $BITRISE_FLUTTER_PROJECT_LOCATION:
+      "":
         title: Platform
         summary: The target platform for your first build. Your options are iOS, Android,
           both, or neither. You can change this in your Env Vars at any time.
