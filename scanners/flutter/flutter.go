@@ -161,7 +161,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 
 	for _, proj := range scanner.projects {
 		configOption := models.NewConfigOption(proj.configName(), nil)
-		flutterProjectLocationOption.AddOption(proj.rootDir, configOption)
+		flutterProjectLocationOption.AddConfig(proj.rootDir, configOption)
 	}
 
 	return *flutterProjectLocationOption, models.Warnings{}, nil, nil
@@ -178,7 +178,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
 
 	flutterPlatformOption := models.NewOption(platformInputTitle, platformInputSummary, "", models.TypeSelector)
-	flutterProjectLocationOption.AddOption("", flutterPlatformOption)
+	flutterProjectLocationOption.AddOption(models.UserInputOptionDefaultValue, flutterPlatformOption)
 
 	for i, proj := range defaultProjects {
 		proj.id = i
