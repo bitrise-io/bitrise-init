@@ -87,7 +87,7 @@ func (o *scannerOutput) AddWarnings(tag string, errs ...string) {
 }
 
 // Config ...
-func Config(searchDir string, isPrivateRepository bool) models.ScanResultModel {
+func Config(searchDir string, isPrivateRepository bool, defaultBranch string) models.ScanResultModel {
 	result := models.ScanResultModel{}
 
 	//
@@ -146,7 +146,7 @@ func Config(searchDir string, isPrivateRepository bool) models.ScanResultModel {
 	fmt.Println()
 
 	// Collect scanner outputs, by scanner name
-	projectScannerToOutputs := runScanners(scanners.ProjectScanners(), searchDir, isPrivateRepository)
+	projectScannerToOutputs := runScanners(scanners.ProjectScanners(), searchDir, isPrivateRepository, defaultBranch)
 	detectedProjectTypes := getDetectedScannerNames(projectScannerToOutputs)
 	log.Printf("Detected project types: %s", detectedProjectTypes)
 	fmt.Println()
@@ -163,7 +163,7 @@ func Config(searchDir string, isPrivateRepository bool) models.ScanResultModel {
 		toolScanner.(scanners.AutomationToolScanner).SetDetectedProjectTypes(detectedProjectTypes)
 	}
 
-	scannerToOutput := runScanners(automationToolScanners, searchDir, isPrivateRepository)
+	scannerToOutput := runScanners(automationToolScanners, searchDir, isPrivateRepository, defaultBranch)
 	detectedAutomationToolScanners := getDetectedScannerNames(scannerToOutput)
 	log.Printf("Detected automation tools: %s", detectedAutomationToolScanners)
 	fmt.Println()
@@ -212,7 +212,7 @@ func Config(searchDir string, isPrivateRepository bool) models.ScanResultModel {
 	}
 }
 
-func runScanners(scannerList []scanners.ScannerInterface, searchDir string, isPrivateRepository bool) map[string]scannerOutput {
+func runScanners(scannerList []scanners.ScannerInterface, searchDir string, isPrivateRepository bool, defaultBranch string) map[string]scannerOutput {
 	scannerOutputs := map[string]scannerOutput{}
 	var excludedScannerNames []string
 	for _, scanner := range scannerList {
@@ -225,7 +225,7 @@ func runScanners(scannerList []scanners.ScannerInterface, searchDir string, isPr
 
 		log.TPrintf("+------------------------------------------------------------------------------+")
 		log.TPrintf("|                                                                              |")
-		scannerOutput := runScanner(scanner, searchDir, isPrivateRepository)
+		scannerOutput := runScanner(scanner, searchDir, isPrivateRepository, defaultBranch)
 		log.TPrintf("|                                                                              |")
 		log.TPrintf("+------------------------------------------------------------------------------+")
 		fmt.Println()
@@ -237,7 +237,7 @@ func runScanners(scannerList []scanners.ScannerInterface, searchDir string, isPr
 }
 
 // Collect output of a specific scanner
-func runScanner(detector scanners.ScannerInterface, searchDir string, isPrivateRepository bool) scannerOutput {
+func runScanner(detector scanners.ScannerInterface, searchDir string, isPrivateRepository bool, defaultBranch string) scannerOutput {
 	output := scannerOutput{}
 
 	if isDetect, err := detector.DetectPlatform(searchDir); err != nil {
@@ -280,7 +280,7 @@ func runScanner(detector scanners.ScannerInterface, searchDir string, isPrivateR
 	} else {
 		repoAccess = models.RepoAccessPublic
 	}
-	configs, err := detector.Configs(repoAccess)
+	configs, err := detector.Configs(repoAccess, defaultBranch)
 	if err != nil {
 		data := detectorErrorData(detector.Name(), err)
 		analytics.LogError(configsFailedTag, data, "%s detector Configs failed", detector.Name())

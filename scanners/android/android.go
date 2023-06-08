@@ -171,7 +171,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 }
 
 // Configs ...
-func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	configBuilder := scanner.generateConfigBuilder(repoAccess)
 
 	config, err := configBuilder.Generate(ScannerName)

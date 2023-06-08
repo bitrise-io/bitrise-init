@@ -53,7 +53,7 @@ type ScannerInterface interface {
 	// Every config's key should be the last option one of the OptionNode branches.
 	// Returns:
 	// - platform BitriseConfigMap
-	Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error)
+	Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error)
 
 	// Returns:
 	// - platform default BitriseConfigMap

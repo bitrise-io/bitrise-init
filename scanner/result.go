@@ -16,8 +16,8 @@ import (
 )
 
 // GenerateScanResult runs the scanner, returns the results and if any platform was detected.
-func GenerateScanResult(searchDir string, isPrivateRepository bool) (models.ScanResultModel, bool) {
-	scanResult := Config(searchDir, isPrivateRepository)
+func GenerateScanResult(searchDir string, isPrivateRepository bool, defaultBranch string) (models.ScanResultModel, bool) {
+	scanResult := Config(searchDir, isPrivateRepository, defaultBranch)
 
 	logUnknownTools(searchDir)
 
@@ -43,8 +43,8 @@ func GenerateScanResult(searchDir string, isPrivateRepository bool) (models.Scan
 }
 
 // GenerateAndWriteResults runs the scanner and saves results to the given output dir.
-func GenerateAndWriteResults(searchDir string, outputDir string, format output.Format) (models.ScanResultModel, error) {
-	result, detected := GenerateScanResult(searchDir, true)
+func GenerateAndWriteResults(searchDir string, outputDir string, format output.Format, defaultBranch string) (models.ScanResultModel, error) {
+	result, detected := GenerateScanResult(searchDir, true, defaultBranch)
 
 	// Write output to files
 	log.TInfof("Saving outputs:")

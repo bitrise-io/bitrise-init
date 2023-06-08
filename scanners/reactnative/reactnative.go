@@ -252,7 +252,7 @@ func (scanner *Scanner) Options() (options models.OptionNode, allWarnings models
 	return
 }
 
-func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	if scanner.isExpoBased {
 		return scanner.expoConfigs(scanner.projects[0], repoAccess)
 	}

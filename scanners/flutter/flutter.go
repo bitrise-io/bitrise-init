@@ -189,7 +189,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	return *flutterProjectLocationOption
 }
 
-func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	configs := models.BitriseConfigMap{}
 
 	for _, proj := range scanner.projects {
