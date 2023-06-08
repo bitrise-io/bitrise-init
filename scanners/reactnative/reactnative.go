@@ -254,10 +254,10 @@ func (scanner *Scanner) Options() (options models.OptionNode, allWarnings models
 
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	if scanner.isExpoBased {
-		return scanner.expoConfigs(scanner.projects[0], repoAccess)
+		return scanner.expoConfigs(scanner.projects[0], repoAccess, defaultBranch)
 	}
 
-	return scanner.configs(repoAccess)
+	return scanner.configs(repoAccess, defaultBranch)
 }
 
 // DefaultOptions implements ScannerInterface.DefaultOptions function.

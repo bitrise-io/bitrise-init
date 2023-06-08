@@ -282,7 +282,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		RepoAccess: repoAccess,
 	})...)
@@ -382,7 +382,7 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch stri
 
 // DefaultConfigs ...
 func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder("")
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		RepoAccess: models.RepoAccessUnknown,
 	})...)

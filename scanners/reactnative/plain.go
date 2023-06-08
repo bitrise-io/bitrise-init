@@ -167,7 +167,7 @@ func (scanner *Scanner) defaultOptions() models.OptionNode {
 	return *androidOptions
 }
 
-func (scanner *Scanner) configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
 	if len(scanner.configDescriptors) == 0 {
@@ -175,7 +175,7 @@ func (scanner *Scanner) configs(repoAccess models.RepoAccess) (models.BitriseCon
 	}
 
 	for _, descriptor := range scanner.configDescriptors {
-		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 
 		testSteps := getTestSteps("$"+projectDirInputEnvKey, descriptor.hasYarnLockFile, descriptor.hasTest)
 		// ci
@@ -260,7 +260,7 @@ func (scanner *Scanner) configs(repoAccess models.RepoAccess) (models.BitriseCon
 }
 
 func (scanner *Scanner) defaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder("")
 
 	// primary
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)

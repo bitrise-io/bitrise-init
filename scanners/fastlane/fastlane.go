@@ -192,7 +192,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	generateConfig := func(isIOS bool) (bitriseModels.BitriseDataModel, error) {
-		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 			RepoAccess: repoAccess,
 		})...)
@@ -245,7 +245,7 @@ func (*Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
 	for _, p := range platforms {
-		configBuilder := models.NewDefaultConfigBuilder()
+		configBuilder := models.NewDefaultConfigBuilder("")
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{RepoAccess: models.RepoAccessUnknown})...)
 
 		if p == iosPlatform {

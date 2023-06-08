@@ -9,7 +9,7 @@ import (
 )
 
 func TestConfigGenerateHaveProjectType(t *testing.T) {
-	config := NewDefaultConfigBuilder()
+	config := NewDefaultConfigBuilder("")
 	config.AppendStepListItemsTo("primary", []bitriseModels.StepListItemModel{
 		{"step-id": stepmanModels.StepModel{}},
 	}...)
@@ -21,7 +21,7 @@ func TestConfigGenerateHaveProjectType(t *testing.T) {
 }
 
 func TestConfigGenerateHaveTriggerMap(t *testing.T) {
-	config := NewDefaultConfigBuilder()
+	config := NewDefaultConfigBuilder("main")
 	config.AppendStepListItemsTo("primary", []bitriseModels.StepListItemModel{
 		{"step-id": stepmanModels.StepModel{}},
 	}...)
@@ -29,5 +29,14 @@ func TestConfigGenerateHaveTriggerMap(t *testing.T) {
 	model, err := config.Generate("iOS")
 
 	require.Nil(t, err)
-	require.Equal(t, 2, len(model.TriggerMap))
+	require.Equal(t, bitriseModels.TriggerMapModel{
+		bitriseModels.TriggerMapItemModel{
+			PushBranch: "main",
+			WorkflowID: "primary",
+		},
+		bitriseModels.TriggerMapItemModel{
+			PullRequestSourceBranch: "*",
+			WorkflowID:              "primary",
+		},
+	}, model.TriggerMap)
 }

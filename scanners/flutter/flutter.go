@@ -193,7 +193,7 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch stri
 	configs := models.BitriseConfigMap{}
 
 	for _, proj := range scanner.projects {
-		config, err := generateConfig(repoAccess, proj)
+		config, err := generateConfig(proj, repoAccess, defaultBranch)
 		if err != nil {
 			return nil, err
 		}
@@ -210,7 +210,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	for i, proj := range defaultProjects {
 		proj.id = i
 
-		config, err := generateConfig(models.RepoAccessUnknown, proj)
+		config, err := generateConfig(proj, models.RepoAccessUnknown, "")
 		if err != nil {
 			return nil, err
 		}
@@ -243,8 +243,8 @@ func findProjectLocations(searchDir string) ([]string, error) {
 	return paths, nil
 }
 
-func generateConfig(repoAccess models.RepoAccess, proj project) (string, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+func generateConfig(proj project, repoAccess models.RepoAccess, defaultBranch string) (string, error) {
+	configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 
 	// Common steps to all workflows
 	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{RepoAccess: repoAccess})

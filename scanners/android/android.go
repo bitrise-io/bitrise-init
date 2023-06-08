@@ -172,7 +172,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 
 // Configs ...
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(repoAccess)
+	configBuilder := scanner.generateConfigBuilder(repoAccess, defaultBranch)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
@@ -191,7 +191,7 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch stri
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(models.RepoAccessUnknown)
+	configBuilder := scanner.generateConfigBuilder(models.RepoAccessUnknown, "")
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {

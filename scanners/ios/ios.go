@@ -63,7 +63,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
-	return GenerateConfig(XcodeProjectTypeIOS, scanner.ConfigDescriptors, repoAccess)
+	return GenerateConfig(XcodeProjectTypeIOS, scanner.ConfigDescriptors, repoAccess, defaultBranch)
 }
 
 // DefaultConfigs ...

@@ -24,12 +24,14 @@ const (
 
 // ConfigBuilderModel ...
 type ConfigBuilderModel struct {
+	defaultBranch      string
 	workflowBuilderMap map[WorkflowID]*workflowBuilderModel
 }
 
 // NewDefaultConfigBuilder ...
-func NewDefaultConfigBuilder() *ConfigBuilderModel {
+func NewDefaultConfigBuilder(defaultBranch string) *ConfigBuilderModel {
 	return &ConfigBuilderModel{
+		defaultBranch: defaultBranch,
 		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
 			PrimaryWorkflowID: newDefaultWorkflowBuilder(),
 		},
@@ -68,9 +70,13 @@ func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envma
 		workflows[string(workflowID)] = workflowBuilder.generate()
 	}
 
+	pushBranchPattern := "*"
+	if builder.defaultBranch != "" {
+		pushBranchPattern = builder.defaultBranch
+	}
 	triggerMap := []bitriseModels.TriggerMapItemModel{
 		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
+			PushBranch: pushBranchPattern,
 			WorkflowID: string(PrimaryWorkflowID),
 		},
 		bitriseModels.TriggerMapItemModel{

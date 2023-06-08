@@ -95,7 +95,7 @@ const CustomConfigName = "other-config"
 
 // CustomConfig ...
 func CustomConfig() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder("")
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		RepoAccess: models.RepoAccessUnknown,
 	})...)

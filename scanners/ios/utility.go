@@ -558,6 +558,7 @@ func GenerateDefaultOptions(projectType XcodeProjectType) models.OptionNode {
 func GenerateConfigBuilder(
 	projectType XcodeProjectType,
 	repoAccess models.RepoAccess,
+	defaultBranch string,
 	hasPodfile,
 	hasTest,
 	hasAppClip,
@@ -566,7 +567,7 @@ func GenerateConfigBuilder(
 	carthageCommand,
 	exportMethod string,
 ) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 
 	params := workflowSetupParams{
 		projectType:          projectType,
@@ -602,12 +603,13 @@ func RemoveDuplicatedConfigDescriptors(configDescriptors []ConfigDescriptor, pro
 	return descriptors
 }
 
-func GenerateConfig(projectType XcodeProjectType, configDescriptors []ConfigDescriptor, repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func GenerateConfig(projectType XcodeProjectType, configDescriptors []ConfigDescriptor, repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	bitriseDataMap := models.BitriseConfigMap{}
 	for _, descriptor := range configDescriptors {
 		configBuilder := GenerateConfigBuilder(
 			projectType,
 			repoAccess,
+			defaultBranch,
 			descriptor.HasPodfile,
 			descriptor.HasTest,
 			descriptor.HasAppClip,
@@ -636,6 +638,7 @@ func GenerateDefaultConfig(projectType XcodeProjectType) (models.BitriseConfigMa
 	configBuilder := GenerateConfigBuilder(
 		projectType,
 		models.RepoAccessUnknown,
+		"",
 		true,
 		true,
 		false,

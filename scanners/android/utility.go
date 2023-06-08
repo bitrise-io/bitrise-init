@@ -141,8 +141,8 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
-func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder()
+func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess, defaultBranch string) models.ConfigBuilderModel {
+	configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 
 	projectLocationEnv, gradlewPath, moduleEnv, variantEnv := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew", "$"+ModuleInputEnvKey, "$"+VariantInputEnvKey
 

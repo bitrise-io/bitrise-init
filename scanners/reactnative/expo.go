@@ -34,7 +34,7 @@ func (scanner *Scanner) expoOptions() models.OptionNode {
 }
 
 // expoConfigs implements ScannerInterface.Configs function for Expo based React Native projects.
-func (scanner *Scanner) expoConfigs(project project, repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
+func (scanner *Scanner) expoConfigs(project project, repoAccess models.RepoAccess, defaultBranch string) (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
 	if project.projectRelDir == "." {
@@ -49,7 +49,7 @@ func (scanner *Scanner) expoConfigs(project project, repoAccess models.RepoAcces
 		primaryDescription = expoPrimaryWorkflowNoTestsDescription
 	}
 
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder(defaultBranch)
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		RepoAccess: repoAccess,
@@ -108,7 +108,7 @@ func (scanner Scanner) expoDefaultConfigs() (models.BitriseConfigMap, error) {
 	configMap := models.BitriseConfigMap{}
 
 	// primary workflow
-	configBuilder := models.NewDefaultConfigBuilder()
+	configBuilder := models.NewDefaultConfigBuilder("")
 	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, expoPrimaryWorkflowDescription)
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		RepoAccess: models.RepoAccessUnknown,
