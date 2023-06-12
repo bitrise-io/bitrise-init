@@ -32,7 +32,7 @@ func Execute(t *testing.T, testCases []TestCase) {
 				GitClone(t, sampleAppDir, testCase.RepoURL)
 			}
 
-			_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+			_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat, testCase.Branch)
 			require.NoError(t, err)
 
 			scanResultPth := filepath.Join(sampleAppDir, "result.yml")

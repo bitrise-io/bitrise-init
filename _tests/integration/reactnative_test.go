@@ -46,21 +46,21 @@ func TestReactNative(t *testing.T) {
 		{
 			"joplin",
 			"https://github.com/bitrise-io/joplin.git",
-			"",
+			"dev",
 			sampleAppsReactNativeJoplinResultYML,
 			sampleAppsReactNativeJoplinVersions,
 		},
 		{
 			"sample-apps-react-native-ios-and-android",
 			simpleSample,
-			"",
+			"master",
 			sampleAppsReactNativeIosAndAndroidResultYML,
 			sampleAppsReactNativeIosAndAndroidVersions,
 		},
 		{
 			"sample-apps-react-native-subdir",
 			"https://github.com/bitrise-samples/sample-apps-react-native-subdir.git",
-			"",
+			"master",
 			sampleAppsReactNativeSubdirResultYML,
 			sampleAppsReactNativeSubdirVersions,
 		},
@@ -71,16 +71,18 @@ func TestReactNative(t *testing.T) {
 
 func TestNoTests(t *testing.T) {
 	testName := "sample-apps-react-native-ios-and-android-no-test"
+	defaultBranch := "master"
 	dir := setupSample(t, testName, simpleSample)
 
 	err := ioutil.WriteFile(filepath.Join(dir, "package.json"), []byte(noTestPackageJSON), 0600)
 	require.NoError(t, err)
 
-	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidNoTestResultYML, sampleAppsReactNativeIosAndAndroidNoTestVersions)
+	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidNoTestResultYML, sampleAppsReactNativeIosAndAndroidNoTestVersions, defaultBranch)
 }
 
 func TestYarn(t *testing.T) {
 	testName := "sample-apps-react-native-ios-and-android-yarn"
+	defaultBranch := "master"
 	dir := setupSample(t, testName, simpleSample)
 
 	yarnCommand := command.New("yarn", "install")
@@ -88,7 +90,7 @@ func TestYarn(t *testing.T) {
 	out, err := yarnCommand.RunAndReturnTrimmedCombinedOutput()
 	require.NoError(t, err, out)
 
-	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidYarnResultYML, sampleAppsReactNativeIosAndAndroidYarnVersions)
+	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidYarnResultYML, sampleAppsReactNativeIosAndAndroidYarnVersions, defaultBranch)
 }
 
 // Helpers
@@ -101,8 +103,8 @@ func setupSample(t *testing.T, name, repoURL string) string {
 	return sampleAppDir
 }
 
-func generateAndValidateResult(t *testing.T, name, dir, expectedResult string, expectedVersions []interface{}) {
-	_, err := scanner.GenerateAndWriteResults(dir, dir, output.YAMLFormat)
+func generateAndValidateResult(t *testing.T, name, dir, expectedResult string, expectedVersions []interface{}, defaultBranch string) {
+	_, err := scanner.GenerateAndWriteResults(dir, dir, output.YAMLFormat, defaultBranch)
 	require.NoError(t, err)
 
 	scanResultPth := filepath.Join(dir, "result.yml")
@@ -229,7 +231,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -408,7 +410,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -585,7 +587,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -757,7 +759,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -953,7 +955,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: dev
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

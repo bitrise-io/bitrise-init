@@ -14,14 +14,14 @@ func TestCordova(t *testing.T) {
 		{
 			"sample-apps-cordova-with-jasmine",
 			"https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git",
-			"",
+			"master",
 			sampleAppsCordovaWithJasmineResultYML,
 			sampleAppsCordovaWithJasmineVersions,
 		},
 		{
 			"sample-apps-cordova-with-karma-jasmine",
 			"https://github.com/bitrise-samples/sample-apps-cordova-with-karma-jasmine.git",
-			"",
+			"master",
 			sampleAppsCordovaWithKarmaJasmineResultYML,
 			sampleAppsCordovaWithKarmaJasmineVersions,
 		},
@@ -74,7 +74,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: cordova
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -153,7 +153,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: cordova
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

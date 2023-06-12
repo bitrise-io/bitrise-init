@@ -14,42 +14,42 @@ func TestIOS(t *testing.T) {
 		{
 			"ios-no-shared-schemes",
 			"https://github.com/bitrise-samples/ios-no-shared-schemes.git",
-			"",
+			"master",
 			iosNoSharedSchemesResultYML,
 			iosNoSharedSchemesVersions,
 		},
 		{
 			"ios-cocoapods-at-root",
 			"https://github.com/bitrise-samples/ios-cocoapods-at-root.git",
-			"",
+			"master",
 			iosCocoapodsAtRootResultYML,
 			iosCocoapodsAtRootVersions,
 		},
 		{
 			"sample-apps-ios-watchkit",
 			"https://github.com/bitrise-io/sample-apps-ios-watchkit.git",
-			"",
+			"master",
 			sampleAppsIosWatchkitResultYML,
 			sampleAppsIosWatchkitVersions,
 		},
 		{
 			"sample-apps-carthage",
 			"https://github.com/bitrise-samples/sample-apps-carthage.git",
-			"",
+			"master",
 			sampleAppsCarthageResultYML,
 			sampleAppsCarthageVersions,
 		},
 		{
 			"sample-apps-appclip",
 			"https://github.com/bitrise-io/sample-apps-ios-with-appclip.git",
-			"",
+			"main",
 			sampleAppClipResultYML,
 			sampleAppClipVersions,
 		},
 		{
 			"sample-apps-ios-swiftpm",
 			"https://github.com/bitrise-io/aci-xcode-spm-sample",
-			"",
+			"main",
 			sampleSPMResultYML,
 			sampleSPMVersions,
 		},
@@ -117,7 +117,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -248,7 +248,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -444,7 +444,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -490,7 +490,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -603,7 +603,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -762,7 +762,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: main
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -815,7 +815,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: main
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -861,7 +861,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: main
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -914,7 +914,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: main
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -1021,7 +1021,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: main
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

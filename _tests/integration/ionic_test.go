@@ -14,7 +14,7 @@ func TestIonic(t *testing.T) {
 		{
 			"ionic-2",
 			"https://github.com/bitrise-samples/ionic-2.git",
-			"",
+			"master",
 			ionic2ResultYML,
 			ionic2Versions,
 		},
@@ -68,7 +68,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ionic
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

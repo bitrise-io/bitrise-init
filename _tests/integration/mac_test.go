@@ -14,7 +14,7 @@ func TestMacOS(t *testing.T) {
 		{
 			"sample-apps-osx-10-11",
 			"https://github.com/bitrise-samples/sample-apps-osx-10-11.git",
-			"",
+			"master",
 			sampleAppsOSX1011ResultYML,
 			sampleAppsOSX1011Versions,
 		},
@@ -84,7 +84,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: macos
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

@@ -20,28 +20,28 @@ func TestAndroid(t *testing.T) {
 		{
 			"sample-apps-android-sdk22",
 			"https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
-			"",
+			"master",
 			sampleAppsAndroid22ResultYML,
 			sampleAppsAndroid22Versions,
 		},
 		{
 			"android-non-executable-gradlew",
 			"https://github.com/bitrise-samples/android-non-executable-gradlew.git",
-			"",
+			"master",
 			androidNonExecutableGradlewResultYML,
 			androidNonExecutableGradlewVersions,
 		},
 		{
 			"android-sdk22-subdir",
 			"https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
-			"",
+			"master",
 			sampleAppsAndroidSDK22SubdirResultYML,
 			sampleAppsAndroidSDK22SubdirVersions,
 		},
 		{
 			"android-gradle-kotlin-dsl",
 			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
-			"",
+			"master",
 			sampleAppsKotlinDSLResultYML,
 			sampleAppsAndroidSDK22SubdirVersions,
 		},
@@ -55,9 +55,11 @@ func TestMissingGradlewWrapper(t *testing.T) {
 	testName := "android-sdk22-no-gradlew"
 	sampleAppDir := filepath.Join(tmpDir, testName)
 	sampleAppURL := "https://github.com/bitrise-samples/android-sdk22-no-gradlew.git"
+	sampleAppDefaultBranch := "master"
+
 	helper.GitClone(t, sampleAppDir, sampleAppURL)
 
-	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat, sampleAppDefaultBranch)
 	require.EqualError(t, err, "No known platform detected")
 
 	scanResultPth := filepath.Join(sampleAppDir, "result.yml")
@@ -127,7 +129,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -277,7 +279,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -400,7 +402,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -503,7 +505,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

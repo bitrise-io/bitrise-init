@@ -14,14 +14,14 @@ func TestReactNativeExpo(t *testing.T) {
 		{
 			"managed-workflow-no-tests",
 			"https://github.com/bitrise-io/sample-apps-expo.git",
-			"",
+			"master",
 			managedWorkflowNoTestsResultsYML,
 			managedExpoVersions,
 		},
 		{
 			"managed-workflow-with-tests",
 			"https://github.com/bitrise-io/Bitrise-React-Native-Expo-Sample.git",
-			"",
+			"master",
 			managedWorkflowResultsYML,
 			managedExpo2Versions,
 		},
@@ -76,7 +76,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -160,7 +160,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -250,7 +250,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: react-native
       trigger_map:
-      - push_branch: '*'
+      - push_branch: bare
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

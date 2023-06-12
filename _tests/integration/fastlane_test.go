@@ -14,7 +14,7 @@ func TestFastlane(t *testing.T) {
 		{
 			"fastlane",
 			"https://github.com/bitrise-samples/fastlane.git",
-			"",
+			"master",
 			fastlaneResultYML,
 			fastlaneVersions,
 		},
@@ -115,7 +115,7 @@ configs:
         envs:
         - FASTLANE_XCODE_LIST_TIMEOUT: "120"
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -137,7 +137,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary

@@ -14,21 +14,21 @@ func TestFlutter(t *testing.T) {
 		{
 			"sample-apps-flutter-ios-android",
 			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android.git",
-			"",
+			"master",
 			flutterSampleAppResultYML,
 			flutterSampleAppVersions,
 		},
 		{
 			"sample-apps-flutter-ios-android-package",
 			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-package.git",
-			"",
+			"master",
 			flutterSamplePackageResultYML,
 			flutterSamplePackageVersions,
 		},
 		{
 			"sample-apps-flutter-ios-android-plugin",
 			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-plugin.git",
-			"",
+			"master",
 			flutterSamplePluginResultYML,
 			flutterSamplePluginVersions,
 		},
@@ -78,7 +78,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -167,7 +167,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -255,7 +255,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
@@ -308,7 +308,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       trigger_map:
-      - push_branch: '*'
+      - push_branch: master
         workflow: primary
       - pull_request_source_branch: '*'
         workflow: primary
