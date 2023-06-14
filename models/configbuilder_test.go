@@ -20,7 +20,7 @@ func TestConfigGenerateHaveProjectType(t *testing.T) {
 	require.Equal(t, "iOS", model.ProjectType)
 }
 
-func TestConfigGenerateHaveTriggerMap(t *testing.T) {
+func TestConfigDoesNotGenerateTriggerMap(t *testing.T) {
 	config := NewDefaultConfigBuilder()
 	config.AppendStepListItemsTo("primary", []bitriseModels.StepListItemModel{
 		{"step-id": stepmanModels.StepModel{}},
@@ -29,5 +29,5 @@ func TestConfigGenerateHaveTriggerMap(t *testing.T) {
 	model, err := config.Generate("iOS")
 
 	require.Nil(t, err)
-	require.Equal(t, 2, len(model.TriggerMap))
+	require.Nil(t, model.TriggerMap)
 }
