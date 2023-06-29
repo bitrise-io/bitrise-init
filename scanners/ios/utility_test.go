@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewConfigDescriptor(t *testing.T) {
-	descriptor := NewConfigDescriptor(false, "", false, false, true, "development", true)
+	descriptor := NewConfigDescriptor(false, "", false, false, true, false, "development", true)
 	require.Equal(t, false, descriptor.HasPodfile)
 	require.Equal(t, false, descriptor.HasTest)
 	require.Equal(t, false, descriptor.HasAppClip)
@@ -28,51 +28,51 @@ func TestConfigName(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, false, false, false, "development", false),
 			expectedConfigName: "ios-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "", false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "", false, false, false, false, "development", false),
 			expectedConfigName: "ios-pod-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, true, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, false, true, false, "development", false),
 			expectedConfigName: "ios-spm-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "bootsrap", false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "bootsrap", false, false, false, false, "development", false),
 			expectedConfigName: "ios-carthage-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", true, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", true, false, false, false, "development", false),
 			expectedConfigName: "ios-test-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, false, "development", true),
+			descriptor:         NewConfigDescriptor(false, "", false, false, false, false, "development", true),
 			expectedConfigName: "ios-missing-shared-schemes-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "bootstrap", false, false, false, false, "development", false),
 			expectedConfigName: "ios-pod-carthage-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, false, "development", false),
 			expectedConfigName: "ios-pod-carthage-test-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, "development", true),
+			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, false, "development", true),
 			expectedConfigName: "ios-pod-carthage-test-missing-shared-schemes-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, true, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "development", false),
 			expectedConfigName: "ios-app-clip-development-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, true, false, "ad-hoc", false),
+			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "ad-hoc", false),
 			expectedConfigName: "ios-app-clip-ad-hoc-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", true, true, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", true, true, false, false, "development", false),
 			expectedConfigName: "ios-test-app-clip-development-config",
 		},
 	}

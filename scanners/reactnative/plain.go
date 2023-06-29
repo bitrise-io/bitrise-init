@@ -71,7 +71,7 @@ func generateIOSOptions(result ios.DetectResult, hasAndroid, hasTests, hasYarnLo
 			schemeOption.AddOption(scheme.Name, exportMethodOption)
 
 			for _, exportMethod := range ios.IosExportMethods {
-				iosConfig := ios.NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, result.HasSPMDependencies, exportMethod, scheme.Missing)
+				iosConfig := ios.NewConfigDescriptor(project.IsPodWorkspace, project.CarthageCommand, scheme.HasXCTests, scheme.HasAppClip, result.HasSPMDependencies, project.IsSPMProject, exportMethod, scheme.Missing)
 				descriptor := configDescriptor{
 					hasIOS:          true,
 					hasAndroid:      hasAndroid,
