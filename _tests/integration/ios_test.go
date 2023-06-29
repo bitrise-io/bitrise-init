@@ -53,6 +53,13 @@ func TestIOS(t *testing.T) {
 			sampleSPMResultYML,
 			sampleSPMVersions,
 		},
+		{
+			"sample-spm-project",
+			"https://github.com/bitrise-io/sample-spm-project.git",
+			"",
+			sampleSPMProjectResultYML,
+			sampleSPMProjectVersions,
+		},
 	}
 
 	helper.Execute(t, testCases)
@@ -1025,3 +1032,65 @@ warnings:
 warnings_with_recommendations:
   ios: []
 `, sampleSPMVersions...)
+
+var sampleSPMProjectVersions = []interface{}{
+	models.FormatVersion,
+
+	// ios-spm-spm-project-test-config/primary
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreSPMVersion,
+	steps.XcodeTestVersion,
+	steps.CacheSaveSPMVersion,
+	steps.DeployToBitriseIoVersion,
+}
+var sampleSPMProjectResultYML = fmt.Sprintf(`options:
+  ios:
+    title: Project or Workspace path
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
+    env_key: BITRISE_PROJECT_PATH
+    type: selector
+    value_map:
+      Package.swift:
+        title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
+        env_key: BITRISE_SCHEME
+        type: selector
+        value_map:
+          CoolFeature-Package:
+            config: ios-spm-spm-project-test-config
+configs:
+  ios:
+    ios-spm-spm-project-test-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      workflows:
+        primary:
+          description: |
+            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
+
+            Next steps:
+            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-spm-cache@%s: {}
+          - xcode-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
+              - cache_level: none
+          - save-spm-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+warnings:
+  ios: []
+warnings_with_recommendations:
+  ios: []
+`, sampleSPMProjectVersions...)
