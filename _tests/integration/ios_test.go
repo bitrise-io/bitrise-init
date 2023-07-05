@@ -85,9 +85,9 @@ var iosNoSharedSchemesVersions = []interface{}{
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
@@ -211,9 +211,9 @@ var iosCocoapodsAtRootVersions = []interface{}{
 var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
@@ -334,9 +334,9 @@ var sampleAppsIosWatchkitVersions = []interface{}{
 var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
@@ -551,9 +551,9 @@ var sampleAppsCarthageVersions = []interface{}{
 var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
@@ -705,9 +705,9 @@ var sampleAppClipVersions = []interface{}{
 var sampleAppClipResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
@@ -944,9 +944,9 @@ var sampleSPMVersions = []interface{}{
 var sampleSPMResultYML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
