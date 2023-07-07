@@ -28,11 +28,16 @@ type spmTarget struct {
 	Type string `json:"type"`
 }
 
+// We do not need the properties because we only the check the dependency existence.
+type spmDependency struct {
+}
+
 type spmProject struct {
-	Name      string        `json:"name"`
-	Platforms []spmPlatform `json:"platforms"`
-	Products  []spmProduct  `json:"products"`
-	Targets   []spmTarget   `json:"targets"`
+	Name         string          `json:"name"`
+	Platforms    []spmPlatform   `json:"platforms"`
+	Products     []spmProduct    `json:"products"`
+	Targets      []spmTarget     `json:"targets"`
+	Dependencies []spmDependency `json:"dependencies"`
 }
 
 func ParseSPMProject(projectType XcodeProjectType, searchDir string) (DetectResult, error) {
@@ -74,9 +79,10 @@ func ParseSPMProject(projectType XcodeProjectType, searchDir string) (DetectResu
 		Warnings:        nil,
 		Schemes:         []Scheme{scheme},
 	}
+	hasDependencies := 0 < len(proj.Dependencies)
 	result := DetectResult{
 		Projects:           []Project{project},
-		HasSPMDependencies: true,
+		HasSPMDependencies: hasDependencies,
 		Warnings:           nil,
 	}
 
@@ -114,13 +120,13 @@ func supportsProjectType(projectType XcodeProjectType, platforms []spmPlatform) 
 }
 
 func schemeName(project spmProject) string {
-	// SPM has the following behaviour. If there is only a single product defined then the package name will be used as
+	// SPM has the following behavior. If there is only a single product defined, then the package name will be used as
 	// the scheme name and there will be only one scheme. This scheme will contain all the test targets too.
 	//
-	// But if there are multiple products then every product will have a dedicated scheme with the same name as the
+	// But if there are multiple products, then every product will have a dedicated scheme with the same name as the
 	// product is called. It will also create an additional scheme which will have the same name as the package plus an
 	// additional `-Package` suffix. Only this package level scheme will contain all the tests and the rest will not.
-	// Based on my testing this is the only valuable scheme which we should be looking for.
+	// Based on my testing, this is the only valuable scheme which we should be looking for.
 	if len(project.Products) == 1 {
 		return project.Name
 	}

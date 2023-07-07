@@ -534,7 +534,7 @@ func GenerateOptions(projectType XcodeProjectType, result DetectResult) (models.
 					scheme.HasXCTests,
 					scheme.HasAppClip,
 					result.HasSPMDependencies,
-					project.IsSPMProject,
+					false,
 					exportMethod, scheme.Missing)
 				configDescriptors = append(configDescriptors, configDescriptor)
 				configOption := models.NewConfigOption(configDescriptor.ConfigName(projectType), iconIDs)

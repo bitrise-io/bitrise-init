@@ -1036,12 +1036,10 @@ warnings_with_recommendations:
 var sampleSPMProjectVersions = []interface{}{
 	models.FormatVersion,
 
-	// ios-spm-spm-project-test-config/primary
+	// ios-spm-project-test-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.CacheRestoreSPMVersion,
 	steps.XcodeTestVersion,
-	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
 }
 var sampleSPMProjectResultYML = fmt.Sprintf(`options:
@@ -1063,10 +1061,10 @@ var sampleSPMProjectResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           CoolFeature-Package:
-            config: ios-spm-spm-project-test-config
+            config: ios-spm-project-test-config
 configs:
   ios:
-    ios-spm-spm-project-test-config: |
+    ios-spm-project-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
@@ -1080,14 +1078,12 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - restore-spm-cache@%s: {}
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - test_repetition_mode: retry_on_failure
               - cache_level: none
-          - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
