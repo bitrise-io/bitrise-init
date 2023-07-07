@@ -57,8 +57,8 @@ func TestIOS(t *testing.T) {
 			"samples-ios-swiftui-bitrise-todos",
 			"https://github.com/bitrise-io/samples-ios-swiftui-bitrise-todos",
 			"",
-			swiftuiXcode_14_3_ResultYAML,
-			swiftuiXcode_14_3_Versions,
+			appleMultiplatformAppResultYAML,
+			appleMultiplatformAppVersions,
 		},
 	}
 
@@ -1034,7 +1034,7 @@ warnings_with_recommendations:
   ios: []
 `, sampleSPMVersions...)
 
-var swiftuiXcode_14_3_Versions = []interface{}{
+var appleMultiplatformAppVersions = []interface{}{
 	// iOS
 	models.FormatVersion,
 
@@ -1073,7 +1073,7 @@ var swiftuiXcode_14_3_Versions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 }
 
-var swiftuiXcode_14_3_ResultYAML = fmt.Sprintf(`options:
+var appleMultiplatformAppResultYAML = fmt.Sprintf(`options:
   ios:
     title: Project or Workspace path
     summary: The location of your Xcode project or Xcode workspace files, stored as
@@ -1264,4 +1264,4 @@ warnings_with_recommendations:
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
           Automatically generated schemes may differ from the ones in your project.
-          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`, swiftuiXcode_14_3_Versions...)
+          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`, appleMultiplatformAppVersions...)
