@@ -10,7 +10,7 @@ require (
 	github.com/bitrise-io/go-steputils v1.0.1
 	github.com/bitrise-io/go-utils v1.0.1
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.18
-	github.com/bitrise-io/go-xcode v1.0.6
+	github.com/bitrise-io/go-xcode v1.0.12
 	github.com/bitrise-io/goinp v0.0.0-20210504152833-8559b0680ab1
 	github.com/bitrise-io/stepman v0.0.0-20210517135458-203f7a48d37a
 	github.com/google/go-cmp v0.5.6
