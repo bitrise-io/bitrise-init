@@ -38,7 +38,7 @@ github.com/bitrise-io/go-utils/sliceutil
 ## explicit; go 1.17
 github.com/bitrise-io/go-utils/v2/fileutil
 github.com/bitrise-io/go-utils/v2/pathutil
-# github.com/bitrise-io/go-xcode v1.0.6
+# github.com/bitrise-io/go-xcode v1.0.12
 ## explicit; go 1.15
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/xcodebuild
