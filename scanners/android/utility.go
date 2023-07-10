@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/steps"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -15,35 +13,6 @@ type fileGroups [][]string
 
 var pathUtilIsPathExists = pathutil.IsPathExists
 var filePathWalk = filepath.Walk
-
-// Constants ...
-const (
-	ScannerName       = "android"
-	ConfigName        = "android-config"
-	DefaultConfigName = "default-android-config"
-
-	ProjectLocationInputKey     = "project_location"
-	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
-	ProjectLocationInputTitle   = "The root directory of an Android project"
-	ProjectLocationInputSummary = "The root directory of your Android project, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
-
-	ModuleBuildGradlePathInputKey = "build_gradle_path"
-
-	VariantInputKey     = "variant"
-	VariantInputEnvKey  = "VARIANT"
-	VariantInputTitle   = "Variant"
-	VariantInputSummary = "Your Android build variant. You can add variants at any time, as well as further configure your existing variants later."
-
-	ModuleInputKey     = "module"
-	ModuleInputEnvKey  = "MODULE"
-	ModuleInputTitle   = "Module"
-	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
-
-	GradlewPathInputKey = "gradlew_path"
-
-	CacheLevelInputKey = "cache_level"
-	CacheLevelNone     = "none"
-)
 
 // Project is an Android project on the filesystem
 type Project struct {
@@ -139,88 +108,4 @@ Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
 that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>`)
 	}
 	return nil
-}
-
-func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess) models.ConfigBuilderModel {
-	configBuilder := models.NewDefaultConfigBuilder()
-
-	projectLocationEnv, gradlewPath, moduleEnv, variantEnv := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew", "$"+ModuleInputEnvKey, "$"+VariantInputEnvKey
-
-	//-- primary
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
-		RepoAccess: repoAccess})...)
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreGradleCache())
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
-	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.AndroidUnitTestStepListItem(
-		envmanModels.EnvironmentItemModel{
-			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			VariantInputKey: variantEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			CacheLevelInputKey: CacheLevelNone,
-		},
-	))
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveGradleCache())
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultDeployStepList()...)
-	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
-
-	//-- deploy
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
-		RepoAccess: repoAccess,
-	})...)
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
-		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
-		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(
-		envmanModels.EnvironmentItemModel{
-			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			VariantInputKey: variantEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			CacheLevelInputKey: CacheLevelNone,
-		},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidUnitTestStepListItem(
-		envmanModels.EnvironmentItemModel{
-			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			VariantInputKey: variantEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			CacheLevelInputKey: CacheLevelNone,
-		},
-	))
-
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidBuildStepListItem(
-		envmanModels.EnvironmentItemModel{
-			ProjectLocationInputKey: projectLocationEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			ModuleInputKey: moduleEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			VariantInputKey: variantEnv,
-		},
-		envmanModels.EnvironmentItemModel{
-			CacheLevelInputKey: CacheLevelNone,
-		},
-	))
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.SignAPKStepListItem())
-	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.DefaultDeployStepList()...)
-
-	configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
-
-	return *configBuilder
 }

@@ -56,6 +56,16 @@ func (builder *ConfigBuilderModel) SetWorkflowDescriptionTo(workflow WorkflowID,
 	workflowBuilder.Description = description
 }
 
+// SetWorkflowSummaryTo ...
+func (builder *ConfigBuilderModel) SetWorkflowSummaryTo(workflow WorkflowID, summary string) {
+	workflowBuilder := builder.workflowBuilderMap[workflow]
+	if workflowBuilder == nil {
+		workflowBuilder = newDefaultWorkflowBuilder()
+		builder.workflowBuilderMap[workflow] = workflowBuilder
+	}
+	workflowBuilder.Summary = summary
+}
+
 // Generate ...
 func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
 	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
