@@ -28,7 +28,7 @@ type spmTarget struct {
 	Type string `json:"type"`
 }
 
-// We do not need the properties because we only the check the dependency existence.
+// We do not need any of the properties because we only check for the existence of the dependencies.
 type spmDependency struct {
 }
 
