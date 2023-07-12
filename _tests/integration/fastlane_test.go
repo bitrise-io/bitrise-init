@@ -73,9 +73,9 @@ var fastlaneResultYML = fmt.Sprintf(`options:
                 config: fastlane-config_ios
   ios:
     title: Project or Workspace path
-    summary: The location of your Xcode project or Xcode workspace files, stored as
-      an Environment Variable. In your Workflows, you can specify paths relative to
-      this path.
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
     env_key: BITRISE_PROJECT_PATH
     type: selector
     value_map:
