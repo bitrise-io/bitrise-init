@@ -18,9 +18,10 @@ var filePathWalk = filepath.Walk
 
 // Constants ...
 const (
-	ScannerName       = "android"
-	ConfigName        = "android-config"
-	DefaultConfigName = "default-android-config"
+	ScannerName            = "android"
+	ConfigName             = "android-config"
+	ConfigNameKotlinScript = "android-config-kts"
+	DefaultConfigName      = "default-android-config"
 
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
@@ -47,9 +48,10 @@ const (
 
 // Project is an Android project on the filesystem
 type Project struct {
-	RelPath  string
-	Icons    models.Icons
-	Warnings models.Warnings
+	RelPath               string
+	UsesKotlinBuildScript bool
+	Icons                 models.Icons
+	Warnings              models.Warnings
 }
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
@@ -141,7 +143,7 @@ that the right Gradle version is installed and used for the build. More info/gui
 	return nil
 }
 
-func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess) models.ConfigBuilderModel {
+func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess, useKotlinBuildScript bool) models.ConfigBuilderModel {
 	configBuilder := models.NewDefaultConfigBuilder()
 
 	projectLocationEnv, gradlewPath, moduleEnv, variantEnv := "$"+ProjectLocationInputEnvKey, "$"+ProjectLocationInputEnvKey+"/gradlew", "$"+ModuleInputEnvKey, "$"+VariantInputEnvKey
@@ -176,8 +178,13 @@ func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess) mode
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
 
+	basePath := filepath.Join(projectLocationEnv, moduleEnv)
+	path := filepath.Join(basePath, "build.gradle")
+	if useKotlinBuildScript {
+		path = filepath.Join(basePath, "build.gradle.kts")
+	}
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
-		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: filepath.Join(projectLocationEnv, moduleEnv, "build.gradle")},
+		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: path},
 	))
 
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.AndroidLintStepListItem(

@@ -2,6 +2,7 @@ package android
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -9,6 +10,11 @@ import (
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/go-utils/log"
+)
+
+const (
+	gradleKotlinBuildFile    = "build.gradle.kts"
+	gradleKotlinSettingsFile = "settings.gradle.kts"
 )
 
 // Scanner ...
@@ -42,8 +48,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 func detect(searchDir string) ([]Project, error) {
 	projectFiles := fileGroups{
-		{"build.gradle", "build.gradle.kts"},
-		{"settings.gradle", "settings.gradle.kts"},
+		{"build.gradle", gradleKotlinBuildFile},
+		{"settings.gradle", gradleKotlinSettingsFile},
 	}
 	skipDirs := []string{".git", "CordovaLib", "node_modules"}
 
@@ -115,10 +121,12 @@ func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
 		}
 
+		kotlinBuildScriptBased := usesKotlinBuildScripts(projectRoot)
 		projects = append(projects, Project{
-			RelPath:  relProjectRoot,
-			Icons:    icons,
-			Warnings: warnings,
+			RelPath:               relProjectRoot,
+			UsesKotlinBuildScript: kotlinBuildScriptBased,
+			Icons:                 icons,
+			Warnings:              warnings,
 		})
 	}
 
@@ -127,6 +135,15 @@ func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 	}
 
 	return projects, nil
+}
+
+func usesKotlinBuildScripts(projectRoot string) bool {
+	return fileExists(filepath.Join(projectRoot, gradleKotlinBuildFile)) && fileExists(filepath.Join(projectRoot, gradleKotlinSettingsFile))
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }
 
 // Options ...
@@ -144,7 +161,11 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 			iconIDs[i] = icon.Filename
 		}
 
-		configOption := models.NewConfigOption(ConfigName, iconIDs)
+		name := ConfigName
+		if project.UsesKotlinBuildScript {
+			name = ConfigNameKotlinScript
+		}
+		configOption := models.NewConfigOption(name, iconIDs)
 		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
@@ -172,26 +193,36 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 
 // Configs ...
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(repoAccess)
+	bitriseDataMap := models.BitriseConfigMap{}
+	params := []struct {
+		name            string
+		useKotlinScript bool
+	}{
+		{name: ConfigName, useKotlinScript: false},
+		{name: ConfigNameKotlinScript, useKotlinScript: true},
+	}
+	for _, param := range params {
+		configBuilder := scanner.generateConfigBuilder(repoAccess, param.useKotlinScript)
 
-	config, err := configBuilder.Generate(ScannerName)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
+		config, err := configBuilder.Generate(ScannerName)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap[param.name] = string(data)
 	}
 
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	return models.BitriseConfigMap{
-		ConfigName: string(data),
-	}, nil
+	return bitriseDataMap, nil
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(models.RepoAccessUnknown)
+	configBuilder := scanner.generateConfigBuilder(models.RepoAccessUnknown, false)
 
 	config, err := configBuilder.Generate(ScannerName)
 	if err != nil {
