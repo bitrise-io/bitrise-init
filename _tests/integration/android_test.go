@@ -43,7 +43,7 @@ func TestAndroid(t *testing.T) {
 			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
 			"",
 			sampleAppsKotlinDSLResultYML,
-			sampleAppsAndroidSDK22SubdirVersions,
+			sampleAppsKotlinDSLVersions,
 		},
 	}
 
@@ -72,26 +72,6 @@ func TestMissingGradlewWrapper(t *testing.T) {
 
 var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	// android-config
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
-	steps.AndroidLintVersion,
-	steps.AndroidUnitTestVersion,
-	steps.AndroidBuildVersion,
-	steps.SignAPKVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CacheRestoreGradleVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.AndroidUnitTestVersion,
-	steps.CacheSaveGradleVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// android-config-kts
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -203,66 +183,6 @@ configs:
               - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    android-config-kts: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: android
-      workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - change-android-versioncode-and-versionname@%s:
-              inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
-          - android-lint@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-build@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $VARIANT
-              - cache_level: none
-          - sign-apk@%s:
-              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - restore-gradle-cache@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - save-gradle-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
 warnings_with_recommendations:
@@ -298,26 +218,6 @@ warnings_with_recommendations:
 
 var sampleAppsAndroid22Versions = []interface{}{
 	// android-config
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
-	steps.AndroidLintVersion,
-	steps.AndroidUnitTestVersion,
-	steps.AndroidBuildVersion,
-	steps.SignAPKVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CacheRestoreGradleVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.AndroidUnitTestVersion,
-	steps.CacheSaveGradleVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// android-config-kts
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -429,66 +329,6 @@ configs:
               - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    android-config-kts: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: android
-      workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - change-android-versioncode-and-versionname@%s:
-              inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
-          - android-lint@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-build@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $VARIANT
-              - cache_level: none
-          - sign-apk@%s:
-              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - restore-gradle-cache@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - save-gradle-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
 warnings_with_recommendations:
@@ -497,26 +337,6 @@ warnings_with_recommendations:
 
 var androidNonExecutableGradlewVersions = []interface{}{
 	// android-config
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
-	steps.AndroidLintVersion,
-	steps.AndroidUnitTestVersion,
-	steps.AndroidBuildVersion,
-	steps.SignAPKVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CacheRestoreGradleVersion,
-	steps.InstallMissingAndroidToolsVersion,
-	steps.AndroidUnitTestVersion,
-	steps.CacheSaveGradleVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// android-config-kts
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -628,71 +448,33 @@ configs:
               - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    android-config-kts: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: android
-      workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - change-android-versioncode-and-versionname@%s:
-              inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
-          - android-lint@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-build@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $VARIANT
-              - cache_level: none
-          - sign-apk@%s:
-              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - restore-gradle-cache@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - save-gradle-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
 warnings:
   android: []
 warnings_with_recommendations:
   android: []
 `, androidNonExecutableGradlewVersions...)
+
+var sampleAppsKotlinDSLVersions = []interface{}{
+	// android-config-kts
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AndroidUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+}
 
 var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
   android:
@@ -726,66 +508,6 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
                 - 3a50cbe24812ec6ef995f7142267bf67059d3e73e6b042873043b00354dbfde0.png
 configs:
   android:
-    android-config: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: android
-      workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - change-android-versioncode-and-versionname@%s:
-              inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
-          - android-lint@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - android-build@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - module: $MODULE
-              - variant: $VARIANT
-              - cache_level: none
-          - sign-apk@%s:
-              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
-          steps:
-          - activate-ssh-key@%s: {}
-          - git-clone@%s: {}
-          - restore-gradle-cache@%s: {}
-          - install-missing-android-tools@%s:
-              inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-unit-test@%s:
-              inputs:
-              - project_location: $PROJECT_LOCATION
-              - variant: $VARIANT
-              - cache_level: none
-          - save-gradle-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
     android-config-kts: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
@@ -851,4 +573,4 @@ warnings:
 warnings_with_recommendations:
   android: []
 
-`, sampleAppsAndroidSDK22SubdirVersions...)
+`, sampleAppsKotlinDSLVersions...)

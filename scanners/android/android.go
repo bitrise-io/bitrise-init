@@ -194,13 +194,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 // Configs ...
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
 	bitriseDataMap := models.BitriseConfigMap{}
-	params := []struct {
-		name            string
-		useKotlinScript bool
-	}{
-		{name: ConfigName, useKotlinScript: false},
-		{name: ConfigNameKotlinScript, useKotlinScript: true},
-	}
+	params := configBuildingParameters(scanner.Projects)
 	for _, param := range params {
 		configBuilder := scanner.generateConfigBuilder(repoAccess, param.useKotlinScript)
 
@@ -218,6 +212,39 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseCon
 	}
 
 	return bitriseDataMap, nil
+}
+
+type configBuildingParams struct {
+	name            string
+	useKotlinScript bool
+}
+
+func configBuildingParameters(projects []Project) []configBuildingParams {
+	regularProjectCount := 0
+	kotlinBuildScriptProjectCount := 0
+
+	for _, project := range projects {
+		if project.UsesKotlinBuildScript {
+			kotlinBuildScriptProjectCount += 1
+		} else {
+			regularProjectCount += 1
+		}
+	}
+
+	var params []configBuildingParams
+	if 0 < regularProjectCount {
+		params = append(params, configBuildingParams{
+			name:            ConfigName,
+			useKotlinScript: false,
+		})
+	}
+	if 0 < kotlinBuildScriptProjectCount {
+		params = append(params, configBuildingParams{
+			name:            ConfigNameKotlinScript,
+			useKotlinScript: true,
+		})
+	}
+	return params
 }
 
 // DefaultConfigs ...
