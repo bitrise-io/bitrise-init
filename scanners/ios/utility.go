@@ -614,7 +614,7 @@ func GenerateConfigBuilder(
 		exportMethod:         exportMethod,
 	}
 
-	createPrimaryWorkflow(params)
+	createTestWorkflow(params)
 
 	if !isSPMProject {
 		createDeployWorkflow(params)

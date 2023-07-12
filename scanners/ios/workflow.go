@@ -29,7 +29,7 @@ const (
 
 	deployWorkflowID                  = "archive_and_export_app"
 	deployWorkflowWithTestsSummary    = "Run your Xcode tests and create an IPA file to install your app on a device or share it with your team."
-	deployWorkflowWithoutTestsSummary = "Create an IPA file to install your app on a device or share it with your team. "
+	deployWorkflowWithoutTestsSummary = "Create an IPA file to install your app on a device or share it with your team."
 	deployWorkflowDescription         = `The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
 
 For testing the *retry_on_failure* test repetition mode is enabled.
@@ -53,7 +53,7 @@ type workflowSetupParams struct {
 	exportMethod         string
 }
 
-func createPrimaryWorkflow(params workflowSetupParams) {
+func createTestWorkflow(params workflowSetupParams) {
 	var id string
 	var summary string
 	var description string
