@@ -28,9 +28,7 @@ type ConfigBuilderModel struct {
 // NewDefaultConfigBuilder ...
 func NewDefaultConfigBuilder() *ConfigBuilderModel {
 	return &ConfigBuilderModel{
-		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{
-			PrimaryWorkflowID: newDefaultWorkflowBuilder(),
-		},
+		workflowBuilderMap: map[WorkflowID]*workflowBuilderModel{},
 	}
 }
 

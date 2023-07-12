@@ -21,11 +21,11 @@ const (
 
 	testWorkflowID          = "run_tests"
 	testWorkflowSummary     = "Run your Xcode tests and get the test report."
-	testWorkflowDescription = "The workflow will first securely clone your Git repository, cache and install your project’s dependencies if any, run your Xcode tests and save the test results."
+	testWorkflowDescription = "The workflow will first clone your Git repository, cache and install your project’s dependencies if any, run your Xcode tests and save the test results."
 
 	buildWorkflowID          = "build"
 	buildWorkflowSummary     = "Build your Xcode project."
-	buildWorkflowDescription = "The workflow will first securely clone your Git repository, cache and install your project’s dependencies if any and build your project."
+	buildWorkflowDescription = "The workflow will first clone your Git repository, cache and install your project’s dependencies if any and build your project."
 
 	// deploy workflow
 	deployWorkflowID = "deploy"
@@ -33,10 +33,10 @@ const (
 	archiveAndExportWorkflowID = "archive_and_export_app"
 
 	archiveAndExportWorkflowWithTestsSummary     = "Run your Xcode tests and create an IPA file to install your app on a device or share it with your team."
-	archiveAndExportWorkflowWithTestsDescription = "The workflow will first securely clone your Git repository, cache and install your project’s dependencies if any, run your Xcode tests, export an IPA file from the project and save it."
+	archiveAndExportWorkflowWithTestsDescription = "The workflow will first clone your Git repository, cache and install your project’s dependencies if any, run your Xcode tests, export an IPA file from the project and save it."
 
 	archiveAndExportWorkflowWithoutTestsSummary     = "Create an IPA file to install your app on a device or share it with your team."
-	archiveAndExportWorkflowWithoutTestsDescription = "The workflow will first securely clone your Git repository, cache and install your project’s dependencies if any, export an IPA file from the project and save it."
+	archiveAndExportWorkflowWithoutTestsDescription = "The workflow will first clone your Git repository, cache and install your project’s dependencies if any, export an IPA file from the project and save it."
 )
 
 type workflowSetupParams struct {

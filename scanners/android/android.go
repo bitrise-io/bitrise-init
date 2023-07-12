@@ -20,20 +20,11 @@ const (
 
 	testsWorkflowID         = "run_tests"
 	testsWorkflowSummary    = "Run your Android unit tests and get the test report."
-	testWorkflowDescription = `Runs tests.
-
-Next steps:
-- Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
-`
+	testWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android unit tests and save the test report."
 
 	buildWorkflowID          = "build_apk"
 	buildWorkflowSummary     = "Run your Android unit tests and create an APK file to install your app on a device or share it with your team."
-	buildWorkflowDescription = `Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-Next steps:
-- Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-- [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
-`
+	buildWorkflowDescription = "The workflow will first clone your Git repository, install Android tools, set the project’s version code based on the build number, run Android lint and unit tests, build the project’s APK file and save it."
 
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
