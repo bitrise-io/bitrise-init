@@ -1282,6 +1282,15 @@ var sampleSPMProjectVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// macOS
+	models.FormatVersion,
+
+	// macos-spm-project-test-config
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeTestMacVersion,
+	steps.DeployToBitriseIoVersion,
 }
 var sampleSPMProjectResultYML = fmt.Sprintf(`options:
   ios:
@@ -1303,6 +1312,25 @@ var sampleSPMProjectResultYML = fmt.Sprintf(`options:
         value_map:
           CoolFeature-Package:
             config: ios-spm-project-test-config
+  macos:
+    title: Project or Workspace path
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
+    env_key: BITRISE_PROJECT_PATH
+    type: selector
+    value_map:
+      Package.swift:
+        title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
+        env_key: BITRISE_SCHEME
+        type: selector
+        value_map:
+          CoolFeature-Package:
+            config: macos-spm-project-test-config
 configs:
   ios:
     ios-spm-project-test-config: |
@@ -1326,8 +1354,25 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+  macos:
+    macos-spm-project-test-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: macos
+      workflows:
+        primary:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-test-mac@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   ios: []
+  macos: []
 warnings_with_recommendations:
   ios: []
+  macos: []
  `, sampleSPMProjectVersions...)
