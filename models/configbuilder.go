@@ -1,8 +1,6 @@
 package models
 
 import (
-	"errors"
-
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 )
@@ -68,11 +66,6 @@ func (builder *ConfigBuilderModel) SetWorkflowSummaryTo(workflow WorkflowID, sum
 
 // Generate ...
 func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
-	primaryWorkflowBuilder, ok := builder.workflowBuilderMap[PrimaryWorkflowID]
-	if !ok || primaryWorkflowBuilder == nil || len(primaryWorkflowBuilder.Steps) == 0 {
-		return bitriseModels.BitriseDataModel{}, errors.New("primary workflow not defined")
-	}
-
 	workflows := map[string]bitriseModels.WorkflowModel{}
 	for workflowID, workflowBuilder := range builder.workflowBuilderMap {
 		workflows[string(workflowID)] = workflowBuilder.generate()
