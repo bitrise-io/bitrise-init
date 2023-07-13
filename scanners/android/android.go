@@ -8,7 +8,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/scanner"
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
 )
 
@@ -138,7 +138,7 @@ func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 }
 
 func usesKotlinBuildScripts(projectRoot string) bool {
-	return scanner.FileExists(filepath.Join(projectRoot, gradleKotlinBuildFile)) && scanner.FileExists(filepath.Join(projectRoot, gradleKotlinSettingsFile))
+	return utility.FileExists(filepath.Join(projectRoot, gradleKotlinBuildFile)) && utility.FileExists(filepath.Join(projectRoot, gradleKotlinSettingsFile))
 }
 
 // Options ...

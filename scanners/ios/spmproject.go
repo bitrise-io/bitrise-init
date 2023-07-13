@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"path/filepath"
 
-	"github.com/bitrise-io/bitrise-init/scanner"
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/command"
 )
 
@@ -43,7 +43,7 @@ type spmProject struct {
 
 func ParseSPMProject(projectType XcodeProjectType, searchDir string) (DetectResult, error) {
 	packagePath := filepath.Join(searchDir, spmProjectFile)
-	if !scanner.FileExists(packagePath) {
+	if !utility.FileExists(packagePath) {
 		return DetectResult{}, nil
 	}
 
