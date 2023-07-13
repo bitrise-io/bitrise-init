@@ -1,16 +1,7 @@
 <!--
-  Thanks for contributing to the Bitrise CLI!
+  Thanks for contributing to the Project Scanner Core package!
   Please fill this template with the details of your change.
 -->
-
-### Checklist
-<!--
-  Put an `x` in the boxes that apply. You can also fill these out after
-  creating the PR. This is simply a reminder of what we are going to look
-  for before merging your code.
--->
-- [ ] I've read and followed the [Contribution Guidelines](https://github.com/bitrise-io/bitrise/blob/master/.github/CONTRIBUTING.md)
-- [ ] `README.md` is updated with the changes (if needed)
 
 ### Version
 <!-- Leave this untouched if you don't know, we'll help -->
