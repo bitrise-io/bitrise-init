@@ -52,8 +52,8 @@ type workflowSetupParams struct {
 	exportMethod         string
 }
 
-func createTestWorkflow(params workflowSetupParams) {
-	id, summary, description := testWorkflowIDSummaryAndDescription(params.projectType, params.hasTests)
+func createVerificationWorkflow(params workflowSetupParams) {
+	id, summary, description := verificationWorkflowIDSummaryAndDescription(params.projectType, params.hasTests)
 
 	addSharedSetupSteps(models.WorkflowID(id), params, false, true)
 
@@ -84,7 +84,7 @@ func createDeployWorkflow(params workflowSetupParams) {
 	addDescription(models.WorkflowID(id), params.configBuilder, description)
 }
 
-func testWorkflowIDSummaryAndDescription(projectType XcodeProjectType, hasTests bool) (string, string, string) {
+func verificationWorkflowIDSummaryAndDescription(projectType XcodeProjectType, hasTests bool) (string, string, string) {
 	var id string
 	var summary string
 	var description string
