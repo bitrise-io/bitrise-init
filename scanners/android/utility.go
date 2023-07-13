@@ -2,10 +2,14 @@ package android
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/bitrise-io/bitrise-init/analytics"
+
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
@@ -19,6 +23,95 @@ type Project struct {
 	RelPath  string
 	Icons    models.Icons
 	Warnings models.Warnings
+}
+
+func detect(searchDir string) ([]Project, error) {
+	projectFiles := fileGroups{
+		{"build.gradle", "build.gradle.kts"},
+		{"settings.gradle", "settings.gradle.kts"},
+	}
+	skipDirs := []string{".git", "CordovaLib", "node_modules"}
+
+	log.TInfof("Searching for android files")
+
+	projectRoots, err := walkMultipleFileGroups(searchDir, projectFiles, skipDirs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search for build.gradle files, error: %s", err)
+	}
+
+	log.TPrintf("%d android files detected", len(projectRoots))
+	for _, file := range projectRoots {
+		log.TPrintf("- %s", file)
+	}
+
+	if len(projectRoots) == 0 {
+		return nil, nil
+	}
+	log.TSuccessf("Platform detected")
+
+	projects, err := parseProjects(searchDir, projectRoots)
+	if err != nil {
+		return nil, err
+	}
+
+	return projects, nil
+}
+
+func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
+	var (
+		lastErr  error
+		projects []Project
+	)
+
+	for _, projectRoot := range projectRoots {
+		var warnings models.Warnings
+
+		log.TInfof("Investigating Android project: %s", projectRoot)
+
+		exists, err := containsLocalProperties(projectRoot)
+		if err != nil {
+			lastErr = err
+			log.TWarnf("%s", err)
+
+			continue
+		}
+		if exists {
+			containsLocalPropertiesWarning := fmt.Sprintf("the local.properties file should NOT be checked into Version Control Systems, as it contains information specific to your local configuration, the location of the file is: %s", filepath.Join(projectRoot, "local.properties"))
+			warnings = []string{containsLocalPropertiesWarning}
+		}
+
+		if err := checkGradlew(projectRoot); err != nil {
+			lastErr = err
+			log.TWarnf("%s", err)
+
+			continue
+		}
+
+		relProjectRoot, err := filepath.Rel(searchDir, projectRoot)
+		if err != nil {
+			lastErr = err
+			log.TWarnf("%s", err)
+
+			continue
+		}
+
+		icons, err := LookupIcons(projectRoot, searchDir)
+		if err != nil {
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+		}
+
+		projects = append(projects, Project{
+			RelPath:  relProjectRoot,
+			Icons:    icons,
+			Warnings: warnings,
+		})
+	}
+
+	if len(projects) == 0 {
+		return []Project{}, lastErr
+	}
+
+	return projects, nil
 }
 
 func walk(src string, fn func(path string, info os.FileInfo) error) error {
