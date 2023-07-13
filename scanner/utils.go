@@ -3,6 +3,7 @@ package scanner
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -100,6 +101,15 @@ func askForOptionValue(option models.OptionNode) (string, string, error) {
 	}
 
 	return "", "", fmt.Errorf("invalid input type")
+}
+
+// FileExists ...
+func FileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
 
 // AskForOptions ...

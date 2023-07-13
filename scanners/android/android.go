@@ -2,13 +2,13 @@ package android
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/go-utils/log"
 )
 
@@ -138,12 +138,7 @@ func parseProjects(searchDir string, projectRoots []string) ([]Project, error) {
 }
 
 func usesKotlinBuildScripts(projectRoot string) bool {
-	return fileExists(filepath.Join(projectRoot, gradleKotlinBuildFile)) && fileExists(filepath.Join(projectRoot, gradleKotlinSettingsFile))
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
+	return scanner.FileExists(filepath.Join(projectRoot, gradleKotlinBuildFile)) && scanner.FileExists(filepath.Join(projectRoot, gradleKotlinSettingsFile))
 }
 
 // Options ...

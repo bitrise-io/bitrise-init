@@ -181,7 +181,7 @@ func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess, useK
 	basePath := filepath.Join(projectLocationEnv, moduleEnv)
 	path := filepath.Join(basePath, "build.gradle")
 	if useKotlinBuildScript {
-		path = filepath.Join(basePath, "build.gradle.kts")
+		path = filepath.Join(basePath, gradleKotlinBuildFile)
 	}
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.ChangeAndroidVersionCodeAndVersionNameStepListItem(
 		envmanModels.EnvironmentItemModel{ModuleBuildGradlePathInputKey: path},
