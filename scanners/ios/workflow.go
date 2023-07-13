@@ -220,18 +220,10 @@ func addSharedTeardownSteps(workflow models.WorkflowID, params workflowSetupPara
 }
 
 func addDescription(workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, description string) {
-	if description == "" {
-		return
-	}
-
 	configBuilder.SetWorkflowDescriptionTo(workflow, description)
 }
 
 func addSummary(workflow models.WorkflowID, configBuilder *models.ConfigBuilderModel, summary string) {
-	if summary == "" {
-		return
-	}
-
 	configBuilder.SetWorkflowSummaryTo(workflow, summary)
 }
 
