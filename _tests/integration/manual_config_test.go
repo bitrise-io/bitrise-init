@@ -268,7 +268,15 @@ var customConfigResultYML = fmt.Sprintf(`options:
             type: user_input_optional
             value_map:
               "":
-                config: default-android-config
+                title: Does your app use Kotlin build scripts?
+                summary: The workflow configuration slightly differs based on what
+                  language (Groovy or Kotlin) you used in your build scripts.
+                type: selector
+                value_map:
+                  "no":
+                    config: default-android-config
+                  "yes":
+                    config: default-android-config-kts
   cordova:
     title: Directory of the Cordova config.xml file
     summary: The working directory of your Cordova project is where you store your
@@ -574,6 +582,66 @@ configs:
               - cache_level: none
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+    default-android-config-kts: |
+      format_version: "11"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: android
+      workflows:
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@8: {}
+          - install-missing-android-tools@3:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - change-android-versioncode-and-versionname@1:
+              inputs:
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
+          - android-lint@0:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - variant: $VARIANT
+              - cache_level: none
+          - android-unit-test@1:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - variant: $VARIANT
+              - cache_level: none
+          - android-build@1:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - module: $MODULE
+              - variant: $VARIANT
+              - cache_level: none
+          - sign-apk@1:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
+          - deploy-to-bitrise-io@2: {}
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@8: {}
+          - restore-gradle-cache@1: {}
+          - install-missing-android-tools@3:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - android-unit-test@1:
+              inputs:
+              - project_location: $PROJECT_LOCATION
+              - variant: $VARIANT
+              - cache_level: none
+          - save-gradle-cache@1: {}
+          - deploy-to-bitrise-io@2: {}
   cordova:
     default-cordova-config: |
       format_version: "%s"

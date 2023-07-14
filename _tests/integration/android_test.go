@@ -43,7 +43,7 @@ func TestAndroid(t *testing.T) {
 			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
 			"",
 			sampleAppsKotlinDSLResultYML,
-			sampleAppsAndroidSDK22SubdirVersions,
+			sampleAppsKotlinDSLVersions,
 		},
 	}
 
@@ -71,6 +71,7 @@ func TestMissingGradlewWrapper(t *testing.T) {
 // Expected results
 
 var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
+	// android-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -214,6 +215,7 @@ warnings_with_recommendations:
 `
 
 var sampleAppsAndroid22Versions = []interface{}{
+	// android-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -330,6 +332,7 @@ warnings_with_recommendations:
 `, sampleAppsAndroid22Versions...)
 
 var androidNonExecutableGradlewVersions = []interface{}{
+	// android-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -445,6 +448,28 @@ warnings_with_recommendations:
   android: []
 `, androidNonExecutableGradlewVersions...)
 
+var sampleAppsKotlinDSLVersions = []interface{}{
+	// android-config-kts
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AndroidUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
 var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
   android:
     title: The root directory of an Android project
@@ -471,13 +496,13 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
             type: user_input_optional
             value_map:
               "":
-                config: android-config
+                config: android-config-kts
                 icons:
                 - 81af22c35b03b30a1931a6283349eae094463aa69c52af3afe804b40dbe6dc12.png
                 - 3a50cbe24812ec6ef995f7142267bf67059d3e73e6b042873043b00354dbfde0.png
 configs:
   android:
-    android-config: |
+    android-config-kts: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
@@ -496,7 +521,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
           - change-android-versioncode-and-versionname@%s:
               inputs:
-              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle
+              - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
           - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -539,4 +564,5 @@ warnings:
   android: []
 warnings_with_recommendations:
   android: []
-`, sampleAppsAndroidSDK22SubdirVersions...)
+
+`, sampleAppsKotlinDSLVersions...)
