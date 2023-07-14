@@ -519,13 +519,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -555,12 +554,11 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -830,15 +828,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -863,12 +858,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'

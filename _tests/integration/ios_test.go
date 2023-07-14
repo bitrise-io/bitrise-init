@@ -131,15 +131,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -160,12 +157,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -189,7 +184,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
@@ -257,15 +252,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -286,12 +278,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -448,15 +438,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Create an IPA file to install your app on a device or share it with your
+            team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, export an IPA file from the project and
+            save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -468,12 +455,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow only builds the project because the project scanner could not find any tests.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        build:
+          summary: Build your Xcode project.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -489,15 +474,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -515,12 +497,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -597,15 +577,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -626,12 +603,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -751,15 +726,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Create an IPA file to install your app on a device or share it with your
+            team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, export an IPA file from the project and
+            save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -778,12 +750,10 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow only builds the project because the project scanner could not find any tests.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        build:
+          summary: Build your Xcode project.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -799,15 +769,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Create an IPA file to install your app on a device or share it with your
+            team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, export an IPA file from the project and
+            save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -819,12 +786,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow only builds the project because the project scanner could not find any tests.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        build:
+          summary: Build your Xcode project.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -840,15 +805,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Create an IPA file to install your app on a device or share it with your
+            team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, export an IPA file from the project and
+            save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -867,12 +829,10 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow only builds the project because the project scanner could not find any tests.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        build:
+          summary: Build your Xcode project.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -888,15 +848,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Create an IPA file to install your app on a device or share it with your
+            team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, export an IPA file from the project and
+            save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -908,12 +865,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow only builds the project because the project scanner could not find any tests.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        build:
+          summary: Build your Xcode project.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1047,15 +1002,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1076,12 +1028,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1142,7 +1092,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
@@ -1155,7 +1105,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
@@ -1223,15 +1173,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        deploy:
-          description: |
-            The workflow tests, builds and deploys the app using *Deploy to bitrise.io* step.
-
-            For testing the *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Set up [Connecting to an Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html##).
-            - Or further customise code signing following our [iOS code signing](https://devcenter.bitrise.io/en/code-signing/ios-code-signing.html) guide.
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1249,12 +1196,10 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1338,12 +1283,10 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
