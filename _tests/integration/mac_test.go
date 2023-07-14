@@ -189,7 +189,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}

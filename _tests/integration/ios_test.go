@@ -135,7 +135,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -160,7 +160,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -184,7 +184,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
@@ -256,7 +256,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -281,7 +281,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -442,7 +442,7 @@ configs:
           summary: Create an IPA file to install your app on a device or share it with your
             team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, export an IPA file from the project and
+            your project's dependencies if any, export an IPA file from the project and
             save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -458,7 +458,7 @@ configs:
         build:
           summary: Build your Xcode project.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any and build your project.
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -478,7 +478,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -500,7 +500,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -581,7 +581,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -606,7 +606,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -730,7 +730,7 @@ configs:
           summary: Create an IPA file to install your app on a device or share it with your
             team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, export an IPA file from the project and
+            your project's dependencies if any, export an IPA file from the project and
             save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -753,7 +753,7 @@ configs:
         build:
           summary: Build your Xcode project.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any and build your project.
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -773,7 +773,7 @@ configs:
           summary: Create an IPA file to install your app on a device or share it with your
             team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, export an IPA file from the project and
+            your project's dependencies if any, export an IPA file from the project and
             save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -789,7 +789,7 @@ configs:
         build:
           summary: Build your Xcode project.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any and build your project.
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -809,7 +809,7 @@ configs:
           summary: Create an IPA file to install your app on a device or share it with your
             team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, export an IPA file from the project and
+            your project's dependencies if any, export an IPA file from the project and
             save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -832,7 +832,7 @@ configs:
         build:
           summary: Build your Xcode project.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any and build your project.
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -852,7 +852,7 @@ configs:
           summary: Create an IPA file to install your app on a device or share it with your
             team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, export an IPA file from the project and
+            your project's dependencies if any, export an IPA file from the project and
             save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -868,7 +868,7 @@ configs:
         build:
           summary: Build your Xcode project.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any and build your project.
+            your project's dependencies if any and build your project.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1006,7 +1006,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -1031,7 +1031,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1092,7 +1092,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
@@ -1105,7 +1105,7 @@ warnings_with_recommendations:
       Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
     recommendations:
       DetailedError:
-        title: We couldn’t parse your project files.
+        title: We couldn't parse your project files.
         description: |-
           You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
           No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
@@ -1177,7 +1177,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -1199,7 +1199,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -1286,7 +1286,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}

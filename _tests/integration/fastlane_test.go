@@ -136,7 +136,7 @@ configs:
           summary: Run your Xcode tests and create an IPA file to install your app on a
             device or share it with your team.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests, export an IPA file
+            your project's dependencies if any, run your Xcode tests, export an IPA file
             from the project and save it.
           steps:
           - activate-ssh-key@%s: {}
@@ -158,7 +158,7 @@ configs:
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
-            your project’s dependencies if any, run your Xcode tests and save the test results.
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}

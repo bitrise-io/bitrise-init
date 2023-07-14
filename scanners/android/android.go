@@ -21,7 +21,7 @@ const (
 
 	buildWorkflowID          = "build_apk"
 	buildWorkflowSummary     = "Run your Android unit tests and create an APK file to install your app on a device or share it with your team."
-	buildWorkflowDescription = "The workflow will first clone your Git repository, install Android tools, set the project’s version code based on the build number, run Android lint and unit tests, build the project’s APK file and save it."
+	buildWorkflowDescription = "The workflow will first clone your Git repository, install Android tools, set the project's version code based on the build number, run Android lint and unit tests, build the project's APK file and save it."
 
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
