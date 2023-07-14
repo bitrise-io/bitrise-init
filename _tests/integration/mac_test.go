@@ -186,12 +186,10 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
-        primary:
-          description: |
-            The workflow executes the tests. The *retry_on_failure* test repetition mode is enabled.
-
-            Next steps:
-            - Check out [Getting started with iOS apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-ios-apps.html).
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
