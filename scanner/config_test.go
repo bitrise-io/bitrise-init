@@ -10,7 +10,7 @@ import (
 )
 
 var GradlewNotFoundRecommendation = errormapper.NewDetailedErrorRecommendation(errormapper.DetailedError{
-	Title:       "We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew file in your project’s root directory.",
+	Title:       "We couldn't find your Gradle Wrapper. Please make sure there is a gradlew file in your project's root directory.",
 	Description: `The Gradle Wrapper ensures that the right Gradle version is installed and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the Gradle Wrapper in the Gradle docs</a>.`,
 })
 

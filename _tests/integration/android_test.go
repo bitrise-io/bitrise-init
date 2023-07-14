@@ -127,13 +127,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -162,12 +161,11 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -195,9 +193,9 @@ errors_with_recommendations:
   - error: No known platform detected
     recommendations:
       DetailedError:
-        title: We couldn’t recognize your platform.
+        title: We couldn't recognize your platform.
         description: Our auto-configurator supports react-native, flutter, ionic,
-          cordova, ios, macos, android, fastlane projects. If you’re adding something
+          cordova, ios, macos, android, fastlane projects. If you're adding something
           else, skip this step and configure your Workflow manually.
       NoPlatformDetected: true
 warnings_with_recommendations:
@@ -208,8 +206,8 @@ warnings_with_recommendations:
       that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>
     recommendations:
       DetailedError:
-        title: We couldn’t find your Gradle Wrapper. Please make sure there is a gradlew
-          file in your project’s root directory.
+        title: We couldn't find your Gradle Wrapper. Please make sure there is a gradlew
+          file in your project's root directory.
         description: The Gradle Wrapper ensures that the right Gradle version is installed
           and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the
           Gradle Wrapper in the Gradle docs</a>.
@@ -272,13 +270,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -307,12 +304,11 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -390,13 +386,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -425,12 +420,11 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -488,13 +482,12 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
-        deploy:
-          description: |
-            Deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html#deploying-an-android-app-to-bitrise-io-53056).
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html) for signing and deployment options.
-            - [Set up code signing with *Android Sign* Step](https://devcenter.bitrise.io/en/code-signing/android-code-signing/android-code-signing-using-the-android-sign-step.html).
+        build_apk:
+          summary: Run your Android unit tests and create an APK file to install your app
+            on a device or share it with your team.
+          description: The workflow will first clone your Git repository, install Android
+            tools, set the project's version code based on the build number, run Android
+            lint and unit tests, build the project's APK file and save it.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -523,12 +516,11 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Runs tests.
-
-            Next steps:
-            - Check out [Getting started with Android apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-android-apps.html).
+        run_tests:
+          summary: Run your Android unit tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android unit tests and save the
+            test report.
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
