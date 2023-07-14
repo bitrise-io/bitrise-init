@@ -209,3 +209,36 @@ that the right Gradle version is installed and used for the build. More info/gui
 	}
 	return nil
 }
+
+type configBuildingParams struct {
+	name            string
+	useKotlinScript bool
+}
+
+func configBuildingParameters(projects []Project) []configBuildingParams {
+	regularProjectCount := 0
+	kotlinBuildScriptProjectCount := 0
+
+	for _, project := range projects {
+		if project.UsesKotlinBuildScript {
+			kotlinBuildScriptProjectCount += 1
+		} else {
+			regularProjectCount += 1
+		}
+	}
+
+	var params []configBuildingParams
+	if 0 < regularProjectCount {
+		params = append(params, configBuildingParams{
+			name:            ConfigName,
+			useKotlinScript: false,
+		})
+	}
+	if 0 < kotlinBuildScriptProjectCount {
+		params = append(params, configBuildingParams{
+			name:            ConfigNameKotlinScript,
+			useKotlinScript: true,
+		})
+	}
+	return params
+}

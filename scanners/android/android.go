@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	ScannerName            = "android"
-	ConfigName             = "android-config"
-	ConfigNameKotlinScript = "android-config-kts"
-	DefaultConfigName      = "default-android-config"
+	ScannerName                   = "android"
+	ConfigName                    = "android-config"
+	ConfigNameKotlinScript        = "android-config-kts"
+	DefaultConfigName             = "default-android-config"
+	DefaultConfigNameKotlinScript = "default-android-config-kts"
 
 	testsWorkflowID         = "run_tests"
 	testsWorkflowSummary    = "Run your Android unit tests and get the test report."
@@ -40,6 +41,9 @@ const (
 	ModuleInputEnvKey  = "MODULE"
 	ModuleInputTitle   = "Module"
 	ModuleInputSummary = "Modules provide a container for your Android project's source code, resource files, and app level settings, such as the module-level build file and Android manifest file. Each module can be independently built, tested, and debugged. You can add new modules to your Bitrise builds at any time."
+
+	BuildScriptInputTitle   = "Does your app use Kotlin build scripts?"
+	BuildScriptInputSummary = "The workflow configuration slightly differs based on what language (Groovy or Kotlin) you used in your build scripts."
 
 	GradlewPathInputKey = "gradlew_path"
 
@@ -115,19 +119,39 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeUserInput)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
-	configOption := models.NewConfigOption(DefaultConfigName, nil)
+
+	buildScriptOption := models.NewOption(BuildScriptInputTitle, BuildScriptInputSummary, "", models.TypeSelector)
+	regularConfigOption := models.NewConfigOption(DefaultConfigName, nil)
+	kotlinScriptConfigOption := models.NewConfigOption(DefaultConfigNameKotlinScript, nil)
 
 	projectLocationOption.AddOption(models.UserInputOptionDefaultValue, moduleOption)
 	moduleOption.AddOption(models.UserInputOptionDefaultValue, variantOption)
-	variantOption.AddConfig("", configOption)
+	variantOption.AddOption(models.UserInputOptionDefaultValue, buildScriptOption)
+
+	buildScriptOption.AddConfig("yes", kotlinScriptConfigOption)
+	buildScriptOption.AddOption("no", regularConfigOption)
 
 	return *projectLocationOption
 }
 
 // Configs ...
 func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseConfigMap, error) {
-	bitriseDataMap := models.BitriseConfigMap{}
 	params := configBuildingParameters(scanner.Projects)
+	return scanner.generateConfigs(repoAccess, params)
+}
+
+// DefaultConfigs ...
+func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	params := []configBuildingParams{
+		{name: DefaultConfigName, useKotlinScript: false},
+		{name: DefaultConfigNameKotlinScript, useKotlinScript: true},
+	}
+	return scanner.generateConfigs(models.RepoAccessUnknown, params)
+}
+
+func (scanner *Scanner) generateConfigs(repoAccess models.RepoAccess, params []configBuildingParams) (models.BitriseConfigMap, error) {
+	bitriseDataMap := models.BitriseConfigMap{}
+
 	for _, param := range params {
 		configBuilder := scanner.generateConfigBuilder(repoAccess, param.useKotlinScript)
 
@@ -145,58 +169,6 @@ func (scanner *Scanner) Configs(repoAccess models.RepoAccess) (models.BitriseCon
 	}
 
 	return bitriseDataMap, nil
-}
-
-type configBuildingParams struct {
-	name            string
-	useKotlinScript bool
-}
-
-func configBuildingParameters(projects []Project) []configBuildingParams {
-	regularProjectCount := 0
-	kotlinBuildScriptProjectCount := 0
-
-	for _, project := range projects {
-		if project.UsesKotlinBuildScript {
-			kotlinBuildScriptProjectCount += 1
-		} else {
-			regularProjectCount += 1
-		}
-	}
-
-	var params []configBuildingParams
-	if 0 < regularProjectCount {
-		params = append(params, configBuildingParams{
-			name:            ConfigName,
-			useKotlinScript: false,
-		})
-	}
-	if 0 < kotlinBuildScriptProjectCount {
-		params = append(params, configBuildingParams{
-			name:            ConfigNameKotlinScript,
-			useKotlinScript: true,
-		})
-	}
-	return params
-}
-
-// DefaultConfigs ...
-func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := scanner.generateConfigBuilder(models.RepoAccessUnknown, false)
-
-	config, err := configBuilder.Generate(ScannerName)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	return models.BitriseConfigMap{
-		DefaultConfigName: string(data),
-	}, nil
 }
 
 func (scanner *Scanner) generateConfigBuilder(repoAccess models.RepoAccess, useKotlinBuildScript bool) models.ConfigBuilderModel {
