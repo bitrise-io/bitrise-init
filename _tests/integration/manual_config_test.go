@@ -38,7 +38,27 @@ func TestManualConfig(t *testing.T) {
 // Expected results
 
 var customConfigVersions = []interface{}{
-	// android
+	// default-android-config
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.ChangeAndroidVersionCodeAndVersionNameVersion,
+	steps.AndroidLintVersion,
+	steps.AndroidUnitTestVersion,
+	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AndroidUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+
+  // default-android-config-kts
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -583,7 +603,7 @@ configs:
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
     default-android-config-kts: |
-      format_version: "11"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
       workflows:
@@ -594,54 +614,54 @@ configs:
             tools, set the project's version code based on the build number, run Android
             lint and unit tests, build the project's APK file and save it.
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@8: {}
-          - install-missing-android-tools@3:
+          - git-clone@%s: {}
+          - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
-          - change-android-versioncode-and-versionname@1:
+          - change-android-versioncode-and-versionname@%s:
               inputs:
               - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
-          - android-lint@0:
+          - android-lint@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
               - cache_level: none
-          - android-unit-test@1:
+          - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
               - cache_level: none
-          - android-build@1:
+          - android-build@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - module: $MODULE
               - variant: $VARIANT
               - cache_level: none
-          - sign-apk@1:
+          - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
-          - deploy-to-bitrise-io@2: {}
+          - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
           description: The workflow will first clone your Git repository, cache your Gradle
             dependencies, install Android tools, run your Android unit tests and save the
             test report.
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@8: {}
-          - restore-gradle-cache@1: {}
-          - install-missing-android-tools@3:
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
               inputs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
-          - android-unit-test@1:
+          - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
               - cache_level: none
-          - save-gradle-cache@1: {}
-          - deploy-to-bitrise-io@2: {}
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
   cordova:
     default-cordova-config: |
       format_version: "%s"
