@@ -2,12 +2,25 @@ package ios
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bitrise-io/go-utils/command/git"
+	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+const workspaceSettingsWithAutocreateSchemesDisabledContent = `<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+ 	<key>IDEWorkspaceSharedSettings_AutocreateContextsIfNeeded</key>
+ 	<false/>
+ </dict>
+ </plist>
+ `
 
 func TestNewConfigDescriptor(t *testing.T) {
 	descriptor := NewConfigDescriptor(false, "", false, false, true, false, "development", true)
@@ -88,9 +101,23 @@ func gitClone(t *testing.T, dir, uri string) {
 	require.NoError(t, err)
 	require.NoError(t, g.Clone(uri).Run())
 }
-
 func TestParseProjects(t *testing.T) {
-	t.Run("ios-no-shared-schemes", func(t *testing.T) {
+	t.Run("ios-no-shared-schemes-files-and-autocreate-schemes-disabled", func(t *testing.T) {
+		sampleAppDir := t.TempDir()
+		sampleAppURL := "https://github.com/bitrise-samples/ios-no-shared-schemes.git"
+		gitClone(t, sampleAppDir, sampleAppURL)
+
+		xcodeProjectPath := filepath.Join(sampleAppDir, "BitriseXcode7Sample.xcodeproj")
+		projectEmbeddedWorksaceSettingsPth := filepath.Join(xcodeProjectPath, "project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings")
+		require.NoError(t, os.MkdirAll(filepath.Dir(projectEmbeddedWorksaceSettingsPth), os.ModePerm))
+		require.NoError(t, fileutil.WriteStringToFile(projectEmbeddedWorksaceSettingsPth, workspaceSettingsWithAutocreateSchemesDisabledContent))
+
+		got, err := ParseProjects(XcodeProjectTypeIOS, sampleAppDir, false, true)
+		require.EqualError(t, err, fmt.Sprintf("failed to read Schemes: failed to list Schemes in Project (%s/BitriseXcode7Sample.xcodeproj): no schemes found and the Xcode project's 'Autocreate schemes' option is disabled", sampleAppDir))
+		require.Equal(t, DetectResult{}, got)
+	})
+
+	t.Run("ios-no-shared-schemes-files", func(t *testing.T) {
 		sampleAppDir := t.TempDir()
 		sampleAppURL := "https://github.com/bitrise-samples/ios-no-shared-schemes.git"
 		gitClone(t, sampleAppDir, sampleAppURL)
@@ -100,14 +127,9 @@ func TestParseProjects(t *testing.T) {
 			Projects: []Project{{
 				RelPath:     "BitriseXcode7Sample.xcodeproj",
 				IsWorkspace: false,
-				Warnings: []string{
-					`No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
-Automatically generated schemes may differ from the ones in your project.
-Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`,
-				},
 				Schemes: []Scheme{{
 					Name:       "BitriseXcode7Sample",
-					Missing:    true,
+					Missing:    false,
 					HasXCTests: true,
 					Icons:      nil,
 				}},

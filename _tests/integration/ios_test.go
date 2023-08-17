@@ -2,12 +2,41 @@ package integration
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
+	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/stretchr/testify/require"
 )
+
+const workspaceSettingsWithAutocreateSchemesDisabledContent = `<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+ 	<key>IDEWorkspaceSharedSettings_AutocreateContextsIfNeeded</key>
+ 	<false/>
+ </dict>
+ </plist>
+ `
+
+func TestIOSNoSchemes(t *testing.T) {
+	sampleAppDir := t.TempDir()
+
+	helper.GitClone(t, sampleAppDir, "https://github.com/bitrise-samples/ios-no-shared-schemes.git")
+	xcodeProjectPath := filepath.Join(sampleAppDir, "BitriseXcode7Sample.xcodeproj")
+	projectEmbeddedWorksaceSettingsPth := filepath.Join(xcodeProjectPath, "project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings")
+	require.NoError(t, os.MkdirAll(filepath.Dir(projectEmbeddedWorksaceSettingsPth), os.ModePerm))
+	require.NoError(t, fileutil.WriteStringToFile(projectEmbeddedWorksaceSettingsPth, workspaceSettingsWithAutocreateSchemesDisabledContent))
+
+	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+	require.Error(t, err)
+}
 
 func TestIOS(t *testing.T) {
 	var testCases = []helper.TestCase{
@@ -78,13 +107,11 @@ var iosNoSharedSchemesVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
 }
@@ -117,16 +144,16 @@ var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
             type: selector
             value_map:
               ad-hoc:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               app-store:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               development:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               enterprise:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
 configs:
   ios:
-    ios-test-missing-shared-schemes-config: |
+    ios-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
@@ -140,9 +167,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -164,9 +188,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -177,19 +198,7 @@ configs:
 warnings:
   ios: []
 warnings_with_recommendations:
-  ios:
-  - error: |-
-      No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
-      Automatically generated schemes may differ from the ones in your project.
-      Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
-    recommendations:
-      DetailedError:
-        title: We couldn't parse your project files.
-        description: |-
-          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
-          No shared schemes found for project: BitriseXcode7Sample.xcodeproj.
-          Automatically generated schemes may differ from the ones in your project.
-          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
+  ios: []
 `, iosNoSharedSchemesVersions...)
 
 var iosCocoapodsAtRootVersions = []interface{}{
@@ -892,7 +901,6 @@ var appleMultiplatformAppVersions = []interface{}{
 	// ios-test-missing-shared-schemes-config/deploy
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -900,7 +908,6 @@ var appleMultiplatformAppVersions = []interface{}{
 	// ios-test-missing-shared-schemes-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -911,7 +918,6 @@ var appleMultiplatformAppVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
 	steps.DeployToBitriseIoVersion,
@@ -919,7 +925,6 @@ var appleMultiplatformAppVersions = []interface{}{
 	// ios-test-missing-shared-schemes-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.XcodeTestMacVersion,
 	steps.DeployToBitriseIoVersion,
 }
@@ -952,13 +957,13 @@ var appleMultiplatformAppResultYAML = fmt.Sprintf(`options:
             type: selector
             value_map:
               ad-hoc:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               app-store:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               development:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
               enterprise:
-                config: ios-test-missing-shared-schemes-config
+                config: ios-test-config
   macos:
     title: Project or Workspace path
     summary: The location of your Xcode project, Xcode workspace or SPM project files
@@ -988,16 +993,16 @@ var appleMultiplatformAppResultYAML = fmt.Sprintf(`options:
             type: selector
             value_map:
               app-store:
-                config: macos-test-missing-shared-schemes-config
+                config: macos-test-config
               developer-id:
-                config: macos-test-missing-shared-schemes-config
+                config: macos-test-config
               development:
-                config: macos-test-missing-shared-schemes-config
+                config: macos-test-config
               none:
-                config: macos-test-missing-shared-schemes-config
+                config: macos-test-config
 configs:
   ios:
-    ios-test-missing-shared-schemes-config: |
+    ios-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
@@ -1011,9 +1016,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1035,9 +1037,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1046,7 +1045,7 @@ configs:
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
   macos:
-    macos-test-missing-shared-schemes-config: |
+    macos-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: macos
@@ -1056,9 +1055,6 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1073,9 +1069,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - xcode-test-mac@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1085,32 +1078,9 @@ warnings:
   ios: []
   macos: []
 warnings_with_recommendations:
-  ios:
-  - error: |-
-      No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
-      Automatically generated schemes may differ from the ones in your project.
-      Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
-    recommendations:
-      DetailedError:
-        title: We couldn't parse your project files.
-        description: |-
-          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
-          No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
-          Automatically generated schemes may differ from the ones in your project.
-          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
-  macos:
-  - error: |-
-      No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
-      Automatically generated schemes may differ from the ones in your project.
-      Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.
-    recommendations:
-      DetailedError:
-        title: We couldn't parse your project files.
-        description: |-
-          You can fix the problem and try again, or skip auto-configuration and set up your project manually. Our auto-configurator returned the following error:
-          No shared schemes found for project: Bitrise TODOs Sample.xcodeproj.
-          Automatically generated schemes may differ from the ones in your project.
-          Make sure to <a href="https://support.bitrise.io/hc/en-us/articles/4405779956625">share your schemes</a> for the expected behaviour.`, appleMultiplatformAppVersions...)
+  ios: []
+  macos: []
+`, appleMultiplatformAppVersions...)
 
 var sampleSPMVersions = []interface{}{
 	// iOS
