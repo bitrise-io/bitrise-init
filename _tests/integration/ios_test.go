@@ -907,14 +907,14 @@ var appleMultiplatformAppVersions = []interface{}{
 	// iOS
 	models.FormatVersion,
 
-	// ios-test-missing-shared-schemes-config/deploy
+	// ios-test-config/deploy
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// ios-test-missing-shared-schemes-config/primary
+	// ios-test-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
@@ -923,7 +923,7 @@ var appleMultiplatformAppVersions = []interface{}{
 	// macOS
 	models.FormatVersion,
 
-	// ios-test-missing-shared-schemes-config/deploy
+	// ios-test-config/deploy
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
@@ -931,7 +931,7 @@ var appleMultiplatformAppVersions = []interface{}{
 	steps.XcodeArchiveMacVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// ios-test-missing-shared-schemes-config/primary
+	// ios-test-config/primary
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestMacVersion,
