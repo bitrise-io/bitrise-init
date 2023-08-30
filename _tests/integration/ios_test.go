@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
@@ -34,8 +35,16 @@ func TestIOSNoSchemes(t *testing.T) {
 	require.NoError(t, os.MkdirAll(filepath.Dir(projectEmbeddedWorksaceSettingsPth), os.ModePerm))
 	require.NoError(t, fileutil.WriteStringToFile(projectEmbeddedWorksaceSettingsPth, workspaceSettingsWithAutocreateSchemesDisabledContent))
 
-	_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+	result, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
 	require.Error(t, err)
+
+	iosWarnings := result.ScannerToWarningsWithRecommendations["ios"]
+	require.Equal(t, 1, len(iosWarnings))
+	require.True(t, strings.Contains(iosWarnings[0].Error, "no schemes found and the Xcode project's 'Autocreate schemes' option is disabled"))
+
+	generalErrors := result.ScannerToErrorsWithRecommendations["general"]
+	require.Equal(t, 1, len(generalErrors))
+	require.Equal(t, "No known platform detected", generalErrors[0].Error)
 }
 
 func TestIOS(t *testing.T) {
