@@ -23,13 +23,12 @@ const workspaceSettingsWithAutocreateSchemesDisabledContent = `<?xml version="1.
  `
 
 func TestNewConfigDescriptor(t *testing.T) {
-	descriptor := NewConfigDescriptor(false, "", false, false, true, false, "development", true)
+	descriptor := NewConfigDescriptor(false, "", false, false, true, false, "development")
 	require.Equal(t, false, descriptor.HasPodfile)
 	require.Equal(t, false, descriptor.HasTest)
 	require.Equal(t, false, descriptor.HasAppClip)
 	require.Equal(t, true, descriptor.HasSPMDependencies)
 	require.Equal(t, "development", descriptor.ExportMethod)
-	require.Equal(t, true, descriptor.MissingSharedSchemes)
 	require.Equal(t, "", descriptor.CarthageCommand)
 }
 
@@ -41,51 +40,43 @@ func TestConfigName(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, false, false, false, "development"),
 			expectedConfigName: "ios-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "", false, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "", false, false, false, false, "development"),
 			expectedConfigName: "ios-pod-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, true, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, false, true, false, "development"),
 			expectedConfigName: "ios-spm-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "bootsrap", false, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "bootsrap", false, false, false, false, "development"),
 			expectedConfigName: "ios-carthage-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", true, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", true, false, false, false, "development"),
 			expectedConfigName: "ios-test-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, false, false, false, "development", true),
-			expectedConfigName: "ios-missing-shared-schemes-config",
-		},
-		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", false, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "bootstrap", false, false, false, false, "development"),
 			expectedConfigName: "ios-pod-carthage-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, false, "development"),
 			expectedConfigName: "ios-pod-carthage-test-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(true, "bootstrap", true, false, false, false, "development", true),
-			expectedConfigName: "ios-pod-carthage-test-missing-shared-schemes-config",
-		},
-		{
-			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "development"),
 			expectedConfigName: "ios-app-clip-development-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "ad-hoc", false),
+			descriptor:         NewConfigDescriptor(false, "", false, true, false, false, "ad-hoc"),
 			expectedConfigName: "ios-app-clip-ad-hoc-config",
 		},
 		{
-			descriptor:         NewConfigDescriptor(false, "", true, true, false, false, "development", false),
+			descriptor:         NewConfigDescriptor(false, "", true, true, false, false, "development"),
 			expectedConfigName: "ios-test-app-clip-development-config",
 		},
 	}
@@ -129,7 +120,6 @@ func TestParseProjects(t *testing.T) {
 				IsWorkspace: false,
 				Schemes: []Scheme{{
 					Name:       "BitriseXcode7Sample",
-					Missing:    false,
 					HasXCTests: true,
 					Icons:      nil,
 				}},

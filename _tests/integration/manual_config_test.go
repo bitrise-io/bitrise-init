@@ -58,7 +58,7 @@ var customConfigVersions = []interface{}{
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
-  // default-android-config-kts
+	// default-android-config-kts
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -177,7 +177,6 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
@@ -187,7 +186,6 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreCocoapodsVersion,
 	steps.CacheRestoreSPMVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.CacheSaveCocoapodsVersion,
@@ -199,7 +197,6 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.XcodeArchiveMacVersion,
@@ -209,7 +206,6 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreCocoapodsVersion,
 	steps.CacheRestoreSPMVersion,
-	steps.RecreateUserSchemesVersion,
 	steps.CocoapodsInstallVersion,
 	steps.XcodeTestMacVersion,
 	steps.CacheSaveCocoapodsVersion,
@@ -926,9 +922,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s:
               inputs:
               - is_cache_disabled: "true"
@@ -956,9 +949,6 @@ configs:
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
           - restore-spm-cache@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s:
               inputs:
               - is_cache_disabled: "true"
@@ -983,9 +973,6 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s:
               inputs:
               - is_cache_disabled: "true"
@@ -1006,9 +993,6 @@ configs:
           - git-clone@%s: {}
           - restore-cocoapods-cache@%s: {}
           - restore-spm-cache@%s: {}
-          - recreate-user-schemes@%s:
-              inputs:
-              - project_path: $BITRISE_PROJECT_PATH
           - cocoapods-install@%s:
               inputs:
               - is_cache_disabled: "true"
