@@ -6,7 +6,7 @@ require (
 	github.com/beevik/etree v1.2.0
 	github.com/bitrise-io/bitrise v0.0.0-20230707121919-a5b9e2d27ea9
 	github.com/bitrise-io/envman v0.0.0-20230721122944-6b164ed0c2f8
-	github.com/bitrise-io/go-flutter v0.1.0
+	github.com/bitrise-io/go-flutter v0.1.1-0.20231026135119-63611c31d76e
 	github.com/bitrise-io/go-steputils v1.0.5
 	github.com/bitrise-io/go-utils v1.0.9
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.19
