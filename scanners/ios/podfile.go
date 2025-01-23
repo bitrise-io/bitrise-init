@@ -83,7 +83,7 @@ end
 
 	var targetDefinitionOutput targetDefinitionOutputModel
 	if err := json.Unmarshal([]byte(out), &targetDefinitionOutput); err != nil {
-		return map[string]string{}, fmt.Errorf("failed to parse target definition output: %s", err)
+		return map[string]string{}, fmt.Errorf("failed to parse target definition output: %s, output: %s", err, out)
 	}
 
 	if podfileParser.shouldRaiseReadDefinitionError(targetDefinitionOutput.Error) {

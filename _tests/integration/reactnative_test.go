@@ -2,7 +2,7 @@ package integration
 
 import (
 	"fmt"
-  "os"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
