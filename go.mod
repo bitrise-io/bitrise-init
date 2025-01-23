@@ -1,6 +1,6 @@
 module github.com/bitrise-io/bitrise-init
 
-go 1.18
+go 1.21
 
 require (
 	github.com/beevik/etree v1.2.0
