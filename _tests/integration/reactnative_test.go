@@ -2,7 +2,7 @@ package integration
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -73,7 +73,7 @@ func TestNoTests(t *testing.T) {
 	testName := "sample-apps-react-native-ios-and-android-no-test"
 	dir := setupSample(t, testName, simpleSample)
 
-	err := ioutil.WriteFile(filepath.Join(dir, "package.json"), []byte(noTestPackageJSON), 0600)
+	err := os.WriteFile(filepath.Join(dir, "package.json"), []byte(noTestPackageJSON), 0600)
 	require.NoError(t, err)
 
 	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidNoTestResultYML, sampleAppsReactNativeIosAndAndroidNoTestVersions)

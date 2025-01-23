@@ -2,7 +2,6 @@ package android
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -34,10 +33,7 @@ func manifestWithIcon(iconName string) string {
 }
 
 func TestLookupIconsMultipleApps(t *testing.T) {
-	projectDir, err := ioutil.TempDir("", "android-dummy-project")
-	if err != nil {
-		t.Errorf("setup: failed to create temp dir")
-	}
+	projectDir:= t.TempDir()
 	defer func() {
 		if err := os.RemoveAll(projectDir); err != nil {
 			t.Logf("Failed to clean up after test, error: %s", err)
@@ -54,10 +50,10 @@ func TestLookupIconsMultipleApps(t *testing.T) {
 		if err := os.MkdirAll(appResDir, 0755); err != nil {
 			t.Errorf("setup: failed top create dir %s", appResDir)
 		}
-		if err := ioutil.WriteFile(filepath.Join(appDir, "AndroidManifest.xml"), []byte(params.appManifest), 0755); err != nil {
+		if err := os.WriteFile(filepath.Join(appDir, "AndroidManifest.xml"), []byte(params.appManifest), 0755); err != nil {
 			t.Error("setup: failed to create file")
 		}
-		if err := ioutil.WriteFile(filepath.Join(appResDir, params.iconFileName), []byte{}, 0755); err != nil {
+		if err := os.WriteFile(filepath.Join(appResDir, params.iconFileName), []byte{}, 0755); err != nil {
 			t.Errorf("setup: failed to create file")
 		}
 	}

@@ -3,6 +3,11 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 workflows:
   ci:
+    steps:
+    - script:
+        title: Set up Go
+        inputs:
+        - content: asdf install
     after_run:
     - test
     - integration-test
