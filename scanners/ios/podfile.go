@@ -33,6 +33,7 @@ func (podfileParser podfileParser) getTargetDefinitionProjectMap(cocoapodsVersio
 gem 'cocoapods'%s
 gem 'cocoapods-core'
 gem 'json'
+gem 'bigdecimal'
 `, gemfileCocoapodsVersion)
 
 	// returns target - project map, if xcodeproj defined in the Podfile
