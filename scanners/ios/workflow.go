@@ -15,6 +15,14 @@ const (
 	AutomaticCodeSigningValue             = "api-key"
 	CacheLevelKey                         = "cache_level"
 	CacheLevelNone                        = "none"
+	ShardCoundKey                         = "shard_count"
+	ShardCoundValue                       = 2
+	ProductPathKey                        = "product_path"
+	ProductPathValue                      = "$BITRISE_XCTESTRUN_FILE_PATH"
+	PipelineIntermediateFilesKey          = "pipeline_intermediate_files"
+	PipelineIntermediateFilesValue        = "BITRISE_TEST_SHARDS_PATH\nBITRISE_TEST_BUNDLE_PATH\nBITRISE_XCTESTRUN_FILE_PATH"
+	OnlyTestingKey                        = "only_testing"
+	OnlyTestingValue                      = "$BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX"
 
 	// test workflow
 	primaryWorkflowID = "primary"
@@ -26,6 +34,9 @@ const (
 	buildWorkflowID          = "build"
 	buildWorkflowSummary     = "Build your Xcode project."
 	buildWorkflowDescription = "The workflow will first clone your Git repository, cache and install your project's dependencies if any and build your project."
+
+	buildForTestingWorkflowID     = "build_for_testing"
+	testWithoutBuildingWorkflowID = "test_without_building"
 
 	// deploy workflow
 	deployWorkflowID = "deploy"
@@ -81,6 +92,33 @@ func createDeployWorkflow(params workflowSetupParams) {
 	addSharedTeardownSteps(models.WorkflowID(id), params, false) // No cache in deploy workflows
 	addSummary(models.WorkflowID(id), params.configBuilder, summary)
 	addDescription(models.WorkflowID(id), params.configBuilder, description)
+}
+
+func createBuildForTestingWorkflow(params workflowSetupParams) {
+	if (params.projectType != XcodeProjectTypeIOS) || !params.hasTests {
+		return
+	}
+
+	workflow := models.WorkflowID(buildForTestingWorkflowID)
+
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultPrepareStepList(steps.PrepareListParams{
+		SSHKeyActivation: params.sshKeyActivation,
+	})...)
+
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(xcodeBuildForTestStepInputModels()...))
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestShardCalculationStepListItem(xcodeTestShardCalculationStepInputModels()...))
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.DeployToBitriseIoStepListItem(buildForTestingDeployToBitriseIoStepInputModels()...))
+}
+
+func createTestWithoutBuildingWorkflow(params workflowSetupParams) {
+	if (params.projectType != XcodeProjectTypeIOS) || !params.hasTests {
+		return
+	}
+
+	workflow := models.WorkflowID(testWithoutBuildingWorkflowID)
+
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.PullIntermediateFilesStepListItem())
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestWithoutBuildingStepListItem(xcodeTestWithoutBuildingStepInputModels()...))
 }
 
 func verificationWorkflowIDSummaryAndDescription(projectType XcodeProjectType, hasTests bool) (string, string, string) {
@@ -263,4 +301,24 @@ func xcodeArchiveStepInputModels(projectType XcodeProjectType) []envmanModels.En
 	}
 
 	return append(baseXcodeStepInputModels(), inputModels...)
+}
+
+func xcodeTestShardCalculationStepInputModels() []envmanModels.EnvironmentItemModel {
+	return []envmanModels.EnvironmentItemModel{
+		{ShardCoundKey: ShardCoundValue},
+		{ProductPathKey: ProductPathValue},
+	}
+}
+
+func buildForTestingDeployToBitriseIoStepInputModels() []envmanModels.EnvironmentItemModel {
+	return []envmanModels.EnvironmentItemModel{
+		{PipelineIntermediateFilesKey: PipelineIntermediateFilesValue},
+	}
+}
+
+func xcodeTestWithoutBuildingStepInputModels() []envmanModels.EnvironmentItemModel {
+	return []envmanModels.EnvironmentItemModel{
+		{OnlyTestingKey: OnlyTestingValue},
+		{BuildForTestDestinationKey: BuildForTestDestinationValue},
+	}
 }

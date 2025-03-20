@@ -107,9 +107,9 @@ func ChangeAndroidVersionCodeAndVersionNameStepListItem(inputs ...envmanModels.E
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
-func DeployToBitriseIoStepListItem() bitriseModels.StepListItemModel {
+func DeployToBitriseIoStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(DeployToBitriseIoID, DeployToBitriseIoVersion)
-	return stepListItem(stepIDComposite, "", "")
+	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
 func SignAPKStepListItem() bitriseModels.StepListItemModel {
@@ -265,5 +265,20 @@ func FlutterAnalyzeStepListItem(inputs ...envmanModels.EnvironmentItemModel) bit
 
 func FlutterBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(FlutterBuildID, FlutterBuildVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+func XcodeTestShardCalculationStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(XcodeTestShardCalculationID, XcodeTestShardCalculationVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+func PullIntermediateFilesStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(PullIntermediateFilesID, PullIntermediateFilesVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+func XcodeTestWithoutBuildingStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(XcodeTestWithoutBuildingID, XcodeTestWithoutBuildingVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }

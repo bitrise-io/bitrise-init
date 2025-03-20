@@ -184,3 +184,18 @@ const (
 	FlutterBuildID      = "flutter-build"
 	FlutterBuildVersion = "0"
 )
+
+const (
+	XcodeTestShardCalculationID      = "xcode-test-shard-calculation"
+	XcodeTestShardCalculationVersion = "0"
+)
+
+const (
+	PullIntermediateFilesID      = "pull-intermediate-files"
+	PullIntermediateFilesVersion = "1"
+)
+
+const (
+	XcodeTestWithoutBuildingID      = "xcode-test-without-building"
+	XcodeTestWithoutBuildingVersion = "0"
+)
