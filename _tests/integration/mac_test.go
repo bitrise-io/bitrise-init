@@ -128,8 +128,17 @@ var sampleSPMMacProjectVersions = []interface{}{
 	// ios-spm-project-test-config
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 
 	// macOS
 	models.FormatVersion,
@@ -186,6 +195,26 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
       workflows:
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: 2
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
+                  BITRISE_XCTESTRUN_FILE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -200,6 +229,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
   macos:
     macos-spm-project-test-config: |
       format_version: "%s"
