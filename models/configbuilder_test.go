@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	bitriseModels "github.com/bitrise-io/bitrise/models"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 	"github.com/stretchr/testify/require"
 )
