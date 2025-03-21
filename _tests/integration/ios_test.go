@@ -266,7 +266,10 @@ var iosCocoapodsAtRootVersions = []interface{}{
 	// ios-cocoapods-at-root/build_for_testing
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreCocoapodsVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveCocoapodsVersion,
 	steps.XcodeTestShardCalculationVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -356,12 +359,17 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-cocoapods-cache@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
               - cache_level: none
+          - save-cocoapods-cache@%s: {}
           - xcode-test-shard-calculation@%s:
               inputs:
               - shard_count: 2
@@ -678,7 +686,10 @@ var sampleAppsCarthageVersions = []interface{}{
 	// ios-carthage-test-config/build_for_testing
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreCarthageVersion,
+	steps.CarthageVersion,
 	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveCarthageVersion,
 	steps.XcodeTestShardCalculationVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -768,12 +779,17 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-carthage-cache@%s: {}
+          - carthage@%s:
+              inputs:
+              - carthage_command: bootstrap
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
               - cache_level: none
+          - save-carthage-cache@%s: {}
           - xcode-test-shard-calculation@%s:
               inputs:
               - shard_count: 2
@@ -1313,7 +1329,9 @@ var sampleSPMVersions = []interface{}{
 	// ios-spm-test-config/build_for_testing
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreSPMVersion,
 	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveSPMVersion,
 	steps.XcodeTestShardCalculationVersion,
 	steps.DeployToBitriseIoVersion,
 
@@ -1398,12 +1416,14 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-spm-cache@%s: {}
           - xcode-build-for-test@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
               - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
               - cache_level: none
+          - save-spm-cache@%s: {}
           - xcode-test-shard-calculation@%s:
               inputs:
               - shard_count: 2

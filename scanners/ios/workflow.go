@@ -101,13 +101,14 @@ func createBuildForTestingWorkflow(params workflowSetupParams) {
 
 	workflow := models.WorkflowID(buildForTestingWorkflowID)
 
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultPrepareStepList(steps.PrepareListParams{
-		SSHKeyActivation: params.sshKeyActivation,
-	})...)
-
+	addSharedSetupSteps(workflow, params, false, true)
 	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(xcodeBuildForTestStepInputModels()...))
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestShardCalculationStepListItem(xcodeTestShardCalculationStepInputModels()...))
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.DeployToBitriseIoStepListItem(buildForTestingDeployToBitriseIoStepInputModels()...))
+	addCacheTeardownStep(workflow, params)
+
+	params.configBuilder.AppendStepListItemsTo(workflow,
+		steps.XcodeTestShardCalculationStepListItem(xcodeTestShardCalculationStepInputModels()...),
+		steps.DeployToBitriseIoStepListItem(buildForTestingDeployToBitriseIoStepInputModels()...),
+	)
 }
 
 func createTestWithoutBuildingWorkflow(params workflowSetupParams) {
@@ -117,8 +118,11 @@ func createTestWithoutBuildingWorkflow(params workflowSetupParams) {
 
 	workflow := models.WorkflowID(testWithoutBuildingWorkflowID)
 
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.PullIntermediateFilesStepListItem())
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeTestWithoutBuildingStepListItem(xcodeTestWithoutBuildingStepInputModels()...))
+	params.configBuilder.AppendStepListItemsTo(
+		workflow,
+		steps.PullIntermediateFilesStepListItem(),
+		steps.XcodeTestWithoutBuildingStepListItem(xcodeTestWithoutBuildingStepInputModels()...),
+	)
 }
 
 func verificationWorkflowIDSummaryAndDescription(projectType XcodeProjectType, hasTests bool) (string, string, string) {
@@ -234,17 +238,21 @@ func addSharedSetupSteps(workflow models.WorkflowID, params workflowSetupParams,
 	}
 }
 
+func addCacheTeardownStep(workflow models.WorkflowID, params workflowSetupParams) {
+	if params.hasPodfile {
+		params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCocoapodsCache())
+	}
+	if params.carthageCommand != "" {
+		params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCarthageCache())
+	}
+	if params.hasSPMDependencies {
+		params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveSPMCache())
+	}
+}
+
 func addSharedTeardownSteps(workflow models.WorkflowID, params workflowSetupParams, includeCache bool) {
 	if includeCache {
-		if params.hasPodfile {
-			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCocoapodsCache())
-		}
-		if params.carthageCommand != "" {
-			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveCarthageCache())
-		}
-		if params.hasSPMDependencies {
-			params.configBuilder.AppendStepListItemsTo(workflow, steps.SaveSPMCache())
-		}
+		addCacheTeardownStep(workflow, params)
 	}
 
 	params.configBuilder.AppendStepListItemsTo(workflow, steps.DefaultDeployStepList()...)
