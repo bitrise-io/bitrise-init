@@ -194,6 +194,9 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
       workflows:
         build_for_testing:
           steps:
@@ -207,7 +210,7 @@ configs:
               - cache_level: none
           - xcode-test-shard-calculation@%s:
               inputs:
-              - shard_count: 2
+              - shard_count: $TEST_SHARD_COUNT
               - product_path: $BITRISE_XCTESTRUN_FILE_PATH
           - deploy-to-bitrise-io@%s:
               inputs:

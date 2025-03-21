@@ -16,7 +16,7 @@ const (
 	CacheLevelKey                         = "cache_level"
 	CacheLevelNone                        = "none"
 	ShardCoundKey                         = "shard_count"
-	ShardCoundValue                       = 2
+	ShardCoundValue                       = "$TEST_SHARD_COUNT"
 	ProductPathKey                        = "product_path"
 	ProductPathValue                      = "$BITRISE_XCTESTRUN_FILE_PATH"
 	PipelineIntermediateFilesKey          = "pipeline_intermediate_files"

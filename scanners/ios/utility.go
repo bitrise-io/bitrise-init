@@ -12,6 +12,8 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
 	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
+
+	envmanModels "github.com/bitrise-io/envman/models"
 )
 
 const (
@@ -46,6 +48,11 @@ const (
 	ExportMethodEnvKey       = "BITRISE_EXPORT_METHOD"
 	ExportMethodInputTitle   = "Application export method\nNOTE: `none` means: Export a copy of the application without re-signing."
 	ExportMethodInputSummary = "The export method used to create an .app file in your builds, stored as an Environment Variable. You can change this at any time, or even create several .app files with different export methods in the same build."
+)
+
+const (
+	TestShardCountEnvKey   = "TEST_SHARD_COUNT"
+	TestShardCountEnvValue = 2
 )
 
 var IosExportMethods = []string{"app-store", "ad-hoc", "enterprise", "development"}
@@ -581,7 +588,12 @@ func GenerateConfig(projectType XcodeProjectType, configDescriptors []ConfigDesc
 			descriptor.CarthageCommand,
 			descriptor.ExportMethod)
 
-		config, err := configBuilder.Generate(string(projectType))
+		appEnvVars := []envmanModels.EnvironmentItemModel{}
+		if projectType == XcodeProjectTypeIOS && descriptor.HasTest {
+			appEnvVars = append(appEnvVars, envmanModels.EnvironmentItemModel{TestShardCountEnvKey: TestShardCountEnvValue})
+		}
+
+		config, err := configBuilder.Generate(string(projectType), appEnvVars...)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -609,7 +621,12 @@ func GenerateDefaultConfig(projectType XcodeProjectType) (models.BitriseConfigMa
 		"",
 		"")
 
-	config, err := configBuilder.Generate(string(projectType))
+	appEnvVars := []envmanModels.EnvironmentItemModel{}
+	if projectType == XcodeProjectTypeIOS {
+		appEnvVars = append(appEnvVars, envmanModels.EnvironmentItemModel{TestShardCountEnvKey: TestShardCountEnvValue})
+	}
+
+	config, err := configBuilder.Generate(string(projectType), appEnvVars...)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
