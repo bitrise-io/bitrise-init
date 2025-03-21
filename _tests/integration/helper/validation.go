@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/log"
-
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -35,13 +33,13 @@ func ValidateConfigExpectation(t *testing.T, ID, expected, actual string, versio
 		fmt.Println("Expected: ", expPth)
 		fmt.Println("Actual: ", actPth)
 
-		_, err = exec.LookPath("opendiff")
+		//_, err = exec.LookPath("opendiff")
 		if err == nil {
-			require.NoError(t, exec.Command("opendiff", expPth, actPth).Start())
+			require.NoError(t, exec.Command("code", "--diff", expPth, actPth).Start())
 			t.FailNow()
 			return
 		}
-		log.Warnf("opendiff not installed, unable to open config diff")
+		//log.Warnf("opendiff not installed, unable to open config diff")
 		t.FailNow()
 	}
 }
