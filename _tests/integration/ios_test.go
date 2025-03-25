@@ -184,6 +184,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -334,6 +342,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -610,6 +626,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -760,6 +784,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -1227,6 +1259,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -1406,6 +1446,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -1559,6 +1607,14 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests_parallel:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_for_testing:
           steps:

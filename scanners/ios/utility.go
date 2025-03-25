@@ -550,6 +550,7 @@ func GenerateConfigBuilder(
 	createVerificationWorkflow(params)
 	createBuildForTestingWorkflow(params)
 	createTestWithoutBuildingWorkflow(params)
+	createRunTestsParallelPipeline(params)
 
 	if !isSPMProject {
 		createDeployWorkflow(params)

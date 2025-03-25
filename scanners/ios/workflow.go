@@ -3,6 +3,7 @@ package ios
 import (
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 )
 
@@ -23,6 +24,9 @@ const (
 	PipelineIntermediateFilesValue        = "BITRISE_TEST_SHARDS_PATH\nBITRISE_TEST_BUNDLE_PATH\nBITRISE_XCTESTRUN_FILE_PATH"
 	OnlyTestingKey                        = "only_testing"
 	OnlyTestingValue                      = "$BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX"
+
+	// test pipeline
+	testPipelineID = "run_tests_parallel"
 
 	// test workflow
 	primaryWorkflowID = "primary"
@@ -123,6 +127,18 @@ func createTestWithoutBuildingWorkflow(params workflowSetupParams) {
 		steps.PullIntermediateFilesStepListItem(),
 		steps.XcodeTestWithoutBuildingStepListItem(xcodeTestWithoutBuildingStepInputModels()...),
 	)
+}
+
+func createRunTestsParallelPipeline(params workflowSetupParams) {
+	if (params.projectType != XcodeProjectTypeIOS) || !params.hasTests {
+		return
+	}
+
+	params.configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, buildForTestingWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
+	params.configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, testWithoutBuildingWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
+		Parallel:  ShardCoundValue,
+		DependsOn: []string{buildForTestingWorkflowID},
+	})
 }
 
 func verificationWorkflowIDSummaryAndDescription(projectType XcodeProjectType, hasTests bool) (string, string, string) {
