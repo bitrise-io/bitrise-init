@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	"github.com/google/go-cmp/cmp"
 )
 
