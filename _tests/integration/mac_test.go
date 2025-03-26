@@ -246,7 +246,6 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
   macos:
     macos-spm-project-test-config: |
       format_version: "%s"

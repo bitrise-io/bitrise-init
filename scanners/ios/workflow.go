@@ -353,6 +353,5 @@ func buildForTestingDeployToBitriseIoStepInputModels() []envmanModels.Environmen
 func xcodeTestWithoutBuildingStepInputModels() []envmanModels.EnvironmentItemModel {
 	return []envmanModels.EnvironmentItemModel{
 		{OnlyTestingKey: OnlyTestingValue},
-		{BuildForTestDestinationKey: BuildForTestDestinationValue},
 	}
 }
