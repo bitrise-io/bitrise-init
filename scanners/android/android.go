@@ -1,6 +1,7 @@
 package android
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -20,6 +21,14 @@ const (
 	testsWorkflowID         = "run_tests"
 	testsWorkflowSummary    = "Run your Android unit tests and get the test report."
 	testWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android unit tests and save the test report."
+
+	runInstumentedTestsWorkflowID          = "run_instrumented_tests"
+	runInstumentedTestsWorkflowSummary     = "Run your Android instrumented tests and get the test report."
+	runInstumentedTestsWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android instrumented tests and save the test report."
+	TestShardCountEnvKey                   = "TEST_SHARD_COUNT"
+	ParallelTotalEnvKey                    = "BITRISE_IO_PARALLEL_TOTAL"
+	ParallelIndexEnvKey                    = "BITRISE_IO_PARALLEL_INDEX"
+	TestShardCountEnvValue                 = "2"
 
 	buildWorkflowID          = "build_apk"
 	buildWorkflowSummary     = "Run your Android unit tests and create an APK file to install your app on a device or share it with your team."
@@ -45,7 +54,8 @@ const (
 	BuildScriptInputTitle   = "Does your app use Kotlin build scripts?"
 	BuildScriptInputSummary = "The workflow configuration slightly differs based on what language (Groovy or Kotlin) you used in your build scripts."
 
-	GradlewPathInputKey = "gradlew_path"
+	GradlewPathInputKey       = "gradlew_path"
+	GradlewGradleTaskInputKey = "gradle_task"
 
 	CacheLevelInputKey = "cache_level"
 	CacheLevelNone     = "none"
@@ -155,7 +165,9 @@ func (scanner *Scanner) generateConfigs(sshKeyActivation models.SSHKeyActivation
 	for _, param := range params {
 		configBuilder := scanner.generateConfigBuilder(sshKeyActivation, param.useKotlinScript)
 
-		config, err := configBuilder.Generate(ScannerName)
+		config, err := configBuilder.Generate(ScannerName,
+			envmanModels.EnvironmentItemModel{TestShardCountEnvKey: TestShardCountEnvValue},
+		)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -198,6 +210,29 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 	configBuilder.AppendStepListItemsTo(testsWorkflowID, steps.DefaultDeployStepList()...)
 	configBuilder.SetWorkflowSummaryTo(testsWorkflowID, testsWorkflowSummary)
 	configBuilder.SetWorkflowDescriptionTo(testsWorkflowID, testWorkflowDescription)
+
+	//-- instrumented test
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+		SSHKeyActivation: sshKeyActivation,
+	})...)
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.RestoreGradleCache())
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
+	))
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.AvdManagerStepListItem())
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.WaitForAndroidEmulatorStepListItem())
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
+		envmanModels.EnvironmentItemModel{
+			GradlewGradleTaskInputKey: fmt.Sprintf(
+				"connectedAndroidTest \\\n  -Pandroid.testInstrumentationRunnerArguments.numShards=$%s \\\n  -Pandroid.testInstrumentationRunnerArguments.shardIndex=$%s",
+				TestShardCountEnvKey,
+				ParallelIndexEnvKey,
+			),
+		},
+	))
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.SaveGradleCache())
+	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultDeployStepList()...)
 
 	//-- build
 	configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
