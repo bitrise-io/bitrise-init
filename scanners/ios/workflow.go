@@ -22,7 +22,7 @@ const (
 	ProductPathKey                        = "product_path"
 	ProductPathValue                      = "$BITRISE_XCTESTRUN_FILE_PATH"
 	PipelineIntermediateFilesKey          = "pipeline_intermediate_files"
-	PipelineIntermediateFilesValue        = "BITRISE_TEST_SHARDS_PATH\nBITRISE_TEST_BUNDLE_PATH\nBITRISE_XCTESTRUN_FILE_PATH"
+	PipelineIntermediateFilesValue        = "BITRISE_TEST_SHARDS_PATH\nBITRISE_TEST_BUNDLE_PATH"
 	OnlyTestingKey                        = "only_testing"
 	OnlyTestingValue                      = "$BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX"
 

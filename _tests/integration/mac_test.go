@@ -225,7 +225,6 @@ configs:
               - pipeline_intermediate_files: |-
                   BITRISE_TEST_SHARDS_PATH
                   BITRISE_TEST_BUNDLE_PATH
-                  BITRISE_XCTESTRUN_FILE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
