@@ -25,6 +25,8 @@ const (
 	PipelineIntermediateFilesValue        = "BITRISE_TEST_SHARDS_PATH\nBITRISE_TEST_BUNDLE_PATH"
 	OnlyTestingKey                        = "only_testing"
 	OnlyTestingValue                      = "$BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX"
+	XctestrunKey                          = "xctestrun"
+	XctestrunValue                        = "$BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun"
 
 	// test pipeline
 	testPipelineID = "run_tests"
@@ -353,5 +355,6 @@ func buildForTestingDeployToBitriseIoStepInputModels() []envmanModels.Environmen
 func xcodeTestWithoutBuildingStepInputModels() []envmanModels.EnvironmentItemModel {
 	return []envmanModels.EnvironmentItemModel{
 		{OnlyTestingKey: OnlyTestingValue},
+		{XctestrunKey: XctestrunValue},
 	}
 }

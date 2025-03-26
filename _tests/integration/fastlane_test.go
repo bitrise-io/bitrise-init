@@ -214,6 +214,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   fastlane: []
   ios: []

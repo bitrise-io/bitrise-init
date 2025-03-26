@@ -255,6 +255,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -424,6 +425,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -693,6 +695,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -862,6 +865,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -1322,6 +1326,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   macos:
     macos-test-config: |
       format_version: "%s"
@@ -1511,6 +1516,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -1643,6 +1649,7 @@ configs:
           - xcode-test-without-building@%s:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   macos:
     macos-spm-project-test-config: |
       format_version: "%s"
