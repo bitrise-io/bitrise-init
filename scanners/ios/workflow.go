@@ -17,8 +17,8 @@ const (
 	AutomaticCodeSigningValue             = "api-key"
 	CacheLevelKey                         = "cache_level"
 	CacheLevelNone                        = "none"
-	ShardCoundKey                         = "shard_count"
-	ShardCoundValue                       = "$TEST_SHARD_COUNT"
+	ShardCountKey                         = "shard_count"
+	ShardCountValue                       = "$TEST_SHARD_COUNT"
 	ProductPathKey                        = "product_path"
 	ProductPathValue                      = "$BITRISE_XCTESTRUN_FILE_PATH"
 	PipelineIntermediateFilesKey          = "pipeline_intermediate_files"
@@ -137,7 +137,7 @@ func createRunTestsParallelPipeline(params workflowSetupParams) {
 
 	params.configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, buildForTestingWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
 	params.configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, testWithoutBuildingWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
-		Parallel:  ShardCoundValue,
+		Parallel:  ShardCountValue,
 		DependsOn: []string{buildForTestingWorkflowID},
 	})
 }
@@ -339,7 +339,7 @@ func xcodeArchiveStepInputModels(projectType XcodeProjectType) []envmanModels.En
 
 func xcodeTestShardCalculationStepInputModels() []envmanModels.EnvironmentItemModel {
 	return []envmanModels.EnvironmentItemModel{
-		{ShardCoundKey: ShardCoundValue},
+		{ShardCountKey: ShardCountValue},
 		{ProductPathKey: ProductPathValue},
 	}
 }
