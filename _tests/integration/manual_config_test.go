@@ -978,7 +978,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - save-cocoapods-cache@%s: {}
           - save-spm-cache@%s: {}

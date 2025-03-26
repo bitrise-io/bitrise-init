@@ -224,7 +224,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - xcode-test-shard-calculation@%s:
               inputs:
@@ -389,7 +389,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - save-cocoapods-cache@%s: {}
           - xcode-test-shard-calculation@%s:
@@ -666,7 +666,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - xcode-test-shard-calculation@%s:
               inputs:
@@ -831,7 +831,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - save-carthage-cache@%s: {}
           - xcode-test-shard-calculation@%s:
@@ -1299,7 +1299,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - xcode-test-shard-calculation@%s:
               inputs:
@@ -1487,7 +1487,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - save-spm-cache@%s: {}
           - xcode-test-shard-calculation@%s:
@@ -1624,7 +1624,7 @@ configs:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
               - scheme: $BITRISE_SCHEME
-              - destination: platform=iOS Simulator,name=iPhone 8 Plus,OS=latest
+              - destination: generic/platform=iOS Simulator
               - cache_level: none
           - xcode-test-shard-calculation@%s:
               inputs:

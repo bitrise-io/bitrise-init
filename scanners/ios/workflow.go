@@ -12,6 +12,7 @@ const (
 	TestRepetitionModeRetryOnFailureValue = "retry_on_failure"
 	BuildForTestDestinationKey            = "destination"
 	BuildForTestDestinationValue          = "platform=iOS Simulator,name=iPhone 8 Plus,OS=latest"
+	GenericBuildForTestDestinationValue   = "generic/platform=iOS Simulator"
 	AutomaticCodeSigningKey               = "automatic_code_signing"
 	AutomaticCodeSigningValue             = "api-key"
 	CacheLevelKey                         = "cache_level"
@@ -106,7 +107,7 @@ func createBuildForTestingWorkflow(params workflowSetupParams) {
 	workflow := models.WorkflowID(buildForTestingWorkflowID)
 
 	addSharedSetupSteps(workflow, params, false, true)
-	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(xcodeBuildForTestStepInputModels()...))
+	params.configBuilder.AppendStepListItemsTo(workflow, steps.XcodeBuildForTestStepListItem(genericXcodeBuildForTestStepInputModels()...))
 	addCacheTeardownStep(workflow, params)
 
 	params.configBuilder.AppendStepListItemsTo(workflow,
@@ -303,6 +304,15 @@ func xcodeTestStepInputModels() []envmanModels.EnvironmentItemModel {
 func xcodeBuildForTestStepInputModels() []envmanModels.EnvironmentItemModel {
 	inputModels := []envmanModels.EnvironmentItemModel{
 		{BuildForTestDestinationKey: BuildForTestDestinationValue},
+		{CacheLevelKey: CacheLevelNone},
+	}
+
+	return append(baseXcodeStepInputModels(), inputModels...)
+}
+
+func genericXcodeBuildForTestStepInputModels() []envmanModels.EnvironmentItemModel {
+	inputModels := []envmanModels.EnvironmentItemModel{
+		{BuildForTestDestinationKey: GenericBuildForTestDestinationValue},
 		{CacheLevelKey: CacheLevelNone},
 	}
 
