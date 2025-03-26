@@ -929,7 +929,7 @@ configs:
         envs:
         - TEST_SHARD_COUNT: 2
       pipelines:
-        run_tests_parallel:
+        run_tests:
           workflows:
             build_for_testing: {}
             test_without_building:

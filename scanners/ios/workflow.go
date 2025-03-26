@@ -27,7 +27,7 @@ const (
 	OnlyTestingValue                      = "$BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX"
 
 	// test pipeline
-	testPipelineID = "run_tests_parallel"
+	testPipelineID = "run_tests"
 
 	// test workflow
 	primaryWorkflowID = "primary"
