@@ -114,15 +114,30 @@ func TestIOS(t *testing.T) {
 
 var iosNoSharedSchemesVersions = []interface{}{
 	models.FormatVersion,
+
+	// ios-no-shared-schemes/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-no-shared-schemes/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-no-shared-schemes/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-no-shared-schemes/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 }
 
 var iosNoSharedSchemesResultYML = fmt.Sprintf(`options:
@@ -166,6 +181,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -190,6 +216,25 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -204,6 +249,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -212,6 +264,8 @@ warnings_with_recommendations:
 
 var iosCocoapodsAtRootVersions = []interface{}{
 	models.FormatVersion,
+
+	// ios-cocoapods-at-root/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CocoapodsInstallVersion,
@@ -219,6 +273,17 @@ var iosCocoapodsAtRootVersions = []interface{}{
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// ios-cocoapods-at-root/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreCocoapodsVersion,
+	steps.CocoapodsInstallVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveCocoapodsVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-cocoapods-at-root/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreCocoapodsVersion,
@@ -226,6 +291,10 @@ var iosCocoapodsAtRootVersions = []interface{}{
 	steps.XcodeTestVersion,
 	steps.CacheSaveCocoapodsVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-cocoapods-at-root/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 }
 
 var iosCocoapodsAtRootResultYML = fmt.Sprintf(`options:
@@ -269,6 +338,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -296,6 +376,30 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-cocoapods-cache@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - save-cocoapods-cache@%s: {}
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -315,6 +419,13 @@ configs:
               - cache_level: none
           - save-cocoapods-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -322,28 +433,47 @@ warnings_with_recommendations:
 `, iosCocoapodsAtRootVersions...)
 
 var sampleAppsIosWatchkitVersions = []interface{}{
+	// ios-config
 	models.FormatVersion,
+
+	// ios-app-clip-ad-hoc-config/ios-config/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// ios-app-clip-ad-hoc-config/ios-config/build
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeBuildForTestVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// ios-test-config
 	models.FormatVersion,
+
+	// ios-app-clip-ad-hoc-config/ios-test-config/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// ios-app-clip-ad-hoc-config/ios-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-ad-hoc-config/ios-test-config/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-app-clip-ad-hoc-config/ios-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 }
 
 var sampleAppsIosWatchkitResultYML = fmt.Sprintf(`options:
@@ -491,6 +621,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -515,6 +656,25 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -529,6 +689,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -537,6 +704,8 @@ warnings_with_recommendations:
 
 var sampleAppsCarthageVersions = []interface{}{
 	models.FormatVersion,
+
+	// ios-carthage-test-config/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CarthageVersion,
@@ -544,6 +713,17 @@ var sampleAppsCarthageVersions = []interface{}{
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// ios-carthage-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreCarthageVersion,
+	steps.CarthageVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveCarthageVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-carthage-test-config/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreCarthageVersion,
@@ -551,6 +731,10 @@ var sampleAppsCarthageVersions = []interface{}{
 	steps.XcodeTestVersion,
 	steps.CacheSaveCarthageVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-carthage-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 }
 
 var sampleAppsCarthageResultYML = fmt.Sprintf(`options:
@@ -594,6 +778,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -621,6 +816,30 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-carthage-cache@%s: {}
+          - carthage@%s:
+              inputs:
+              - carthage_command: bootstrap
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - save-carthage-cache@%s: {}
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -640,6 +859,13 @@ configs:
               - cache_level: none
           - save-carthage-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -907,18 +1133,29 @@ var appleMultiplatformAppVersions = []interface{}{
 	// iOS
 	models.FormatVersion,
 
-	// ios-test-config/deploy
+	// ios-test-config/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// ios-test-config/primary
+	// ios-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-test-config/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 
 	// macOS
 	models.FormatVersion,
@@ -1015,6 +1252,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -1039,6 +1287,25 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -1053,6 +1320,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   macos:
     macos-test-config: |
       format_version: "%s"
@@ -1095,20 +1369,33 @@ var sampleSPMVersions = []interface{}{
 	// iOS
 	models.FormatVersion,
 
-	// ios-spm-test-config/deploy
+	// ios-spm-test-config/archive_and_export_app
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// ios-spm-test-config/primary
+	// ios-spm-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreSPMVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveSPMVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-spm-test-config/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreSPMVersion,
 	steps.XcodeTestVersion,
 	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-spm-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 }
 var sampleSPMResultYML = fmt.Sprintf(`options:
   ios:
@@ -1151,6 +1438,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -1175,6 +1473,27 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-spm-cache@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - save-spm-cache@%s: {}
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -1191,6 +1510,13 @@ configs:
               - cache_level: none
           - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
 warnings:
   ios: []
 warnings_with_recommendations:
@@ -1201,11 +1527,22 @@ var sampleSPMProjectVersions = []interface{}{
 	// iOS
 	models.FormatVersion,
 
-	// ios-spm-project-test-config/primary
+	// ios-spm-project-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-spm-project-test-config/run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ios-spm-project-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 
 	// macOS
 	models.FormatVersion,
@@ -1261,7 +1598,37 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -1276,6 +1643,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   macos:
     macos-spm-project-test-config: |
       format_version: "%s"
