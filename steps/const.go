@@ -186,6 +186,21 @@ const (
 )
 
 const (
+	XcodeTestShardCalculationID      = "xcode-test-shard-calculation"
+	XcodeTestShardCalculationVersion = "0"
+)
+
+const (
+	PullIntermediateFilesID      = "pull-intermediate-files"
+	PullIntermediateFilesVersion = "1"
+)
+
+const (
+	XcodeTestWithoutBuildingID      = "xcode-test-without-building"
+	XcodeTestWithoutBuildingVersion = "0"
+)
+
+const (
 	AvdManagerID      = "avd-manager"
 	AvdManagerVersion = "2"
 )
