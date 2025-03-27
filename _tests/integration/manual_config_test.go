@@ -578,7 +578,7 @@ configs:
       project_type: android
       app:
         envs:
-        - TEST_SHARD_COUNT: "2"
+        - TEST_SHARD_COUNT: 2
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -661,7 +661,7 @@ configs:
       project_type: android
       app:
         envs:
-        - TEST_SHARD_COUNT: "2"
+        - TEST_SHARD_COUNT: 2
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app

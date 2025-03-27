@@ -26,9 +26,9 @@ const (
 	runInstumentedTestsWorkflowSummary     = "Run your Android instrumented tests and get the test report."
 	runInstumentedTestsWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android instrumented tests and save the test report."
 	TestShardCountEnvKey                   = "TEST_SHARD_COUNT"
+	TestShardCountEnvValue                 = 2
 	ParallelTotalEnvKey                    = "BITRISE_IO_PARALLEL_TOTAL"
 	ParallelIndexEnvKey                    = "BITRISE_IO_PARALLEL_INDEX"
-	TestShardCountEnvValue                 = "2"
 
 	buildWorkflowID          = "build_apk"
 	buildWorkflowSummary     = "Run your Android unit tests and create an APK file to install your app on a device or share it with your team."
