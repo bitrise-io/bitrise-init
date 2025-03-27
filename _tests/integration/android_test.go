@@ -141,6 +141,11 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -318,6 +323,11 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -468,6 +478,11 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -619,6 +634,11 @@ configs:
       app:
         envs:
         - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app

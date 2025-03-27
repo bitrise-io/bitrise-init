@@ -8,6 +8,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 )
 
@@ -21,6 +22,8 @@ const (
 	testsWorkflowID         = "run_tests"
 	testsWorkflowSummary    = "Run your Android unit tests and get the test report."
 	testWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android unit tests and save the test report."
+
+	testPipelineID = "run_tests"
 
 	runInstumentedTestsWorkflowID          = "run_instrumented_tests"
 	runInstumentedTestsWorkflowSummary     = "Run your Android instrumented tests and get the test report."
@@ -233,6 +236,10 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 	))
 	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.SaveGradleCache())
 	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultDeployStepList()...)
+
+	configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, runInstumentedTestsWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
+		Parallel: "$" + TestShardCountEnvKey,
+	})
 
 	//-- build
 	configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
