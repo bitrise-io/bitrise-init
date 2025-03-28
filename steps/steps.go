@@ -282,3 +282,18 @@ func XcodeTestWithoutBuildingStepListItem(inputs ...envmanModels.EnvironmentItem
 	stepIDComposite := stepIDComposite(XcodeTestWithoutBuildingID, XcodeTestWithoutBuildingVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
+
+func AvdManagerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(AvdManagerID, AvdManagerVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+func WaitForAndroidEmulatorStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(WaitForAndroidEmulatorID, WaitForAndroidEmulatorVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
+func GradleRunnerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(GradleRunnerID, GradleRunnerVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}

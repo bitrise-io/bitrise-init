@@ -73,6 +73,7 @@ func TestMissingGradlewWrapper(t *testing.T) {
 var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	// android-config
 	models.FormatVersion,
+
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.InstallMissingAndroidToolsVersion,
@@ -81,6 +82,16 @@ var sampleAppsAndroidSDK22SubdirVersions = []interface{}{
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
@@ -127,6 +138,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -161,6 +180,29 @@ configs:
               - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
+          - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
@@ -217,6 +259,7 @@ warnings_with_recommendations:
 var sampleAppsAndroid22Versions = []interface{}{
 	// android-config
 	models.FormatVersion,
+
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.InstallMissingAndroidToolsVersion,
@@ -225,6 +268,16 @@ var sampleAppsAndroid22Versions = []interface{}{
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
@@ -271,6 +324,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -306,6 +367,29 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
           description: The workflow will first clone your Git repository, cache your Gradle
@@ -334,6 +418,7 @@ warnings_with_recommendations:
 var androidNonExecutableGradlewVersions = []interface{}{
 	// android-config
 	models.FormatVersion,
+
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.InstallMissingAndroidToolsVersion,
@@ -342,6 +427,16 @@ var androidNonExecutableGradlewVersions = []interface{}{
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
@@ -388,6 +483,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -423,6 +526,29 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
           description: The workflow will first clone your Git repository, cache your Gradle
@@ -451,6 +577,7 @@ warnings_with_recommendations:
 var sampleAppsKotlinDSLVersions = []interface{}{
 	// android-config-kts
 	models.FormatVersion,
+
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.InstallMissingAndroidToolsVersion,
@@ -459,6 +586,16 @@ var sampleAppsKotlinDSLVersions = []interface{}{
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
@@ -506,6 +643,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -540,6 +685,29 @@ configs:
               - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
+          - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
