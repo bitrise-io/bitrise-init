@@ -236,6 +236,8 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 	))
 	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.SaveGradleCache())
 	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultDeployStepList()...)
+	configBuilder.SetWorkflowSummaryTo(runInstumentedTestsWorkflowID, runInstumentedTestsWorkflowSummary)
+	configBuilder.SetWorkflowDescriptionTo(runInstumentedTestsWorkflowID, runInstumentedTestsWorkflowDescription)
 
 	configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, runInstumentedTestsWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
 		Parallel: "$" + TestShardCountEnvKey,
