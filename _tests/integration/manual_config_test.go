@@ -621,6 +621,10 @@ configs:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
         run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -636,7 +640,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
               - gradle_task: |-
                   connectedAndroidTest \
-                    -Pandroid.testInstrumentationRunnerArguments.numShards=$TEST_SHARD_COUNT \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
                     -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
@@ -709,6 +713,10 @@ configs:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
         run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -724,7 +732,7 @@ configs:
               - gradlew_path: $PROJECT_LOCATION/gradlew
               - gradle_task: |-
                   connectedAndroidTest \
-                    -Pandroid.testInstrumentationRunnerArguments.numShards=$TEST_SHARD_COUNT \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
                     -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
