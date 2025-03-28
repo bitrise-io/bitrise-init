@@ -229,7 +229,7 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 		envmanModels.EnvironmentItemModel{
 			GradlewGradleTaskInputKey: fmt.Sprintf(
 				"connectedAndroidTest \\\n  -Pandroid.testInstrumentationRunnerArguments.numShards=$%s \\\n  -Pandroid.testInstrumentationRunnerArguments.shardIndex=$%s",
-				TestShardCountEnvKey,
+				ParallelTotalEnvKey,
 				ParallelIndexEnvKey,
 			),
 		},
