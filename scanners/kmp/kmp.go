@@ -1,19 +1,20 @@
 package kmp
 
 import (
-	"github.com/bitrise-io/bitrise-init/scanners/gradle"
+	"fmt"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/scanners/gradle"
 )
 
 /*
-	Relevant Gradle dependencies:
-		plugins:
-			org.jetbrains.kotlin.multiplatform -> kotlin("multiplatform")
-				This plugin is used to enable Kotlin Multiplatform projects, allowing you to share code between different platforms (e.g., JVM, JS, Native).
-			org.jetbrains.kotlin.plugin.compose -> kotlin("plugin.compose")
-				This plugin is used to add support for Jetpack Compose in Kotlin Multiplatform projects. It allows you to use Compose UI components across multiple platforms.
+Relevant Gradle dependencies:
+	plugins:
+		org.jetbrains.kotlin.multiplatform -> kotlin("multiplatform")
+			This plugin is used to enable Kotlin Multiplatform projects, allowing you to share code between different platforms (e.g., JVM, JS, Native).
+		org.jetbrains.kotlin.plugin.compose -> kotlin("plugin.compose")
+			This plugin is used to add support for Jetpack Compose in Kotlin Multiplatform projects. It allows you to use Compose UI components across multiple platforms.
 */
 
 type ProjectStructure struct {
@@ -55,7 +56,7 @@ func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
-	gradle.PrintProject(*gradleProject)
+	fmt.Println(gradleProject.ToJSON())
 
 	return kotlinMultiplatformDetected, nil
 }

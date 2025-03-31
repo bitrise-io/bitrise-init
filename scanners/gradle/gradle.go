@@ -3,7 +3,6 @@ package gradle
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"os"
 	"sort"
 	"strings"
@@ -12,14 +11,16 @@ import (
 )
 
 /*
+Relevant Gradle project files:
+
+Gradle wrapper scripts (gradlew and gradlew.bat):
+	The presence of the gradlew and gradlew.bat files in the root directory of a project is a clear indicator that Gradle is used.
+
 Settings File (settings.gradle[.kts]): The settings file is the entry point of every Gradle project.
 	The primary purpose of the settings file is to add subprojects to your build.
 	Gradle supports single and multi-project builds.
 	- For single-project builds, the settings file is optional.
 	- For multi-project builds, the settings file is mandatory and declares all subprojects.
-
-Gradle wrapper scripts (gradlew and gradlew.bat)
-	The presence of the gradlew and gradlew.bat files in the root directory of a project is a clear indicator that Gradle is used.
 */
 
 type Project struct {
@@ -95,6 +96,14 @@ func (proj Project) DetectAnyDependencies(dependencies []string) (bool, error) {
 	}
 
 	return proj.detectAnyDependenciesInBuildScripts(dependencies)
+}
+
+func (proj Project) ToJSON() string {
+	content, err := json.MarshalIndent(proj, "", "  ")
+	if err == nil {
+		return string(content)
+	}
+	return ""
 }
 
 func (proj Project) detectAnyDependenciesInVersionCatalogFile(dependencies []string) (bool, error) {
@@ -214,6 +223,12 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 	projects := includedProjects{}
 	projects.buildScripts = projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle", false)
 	projects.buildScripts = append(projects.buildScripts, projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle.kts", false)...)
+	sort.Slice(projects.buildScripts, func(i, j int) bool {
+		if len(projects.buildScripts[i].Path) == len(projects.buildScripts[j].Path) {
+			return projects.buildScripts[i].Path < projects.buildScripts[j].Path
+		}
+		return len(projects.buildScripts[i].Path) < len(projects.buildScripts[j].Path)
+	})
 
 	if projectRootEntry.settingsGradleFileEntry != nil {
 		includes, err := detectProjectIncludes(*projectRootEntry.settingsGradleFileEntry)
@@ -270,7 +285,7 @@ func detectProjectIncludes(settingGradleFile direntry.DirEntry) ([]string, error
 }
 
 func detectProjectIncludesInContent(settingGradleFileContent string) []string {
-	var includedProjects []string
+	var projects []string
 	lines := strings.Split(settingGradleFileContent, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -288,17 +303,15 @@ func detectProjectIncludesInContent(settingGradleFileContent string) []string {
 			if !strings.HasPrefix(includedModule, ":") {
 				includedModule = ":" + includedModule
 			}
-			includedProjects = append(includedProjects, includedModule)
+			projects = append(projects, includedModule)
 		}
 	}
-	sort.Strings(includedProjects)
+	sort.Slice(projects, func(i, j int) bool {
+		if len(projects[i]) == len(projects[j]) {
+			return projects[i] < projects[j]
+		}
+		return len(projects[i]) < len(projects[j])
+	})
 
-	return includedProjects
-}
-
-func PrintProject(proj Project) {
-	content, err := json.MarshalIndent(proj, "", "  ")
-	if err == nil {
-		log.Println(string(content))
-	}
+	return projects
 }
