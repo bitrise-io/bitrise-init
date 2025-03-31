@@ -5,76 +5,18 @@ import (
 	"io"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
-	"slices"
+	"sort"
 	"strings"
 )
-
-type DirEntry struct {
-	os.DirEntry
-	Path string
-}
-
-var ignoreDirs = []string{".git", ".gradle", ".idea", "build", ".kotlin", ".fleet"}
-
-// TODO: ignore well known directories like .git, .gradle, .idea, build, etc.
-func listDirEntries(root string, depth uint) ([]DirEntry, error) {
-	var entries []DirEntry
-	dirsToRead := []string{root}
-	for i := 0; i < int(depth); i++ {
-		var nextDirsToRead []string
-		for _, dir := range dirsToRead {
-			dirEntries, err := os.ReadDir(dir)
-			if err != nil {
-				// log.Warnf("Failed to read dir: %s", dir)
-				continue
-			}
-
-			for _, entry := range dirEntries {
-				if entry.IsDir() {
-					if slices.Contains(ignoreDirs, entry.Name()) {
-						continue
-					}
-
-					nextDirsToRead = append(nextDirsToRead, filepath.Join(dir, entry.Name()))
-				}
-				entries = append(entries, DirEntry{entry, path.Join(dir, entry.Name())})
-			}
-		}
-		if len(nextDirsToRead) == 0 {
-			break
-		}
-		dirsToRead = nextDirsToRead
-	}
-
-	slices.SortFunc(entries, func(a, b DirEntry) int {
-		componentsA := strings.Split(a.Path, string(os.PathSeparator))
-		componentsB := strings.Split(b.Path, string(os.PathSeparator))
-		if len(componentsA) < len(componentsB) {
-			return -1
-		} else if len(componentsA) > len(componentsB) {
-			return 1
-		}
-		for i := 0; i < len(componentsA); i++ {
-			if componentsA[i] < componentsB[i] {
-				return -1
-			} else if componentsA[i] > componentsB[i] {
-				return 1
-			}
-		}
-		return 0
-	})
-	return entries, nil
-}
 
 func detectGradleConfigurationDirectories(repoEntries []DirEntry) ([]DirEntry, error) {
 	var gradleConfigurationDirectories []DirEntry
 	for _, repoEntry := range repoEntries {
-		if !repoEntry.IsDir() {
+		if !repoEntry.IsDir {
 			continue
 		}
-		if repoEntry.Name() == "gradle" {
+		if repoEntry.Name == "gradle" {
 			gradleConfigurationDirectories = append(gradleConfigurationDirectories, repoEntry)
 		}
 	}
@@ -99,10 +41,10 @@ func detectVersionCatalogFile(gradleConfigurationDirectoryPth string, repoEntrie
 		if entryPathComponentsNum != expectedPathComponentNum {
 			continue
 		}
-		if repoEntry.IsDir() {
+		if repoEntry.IsDir {
 			continue
 		}
-		if repoEntry.Name() == "libs.versions.toml" {
+		if repoEntry.Name == "libs.versions.toml" {
 			versionCatalogFile = &repoEntry
 			break
 		}
@@ -111,11 +53,9 @@ func detectVersionCatalogFile(gradleConfigurationDirectoryPth string, repoEntrie
 	return versionCatalogFile
 }
 
-func detectProjectGradleBuildScriptFiles(gradleProjectRootDirPth string, repoEntries []DirEntry) []DirEntry {
-	var projectGradleBuildScriptFiles []DirEntry
-	// composeApp/build.gradle.kts
-	// server/build.gradle.kts
-	expectedPathComponentNum := strings.Count(gradleProjectRootDirPth, string(os.PathSeparator)) + 2
+func detectSettingsGradleFile(gradleProjectRootDirPth string, repoEntries []DirEntry) *DirEntry {
+	var settingsGradleFile *DirEntry
+	expectedPathComponentNum := strings.Count(gradleProjectRootDirPth, string(os.PathSeparator)) + 1
 
 	for _, repoEntry := range repoEntries {
 		if !strings.HasPrefix(repoEntry.Path, gradleProjectRootDirPth) {
@@ -129,10 +69,37 @@ func detectProjectGradleBuildScriptFiles(gradleProjectRootDirPth string, repoEnt
 		if entryPathComponentsNum != expectedPathComponentNum {
 			continue
 		}
-		if repoEntry.IsDir() {
+		if repoEntry.IsDir {
 			continue
 		}
-		if repoEntry.Name() == "build.gradle.kts" || repoEntry.Name() == "build.gradle" {
+		if repoEntry.Name == "settings.gradle.kts" || repoEntry.Name == "settings.gradle" {
+			settingsGradleFile = &repoEntry
+			break
+		}
+	}
+
+	return settingsGradleFile
+}
+
+func detectGradleBuildScriptFiles(gradleProjectRootDirPth string, repoEntries []DirEntry) []DirEntry {
+	var projectGradleBuildScriptFiles []DirEntry
+	// composeApp/build.gradle.kts
+	// server/build.gradle.kts
+	minPathComponentNum := strings.Count(gradleProjectRootDirPth, string(os.PathSeparator)) + 1
+
+	for _, repoEntry := range repoEntries {
+		if !strings.HasPrefix(repoEntry.Path, gradleProjectRootDirPth) {
+			continue
+		}
+
+		entryPathComponentsNum := strings.Count(repoEntry.Path, string(os.PathSeparator))
+		if entryPathComponentsNum < minPathComponentNum {
+			break
+		}
+		if repoEntry.IsDir {
+			continue
+		}
+		if repoEntry.Name == "build.gradle.kts" || repoEntry.Name == "build.gradle" {
 			projectGradleBuildScriptFiles = append(projectGradleBuildScriptFiles, repoEntry)
 		}
 	}
@@ -158,15 +125,99 @@ func detectComposeAppProjectDirectories(composeAppDirPth string, repoEntries []D
 		if entryPathComponentsNum != expectedPathComponentNum {
 			continue
 		}
-		if !repoEntry.IsDir() {
+		if !repoEntry.IsDir {
 			continue
 		}
-		if strings.HasSuffix(repoEntry.Name(), "Main") {
+		if strings.HasSuffix(repoEntry.Name, "Main") {
 			projectDirectories = append(projectDirectories, repoEntry)
 		}
 	}
 
 	return projectDirectories
+}
+
+func detectProjectIncludes(settingGradleFile DirEntry) ([]string, error) {
+	file, err := os.Open(settingGradleFile.Path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			// log.Warnf("Failed to close file: %s", settingGradleFile.Path)
+		}
+	}()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return detectProjectIncludesInContent(string(content)), nil
+}
+
+func detectProjectIncludesInContent(settingGradleFileContent string) []string {
+	var includedProjects []string
+	lines := strings.Split(settingGradleFileContent, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "include") {
+			continue
+		}
+
+		includedModules := strings.TrimPrefix(line, "include")
+		includedModules = strings.Trim(includedModules, "()")
+		includedModulesSplit := strings.Split(includedModules, ",")
+
+		for _, includedModule := range includedModulesSplit {
+			includedModule = strings.TrimSpace(includedModule)
+			includedModule = strings.Trim(includedModule, `"'`)
+			if !strings.HasPrefix(includedModule, ":") {
+				includedModule = ":" + includedModule
+			}
+			includedProjects = append(includedProjects, includedModule)
+		}
+	}
+	sort.Strings(includedProjects)
+
+	return includedProjects
+}
+
+func detectProjectDirPath(gradleProjectRootDirPth, projectInclude string, repoEntries []DirEntry) string {
+	projectInclude = strings.TrimPrefix(projectInclude, ":")
+	projectIncludeComponents := strings.Split(projectInclude, ":")
+
+	projectDirPath := gradleProjectRootDirPth
+	for _, projectIncludeComponent := range projectIncludeComponents {
+		if projectIncludeComponent == "" {
+			continue
+		}
+		projectIncludeComponent = strings.TrimSpace(projectIncludeComponent)
+		projectDirPath += "/" + projectIncludeComponent
+	}
+
+	expectedPathComponentNum := strings.Count(projectDirPath, string(os.PathSeparator)) + 1
+
+	for _, repoEntry := range repoEntries {
+		if !strings.HasPrefix(repoEntry.Path, projectDirPath) {
+			continue
+		}
+
+		entryPathComponentsNum := strings.Count(repoEntry.Path, string(os.PathSeparator))
+		if entryPathComponentsNum > expectedPathComponentNum {
+			break
+		}
+		if entryPathComponentsNum != expectedPathComponentNum {
+			continue
+		}
+		if repoEntry.IsDir {
+			continue
+		}
+		if repoEntry.Name == "build.gradle.kts" || repoEntry.Name == "build.gradle" {
+			return filepath.Dir(repoEntry.Path)
+		}
+	}
+
+	return ""
 }
 
 func detectAnyDependencies(entry DirEntry, dependencies []string) (bool, error) {

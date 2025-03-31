@@ -8,12 +8,20 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+/*
+	Relevant Gradle dependencies:
+		plugins:
+			org.jetbrains.kotlin.multiplatform -> kotlin("multiplatform")
+				This plugin is used to enable Kotlin Multiplatform projects, allowing you to share code between different platforms (e.g., JVM, JS, Native).
+			org.jetbrains.kotlin.plugin.compose -> kotlin("plugin.compose")
+				This plugin is used to add support for Jetpack Compose in Kotlin Multiplatform projects. It allows you to use Compose UI components across multiple platforms.
+*/
+
 type ProjectStructure struct {
 	GradleConfigurationDirPath string
 	UsesVersionCatalogFile     bool
+	Projects                   []string
 	ProjectDirPaths            []string
-	ComposeAppDirPath          string
-	ComposeAppProjectsDirPaths []string
 }
 
 const scannerName = "kmp"
@@ -30,79 +38,15 @@ func (s Scanner) Name() string {
 }
 
 func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
-	repoEntries, err := listDirEntries(searchDir, 4)
+	projectStructure, err := s.detectProjectStructure(searchDir)
 	if err != nil {
 		return false, err
 	}
-
-	gradleConfigurationDirectories, err := detectGradleConfigurationDirectories(repoEntries)
-	if err != nil {
-		return false, err
-	}
-	if len(gradleConfigurationDirectories) == 0 {
+	if projectStructure == nil {
 		return false, nil
 	}
 
-	gradleConfigurationDirectory := gradleConfigurationDirectories[0]
-	if len(gradleConfigurationDirectories) > 1 {
-		log.Warnf("Multiple gradle configuration directories found: %v, using the first one: %s", gradleConfigurationDirectories, gradleConfigurationDirectory)
-	}
-
-	versionCatalogFile := detectVersionCatalogFile(gradleConfigurationDirectory.Path, repoEntries)
-	usesVersionCatalogFile := versionCatalogFile != nil
-	if usesVersionCatalogFile {
-		detected, err := detectAnyDependencies(*versionCatalogFile, []string{"org.jetbrains.kotlin.multiplatform"})
-		if err != nil {
-			return false, err
-		}
-		if !detected {
-			return false, nil
-		}
-	}
-
-	gradleProjectRootDirPth := filepath.Dir(gradleConfigurationDirectory.Path)
-	projectGradleBuildScriptFiles := detectProjectGradleBuildScriptFiles(gradleProjectRootDirPth, repoEntries)
-	if !usesVersionCatalogFile {
-		if len(projectGradleBuildScriptFiles) == 0 {
-			return false, nil
-		}
-
-		for _, projectGradleBuildScriptFile := range projectGradleBuildScriptFiles {
-			detected, err := detectAnyDependencies(projectGradleBuildScriptFile, []string{"org.jetbrains.kotlin.multiplatform"})
-			if err != nil {
-				return false, err
-			}
-			if !detected {
-				return false, nil
-			}
-		}
-	}
-
-	var projectDirPaths []string
-	var composeAppDirPath string
-	for _, projectGradleBuildScriptFile := range projectGradleBuildScriptFiles {
-		projectDirPath := filepath.Dir(projectGradleBuildScriptFile.Path)
-		projectDirPaths = append(projectDirPaths, projectDirPath)
-		if filepath.Base(projectDirPath) == "composeApp" {
-			composeAppDirPath = projectDirPath
-		}
-	}
-
-	var composeAppProjectDirPaths []string
-	composeAppProjectDirectories := detectComposeAppProjectDirectories(composeAppDirPath, repoEntries)
-	for _, composeAppProjectDirectory := range composeAppProjectDirectories {
-		composeAppProjectDirPaths = append(composeAppProjectDirPaths, composeAppProjectDirectory.Path)
-	}
-
-	projectStructure := ProjectStructure{
-		UsesVersionCatalogFile:     usesVersionCatalogFile,
-		GradleConfigurationDirPath: gradleConfigurationDirectory.Path,
-		ProjectDirPaths:            projectDirPaths,
-		ComposeAppDirPath:          composeAppDirPath,
-		ComposeAppProjectsDirPaths: composeAppProjectDirPaths,
-	}
-
-	printProjectStructure(projectStructure)
+	printProjectStructure(*projectStructure)
 
 	return false, nil
 }
@@ -130,4 +74,95 @@ func (s Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitri
 func (s Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	//TODO implement me
 	return nil, nil
+}
+
+func (s Scanner) detectProjectStructure(searchDir string) (*ProjectStructure, error) {
+	repoEntries, err := listDirEntries(searchDir, 4)
+	if err != nil {
+		return nil, err
+	}
+
+	// KMP project detection
+	gradleConfigurationDirectories, err := detectGradleConfigurationDirectories(repoEntries)
+	if err != nil {
+		return nil, err
+	}
+	if len(gradleConfigurationDirectories) == 0 {
+		return nil, nil
+	}
+
+	gradleConfigurationDirectory := gradleConfigurationDirectories[0]
+	if len(gradleConfigurationDirectories) > 1 {
+		log.Warnf("Multiple gradle configuration directories found: %v, using the first one: %s", gradleConfigurationDirectories, gradleConfigurationDirectory)
+	}
+
+	projectTypeDetected := false
+	versionCatalogFile := detectVersionCatalogFile(gradleConfigurationDirectory.Path, repoEntries)
+	usesVersionCatalogFile := versionCatalogFile != nil
+	if usesVersionCatalogFile {
+		detected, err := detectAnyDependencies(*versionCatalogFile, []string{
+			"org.jetbrains.kotlin.multiplatform",
+			"org.jetbrains.kotlin.plugin.compose",
+		})
+		if err != nil {
+			return nil, err
+		}
+		projectTypeDetected = detected
+	}
+
+	gradleProjectRootDirPth := filepath.Dir(gradleConfigurationDirectory.Path)
+	if !projectTypeDetected {
+		projectGradleBuildScriptFiles := detectGradleBuildScriptFiles(gradleProjectRootDirPth, repoEntries)
+		if !usesVersionCatalogFile {
+			if len(projectGradleBuildScriptFiles) == 0 {
+				return nil, nil
+			}
+
+			for _, projectGradleBuildScriptFile := range projectGradleBuildScriptFiles {
+				detected, err := detectAnyDependencies(projectGradleBuildScriptFile, []string{
+					"org.jetbrains.kotlin.multiplatform",
+					"org.jetbrains.kotlin.plugin.compose",
+					`kotlin("multiplatform")`,
+					`kotlin("plugin.compose")`,
+				})
+				if err != nil {
+					return nil, err
+				}
+				if !detected {
+					return nil, nil
+				}
+			}
+		}
+	}
+	// ---
+
+	// Included projects detection
+	settingsGradleFile := detectSettingsGradleFile(gradleProjectRootDirPth, repoEntries)
+	if settingsGradleFile == nil {
+		return nil, nil
+	}
+
+	projectIncludes, err := detectProjectIncludes(*settingsGradleFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var projects []string
+	var projectDirPaths []string
+	for _, projectInclude := range projectIncludes {
+		projectDirPath := detectProjectDirPath(gradleProjectRootDirPth, projectInclude, repoEntries)
+		if projectDirPath != "" {
+			projects = append(projects, projectInclude)
+			projectDirPaths = append(projectDirPaths, projectDirPath)
+		}
+	}
+
+	projectStructure := ProjectStructure{
+		GradleConfigurationDirPath: gradleConfigurationDirectory.Path,
+		UsesVersionCatalogFile:     usesVersionCatalogFile,
+		Projects:                   projects,
+		ProjectDirPaths:            projectDirPaths,
+	}
+
+	return &projectStructure, nil
 }
