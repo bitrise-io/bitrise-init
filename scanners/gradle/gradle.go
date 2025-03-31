@@ -77,6 +77,84 @@ func ScanProject(searchDir string) (*Project, error) {
 	return &project, nil
 }
 
+func (proj Project) DetectAnyDependencies(dependencies []string) (bool, error) {
+	detected, err := proj.detectAnyDependenciesInVersionCatalogFile(dependencies)
+	if err != nil {
+		return false, err
+	}
+	if detected {
+		return true, nil
+	}
+
+	detected, err = proj.detectAnyDependenciesInIncludedProjectBuildScripts(dependencies)
+	if err != nil {
+		return false, err
+	}
+	if detected {
+		return true, nil
+	}
+
+	return proj.detectAnyDependenciesInBuildScripts(dependencies)
+}
+
+func (proj Project) detectAnyDependenciesInVersionCatalogFile(dependencies []string) (bool, error) {
+	if proj.VersionCatalogFilePath == "" {
+		return false, nil
+	}
+	return proj.detectAnyDependencies(proj.VersionCatalogFilePath, dependencies)
+}
+
+func (proj Project) detectAnyDependenciesInIncludedProjectBuildScripts(dependencies []string) (bool, error) {
+	for _, includedProjectBuildScriptPth := range proj.IncludedProjectBuildScriptPaths {
+		detected, err := proj.detectAnyDependencies(includedProjectBuildScriptPth, dependencies)
+		if err != nil {
+			return false, err
+		}
+		if detected {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (proj Project) detectAnyDependenciesInBuildScripts(dependencies []string) (bool, error) {
+	for _, buildScriptPth := range proj.BuildScriptPaths {
+		detected, err := proj.detectAnyDependencies(buildScriptPth, dependencies)
+		if err != nil {
+			return false, err
+		}
+		if detected {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (proj Project) detectAnyDependencies(pth string, dependencies []string) (bool, error) {
+	file, err := os.Open(pth)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			// log.Warnf("Failed to close file: %s", versionCatalogEntry.Path)
+		}
+	}()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return false, err
+	}
+
+	for _, dependency := range dependencies {
+		if strings.Contains(string(content), dependency) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 type gradleProjectRootEntry struct {
 	rootDirEntry            direntry.DirEntry
 	gradlewFileEntry        direntry.DirEntry
@@ -223,29 +301,4 @@ func PrintProject(proj Project) {
 	if err == nil {
 		log.Println(string(content))
 	}
-}
-
-func DetectAnyDependencies(pth string, dependencies []string) (bool, error) {
-	file, err := os.Open(pth)
-	if err != nil {
-		return false, err
-	}
-	defer func() {
-		if err := file.Close(); err != nil {
-			// log.Warnf("Failed to close file: %s", versionCatalogEntry.Path)
-		}
-	}()
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return false, err
-	}
-
-	for _, dependency := range dependencies {
-		if strings.Contains(string(content), dependency) {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }

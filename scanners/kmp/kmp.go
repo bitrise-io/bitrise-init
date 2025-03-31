@@ -45,34 +45,14 @@ func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	kotlinMultiplatformDetected := false
-	if gradleProject.VersionCatalogFilePath != "" {
-		detected, err := gradle.DetectAnyDependencies(gradleProject.VersionCatalogFilePath, []string{
-			"org.jetbrains.kotlin.multiplatform",
-			"org.jetbrains.kotlin.plugin.compose",
-		})
-		if err != nil {
-			return false, err
-		}
-		kotlinMultiplatformDetected = detected
-	}
-
-	if !kotlinMultiplatformDetected {
-		for _, buildScriptPath := range gradleProject.BuildScriptPaths {
-			detected, err := gradle.DetectAnyDependencies(buildScriptPath, []string{
-				"org.jetbrains.kotlin.multiplatform",
-				"org.jetbrains.kotlin.plugin.compose",
-				`kotlin("multiplatform")`,
-				`kotlin("plugin.compose")`,
-			})
-			if err != nil {
-				return false, err
-			}
-			if detected {
-				kotlinMultiplatformDetected = true
-				break
-			}
-		}
+	kotlinMultiplatformDetected, err := gradleProject.DetectAnyDependencies([]string{
+		"org.jetbrains.kotlin.multiplatform",
+		"org.jetbrains.kotlin.plugin.compose",
+		`kotlin("multiplatform")`,
+		`kotlin("plugin.compose")`,
+	})
+	if err != nil {
+		return false, err
 	}
 
 	gradle.PrintProject(*gradleProject)
