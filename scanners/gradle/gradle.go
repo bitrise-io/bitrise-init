@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitrise-io/bitrise-init/scanners/kmp/direntry"
+	"github.com/bitrise-io/bitrise-init/direntry"
 )
 
 /*
@@ -73,8 +73,6 @@ func ScanProject(searchDir string) (*Project, error) {
 		IncludedProjectBuildScriptPaths: includedProjectBuildScriptPaths,
 		BuildScriptPaths:                buildScriptPaths,
 	}
-
-	printProject(project)
 
 	return &project, nil
 }
@@ -198,7 +196,7 @@ func detectProjectIncludesInContent(settingGradleFileContent string) []string {
 	lines := strings.Split(settingGradleFileContent, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if !strings.HasPrefix(line, "include") {
+		if !strings.HasPrefix(line, "include(") && !strings.HasPrefix(line, "include ") {
 			continue
 		}
 
@@ -220,9 +218,34 @@ func detectProjectIncludesInContent(settingGradleFileContent string) []string {
 	return includedProjects
 }
 
-func printProject(proj Project) {
+func PrintProject(proj Project) {
 	content, err := json.MarshalIndent(proj, "", "  ")
 	if err == nil {
 		log.Println(string(content))
 	}
+}
+
+func DetectAnyDependencies(pth string, dependencies []string) (bool, error) {
+	file, err := os.Open(pth)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			// log.Warnf("Failed to close file: %s", versionCatalogEntry.Path)
+		}
+	}()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return false, err
+	}
+
+	for _, dependency := range dependencies {
+		if strings.Contains(string(content), dependency) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
