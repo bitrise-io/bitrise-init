@@ -3,9 +3,13 @@ package kmp
 import (
 	"fmt"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners"
 	"github.com/bitrise-io/bitrise-init/scanners/gradle"
+	"github.com/bitrise-io/bitrise-init/steps"
+	envmanModels "github.com/bitrise-io/envman/v2/models"
 )
 
 /*
@@ -27,6 +31,7 @@ type ProjectStructure struct {
 const scannerName = "kmp"
 
 type Scanner struct {
+	gradleProject gradle.Project
 }
 
 func NewScanner() scanners.ScannerInterface {
@@ -56,6 +61,8 @@ func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
+	s.gradleProject = *gradleProject
+
 	fmt.Println(gradleProject.ToJSON())
 
 	return kotlinMultiplatformDetected, nil
@@ -77,8 +84,36 @@ func (s Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (s Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
-	//TODO implement me
-	return nil, nil
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	configBuilder.AppendStepListItemsTo("run_tests", steps.DefaultPrepareStepList(
+		steps.PrepareListParams{
+			SSHKeyActivation: sshKeyActivation,
+		},
+	)...)
+	configBuilder.AppendStepListItemsTo("run_tests", steps.GradleRunnerStepListItem(
+		envmanModels.EnvironmentItemModel{
+			"gradlew_path": s.gradleProject.GradlewPath,
+		},
+		envmanModels.EnvironmentItemModel{
+			"gradle_task": "test",
+		},
+	))
+
+	config, err := configBuilder.Generate(scannerName)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	bitriseDataMap := models.BitriseConfigMap{}
+	bitriseDataMap["kotlin-multiplatform-config"] = string(data)
+
+	return bitriseDataMap, nil
 }
 
 func (s Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {

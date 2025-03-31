@@ -92,6 +92,11 @@ func AndroidBuildStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitri
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
 
+func GradleRunnerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(GradleRunnerID, GradleRunnerVersion)
+	return stepListItem(stepIDComposite, "", "", inputs...)
+}
+
 func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(GitCloneID, GitCloneVersion)
 	return stepListItem(stepIDComposite, "", "")

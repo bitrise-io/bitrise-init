@@ -21,6 +21,11 @@ const (
 )
 
 const (
+	GradleRunnerID      = "gradle-runner"
+	GradleRunnerVersion = "3"
+)
+
+const (
 	GitCloneID      = "git-clone"
 	GitCloneVersion = "8"
 )
