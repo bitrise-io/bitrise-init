@@ -6,10 +6,10 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/gradle"
+	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
-	envmanModels "github.com/bitrise-io/envman/v2/models"
 )
 
 /*
@@ -21,28 +21,31 @@ Relevant Gradle dependencies:
 			This plugin is used to add support for Jetpack Compose in Kotlin Multiplatform projects. It allows you to use Compose UI components across multiple platforms.
 */
 
-type ProjectStructure struct {
-	GradleConfigurationDirPath string
-	UsesVersionCatalogFile     bool
-	Projects                   []string
-	ProjectDirPaths            []string
-}
+const (
+	scannerName       = "kmp"
+	configName        = "kotlin-multiplatform-config"
+	defaultConfigName = "default-kotlin-multiplatform-config"
+	testWorkflowID    = "run_tests"
+	gradleTestTask    = "test"
 
-const scannerName = "kmp"
+	gradlewPathInputEnvKey  = "GRADLEW_PATH"
+	gradlewPathInputTitle   = "The project's Gradle Wrapper script (gradlew) path."
+	gradlewPathInputSummary = "The project's Gradle Wrapper script (gradlew) path."
+)
 
 type Scanner struct {
 	gradleProject gradle.Project
 }
 
-func NewScanner() scanners.ScannerInterface {
+func NewScanner() *Scanner {
 	return &Scanner{}
 }
 
-func (s Scanner) Name() string {
+func (s *Scanner) Name() string {
 	return scannerName
 }
 
-func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
+func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	gradleProject, err := gradle.ScanProject(searchDir)
 	if err != nil {
 		return false, err
@@ -68,37 +71,35 @@ func (s Scanner) DetectPlatform(searchDir string) (bool, error) {
 	return kotlinMultiplatformDetected, nil
 }
 
-func (s Scanner) ExcludedScannerNames() []string {
-	//TODO implement me
-	return nil
+func (s *Scanner) ExcludedScannerNames() []string {
+	return []string{android.ScannerName, string(ios.XcodeProjectTypeIOS)}
 }
 
-func (s Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
-	//TODO implement me
-	return models.OptionNode{}, nil, nil, nil
+func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
+	gradlewPathOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputSummary, gradlewPathInputEnvKey, models.TypeSelector)
+	configOption := models.NewConfigOption(configName, nil)
+	gradlewPathOption.AddConfig(s.gradleProject.GradlewPath, configOption)
+	return *gradlewPathOption, nil, nil, nil
 }
 
-func (s Scanner) DefaultOptions() models.OptionNode {
-	//TODO implement me
-	return models.OptionNode{}
+func (s *Scanner) DefaultOptions() models.OptionNode {
+	gradlewPathOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputSummary, gradlewPathInputEnvKey, models.TypeUserInput)
+	configOption := models.NewConfigOption(defaultConfigName, nil)
+	gradlewPathOption.AddConfig(models.UserInputOptionDefaultValue, configOption)
+	return *gradlewPathOption
 }
 
-func (s Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
+func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	configBuilder.AppendStepListItemsTo("run_tests", steps.DefaultPrepareStepList(
-		steps.PrepareListParams{
-			SSHKeyActivation: sshKeyActivation,
-		},
-	)...)
-	configBuilder.AppendStepListItemsTo("run_tests", steps.GradleRunnerStepListItem(
-		envmanModels.EnvironmentItemModel{
-			"gradlew_path": s.gradleProject.GradlewPath,
-		},
-		envmanModels.EnvironmentItemModel{
-			"gradle_task": "test",
-		},
-	))
+	gradlewPath := "$" + gradlewPathInputEnvKey
+
+	configBuilder.AppendStepListItemsTo(testWorkflowID,
+		steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})...,
+	)
+	configBuilder.AppendStepListItemsTo(testWorkflowID,
+		steps.GradleRunnerStepListItem(gradlewPath, gradleTestTask),
+	)
 
 	config, err := configBuilder.Generate(scannerName)
 	if err != nil {
@@ -111,12 +112,35 @@ func (s Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitri
 	}
 
 	bitriseDataMap := models.BitriseConfigMap{}
-	bitriseDataMap["kotlin-multiplatform-config"] = string(data)
+	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil
 }
 
-func (s Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	//TODO implement me
-	return nil, nil
+func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
+	configBuilder := models.NewDefaultConfigBuilder()
+
+	gradlewPath := "$" + gradlewPathInputEnvKey
+
+	configBuilder.AppendStepListItemsTo(testWorkflowID,
+		steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
+	)
+	configBuilder.AppendStepListItemsTo(testWorkflowID,
+		steps.GradleRunnerStepListItem(gradlewPath, gradleTestTask),
+	)
+
+	config, err := configBuilder.Generate(scannerName)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
+
+	bitriseDataMap := models.BitriseConfigMap{}
+	bitriseDataMap[defaultConfigName] = string(data)
+
+	return bitriseDataMap, nil
 }
