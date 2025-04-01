@@ -301,8 +301,3 @@ func WaitForAndroidEmulatorStepListItem(inputs ...envmanModels.EnvironmentItemMo
 	stepIDComposite := stepIDComposite(WaitForAndroidEmulatorID, WaitForAndroidEmulatorVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
-
-func GradleRunnerStepListItem(inputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
-	stepIDComposite := stepIDComposite(GradleRunnerID, GradleRunnerVersion)
-	return stepListItem(stepIDComposite, "", "", inputs...)
-}

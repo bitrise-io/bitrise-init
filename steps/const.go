@@ -214,8 +214,3 @@ const (
 	WaitForAndroidEmulatorID      = "wait-for-android-emulator"
 	WaitForAndroidEmulatorVersion = "1"
 )
-
-const (
-	GradleRunnerID      = "gradle-runner"
-	GradleRunnerVersion = "3"
-)
