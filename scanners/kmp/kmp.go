@@ -1,8 +1,6 @@
 package kmp
 
 import (
-	"fmt"
-
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-init/models"
@@ -10,6 +8,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/gradle"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/steps"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 /*
@@ -45,15 +44,43 @@ func (s *Scanner) Name() string {
 	return scannerName
 }
 
+func printGradleProject(gradleProject gradle.Project) {
+	log.TPrintf("Project root dir: %s", gradleProject.RootDirEntry.RelPath)
+	log.TPrintf("Gradle wrapper script: %s", gradleProject.GradlewFileEntry.RelPath)
+	if gradleProject.ConfigDirEntry != nil {
+		log.TPrintf("Gradle config dir: %s", gradleProject.ConfigDirEntry.RelPath)
+	}
+	if gradleProject.VersionCatalogFileEntry != nil {
+		log.TPrintf("Version catalog file: %s", gradleProject.VersionCatalogFileEntry.RelPath)
+	}
+	if gradleProject.SettingsGradleFileEntry != nil {
+		log.TPrintf("Gradle settings file: %s", gradleProject.SettingsGradleFileEntry.RelPath)
+	}
+	if len(gradleProject.IncludedProjects) > 0 {
+		log.TPrintf("Included projects:")
+		for _, includedProject := range gradleProject.IncludedProjects {
+			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
+		}
+	}
+
+}
+
 func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	log.TInfof("Searching for Gradle project files...")
+
 	gradleProject, err := gradle.ScanProject(searchDir)
 	if err != nil {
 		return false, err
 	}
+
+	log.TDonef("Gradle project found: %v", gradleProject != nil)
 	if gradleProject == nil {
 		return false, nil
 	}
 
+	printGradleProject(*gradleProject)
+
+	log.TInfof("Searching for Kotlin Multiplatform dependencies...")
 	kotlinMultiplatformDetected, err := gradleProject.DetectAnyDependencies([]string{
 		"org.jetbrains.kotlin.multiplatform",
 		"org.jetbrains.kotlin.plugin.compose",
@@ -64,9 +91,8 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, err
 	}
 
+	log.TDonef("Kotlin Multiplatform dependencies found: %v", kotlinMultiplatformDetected)
 	s.gradleProject = *gradleProject
-
-	fmt.Println(gradleProject.ToJSON())
 
 	return kotlinMultiplatformDetected, nil
 }
@@ -78,7 +104,7 @@ func (s *Scanner) ExcludedScannerNames() []string {
 func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	gradlewPathOption := models.NewOption(gradlewPathInputTitle, gradlewPathInputSummary, gradlewPathInputEnvKey, models.TypeSelector)
 	configOption := models.NewConfigOption(configName, nil)
-	gradlewPathOption.AddConfig(s.gradleProject.GradlewPath, configOption)
+	gradlewPathOption.AddConfig(s.gradleProject.GradlewFileEntry.RelPath, configOption)
 	return *gradlewPathOption, nil, nil, nil
 }
 

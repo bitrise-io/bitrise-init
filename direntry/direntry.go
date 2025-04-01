@@ -4,13 +4,37 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
+var ignoreDirs = []string{".git", ".github", ".gradle", ".idea", "build", ".kotlin", ".fleet", "CordovaLib", "node_modules"}
+
 type DirEntry struct {
-	Path    string
+	AbsPath string
+	RelPath string
 	Name    string
 	IsDir   bool
 	Entries []DirEntry
+}
+
+func ListEntries(rootDir string, depth uint) (*DirEntry, error) {
+	if depth == 0 {
+		return nil, nil
+	}
+
+	parent := DirEntry{
+		AbsPath: rootDir,
+		RelPath: "./",
+		Name:    "",
+		IsDir:   true,
+		Entries: nil,
+	}
+
+	if err := recursiveListEntries(rootDir, &parent, 0, depth); err != nil {
+		return nil, err
+	}
+
+	return &parent, nil
 }
 
 func (e DirEntry) FindEntryByName(name string, isDir bool) *DirEntry {
@@ -57,58 +81,39 @@ func (e DirEntry) recursiveFindAllEntriesByName(name string, isDir bool) []DirEn
 	return entries
 }
 
-var ignoreDirs = []string{".git", ".github", ".gradle", ".idea", "build", ".kotlin", ".fleet", "CordovaLib", "node_modules"}
-
-func ListEntries(rootDir string, depth uint) (*DirEntry, error) {
-	if depth == 0 {
-		return nil, nil
-	}
-
-	root := DirEntry{
-		Path:    rootDir,
-		Name:    filepath.Base(rootDir),
-		IsDir:   true,
-		Entries: nil,
-	}
-
-	if err := recursiveListEntries(&root, 0, depth); err != nil {
-		return nil, err
-	}
-
-	return &root, nil
-}
-
-func recursiveListEntries(root *DirEntry, currentDepth, maxDepth uint) error {
+func recursiveListEntries(rootDir string, parent *DirEntry, currentDepth, maxDepth uint) error {
 	if currentDepth >= maxDepth {
 		return nil
 	}
 
-	entries, err := os.ReadDir(root.Path)
+	entries, err := os.ReadDir(parent.AbsPath)
 	if err != nil {
 		// TODO: log error
 		return nil
 	}
 
-	root.Entries = make([]DirEntry, 0, len(entries))
+	parent.Entries = make([]DirEntry, 0, len(entries))
 	for _, entry := range entries {
 		if slices.Contains(ignoreDirs, entry.Name()) {
 			continue
 		}
 
+		entryAbsPath := filepath.Join(parent.AbsPath, entry.Name())
 		dirEntry := DirEntry{
-			Path:    filepath.Join(root.Path, entry.Name()),
+			AbsPath: entryAbsPath,
+			RelPath: "./" + filepath.Join("./", strings.TrimPrefix(entryAbsPath, rootDir)),
 			Name:    entry.Name(),
 			IsDir:   entry.IsDir(),
 			Entries: nil,
 		}
 
 		if dirEntry.IsDir {
-			if err := recursiveListEntries(&dirEntry, currentDepth+1, maxDepth); err != nil {
+			if err := recursiveListEntries(rootDir, &dirEntry, currentDepth+1, maxDepth); err != nil {
 				return err
 			}
 		}
 
-		root.Entries = append(root.Entries, dirEntry)
+		parent.Entries = append(parent.Entries, dirEntry)
 	}
 
 	return nil

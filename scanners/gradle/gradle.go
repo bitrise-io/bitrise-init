@@ -1,13 +1,13 @@
 package gradle
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 	"sort"
 	"strings"
 
 	"github.com/bitrise-io/bitrise-init/direntry"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 /*
@@ -23,16 +23,20 @@ Settings File (settings.gradle[.kts]): The settings file is the entry point of e
 	- For multi-project builds, the settings file is mandatory and declares all subprojects.
 */
 
-type Project struct {
-	RootDirPath            string
-	GradlewPath            string
-	ConfigDirPath          string
-	VersionCatalogFilePath string
-	SettingsGradleFilePath string
+type SubProject struct {
+	Name                 string
+	BuildScriptFileEntry direntry.DirEntry
+}
 
-	IncludedProjects                []string
-	IncludedProjectBuildScriptPaths []string
-	BuildScriptPaths                []string
+type Project struct {
+	RootDirEntry            direntry.DirEntry
+	GradlewFileEntry        direntry.DirEntry
+	ConfigDirEntry          *direntry.DirEntry
+	VersionCatalogFileEntry *direntry.DirEntry
+	SettingsGradleFileEntry *direntry.DirEntry
+
+	IncludedProjects          []SubProject
+	AllBuildScriptFileEntries []direntry.DirEntry
 }
 
 func ScanProject(searchDir string) (*Project, error) {
@@ -53,26 +57,15 @@ func ScanProject(searchDir string) (*Project, error) {
 		return nil, err
 	}
 
-	var includedProjectBuildScriptPaths []string
-	for _, projectBuildScript := range projects.projectBuildScripts {
-		includedProjectBuildScriptPaths = append(includedProjectBuildScriptPaths, projectBuildScript.Path)
-	}
-
-	var buildScriptPaths []string
-	for _, buildScript := range projects.buildScripts {
-		buildScriptPaths = append(buildScriptPaths, buildScript.Path)
-	}
-
 	project := Project{
-		RootDirPath:            projectRoot.rootDirEntry.Path,
-		GradlewPath:            projectRoot.gradlewFileEntry.Path,
-		ConfigDirPath:          projectRoot.configDirEntry.Path,
-		VersionCatalogFilePath: projectRoot.versionCatalogFileEntry.Path,
-		SettingsGradleFilePath: projectRoot.settingsGradleFileEntry.Path,
+		RootDirEntry:            projectRoot.rootDirEntry,
+		GradlewFileEntry:        projectRoot.gradlewFileEntry,
+		ConfigDirEntry:          projectRoot.configDirEntry,
+		VersionCatalogFileEntry: projectRoot.versionCatalogFileEntry,
+		SettingsGradleFileEntry: projectRoot.settingsGradleFileEntry,
 
-		IncludedProjects:                projects.projects,
-		IncludedProjectBuildScriptPaths: includedProjectBuildScriptPaths,
-		BuildScriptPaths:                buildScriptPaths,
+		IncludedProjects:          projects.includedProjects,
+		AllBuildScriptFileEntries: projects.allBuildScriptEntries,
 	}
 
 	return &project, nil
@@ -98,24 +91,16 @@ func (proj Project) DetectAnyDependencies(dependencies []string) (bool, error) {
 	return proj.detectAnyDependenciesInBuildScripts(dependencies)
 }
 
-func (proj Project) ToJSON() string {
-	content, err := json.MarshalIndent(proj, "", "  ")
-	if err == nil {
-		return string(content)
-	}
-	return ""
-}
-
 func (proj Project) detectAnyDependenciesInVersionCatalogFile(dependencies []string) (bool, error) {
-	if proj.VersionCatalogFilePath == "" {
+	if proj.VersionCatalogFileEntry == nil {
 		return false, nil
 	}
-	return proj.detectAnyDependencies(proj.VersionCatalogFilePath, dependencies)
+	return proj.detectAnyDependencies(proj.VersionCatalogFileEntry.AbsPath, dependencies)
 }
 
 func (proj Project) detectAnyDependenciesInIncludedProjectBuildScripts(dependencies []string) (bool, error) {
-	for _, includedProjectBuildScriptPth := range proj.IncludedProjectBuildScriptPaths {
-		detected, err := proj.detectAnyDependencies(includedProjectBuildScriptPth, dependencies)
+	for _, includedProject := range proj.IncludedProjects {
+		detected, err := proj.detectAnyDependencies(includedProject.BuildScriptFileEntry.AbsPath, dependencies)
 		if err != nil {
 			return false, err
 		}
@@ -127,8 +112,8 @@ func (proj Project) detectAnyDependenciesInIncludedProjectBuildScripts(dependenc
 }
 
 func (proj Project) detectAnyDependenciesInBuildScripts(dependencies []string) (bool, error) {
-	for _, buildScriptPth := range proj.BuildScriptPaths {
-		detected, err := proj.detectAnyDependencies(buildScriptPth, dependencies)
+	for _, BuildScriptFileEntry := range proj.AllBuildScriptFileEntries {
+		detected, err := proj.detectAnyDependencies(BuildScriptFileEntry.AbsPath, dependencies)
 		if err != nil {
 			return false, err
 		}
@@ -214,28 +199,28 @@ func detectGradleProjectRoot(rootEntry direntry.DirEntry) (*gradleProjectRootEnt
 }
 
 type includedProjects struct {
-	buildScripts        []direntry.DirEntry
-	projects            []string
-	projectBuildScripts []direntry.DirEntry
+	allBuildScriptEntries []direntry.DirEntry
+	includedProjects      []SubProject
 }
 
 func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedProjects, error) {
 	projects := includedProjects{}
-	projects.buildScripts = projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle", false)
-	projects.buildScripts = append(projects.buildScripts, projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle.kts", false)...)
-	sort.Slice(projects.buildScripts, func(i, j int) bool {
-		if len(projects.buildScripts[i].Path) == len(projects.buildScripts[j].Path) {
-			return projects.buildScripts[i].Path < projects.buildScripts[j].Path
+	projects.allBuildScriptEntries = projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle", false)
+	projects.allBuildScriptEntries = append(projects.allBuildScriptEntries, projectRootEntry.rootDirEntry.FindAllEntriesByName("build.gradle.kts", false)...)
+	sort.Slice(projects.allBuildScriptEntries, func(i, j int) bool {
+		if len(projects.allBuildScriptEntries[i].AbsPath) == len(projects.allBuildScriptEntries[j].AbsPath) {
+			return projects.allBuildScriptEntries[i].AbsPath < projects.allBuildScriptEntries[j].AbsPath
 		}
-		return len(projects.buildScripts[i].Path) < len(projects.buildScripts[j].Path)
+		return len(projects.allBuildScriptEntries[i].AbsPath) < len(projects.allBuildScriptEntries[j].AbsPath)
 	})
 
 	if projectRootEntry.settingsGradleFileEntry != nil {
+		var subprojects []SubProject
+
 		includes, err := detectProjectIncludes(*projectRootEntry.settingsGradleFileEntry)
 		if err != nil {
 			return nil, err
 		}
-		projects.projects = includes
 
 		for _, include := range includes {
 			var components []string
@@ -252,12 +237,21 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 
 			projectBuildScript := projectRootEntry.rootDirEntry.FindEntryByPath(false, append(components, "build.gradle")...)
 			if projectBuildScript != nil {
-				projects.projectBuildScripts = append(projects.projectBuildScripts, *projectBuildScript)
+				subprojects = append(subprojects, SubProject{
+					Name:                 include,
+					BuildScriptFileEntry: *projectBuildScript,
+				})
+				continue
 			}
 
 			projectBuildScript = projectRootEntry.rootDirEntry.FindEntryByPath(false, append(components, "build.gradle.kts")...)
 			if projectBuildScript != nil {
-				projects.projectBuildScripts = append(projects.projectBuildScripts, *projectBuildScript)
+				subprojects = append(subprojects, SubProject{
+					Name:                 include,
+					BuildScriptFileEntry: *projectBuildScript,
+				})
+			} else {
+				log.TWarnf("Unable to find build script for %s", include)
 			}
 		}
 	}
@@ -266,7 +260,7 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 }
 
 func detectProjectIncludes(settingGradleFile direntry.DirEntry) ([]string, error) {
-	file, err := os.Open(settingGradleFile.Path)
+	file, err := os.Open(settingGradleFile.AbsPath)
 	if err != nil {
 		return nil, err
 	}
