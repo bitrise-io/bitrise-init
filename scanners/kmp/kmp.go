@@ -21,7 +21,7 @@ Relevant Gradle dependencies:
 */
 
 const (
-	scannerName       = "kmp"
+	projectType       = "kotlin-multiplatform"
 	configName        = "kotlin-multiplatform-config"
 	defaultConfigName = "default-kotlin-multiplatform-config"
 	testWorkflowID    = "run_tests"
@@ -41,7 +41,7 @@ func NewScanner() *Scanner {
 }
 
 func (s *Scanner) Name() string {
-	return scannerName
+	return projectType
 }
 
 func printGradleProject(gradleProject gradle.Project) {
@@ -127,7 +127,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 		steps.GradleRunnerStepListItem(gradlewPath, gradleTestTask),
 	)
 
-	config, err := configBuilder.Generate(scannerName)
+	config, err := configBuilder.Generate(projectType)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
@@ -155,7 +155,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		steps.GradleRunnerStepListItem(gradlewPath, gradleTestTask),
 	)
 
-	config, err := configBuilder.Generate(scannerName)
+	config, err := configBuilder.Generate(projectType)
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}

@@ -24,7 +24,7 @@ func TestKotlinMultiplatform(t *testing.T) {
 }
 
 var kmpTaskmanResultYaml = fmt.Sprintf(`options:
-  kmp:
+  kotlin-multiplatform:
     title: The project's Gradle Wrapper script (gradlew) path.
     summary: The project's Gradle Wrapper script (gradlew) path.
     env_key: GRADLEW_PATH
@@ -33,11 +33,11 @@ var kmpTaskmanResultYaml = fmt.Sprintf(`options:
       ./gradlew:
         config: kotlin-multiplatform-config
 configs:
-  kmp:
+  kotlin-multiplatform:
     kotlin-multiplatform-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: kmp
+      project_type: kotlin-multiplatform
       workflows:
         run_tests:
           steps:
@@ -48,9 +48,9 @@ configs:
               - gradlew_path: $GRADLEW_PATH
               - gradle_task: test
 warnings:
-  kmp: []
+  kotlin-multiplatform: []
 warnings_with_recommendations:
-  kmp: []
+  kotlin-multiplatform: []
 `, kmpTaskmanResultVersions...)
 
 var kmpTaskmanResultVersions = []interface{}{

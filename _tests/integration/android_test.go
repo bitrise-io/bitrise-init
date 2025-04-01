@@ -195,9 +195,9 @@ errors_with_recommendations:
     recommendations:
       DetailedError:
         title: We couldn't recognize your platform.
-        description: Our auto-configurator supports react-native, flutter, ionic,
-          cordova, ios, macos, android, fastlane projects. If you're adding something
-          else, skip this step and configure your Workflow manually.
+        description: Our auto-configurator supports kotlin-multiplatform, react-native,
+          flutter, ionic, cordova, ios, macos, android, fastlane projects. If you're
+          adding something else, skip this step and configure your Workflow manually.
       NoPlatformDetected: true
 warnings_with_recommendations:
   android:
