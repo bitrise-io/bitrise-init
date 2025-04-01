@@ -54,6 +54,16 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
 	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
 	steps.AndroidUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
@@ -68,6 +78,16 @@ var customConfigVersions = []interface{}{
 	steps.AndroidUnitTestVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.InstallMissingAndroidToolsVersion,
+	steps.AvdManagerVersion,
+	steps.WaitForAndroidEmulatorVersion,
+	steps.GradleRunnerVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	steps.ActivateSSHKeyVersion,
@@ -187,10 +207,24 @@ var customConfigVersions = []interface{}{
 	steps.CacheRestoreCocoapodsVersion,
 	steps.CacheRestoreSPMVersion,
 	steps.CocoapodsInstallVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.CacheSaveCocoapodsVersion,
+	steps.CacheSaveSPMVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreCocoapodsVersion,
+	steps.CacheRestoreSPMVersion,
+	steps.CocoapodsInstallVersion,
 	steps.XcodeTestVersion,
 	steps.CacheSaveCocoapodsVersion,
 	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
+
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 
 	// kotlin-multiplatform
 	models.FormatVersion,
@@ -556,6 +590,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -592,6 +634,30 @@ configs:
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
           description: The workflow will first clone your Git repository, cache your Gradle
@@ -616,6 +682,14 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: android
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            run_instrumented_tests:
+              parallel: $TEST_SHARD_COUNT
       workflows:
         build_apk:
           summary: Run your Android unit tests and create an APK file to install your app
@@ -651,6 +725,30 @@ configs:
               - cache_level: none
           - sign-apk@%s:
               run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
+          - deploy-to-bitrise-io@%s: {}
+        run_instrumented_tests:
+          summary: Run your Android instrumented tests and get the test report.
+          description: The workflow will first clone your Git repository, cache your Gradle
+            dependencies, install Android tools, run your Android instrumented tests and
+            save the test report.
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - install-missing-android-tools@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+          - avd-manager@%s: {}
+          - wait-for-android-emulator@%s: {}
+          - gradle-runner@%s:
+              inputs:
+              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - gradle_task: |-
+                  connectedAndroidTest \
+                    -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
+                    -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           summary: Run your Android unit tests and get the test report.
@@ -925,6 +1023,17 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
         archive_and_export_app:
           summary: Run your Xcode tests and create an IPA file to install your app on a
@@ -953,6 +1062,33 @@ configs:
               - automatic_code_signing: api-key
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-cocoapods-cache@%s: {}
+          - restore-spm-cache@%s: {}
+          - cocoapods-install@%s:
+              inputs:
+              - is_cache_disabled: "true"
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - save-cocoapods-cache@%s: {}
+          - save-spm-cache@%s: {}
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -975,6 +1111,13 @@ configs:
           - save-cocoapods-cache@%s: {}
           - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   kotlin-multiplatform:
     default-kotlin-multiplatform-config: |
       format_version: "%s"

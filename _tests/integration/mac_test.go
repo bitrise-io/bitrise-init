@@ -128,8 +128,17 @@ var sampleSPMMacProjectVersions = []interface{}{
 	// ios-spm-project-test-config
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
 	steps.XcodeTestVersion,
 	steps.DeployToBitriseIoVersion,
+
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
 
 	// macOS
 	models.FormatVersion,
@@ -185,7 +194,37 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
       workflows:
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
         run_tests:
           summary: Run your Xcode tests and get the test report.
           description: The workflow will first clone your Git repository, cache and install
@@ -200,6 +239,13 @@ configs:
               - test_repetition_mode: retry_on_failure
               - cache_level: none
           - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   macos:
     macos-spm-project-test-config: |
       format_version: "%s"
