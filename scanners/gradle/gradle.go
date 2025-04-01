@@ -131,7 +131,7 @@ func (proj Project) detectAnyDependencies(pth string, dependencies []string) (bo
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			// log.Warnf("Failed to close file: %s", versionCatalogEntry.Path)
+			log.TWarnf("Unable to close file %s: %s", pth, err)
 		}
 	}()
 
@@ -225,8 +225,8 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 		for _, include := range includes {
 			var components []string
 
-			include = strings.TrimPrefix(include, ":")
-			includeComponents := strings.Split(include, ":")
+			trimmedInclude := strings.TrimPrefix(include, ":")
+			includeComponents := strings.Split(trimmedInclude, ":")
 			for _, includeComponent := range includeComponents {
 				if includeComponent == "" {
 					continue
@@ -253,6 +253,8 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 			} else {
 				log.TWarnf("Unable to find build script for %s", include)
 			}
+
+			projects.includedProjects = subprojects
 		}
 	}
 
@@ -266,7 +268,7 @@ func detectProjectIncludes(settingGradleFile direntry.DirEntry) ([]string, error
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			// log.Warnf("Failed to close file: %s", settingGradleFile.Path)
+			log.TWarnf("Unable to close file %s: %s", settingGradleFile.AbsPath, err)
 		}
 	}()
 
