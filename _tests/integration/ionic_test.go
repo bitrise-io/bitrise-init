@@ -75,6 +75,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $IONIC_WORK_DIR
               - command: install

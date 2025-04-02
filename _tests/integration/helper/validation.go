@@ -35,15 +35,31 @@ func ValidateConfigExpectation(t *testing.T, ID, expected, actual string, versio
 		fmt.Println("Expected: ", expPth)
 		fmt.Println("Actual: ", actPth)
 
-		_, err = exec.LookPath("opendiff")
-		if err == nil {
-			require.NoError(t, exec.Command("opendiff", expPth, actPth).Start())
+		tool, arguments, err := diffTool([]string{expPth, actPth})
+		if err != nil {
+			log.Warnf("unable to open config diff %s", err)
 			t.FailNow()
 			return
 		}
-		log.Warnf("opendiff not installed, unable to open config diff")
+
+		require.NoError(t, exec.Command(tool, arguments...).Start())
 		t.FailNow()
 	}
+}
+
+func diffTool(arguments []string) (string, []string, error) {
+	if _, err := exec.LookPath("code"); err == nil {
+		args := []string{"--diff"}
+		args = append(args, arguments...)
+
+		return "code", args, nil
+	}
+
+	if _, err := exec.LookPath("opendiff"); err == nil {
+		return "opendiff", arguments, nil
+	}
+
+	return "", nil, fmt.Errorf("not found opendiff or code")
 }
 
 func replaceVersions(str string, versions ...interface{}) (string, error) {

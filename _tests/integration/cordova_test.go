@@ -80,6 +80,7 @@ configs:
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - command: install
           - jasmine-runner@%s: {}
@@ -95,6 +96,7 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - command: install
           - jasmine-runner@%s: {}
@@ -154,6 +156,7 @@ configs:
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - command: install
           - karma-jasmine-runner@%s: {}
@@ -169,6 +172,7 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - command: install
           - karma-jasmine-runner@%s: {}
