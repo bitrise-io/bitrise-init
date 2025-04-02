@@ -240,10 +240,12 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - npm@%s:
+              title: npm test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -274,10 +276,12 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - npm@%s:
+              title: npm test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -414,10 +418,12 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - npm@%s:
+              title: npm test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -448,10 +454,12 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - npm@%s:
+              title: npm test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -586,6 +594,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
@@ -617,6 +626,7 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
@@ -753,10 +763,12 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -787,10 +799,12 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -944,6 +958,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install
@@ -978,6 +993,7 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $WORKDIR
               - command: install

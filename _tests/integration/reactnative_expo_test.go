@@ -88,6 +88,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - run-eas-build@%s:
@@ -106,6 +107,7 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - save-npm-cache@%s: {}
@@ -167,9 +169,11 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - run-eas-build@%s:
@@ -187,9 +191,11 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - save-npm-cache@%s: {}
@@ -252,9 +258,11 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - run-eas-build@%s:
@@ -272,9 +280,11 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - save-npm-cache@%s: {}
