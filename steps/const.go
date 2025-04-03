@@ -38,7 +38,7 @@ const (
 	CacheRestoreCarthageID       = "restore-carthage-cache"
 	CacheRestoreCarthageVersion  = "1"
 	CacheRestoreNPMID            = "restore-npm-cache"
-	CacheRestoreNPMVersion       = "1"
+	CacheRestoreNPMVersion       = "2"
 	CacheRestoreSPMID            = "restore-spm-cache"
 	CacheRestoreSPMVersion       = "1"
 	CacheRestoreDartID           = "restore-dart-cache"
@@ -151,6 +151,11 @@ const (
 const (
 	KarmaJasmineTestRunnerID      = "karma-jasmine-runner"
 	KarmaJasmineTestRunnerVersion = "0"
+)
+
+const (
+	NvmID      = "nvm"
+	NvmVersion = "1"
 )
 
 const (

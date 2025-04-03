@@ -2,8 +2,6 @@ module github.com/bitrise-io/bitrise-init
 
 go 1.22.0
 
-toolchain go1.23.7
-
 require (
 	github.com/beevik/etree v1.2.0
 	github.com/bitrise-io/bitrise/v2 v2.30.5

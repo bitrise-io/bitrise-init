@@ -252,6 +252,28 @@ var customConfigVersions = []interface{}{
 	steps.CacheSaveSPMVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// node-js
+	// npm
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.NvmVersion,
+	steps.CacheRestoreNPMVersion,
+	steps.NpmVersion,
+	steps.NpmVersion,
+	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
+	// yarn
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.NvmVersion,
+	steps.CacheRestoreNPMVersion,
+	steps.YarnVersion,
+	steps.YarnVersion,
+	steps.YarnVersion,
+	steps.CacheSaveNPMVersion,
+
 	// other
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -497,6 +519,28 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-macos-config
               none:
                 config: default-macos-config
+  node-js:
+    title: Project Directory
+    summary: The directory containing the package.json file
+    env_key: NODEJS_PROJECT_DIR
+    type: user_input
+    value_map:
+      "":
+        title: Node Version
+        summary: The version of Node.js used in the project. Leave it empty to use
+          the latest Node version
+        env_key: NODEJS_VERSION
+        type: user_input_optional
+        value_map:
+          "":
+            title: Package Manager
+            summary: The package manager used in the project
+            type: selector
+            value_map:
+              npm:
+                config: default-node-js-npm-config
+              yarn:
+                config: default-node-js-yarn-config
   react-native:
     title: Is this an [Expo](https://expo.dev)-based React Native project?
     summary: |-
@@ -784,6 +828,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $CORDOVA_WORK_DIR
               - command: install
@@ -1007,6 +1052,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - restore-npm-cache@%s: {}
           - npm@%s:
+              title: npm install
               inputs:
               - workdir: $IONIC_WORK_DIR
               - command: install
@@ -1175,6 +1221,69 @@ configs:
           - save-cocoapods-cache@%s: {}
           - save-spm-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
+  node-js:
+    default-node-js-npm-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: node-js
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - nvm@%s:
+              inputs:
+              - node_version: $NODEJS_VERSION
+              - working_dir: $NODEJS_PROJECT_DIR
+          - restore-npm-cache@%s: {}
+          - npm@%s:
+              title: npm install
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: install
+          - npm@%s:
+              title: npm run lint
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: run lint
+          - npm@%s:
+              title: npm run test
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: run test
+          - save-npm-cache@%s: {}
+    default-node-js-yarn-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: node-js
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - nvm@%s:
+              inputs:
+              - node_version: $NODEJS_VERSION
+              - working_dir: $NODEJS_PROJECT_DIR
+          - restore-npm-cache@%s: {}
+          - yarn@%s:
+              title: yarn install
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: install
+          - yarn@%s:
+              title: yarn run lint
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: run lint
+          - yarn@%s:
+              title: yarn run test
+              inputs:
+              - workdir: $NODEJS_PROJECT_DIR
+              - command: run test
+          - save-npm-cache@%s: {}
   other:
     other-config: |
       format_version: "%s"
@@ -1205,9 +1314,11 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - install-missing-android-tools@%s:
@@ -1238,9 +1349,11 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - command: test
           - save-npm-cache@%s: {}
@@ -1263,10 +1376,12 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - workdir: $WORKDIR
               - command: test
@@ -1287,10 +1402,12 @@ configs:
           - git-clone@%s: {}
           - restore-npm-cache@%s: {}
           - yarn@%s:
+              title: yarn install
               inputs:
               - workdir: $WORKDIR
               - command: install
           - yarn@%s:
+              title: yarn test
               inputs:
               - workdir: $WORKDIR
               - command: test
