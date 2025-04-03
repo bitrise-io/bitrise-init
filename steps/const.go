@@ -26,6 +26,11 @@ const (
 )
 
 const (
+	GradleUnitTestID      = "gradle-unit-test"
+	GradleUnitTestVersion = "1"
+)
+
+const (
 	GitCloneID      = "git-clone"
 	GitCloneVersion = "8"
 )

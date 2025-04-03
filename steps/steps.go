@@ -101,6 +101,14 @@ func GradleRunnerStepListItem(gradlewPath, gradleTask string, additionalInputs .
 			additionalInputs...)...)
 }
 
+func GradleUnitTestStepListItem(gradlewPath string, additionalInputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(GradleUnitTestID, GradleUnitTestVersion)
+	return stepListItem(stepIDComposite, "", "",
+		append([]envmanModels.EnvironmentItemModel{
+			{"gradlew_path": gradlewPath},
+		}, additionalInputs...)...)
+}
+
 func GitCloneStepListItem() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(GitCloneID, GitCloneVersion)
 	return stepListItem(stepIDComposite, "", "")

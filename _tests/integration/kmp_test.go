@@ -43,10 +43,10 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - gradle-runner@%s:
+          - gradle-unit-test@%s:
               inputs:
               - gradlew_path: $GRADLEW_PATH
-              - gradle_task: test
+          - deploy-to-bitrise-io@%s: {}
 warnings:
   kotlin-multiplatform: []
 warnings_with_recommendations:
@@ -57,5 +57,6 @@ var kmpTaskmanResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.GradleRunnerVersion,
+	steps.GradleUnitTestVersion,
+	steps.DeployToBitriseIoVersion,
 }
