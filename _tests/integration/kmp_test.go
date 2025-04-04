@@ -13,7 +13,7 @@ func TestKotlinMultiplatform(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
 			"Taskman",
-			"https://github.com/godrei/Taskman.git",
+			"https://github.com/bitrise-io/kotlin-multiplatform-sample-taskman.git",
 			"main",
 			kmpTaskmanResultYaml,
 			kmpTaskmanResultVersions,
