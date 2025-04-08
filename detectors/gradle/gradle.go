@@ -41,7 +41,7 @@ type Project struct {
 }
 
 func ScanProject(searchDir string) (*Project, error) {
-	rootEntry, err := direntry.WalkDir(searchDir, 4)
+	rootEntry, err := direntry.WalkDir(searchDir, 6)
 	if err != nil {
 		return nil, err
 	}
