@@ -7,13 +7,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/output"
 	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/stretchr/testify/require"
 )
 
 func TestManualConfig(t *testing.T) {
@@ -251,7 +252,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.NvmVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
@@ -261,7 +262,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.NvmVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
@@ -1203,10 +1204,25 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - nvm@%s:
+          - script@%s:
               inputs:
-              - node_version: $NODEJS_VERSION
-              - working_dir: $NODEJS_PROJECT_DIR
+              - title: Install Node.js
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_installed
+                  envman add --key ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY --value latest_installed
+
+                  pushd "${NODEJS_PROJECT_DIR:-.}" > /dev/null
+
+                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
+                  # asdf looks for the Node.js version in these files: .tool-versions, .nvmrc, .node-version
+                  # so it should work out-of-the-box even if the project uses another Node.js manager
+                  # See: https://github.com/asdf-vm/asdf-nodejs
+                  asdf install nodejs
+
+                  popd > /dev/null
           - restore-npm-cache@%s: {}
           - npm@%s:
               title: npm install
@@ -1234,10 +1250,25 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - nvm@%s:
+          - script@%s:
               inputs:
-              - node_version: $NODEJS_VERSION
-              - working_dir: $NODEJS_PROJECT_DIR
+              - title: Install Node.js
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_installed
+                  envman add --key ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY --value latest_installed
+
+                  pushd "${NODEJS_PROJECT_DIR:-.}" > /dev/null
+
+                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
+                  # asdf looks for the Node.js version in these files: .tool-versions, .nvmrc, .node-version
+                  # so it should work out-of-the-box even if the project uses another Node.js manager
+                  # See: https://github.com/asdf-vm/asdf-nodejs
+                  asdf install nodejs
+
+                  popd > /dev/null
           - restore-npm-cache@%s: {}
           - yarn@%s:
               title: yarn install

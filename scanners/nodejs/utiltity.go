@@ -108,7 +108,7 @@ func checkPackageScripts(packageJsonPath string) (checkScriptResult, error) {
 		return result, err
 	}
 
-	for name, _ := range packages.Scripts {
+	for name := range packages.Scripts {
 		log.TDebugf("- %s", name)
 		result.scripts = append(result.scripts, name)
 	}
@@ -295,7 +295,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKey})
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, prepareSteps...)
 
-	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NvmStepListItem(descriptor.nodeVersion, descriptor.workdir))
+	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem())
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreNPMCache())
 
 	switch descriptor.pkgManager {
@@ -313,7 +313,6 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NpmStepListItem("install", descriptor.workdir))
 		if descriptor.hasLint {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NpmStepListItem("run lint", descriptor.workdir))
-
 		}
 		if descriptor.hasTest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NpmStepListItem("run test", descriptor.workdir))

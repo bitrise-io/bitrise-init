@@ -149,8 +149,8 @@ const (
 )
 
 const (
-	NvmID      = "nvm"
-	NvmVersion = "1"
+	ScriptID      = "script"
+	ScriptVersion = "1"
 )
 
 const (
