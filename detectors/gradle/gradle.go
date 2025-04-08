@@ -1,6 +1,7 @@
 package gradle
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -157,30 +158,35 @@ type gradleProjectRootEntry struct {
 	settingsGradleFileEntry *direntry.DirEntry
 }
 
-func detectGradleProjectRoot(rootEntry direntry.DirEntry) (*gradleProjectRootEntry, error) {
-	gradlewFileEntry := rootEntry.FindFirstEntryByName("gradlew", false)
+func detectGradleProjectRoot(searchDir direntry.DirEntry) (*gradleProjectRootEntry, error) {
+	gradlewFileEntry := searchDir.FindFirstEntryByName("gradlew", false)
 	if gradlewFileEntry == nil {
 		return nil, nil
 	}
 
+	projectRootDirEntry := gradlewFileEntry.Parent()
+	if projectRootDirEntry == nil {
+		return nil, fmt.Errorf("unable to detect gradle project root")
+	}
+
 	projectRoot := gradleProjectRootEntry{
-		rootDirEntry:     rootEntry,
+		rootDirEntry:     *projectRootDirEntry,
 		gradlewFileEntry: *gradlewFileEntry,
 	}
 
-	configDirEntry := rootEntry.FindDirectEntryByName("gradle", true)
+	configDirEntry := projectRootDirEntry.FindImmediateChildByName("gradle", true)
 	if configDirEntry != nil {
 		projectRoot.configDirEntry = configDirEntry
 
-		versionCatalogFileEntry := configDirEntry.FindDirectEntryByName("libs.versions.toml", false)
+		versionCatalogFileEntry := configDirEntry.FindImmediateChildByName("libs.versions.toml", false)
 		if versionCatalogFileEntry != nil {
 			projectRoot.versionCatalogFileEntry = versionCatalogFileEntry
 		}
 	}
 
-	settingsFileEntry := rootEntry.FindDirectEntryByName("settings.gradle", false)
+	settingsFileEntry := projectRootDirEntry.FindImmediateChildByName("settings.gradle", false)
 	if settingsFileEntry == nil {
-		settingsFileEntry = rootEntry.FindDirectEntryByName("settings.gradle.kts", false)
+		settingsFileEntry = projectRootDirEntry.FindImmediateChildByName("settings.gradle.kts", false)
 	}
 	if settingsFileEntry != nil {
 		projectRoot.settingsGradleFileEntry = settingsFileEntry

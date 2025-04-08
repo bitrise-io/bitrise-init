@@ -14,6 +14,7 @@ type DirEntry struct {
 	RelPath string
 	Name    string
 	IsDir   bool
+	parent  *DirEntry
 	entries []DirEntry
 }
 
@@ -28,6 +29,7 @@ func WalkDir(rootDir string, depth uint) (*DirEntry, error) {
 		RelPath: "./",
 		Name:    "",
 		IsDir:   true,
+		parent:  nil,
 		entries: nil,
 	}
 
@@ -38,13 +40,18 @@ func WalkDir(rootDir string, depth uint) (*DirEntry, error) {
 	return &parent, nil
 }
 
+// Parent returns the parent directory entry of the current entry.
+func (e DirEntry) Parent() *DirEntry {
+	return e.parent
+}
+
 // FindFirstEntryByName returns the first entry (shortest file path) with the specified name and directory status.
 func (e DirEntry) FindFirstEntryByName(name string, isDir bool) *DirEntry {
 	return recursiveFindFirstEntryByName([]DirEntry{e}, name, isDir)
 }
 
-// FindDirectEntryByName returns the direct child entry with the specified name and directory status.
-func (e DirEntry) FindDirectEntryByName(name string, isDir bool) *DirEntry {
+// FindImmediateChildByName returns the immediate child entry with the specified name and directory status.
+func (e DirEntry) FindImmediateChildByName(name string, isDir bool) *DirEntry {
 	for _, entry := range e.entries {
 		if entry.Name == name && entry.IsDir == isDir {
 			return &entry
@@ -64,7 +71,7 @@ func (e DirEntry) FindEntryByPathComponents(isDir bool, components ...string) *D
 			dir = true
 		}
 
-		entry = entry.FindDirectEntryByName(component, dir)
+		entry = entry.FindImmediateChildByName(component, dir)
 		if entry == nil {
 			return nil
 		}
@@ -140,6 +147,7 @@ func recursiveWalkDir(rootDir string, parent *DirEntry, currentDepth, maxDepth u
 			RelPath: "./" + filepath.Join("./", strings.TrimPrefix(entryAbsPath, rootDir)),
 			Name:    entry.Name(),
 			IsDir:   entry.IsDir(),
+			parent:  parent,
 			entries: nil,
 		}
 
