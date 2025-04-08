@@ -513,21 +513,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        title: Node Version
-        summary: The version of Node.js used in the project. Leave it empty to use
-          the latest Node version
-        env_key: NODEJS_VERSION
-        type: user_input_optional
+        title: Package Manager
+        summary: The package manager used in the project
+        type: selector
         value_map:
-          "":
-            title: Package Manager
-            summary: The package manager used in the project
-            type: selector
-            value_map:
-              npm:
-                config: default-node-js-npm-config
-              yarn:
-                config: default-node-js-yarn-config
+          npm:
+            config: default-node-js-npm-config
+          yarn:
+            config: default-node-js-yarn-config
   react-native:
     title: Is this an [Expo](https://expo.dev)-based React Native project?
     summary: |-
