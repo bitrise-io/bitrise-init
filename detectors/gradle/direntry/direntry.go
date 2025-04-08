@@ -125,8 +125,7 @@ func recursiveWalkDir(rootDir string, parent *DirEntry, currentDepth, maxDepth u
 
 	entries, err := os.ReadDir(parent.AbsPath)
 	if err != nil {
-		// TODO: log error
-		return nil
+		return err
 	}
 
 	parent.entries = make([]DirEntry, 0, len(entries))
