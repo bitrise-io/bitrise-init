@@ -226,6 +226,13 @@ var customConfigVersions = []interface{}{
 	steps.PullIntermediateFilesVersion,
 	steps.XcodeTestWithoutBuildingVersion,
 
+	// kotlin-multiplatform
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.GradleUnitTestVersion,
+	steps.DeployToBitriseIoVersion,
+
 	// macos
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -469,6 +476,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-ios-config
               enterprise:
                 config: default-ios-config
+  kotlin-multiplatform:
+    title: The project's Gradle Wrapper script (gradlew) path.
+    summary: The project's Gradle Wrapper script (gradlew) path.
+    env_key: GRADLEW_PATH
+    type: user_input
+    value_map:
+      "":
+        config: default-kotlin-multiplatform-config
   macos:
     title: Project or Workspace path
     summary: The location of your Xcode project, Xcode workspace or SPM project files
@@ -1150,6 +1165,21 @@ configs:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
               - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
+  kotlin-multiplatform:
+    default-kotlin-multiplatform-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: kotlin-multiplatform
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - gradle-unit-test@%s:
+              inputs:
+              - gradlew_path: $GRADLEW_PATH
+          - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
       format_version: "%s"
