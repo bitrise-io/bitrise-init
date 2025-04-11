@@ -216,13 +216,13 @@ popd > /dev/null
 
 func ScriptStepListItem() bitriseModels.StepListItemModel {
 	var inputs []envmanModels.EnvironmentItemModel
+
 	inputs = append(inputs,
-		envmanModels.EnvironmentItemModel{"title": asdfInstallScriptStepTitle},
 		envmanModels.EnvironmentItemModel{"content": asdfInstallScriptStepContent},
 	)
 
 	stepIDComposite := stepIDComposite(ScriptID, ScriptVersion)
-	return stepListItem(stepIDComposite, "", "", inputs...)
+	return stepListItem(stepIDComposite, asdfInstallScriptStepTitle, "", inputs...)
 }
 
 func NpmStepListItem(command, workdir string) bitriseModels.StepListItemModel {

@@ -1198,8 +1198,8 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail
@@ -1244,8 +1244,8 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail

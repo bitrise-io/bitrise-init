@@ -123,8 +123,8 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail
@@ -168,8 +168,8 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail
@@ -210,8 +210,8 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail
@@ -255,8 +255,8 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - script@%s:
+              title: Install Node.js
               inputs:
-              - title: Install Node.js
               - content: |
                   #!/usr/bin/env bash
                   set -euxo pipefail
