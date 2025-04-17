@@ -4,7 +4,10 @@ import (
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/detectors/maven"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
+	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -28,6 +31,28 @@ const (
 	mavenProjectRootDirInputEnvKey  = "MAVEN_PROJECT_ROOT_DIR"
 	mavenProjectRootDirInputTitle   = "The root directory of the Maven project (where the pom.xml file is located)."
 	mavenProjectRootDirInputSummary = "The root directory of the Maven project (where the pom.xml file is located)."
+	mavenTestScriptTitle            = `Run Maven tests`
+	mavenTestScriptContent          = `#!/usr/bin/env bash
+# fail if any commands fails
+set -e
+# make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
+set -o pipefail
+# debug log
+set -x
+
+mvm test
+`
+	installMavenScriptTitle   = `Install Maven`
+	installMavenScriptContent = `#!/usr/bin/env bash
+# fail if any commands fails
+set -e
+# make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
+set -o pipefail
+# debug log
+set -x
+
+sudo apt install maven
+`
 )
 
 type Scanner struct {
@@ -115,13 +140,121 @@ func (s *Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
-	// TODO: implement
-	return models.BitriseConfigMap{}, nil
+	configBuilder := models.NewDefaultConfigBuilder()
+	bitriseDataMap := models.BitriseConfigMap{}
+
+	if s.gradleProject != nil {
+		gradlewPath := "$" + gradlewPathInputEnvKey
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})...,
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.GradleUnitTestStepListItem(gradlewPath),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultDeployStepList()...,
+		)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap[gradleConfigName] = string(data)
+	}
+
+	if s.mavenProject != nil {
+		mavenProjectRootDir := "$" + mavenProjectRootDirInputEnvKey
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})...,
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.ScriptStepListItem(installMavenScriptTitle, installMavenScriptContent),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.ScriptStepListItem(mavenTestScriptTitle, mavenTestScriptContent, envmanModels.EnvironmentItemModel{
+				"working_dir": mavenProjectRootDir,
+			}),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultDeployStepList()...,
+		)
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		bitriseDataMap[mavenConfigName] = string(data)
+	}
+
+	return bitriseDataMap, nil
 }
 
 func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	// TODO: implement
-	return models.BitriseConfigMap{}, nil
+	configBuilder := models.NewDefaultConfigBuilder()
+	bitriseDataMap := models.BitriseConfigMap{}
+
+	if s.gradleProject != nil {
+		gradlewPath := "$" + gradlewPathInputEnvKey
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.GradleUnitTestStepListItem(gradlewPath),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultDeployStepList()...,
+		)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap[defaultGradleConfigName] = string(data)
+	}
+
+	if s.mavenProject != nil {
+		mavenProjectRootDir := "$" + mavenProjectRootDirInputEnvKey
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.ScriptStepListItem(installMavenScriptTitle, installMavenScriptContent),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.ScriptStepListItem(mavenTestScriptTitle, mavenTestScriptContent, envmanModels.EnvironmentItemModel{
+				"working_dir": mavenProjectRootDir,
+			}),
+		)
+		configBuilder.AppendStepListItemsTo(testWorkflowID,
+			steps.DefaultDeployStepList()...,
+		)
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+		bitriseDataMap[defaultMavenConfigName] = string(data)
+	}
+
+	return bitriseDataMap, nil
 }
 
 func printGradleProject(gradleProject gradle.Project) {

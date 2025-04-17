@@ -322,3 +322,10 @@ func WaitForAndroidEmulatorStepListItem(inputs ...envmanModels.EnvironmentItemMo
 	stepIDComposite := stepIDComposite(WaitForAndroidEmulatorID, WaitForAndroidEmulatorVersion)
 	return stepListItem(stepIDComposite, "", "", inputs...)
 }
+
+func ScriptStepListItem(title string, content string, additionalInputs ...envmanModels.EnvironmentItemModel) bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(ScriptID, ScriptVersion)
+	return stepListItem(stepIDComposite, "", "", append([]envmanModels.EnvironmentItemModel{
+		{"content": content},
+	}, additionalInputs...)...)
+}
