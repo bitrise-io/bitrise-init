@@ -3,13 +3,16 @@ package android
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 const (
@@ -25,13 +28,13 @@ const (
 
 	testPipelineID = "run_tests"
 
-	runInstumentedTestsWorkflowID          = "run_instrumented_tests"
-	runInstumentedTestsWorkflowSummary     = "Run your Android instrumented tests and get the test report."
-	runInstumentedTestsWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android instrumented tests and save the test report."
-	TestShardCountEnvKey                   = "TEST_SHARD_COUNT"
-	TestShardCountEnvValue                 = 2
-	ParallelTotalEnvKey                    = "BITRISE_IO_PARALLEL_TOTAL"
-	ParallelIndexEnvKey                    = "BITRISE_IO_PARALLEL_INDEX"
+	runInstrumentedTestsWorkflowID          = "run_instrumented_tests"
+	runInstrumentedTestsWorkflowSummary     = "Run your Android instrumented tests and get the test report."
+	runInstrumentedTestsWorkflowDescription = "The workflow will first clone your Git repository, cache your Gradle dependencies, install Android tools, run your Android instrumented tests and save the test report."
+	TestShardCountEnvKey                    = "TEST_SHARD_COUNT"
+	TestShardCountEnvValue                  = 2
+	ParallelTotalEnvKey                     = "BITRISE_IO_PARALLEL_TOTAL"
+	ParallelIndexEnvKey                     = "BITRISE_IO_PARALLEL_INDEX"
 
 	buildWorkflowID          = "build_apk"
 	buildWorkflowSummary     = "Run your Android unit tests and create an APK file to install your app on a device or share it with your team."
@@ -69,7 +72,7 @@ const (
 
 // Scanner ...
 type Scanner struct {
-	Projects []Project
+	GradleProject gradle.Project
 }
 
 // NewScanner ...
@@ -89,42 +92,129 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
-	projects, err := detect(searchDir)
-	scanner.Projects = projects
+	log.TInfof("Searching for Gradle project files...")
 
-	detected := len(projects) > 0
-	return detected, err
+	gradleProject, err := gradle.ScanProject(searchDir)
+	if err != nil {
+		return false, err
+	}
+
+	log.TDonef("Gradle project found: %v", gradleProject != nil)
+	if gradleProject == nil {
+		return false, nil
+	}
+
+	printGradleProject(*gradleProject)
+
+	log.TInfof("Searching for Android dependencies...")
+	androidDetected, err := gradleProject.DetectAnyDependencies([]string{
+		"com.android.application",
+	})
+	if err != nil {
+		return false, err
+	}
+
+	log.TDonef("Android dependencies found: %v", androidDetected)
+	scanner.GradleProject = *gradleProject
+
+	return androidDetected, nil
 }
 
+/*
+generated config inputs:
+- project root dir (gradlew dir) -> gradlew path
+- app module's gradle build script -> app module's module and variant
+
+- install-missing-android-tools@%s:
+  inputs:
+  - gradlew_path: $PROJECT_LOCATION/gradlew
+- change-android-versioncode-and-versionname@%s:
+  inputs:
+  - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
+- android-lint@%s:
+  inputs:
+  - project_location: $PROJECT_LOCATION
+  - variant: $VARIANT
+  - cache_level: none
+- android-unit-test@%s:
+  inputs:
+  - project_location: $PROJECT_LOCATION
+  - variant: $VARIANT
+  - cache_level: none
+- android-build@%s:
+  inputs:
+  - project_location: $PROJECT_LOCATION
+  - module: $MODULE
+  - variant: $VARIANT
+  - cache_level: none
+*/
+
 // Options ...
+// TODO: restore icon search support
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
-	warnings := models.Warnings{}
-	appIconsAllProjects := models.Icons{}
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
+	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-	for _, project := range scanner.Projects {
-		warnings = append(warnings, project.Warnings...)
-		appIconsAllProjects = append(appIconsAllProjects, project.Icons...)
+	possibleAppModuleBuildScriptPaths := scanner.listPossibleAppModuleBuildScriptPaths()
+	if len(possibleAppModuleBuildScriptPaths) == 0 {
+		// TODO: validate it at project type detection phase
+		return models.OptionNode{}, nil, nil, fmt.Errorf("no Gradle build scripts found")
+	}
 
-		iconIDs := make([]string, len(project.Icons))
-		for i, icon := range project.Icons {
-			iconIDs[i] = icon.Filename
+	moduleNamesToIsKotlinDSL := map[string]bool{}
+	for _, buildScriptPath := range possibleAppModuleBuildScriptPaths {
+		moduleName := moduleFromBuildScriptPath(scanner.GradleProject.RootDirEntry.RelPath, buildScriptPath)
+		if moduleName != "" {
+			isKotlinDSL := strings.HasSuffix(scanner.GradleProject.RootDirEntry.RelPath, ".kts")
+			moduleNamesToIsKotlinDSL[moduleName] = isKotlinDSL
+		} else {
+			// TODO: remote log if no module name found
+		}
+	}
+
+	for moduleName, isKotlinDSL := range moduleNamesToIsKotlinDSL {
+		var configOption *models.OptionNode
+		if isKotlinDSL {
+			configOption = models.NewConfigOption(ConfigNameKotlinScript, nil)
+		} else {
+			configOption = models.NewConfigOption(ConfigName, nil)
 		}
 
-		name := ConfigName
-		if project.UsesKotlinBuildScript {
-			name = ConfigNameKotlinScript
-		}
-		configOption := models.NewConfigOption(name, iconIDs)
-		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
-		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
-
-		projectLocationOption.AddOption(project.RelPath, moduleOption)
-		moduleOption.AddOption("app", variantOption)
+		projectLocationOption.AddOption(scanner.GradleProject.RootDirEntry.RelPath, moduleOption)
+		moduleOption.AddOption(moduleName, variantOption)
 		variantOption.AddConfig("", configOption)
 	}
 
-	return *projectLocationOption, warnings, appIconsAllProjects, nil
+	return *projectLocationOption, nil, nil, nil
+
+	//projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
+	//warnings := models.Warnings{}
+	//appIconsAllProjects := models.Icons{}
+	//
+	//for _, project := range scanner.Projects {
+	//	warnings = append(warnings, project.Warnings...)
+	//	appIconsAllProjects = append(appIconsAllProjects, project.Icons...)
+	//
+	//	iconIDs := make([]string, len(project.Icons))
+	//	for i, icon := range project.Icons {
+	//		iconIDs[i] = icon.Filename
+	//	}
+	//
+	//	name := ConfigName
+	//	if project.UsesKotlinBuildScript {
+	//		name = ConfigNameKotlinScript
+	//	}
+	//	configOption := models.NewConfigOption(name, iconIDs)
+	//	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
+	//	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
+	//
+	//	projectLocationOption.AddOption(project.RelPath, moduleOption)
+	//	moduleOption.AddOption("app", variantOption)
+	//	variantOption.AddConfig("", configOption)
+	//}
+	//
+	//return *projectLocationOption, warnings, appIconsAllProjects, nil
 }
 
 // DefaultOptions ...
@@ -147,9 +237,22 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	return *projectLocationOption
 }
 
+type configBuildingParams struct {
+	name            string
+	useKotlinScript bool
+}
+
 // Configs ...
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
-	params := configBuildingParameters(scanner.Projects)
+	var params []configBuildingParams
+	params = append(params, configBuildingParams{
+		name:            ConfigName,
+		useKotlinScript: false,
+	})
+	params = append(params, configBuildingParams{
+		name:            ConfigNameKotlinScript,
+		useKotlinScript: true,
+	})
 	return scanner.generateConfigs(sshKeyActivation, params)
 }
 
@@ -215,28 +318,28 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 	configBuilder.SetWorkflowDescriptionTo(testsWorkflowID, testWorkflowDescription)
 
 	//-- instrumented test
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 		SSHKeyActivation: sshKeyActivation,
 	})...)
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.RestoreGradleCache())
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.RestoreGradleCache())
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.InstallMissingAndroidToolsStepListItem(
 		envmanModels.EnvironmentItemModel{GradlewPathInputKey: gradlewPath},
 	))
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.AvdManagerStepListItem())
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.WaitForAndroidEmulatorStepListItem())
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.GradleRunnerStepListItem(
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.AvdManagerStepListItem())
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.WaitForAndroidEmulatorStepListItem())
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.GradleRunnerStepListItem(
 		gradlewPath,
 		fmt.Sprintf("connectedAndroidTest \\\n  -Pandroid.testInstrumentationRunnerArguments.numShards=$%s \\\n  -Pandroid.testInstrumentationRunnerArguments.shardIndex=$%s",
 			ParallelTotalEnvKey,
 			ParallelIndexEnvKey,
 		),
 	))
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.SaveGradleCache())
-	configBuilder.AppendStepListItemsTo(runInstumentedTestsWorkflowID, steps.DefaultDeployStepList()...)
-	configBuilder.SetWorkflowSummaryTo(runInstumentedTestsWorkflowID, runInstumentedTestsWorkflowSummary)
-	configBuilder.SetWorkflowDescriptionTo(runInstumentedTestsWorkflowID, runInstumentedTestsWorkflowDescription)
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.SaveGradleCache())
+	configBuilder.AppendStepListItemsTo(runInstrumentedTestsWorkflowID, steps.DefaultDeployStepList()...)
+	configBuilder.SetWorkflowSummaryTo(runInstrumentedTestsWorkflowID, runInstrumentedTestsWorkflowSummary)
+	configBuilder.SetWorkflowDescriptionTo(runInstrumentedTestsWorkflowID, runInstrumentedTestsWorkflowDescription)
 
-	configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, runInstumentedTestsWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
+	configBuilder.SetGraphPipelineWorkflowTo(testPipelineID, runInstrumentedTestsWorkflowID, bitriseModels.GraphPipelineWorkflowModel{
 		Parallel: "$" + TestShardCountEnvKey,
 	})
 
@@ -301,4 +404,65 @@ func (scanner *Scanner) generateConfigBuilder(sshKeyActivation models.SSHKeyActi
 	configBuilder.SetWorkflowSummaryTo(buildWorkflowID, buildWorkflowSummary)
 
 	return *configBuilder
+}
+
+func printGradleProject(gradleProject gradle.Project) {
+	log.TPrintf("Project root dir: %s", gradleProject.RootDirEntry.RelPath)
+	log.TPrintf("Gradle wrapper script: %s", gradleProject.GradlewFileEntry.RelPath)
+	if gradleProject.ConfigDirEntry != nil {
+		log.TPrintf("Gradle config dir: %s", gradleProject.ConfigDirEntry.RelPath)
+	}
+	if gradleProject.VersionCatalogFileEntry != nil {
+		log.TPrintf("Version catalog file: %s", gradleProject.VersionCatalogFileEntry.RelPath)
+	}
+	if gradleProject.SettingsGradleFileEntry != nil {
+		log.TPrintf("Gradle settings file: %s", gradleProject.SettingsGradleFileEntry.RelPath)
+	}
+	if len(gradleProject.IncludedProjects) > 0 {
+		log.TPrintf("Included projects:")
+		for _, includedProject := range gradleProject.IncludedProjects {
+			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
+		}
+	}
+}
+
+func (scanner *Scanner) listPossibleAppModuleBuildScriptPaths() []string {
+	var appModuleBuildScriptPath string
+	var possibleAppModuleBuildScriptPaths []string
+
+	for _, includedProject := range scanner.GradleProject.IncludedProjects {
+		if includedProject.Name == "app" {
+			appModuleBuildScriptPath = includedProject.BuildScriptFileEntry.RelPath
+			continue
+		}
+
+		possibleAppModuleBuildScriptPaths = append(possibleAppModuleBuildScriptPaths, includedProject.BuildScriptFileEntry.RelPath)
+	}
+
+	if len(possibleAppModuleBuildScriptPaths) == 0 {
+		// TODO: remote log if no included projects found
+		for _, buildScript := range scanner.GradleProject.AllBuildScriptFileEntries {
+			possibleAppModuleBuildScriptPaths = append(possibleAppModuleBuildScriptPaths, buildScript.RelPath)
+		}
+	}
+
+	if appModuleBuildScriptPath != "" {
+		possibleAppModuleBuildScriptPaths = append([]string{appModuleBuildScriptPath}, possibleAppModuleBuildScriptPaths...)
+	} else {
+		// TODO: remote log if no app module build script found
+	}
+
+	return possibleAppModuleBuildScriptPaths
+}
+
+// :backend:datastore: ./backend/datastore/build.gradle.kts
+// moduleFromBuildScriptPath return the module name from the build script path
+func moduleFromBuildScriptPath(projectRootDir, buildScriptPth string) string {
+	relBuildScriptPath := strings.TrimPrefix(buildScriptPth, projectRootDir)
+	pathComponents := strings.Split(relBuildScriptPath, "/")
+	if len(pathComponents) < 2 {
+		return ""
+	}
+
+	return ":" + strings.Join(pathComponents[:len(pathComponents)-1], ":")
 }
