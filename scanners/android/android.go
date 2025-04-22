@@ -7,6 +7,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
@@ -73,6 +74,7 @@ const (
 // Scanner ...
 type Scanner struct {
 	GradleProject gradle.Project
+	Icons         models.Icons
 }
 
 // NewScanner ...
@@ -116,6 +118,14 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 	log.TDonef("Android dependencies found: %v", androidDetected)
 	scanner.GradleProject = *gradleProject
+
+	log.TInfof("Searching for project icons...")
+	scanner.Icons, err = LookupIcons(scanner.GradleProject.RootDirEntry.AbsPath, searchDir)
+	if err != nil {
+		log.TWarnf("Failed to find icons: %v", err)
+		analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+	}
+	log.TDonef("%d icon(s) found", len(scanner.Icons))
 
 	return androidDetected, nil
 }
@@ -173,12 +183,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		}
 	}
 
+	iconIDs := make([]string, len(scanner.Icons))
+	for i, icon := range scanner.Icons {
+		iconIDs[i] = icon.Filename
+	}
+
 	for moduleName, isKotlinDSL := range moduleNamesToIsKotlinDSL {
 		var configOption *models.OptionNode
 		if isKotlinDSL {
-			configOption = models.NewConfigOption(ConfigNameKotlinScript, nil)
+			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
 		} else {
-			configOption = models.NewConfigOption(ConfigName, nil)
+			configOption = models.NewConfigOption(ConfigName, iconIDs)
 		}
 
 		projectLocationOption.AddOption(scanner.GradleProject.RootDirEntry.RelPath, moduleOption)
@@ -186,7 +201,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		variantOption.AddConfig("", configOption)
 	}
 
-	return *projectLocationOption, nil, nil, nil
+	return *projectLocationOption, nil, scanner.Icons, nil
 
 	//projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
 	//warnings := models.Warnings{}
