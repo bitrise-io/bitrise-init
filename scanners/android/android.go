@@ -74,6 +74,8 @@ const (
 // Scanner ...
 type Scanner struct {
 	GradleProject gradle.Project
+	UsesKotlinDLS bool
+	UsesGradleDLS bool
 	Icons         models.Icons
 }
 
@@ -176,7 +178,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	for _, buildScriptPath := range possibleAppModuleBuildScriptPaths {
 		modulePath := modulePathFromBuildScriptPath(scanner.GradleProject.RootDirEntry.RelPath, buildScriptPath)
 		if modulePath != "" {
-			isKotlinDSL := strings.HasSuffix(scanner.GradleProject.RootDirEntry.RelPath, ".kts")
+			isKotlinDSL := strings.HasSuffix(buildScriptPath, ".kts")
 			modulePathsToIsKotlinDSL[modulePath] = isKotlinDSL
 		} else {
 			// TODO: remote log if no module name found
@@ -191,8 +193,10 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	for moduleName, isKotlinDSL := range modulePathsToIsKotlinDSL {
 		var configOption *models.OptionNode
 		if isKotlinDSL {
+			scanner.UsesKotlinDLS = true
 			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
 		} else {
+			scanner.UsesGradleDLS = true
 			configOption = models.NewConfigOption(ConfigName, iconIDs)
 		}
 
@@ -260,14 +264,18 @@ type configBuildingParams struct {
 // Configs ...
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
 	var params []configBuildingParams
-	params = append(params, configBuildingParams{
-		name:            ConfigName,
-		useKotlinScript: false,
-	})
-	params = append(params, configBuildingParams{
-		name:            ConfigNameKotlinScript,
-		useKotlinScript: true,
-	})
+	if scanner.UsesGradleDLS {
+		params = append(params, configBuildingParams{
+			name:            ConfigName,
+			useKotlinScript: false,
+		})
+	}
+	if scanner.UsesKotlinDLS {
+		params = append(params, configBuildingParams{
+			name:            ConfigNameKotlinScript,
+			useKotlinScript: true,
+		})
+	}
 	return scanner.generateConfigs(sshKeyActivation, params)
 }
 
