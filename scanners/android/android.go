@@ -132,37 +132,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	return androidDetected, nil
 }
 
-/*
-generated config inputs:
-- project root dir (gradlew dir) -> gradlew path
-- app module's gradle build script -> app module's module and variant
-
-- install-missing-android-tools@%s:
-  inputs:
-  - gradlew_path: $PROJECT_LOCATION/gradlew
-- change-android-versioncode-and-versionname@%s:
-  inputs:
-  - build_gradle_path: $PROJECT_LOCATION/$MODULE/build.gradle.kts
-- android-lint@%s:
-  inputs:
-  - project_location: $PROJECT_LOCATION
-  - variant: $VARIANT
-  - cache_level: none
-- android-unit-test@%s:
-  inputs:
-  - project_location: $PROJECT_LOCATION
-  - variant: $VARIANT
-  - cache_level: none
-- android-build@%s:
-  inputs:
-  - project_location: $PROJECT_LOCATION
-  - module: $MODULE
-  - variant: $VARIANT
-  - cache_level: none
-*/
-
 // Options ...
-// TODO: restore icon search support
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
@@ -206,34 +176,6 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	}
 
 	return *projectLocationOption, nil, scanner.Icons, nil
-
-	//projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
-	//warnings := models.Warnings{}
-	//appIconsAllProjects := models.Icons{}
-	//
-	//for _, project := range scanner.Projects {
-	//	warnings = append(warnings, project.Warnings...)
-	//	appIconsAllProjects = append(appIconsAllProjects, project.Icons...)
-	//
-	//	iconIDs := make([]string, len(project.Icons))
-	//	for i, icon := range project.Icons {
-	//		iconIDs[i] = icon.Filename
-	//	}
-	//
-	//	name := ConfigName
-	//	if project.UsesKotlinBuildScript {
-	//		name = ConfigNameKotlinScript
-	//	}
-	//	configOption := models.NewConfigOption(name, iconIDs)
-	//	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
-	//	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
-	//
-	//	projectLocationOption.AddOption(project.RelPath, moduleOption)
-	//	moduleOption.AddOption("app", variantOption)
-	//	variantOption.AddConfig("", configOption)
-	//}
-	//
-	//return *projectLocationOption, warnings, appIconsAllProjects, nil
 }
 
 // DefaultOptions ...
@@ -478,8 +420,6 @@ func (scanner *Scanner) listPossibleAppModuleBuildScriptPaths() []string {
 	return possibleAppModuleBuildScriptPaths
 }
 
-// :backend:datastore: ./backend/datastore/build.gradle.kts
-// modulePathFromBuildScriptPath returns the module path from the build script path
 func modulePathFromBuildScriptPath(projectRootDir, buildScriptPth string) string {
 	relBuildScriptPath := strings.TrimPrefix(buildScriptPth, projectRootDir)
 	relBuildScriptPath = strings.TrimPrefix(relBuildScriptPath, "/")
