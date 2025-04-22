@@ -144,7 +144,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 			modules = append(modules, gradleModule{
 				ModulePath:     modulePath,
 				BuildScriptPth: includedProject.BuildScriptFileEntry.RelPath,
-				UsesKotlinDSL:  strings.HasPrefix(includedProject.BuildScriptFileEntry.RelPath, ".kts"),
+				UsesKotlinDSL:  strings.HasSuffix(includedProject.BuildScriptFileEntry.RelPath, ".kts"),
 			})
 		}
 
@@ -162,7 +162,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 			modules = append(modules, gradleModule{
 				ModulePath:     modulePath,
 				BuildScriptPth: buildScript.RelPath,
-				UsesKotlinDSL:  strings.HasPrefix(buildScript.RelPath, ".kts"),
+				UsesKotlinDSL:  strings.HasSuffix(buildScript.RelPath, ".kts"),
 			})
 		}
 
