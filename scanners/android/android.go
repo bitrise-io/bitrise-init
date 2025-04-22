@@ -74,8 +74,8 @@ const (
 // Scanner ...
 type Scanner struct {
 	GradleProject gradle.Project
-	UsesKotlinDLS bool
-	UsesGradleDLS bool
+	UsesKotlinDSL bool
+	UsesGradleDSL bool
 	Icons         models.Icons
 }
 
@@ -193,10 +193,10 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	for moduleName, isKotlinDSL := range modulePathsToIsKotlinDSL {
 		var configOption *models.OptionNode
 		if isKotlinDSL {
-			scanner.UsesKotlinDLS = true
+			scanner.UsesKotlinDSL = true
 			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
 		} else {
-			scanner.UsesGradleDLS = true
+			scanner.UsesGradleDSL = true
 			configOption = models.NewConfigOption(ConfigName, iconIDs)
 		}
 
@@ -264,13 +264,13 @@ type configBuildingParams struct {
 // Configs ...
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
 	var params []configBuildingParams
-	if scanner.UsesGradleDLS {
+	if scanner.UsesGradleDSL {
 		params = append(params, configBuildingParams{
 			name:            ConfigName,
 			useKotlinScript: false,
 		})
 	}
-	if scanner.UsesKotlinDLS {
+	if scanner.UsesKotlinDSL {
 		params = append(params, configBuildingParams{
 			name:            ConfigNameKotlinScript,
 			useKotlinScript: true,
