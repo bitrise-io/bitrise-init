@@ -229,9 +229,7 @@ warnings_with_recommendations:
   android: []
 `, sampleAppsAndroidSDK22SubdirVersions...)
 
-var sampleAppsSDK22NoGradlewResultYML = `warnings:
-  android: []
-errors_with_recommendations:
+var sampleAppsSDK22NoGradlewResultYML = `errors_with_recommendations:
   general:
   - error: No known platform detected
     recommendations:
@@ -242,19 +240,6 @@ errors_with_recommendations:
           If you're adding something else, skip this step and configure your Workflow
           manually.
       NoPlatformDetected: true
-warnings_with_recommendations:
-  android:
-  - error: |-
-      <b>No Gradle Wrapper (gradlew) found.</b>
-      Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
-      that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>
-    recommendations:
-      DetailedError:
-        title: We couldn't find your Gradle Wrapper. Please make sure there is a gradlew
-          file in your project's root directory.
-        description: The Gradle Wrapper ensures that the right Gradle version is installed
-          and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the
-          Gradle Wrapper in the Gradle docs</a>.
 `
 
 var sampleAppsAndroid22Versions = []interface{}{
