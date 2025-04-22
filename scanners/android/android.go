@@ -172,12 +172,12 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		return models.OptionNode{}, nil, nil, fmt.Errorf("no Gradle build scripts found")
 	}
 
-	moduleNamesToIsKotlinDSL := map[string]bool{}
+	modulePathsToIsKotlinDSL := map[string]bool{}
 	for _, buildScriptPath := range possibleAppModuleBuildScriptPaths {
-		moduleName := moduleFromBuildScriptPath(scanner.GradleProject.RootDirEntry.RelPath, buildScriptPath)
-		if moduleName != "" {
+		modulePath := modulePathFromBuildScriptPath(scanner.GradleProject.RootDirEntry.RelPath, buildScriptPath)
+		if modulePath != "" {
 			isKotlinDSL := strings.HasSuffix(scanner.GradleProject.RootDirEntry.RelPath, ".kts")
-			moduleNamesToIsKotlinDSL[moduleName] = isKotlinDSL
+			modulePathsToIsKotlinDSL[modulePath] = isKotlinDSL
 		} else {
 			// TODO: remote log if no module name found
 		}
@@ -188,7 +188,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 		iconIDs[i] = icon.Filename
 	}
 
-	for moduleName, isKotlinDSL := range moduleNamesToIsKotlinDSL {
+	for moduleName, isKotlinDSL := range modulePathsToIsKotlinDSL {
 		var configOption *models.OptionNode
 		if isKotlinDSL {
 			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
@@ -471,13 +471,14 @@ func (scanner *Scanner) listPossibleAppModuleBuildScriptPaths() []string {
 }
 
 // :backend:datastore: ./backend/datastore/build.gradle.kts
-// moduleFromBuildScriptPath return the module name from the build script path
-func moduleFromBuildScriptPath(projectRootDir, buildScriptPth string) string {
+// modulePathFromBuildScriptPath returns the module path from the build script path
+func modulePathFromBuildScriptPath(projectRootDir, buildScriptPth string) string {
 	relBuildScriptPath := strings.TrimPrefix(buildScriptPth, projectRootDir)
+	relBuildScriptPath = strings.TrimPrefix(relBuildScriptPath, "/")
 	pathComponents := strings.Split(relBuildScriptPath, "/")
 	if len(pathComponents) < 2 {
 		return ""
 	}
 
-	return ":" + strings.Join(pathComponents[:len(pathComponents)-1], ":")
+	return strings.Join(pathComponents[:len(pathComponents)-1], "/")
 }
