@@ -112,7 +112,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      src:
+      ./src:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -299,7 +299,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -458,7 +458,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -617,7 +617,7 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
