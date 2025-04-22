@@ -1,7 +1,9 @@
 package android
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -61,21 +63,24 @@ const (
 	BuildScriptInputTitle   = "Does your app use Kotlin build scripts?"
 	BuildScriptInputSummary = "The workflow configuration slightly differs based on what language (Groovy or Kotlin) you used in your build scripts."
 
-	GradlewPathInputKey       = "gradlew_path"
-	GradlewGradleTaskInputKey = "gradle_task"
+	GradlewPathInputKey = "gradlew_path"
 
 	CacheLevelInputKey = "cache_level"
 	CacheLevelNone     = "none"
 
-	gradleKotlinBuildFile    = "build.gradle.kts"
-	gradleKotlinSettingsFile = "settings.gradle.kts"
+	gradleKotlinBuildFile = "build.gradle.kts"
 )
+
+type gradleModule struct {
+	ModulePath     string
+	BuildScriptPth string
+	UsesKotlinDSL  bool
+}
 
 // Scanner ...
 type Scanner struct {
 	GradleProject gradle.Project
-	UsesKotlinDSL bool
-	UsesGradleDSL bool
+	Modules       []gradleModule
 	Icons         models.Icons
 }
 
@@ -110,6 +115,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 	printGradleProject(*gradleProject)
 
+	if len(gradleProject.AllBuildScriptFileEntries) == 0 {
+		analytics.LogInfo("android-no-build-scripts-found", nil, "no build script files found")
+		return false, fmt.Errorf("no Gradle build script file found")
+	}
+
 	log.TInfof("Searching for Android dependencies...")
 	androidDetected, err := gradleProject.DetectAnyDependencies([]string{
 		"com.android.application",
@@ -120,6 +130,48 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 
 	log.TDonef("Android dependencies found: %v", androidDetected)
 	scanner.GradleProject = *gradleProject
+
+	if gradleProject.SettingsGradleFileEntry != nil && len(gradleProject.IncludedProjects) == 0 {
+		log.TWarnf("No included projects found in settings.gradle file")
+		remoteLogNoIncludedProjectsFound(gradleProject.SettingsGradleFileEntry.AbsPath)
+	}
+
+	log.TInfof("Scanning Gradle modules...")
+	var modules []gradleModule
+	if len(gradleProject.IncludedProjects) > 0 {
+		for _, includedProject := range gradleProject.IncludedProjects {
+			modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, includedProject.BuildScriptFileEntry.RelPath)
+			modules = append(modules, gradleModule{
+				ModulePath:     modulePath,
+				BuildScriptPth: includedProject.BuildScriptFileEntry.RelPath,
+				UsesKotlinDSL:  strings.HasPrefix(includedProject.BuildScriptFileEntry.RelPath, ".kts"),
+			})
+		}
+
+		log.TDonef("%d included module(s) found:", len(modules))
+		for _, module := range modules {
+			log.TPrintf("- %s", module.ModulePath)
+		}
+	} else {
+		for _, buildScript := range gradleProject.AllBuildScriptFileEntries {
+			modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, buildScript.RelPath)
+			if modulePath == "" {
+				// Skipp top-level build script file
+				continue
+			}
+			modules = append(modules, gradleModule{
+				ModulePath:     modulePath,
+				BuildScriptPth: buildScript.RelPath,
+				UsesKotlinDSL:  strings.HasPrefix(buildScript.RelPath, ".kts"),
+			})
+		}
+
+		log.TDonef("%d module(s) found:", len(modules))
+		for _, module := range modules {
+			log.TPrintf("- %s", module.ModulePath)
+		}
+	}
+	scanner.Modules = modules
 
 	log.TInfof("Searching for project icons...")
 	scanner.Icons, err = LookupIcons(scanner.GradleProject.RootDirEntry.AbsPath, searchDir)
@@ -138,40 +190,21 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
 	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-	possibleAppModuleBuildScriptPaths := scanner.listPossibleAppModuleBuildScriptPaths()
-	if len(possibleAppModuleBuildScriptPaths) == 0 {
-		// TODO: validate it at project type detection phase
-		return models.OptionNode{}, nil, nil, fmt.Errorf("no Gradle build scripts found")
-	}
-
-	modulePathsToIsKotlinDSL := map[string]bool{}
-	for _, buildScriptPath := range possibleAppModuleBuildScriptPaths {
-		modulePath := modulePathFromBuildScriptPath(scanner.GradleProject.RootDirEntry.RelPath, buildScriptPath)
-		if modulePath != "" {
-			isKotlinDSL := strings.HasSuffix(buildScriptPath, ".kts")
-			modulePathsToIsKotlinDSL[modulePath] = isKotlinDSL
-		} else {
-			// TODO: remote log if no module name found
-		}
-	}
-
 	iconIDs := make([]string, len(scanner.Icons))
 	for i, icon := range scanner.Icons {
 		iconIDs[i] = icon.Filename
 	}
 
-	for moduleName, isKotlinDSL := range modulePathsToIsKotlinDSL {
+	for _, module := range scanner.Modules {
 		var configOption *models.OptionNode
-		if isKotlinDSL {
-			scanner.UsesKotlinDSL = true
+		if module.UsesKotlinDSL {
 			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
 		} else {
-			scanner.UsesGradleDSL = true
 			configOption = models.NewConfigOption(ConfigName, iconIDs)
 		}
 
 		projectLocationOption.AddOption(scanner.GradleProject.RootDirEntry.RelPath, moduleOption)
-		moduleOption.AddOption(moduleName, variantOption)
+		moduleOption.AddOption(module.ModulePath, variantOption)
 		variantOption.AddConfig("", configOption)
 	}
 
@@ -205,14 +238,23 @@ type configBuildingParams struct {
 
 // Configs ...
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
+	var usesGradleDSL, usesKotlinDSL bool
+	for _, module := range scanner.Modules {
+		if module.UsesKotlinDSL {
+			usesKotlinDSL = true
+		} else {
+			usesGradleDSL = true
+		}
+	}
+
 	var params []configBuildingParams
-	if scanner.UsesGradleDSL {
+	if usesGradleDSL {
 		params = append(params, configBuildingParams{
 			name:            ConfigName,
 			useKotlinScript: false,
 		})
 	}
-	if scanner.UsesKotlinDSL {
+	if usesKotlinDSL {
 		params = append(params, configBuildingParams{
 			name:            ConfigNameKotlinScript,
 			useKotlinScript: true,
@@ -391,35 +433,6 @@ func printGradleProject(gradleProject gradle.Project) {
 	}
 }
 
-func (scanner *Scanner) listPossibleAppModuleBuildScriptPaths() []string {
-	var appModuleBuildScriptPath string
-	var possibleAppModuleBuildScriptPaths []string
-
-	for _, includedProject := range scanner.GradleProject.IncludedProjects {
-		if includedProject.Name == "app" {
-			appModuleBuildScriptPath = includedProject.BuildScriptFileEntry.RelPath
-			continue
-		}
-
-		possibleAppModuleBuildScriptPaths = append(possibleAppModuleBuildScriptPaths, includedProject.BuildScriptFileEntry.RelPath)
-	}
-
-	if len(possibleAppModuleBuildScriptPaths) == 0 {
-		// TODO: remote log if no included projects found
-		for _, buildScript := range scanner.GradleProject.AllBuildScriptFileEntries {
-			possibleAppModuleBuildScriptPaths = append(possibleAppModuleBuildScriptPaths, buildScript.RelPath)
-		}
-	}
-
-	if appModuleBuildScriptPath != "" {
-		possibleAppModuleBuildScriptPaths = append([]string{appModuleBuildScriptPath}, possibleAppModuleBuildScriptPaths...)
-	} else {
-		// TODO: remote log if no app module build script found
-	}
-
-	return possibleAppModuleBuildScriptPaths
-}
-
 func modulePathFromBuildScriptPath(projectRootDir, buildScriptPth string) string {
 	relBuildScriptPath := strings.TrimPrefix(buildScriptPth, projectRootDir)
 	relBuildScriptPath = strings.TrimPrefix(relBuildScriptPath, "/")
@@ -429,4 +442,39 @@ func modulePathFromBuildScriptPath(projectRootDir, buildScriptPth string) string
 	}
 
 	return strings.Join(pathComponents[:len(pathComponents)-1], "/")
+}
+
+func remoteLogNoIncludedProjectsFound(settingGradlePth string) {
+	file, err := os.Open(settingGradlePth)
+	if err != nil {
+		analytics.LogInfo("android-no-included-projects", map[string]interface{}{
+			"error": err.Error(),
+		}, "Failed to open settings.gradle file")
+		return
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.TWarnf("Unable to close file %s: %s", settingGradlePth, err)
+		}
+	}()
+
+	var includeLines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "include") {
+			includeLines = append(includeLines, line)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		analytics.LogInfo("android-no-included-projects", map[string]interface{}{
+			"error": err.Error(),
+		}, "Failed to read settings.gradle file")
+		return
+	}
+
+	analytics.LogInfo("android-no-included-projects", map[string]interface{}{
+		"include_lines": strings.Join(includeLines, "\n"),
+	}, "settings.gradle file exists, but no included projects found")
 }
