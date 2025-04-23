@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	projectType = "java"
+	ProjectType = "java"
 
 	buildToolInputTitle   = "Build tool"
 	buildToolInputSummary = "The build tool used in the project. Supported options: Gradle, Maven."
@@ -65,7 +65,7 @@ func NewScanner() *Scanner {
 }
 
 func (s *Scanner) Name() string {
-	return projectType
+	return ProjectType
 }
 
 func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
@@ -155,7 +155,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 			steps.DefaultDeployStepList()...,
 		)
 
-		config, err := configBuilder.Generate(projectType)
+		config, err := configBuilder.Generate(ProjectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -184,7 +184,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultDeployStepList()...,
 		)
-		config, err := configBuilder.Generate(projectType)
+		config, err := configBuilder.Generate(ProjectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -214,7 +214,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 			steps.DefaultDeployStepList()...,
 		)
 
-		config, err := configBuilder.Generate(projectType)
+		config, err := configBuilder.Generate(ProjectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
@@ -243,7 +243,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultDeployStepList()...,
 		)
-		config, err := configBuilder.Generate(projectType)
+		config, err := configBuilder.Generate(ProjectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}

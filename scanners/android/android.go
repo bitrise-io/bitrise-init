@@ -7,15 +7,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/bitrise-io/bitrise-init/analytics"
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/scanners/java"
 	"github.com/bitrise-io/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
+	"gopkg.in/yaml.v2"
 )
 
 /*
@@ -26,7 +26,7 @@ Relevant Gradle dependencies:
 */
 
 const (
-	ScannerName                   = "android"
+	ProjectType                   = "android"
 	ConfigName                    = "android-config"
 	ConfigNameKotlinScript        = "android-config-kts"
 	DefaultConfigName             = "default-android-config"
@@ -98,12 +98,12 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner *Scanner) Name() string {
-	return ScannerName
+	return ProjectType
 }
 
 // ExcludedScannerNames ...
 func (scanner *Scanner) ExcludedScannerNames() []string {
-	return nil
+	return []string{java.ProjectType}
 }
 
 // DetectPlatform ...
@@ -285,7 +285,7 @@ func (scanner *Scanner) generateConfigs(sshKeyActivation models.SSHKeyActivation
 	for _, param := range params {
 		configBuilder := scanner.generateConfigBuilder(sshKeyActivation, param.useKotlinScript)
 
-		config, err := configBuilder.Generate(ScannerName,
+		config, err := configBuilder.Generate(ProjectType,
 			envmanModels.EnvironmentItemModel{TestShardCountEnvKey: TestShardCountEnvValue},
 		)
 		if err != nil {

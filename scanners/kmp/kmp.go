@@ -1,14 +1,14 @@
 package kmp
 
 import (
-	"gopkg.in/yaml.v2"
-
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
+	"github.com/bitrise-io/bitrise-init/scanners/java"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/log"
+	"gopkg.in/yaml.v2"
 )
 
 /*
@@ -76,7 +76,11 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 }
 
 func (s *Scanner) ExcludedScannerNames() []string {
-	return []string{android.ScannerName, string(ios.XcodeProjectTypeIOS)}
+	return []string{
+		android.ProjectType,
+		string(ios.XcodeProjectTypeIOS),
+		java.ProjectType,
+	}
 }
 
 func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
