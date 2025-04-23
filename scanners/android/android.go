@@ -18,6 +18,13 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+/*
+Relevant Gradle dependencies:
+	plugins:
+		com.android.application
+			This plugin is used to configure and build Android application projects.
+*/
+
 const (
 	ScannerName                   = "android"
 	ConfigName                    = "android-config"
