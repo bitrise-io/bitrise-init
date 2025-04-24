@@ -12,11 +12,10 @@ import (
 func TestFastlane(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"fastlane",
-			"https://github.com/bitrise-samples/fastlane.git",
-			"",
-			fastlaneResultYML,
-			fastlaneVersions,
+			Name:             "fastlane",
+			RepoURL:          "https://github.com/bitrise-samples/fastlane.git",
+			ExpectedResult:   fastlaneResultYML,
+			ExpectedVersions: fastlaneVersions,
 		},
 	}
 
