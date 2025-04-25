@@ -227,6 +227,19 @@ var customConfigVersions = []interface{}{
 	steps.PullIntermediateFilesVersion,
 	steps.XcodeTestWithoutBuildingVersion,
 
+	// java
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.GradleUnitTestVersion,
+	steps.DeployToBitriseIoVersion,
+
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.DeployToBitriseIoVersion,
+
 	// kotlin-multiplatform
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -1182,30 +1195,30 @@ configs:
               - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
   java:
     default-java-gradle-config: |
-      format_version: "23"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: java
       workflows:
         run_tests:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@8: {}
-          - gradle-unit-test@1:
+          - git-clone@%s: {}
+          - gradle-unit-test@%s:
               inputs:
               - gradlew_path: $GRADLEW_PATH
-          - deploy-to-bitrise-io@2: {}
+          - deploy-to-bitrise-io@%s: {}
     default-java-maven-config: |
-      format_version: "23"
+      format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: java
       workflows:
         run_tests:
           steps:
-          - activate-ssh-key@4:
+          - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@8: {}
-          - script@1:
+          - git-clone@%s: {}
+          - script@%s:
               title: Run Maven tests
               inputs:
               - content: |
@@ -1218,7 +1231,7 @@ configs:
                   set -x
 
                   $MAVEN_WRAPPER_PATH test
-          - deploy-to-bitrise-io@2: {}
+          - deploy-to-bitrise-io@%s: {}
   kotlin-multiplatform:
     default-kotlin-multiplatform-config: |
       format_version: "%s"
