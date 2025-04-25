@@ -232,7 +232,7 @@ var sampleAppsSDK22NoGradlewResultYML = `errors_with_recommendations:
       DetailedError:
         title: We couldn't recognize your platform.
         description: Our auto-configurator supports kotlin-multiplatform, react-native,
-          flutter, ionic, cordova, ios, macos, android, node-js, fastlane projects.
+          flutter, ionic, cordova, ios, macos, android, node-js, java, fastlane projects.
           If you're adding something else, skip this step and configure your Workflow
           manually.
       NoPlatformDetected: true

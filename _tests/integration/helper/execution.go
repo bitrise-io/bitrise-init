@@ -43,8 +43,13 @@ func Execute(t *testing.T, testCases []TestCase) {
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Log("Executing :", testCase.Name)
 
+			cacheKey := testCase.RepoURL
+			if testCase.Branch != "" {
+				cacheKey = cacheKey + "@" + testCase.Branch
+			}
+
 			var sampleAppDir string
-			if _, ok := globalHelper.repoCache[testCase.RepoURL]; !ok {
+			if _, ok := globalHelper.repoCache[cacheKey]; !ok {
 				sampleAppDir = filepath.Join(cloneDir, testCase.Name)
 
 				if testCase.Branch != "" {
@@ -53,9 +58,9 @@ func Execute(t *testing.T, testCases []TestCase) {
 					GitClone(t, sampleAppDir, testCase.RepoURL)
 				}
 
-				globalHelper.repoCache[testCase.RepoURL] = sampleAppDir
+				globalHelper.repoCache[cacheKey] = sampleAppDir
 			} else {
-				sampleAppDir = globalHelper.repoCache[testCase.RepoURL]
+				sampleAppDir = globalHelper.repoCache[cacheKey]
 			}
 
 			resultDir := t.TempDir()

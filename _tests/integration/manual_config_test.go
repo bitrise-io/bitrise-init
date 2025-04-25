@@ -477,6 +477,27 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-ios-config
               enterprise:
                 config: default-ios-config
+  java:
+    title: Build tool
+    summary: 'The build tool used in the project. Supported options: Gradle, Maven.'
+    type: selector
+    value_map:
+      Gradle:
+        title: The project's Gradle Wrapper script (gradlew) path.
+        summary: The project's Gradle Wrapper script (gradlew) path.
+        env_key: GRADLEW_PATH
+        type: user_input
+        value_map:
+          "":
+            config: default-java-gradle-config
+      Maven:
+        title: The project's Maven Wrapper script (mvnw) path.
+        summary: The project's Maven Wrapper script (mvnw) path.
+        env_key: MAVEN_WRAPPER_PATH
+        type: user_input
+        value_map:
+          "":
+            config: default-java-maven-config
   kotlin-multiplatform:
     title: The project's Gradle Wrapper script (gradlew) path.
     summary: The project's Gradle Wrapper script (gradlew) path.
@@ -1159,6 +1180,45 @@ configs:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
               - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
+  java:
+    default-java-gradle-config: |
+      format_version: "23"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: java
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@8: {}
+          - gradle-unit-test@1:
+              inputs:
+              - gradlew_path: $GRADLEW_PATH
+          - deploy-to-bitrise-io@2: {}
+    default-java-maven-config: |
+      format_version: "23"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: java
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@4:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@8: {}
+          - script@1:
+              title: Run Maven tests
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
+                  set -o pipefail
+                  # debug log
+                  set -x
+
+                  $MAVEN_WRAPPER_PATH test
+          - deploy-to-bitrise-io@2: {}
   kotlin-multiplatform:
     default-kotlin-multiplatform-config: |
       format_version: "%s"

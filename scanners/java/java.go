@@ -185,10 +185,11 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 }
 
 func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
 	bitriseDataMap := models.BitriseConfigMap{}
 
-	if s.gradleProject != nil {
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
 		gradlewPath := "$" + gradlewPathInputEnvKey
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
@@ -211,7 +212,9 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		bitriseDataMap[defaultGradleConfigName] = string(data)
 	}
 
-	if s.mavenProject != nil {
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
 		)
