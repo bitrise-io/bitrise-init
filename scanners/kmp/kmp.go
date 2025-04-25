@@ -16,8 +16,6 @@ Relevant Gradle dependencies:
 	plugins:
 		org.jetbrains.kotlin.multiplatform -> kotlin("multiplatform")
 			This plugin is used to enable Kotlin Multiplatform projects, allowing you to share code between different platforms (e.g., JVM, JS, Native).
-		org.jetbrains.kotlin.plugin.compose -> kotlin("plugin.compose")
-			This plugin is used to add support for Jetpack Compose in Kotlin Multiplatform projects. It allows you to use Compose UI components across multiple platforms.
 */
 
 const (
@@ -43,6 +41,26 @@ func (s *Scanner) Name() string {
 	return projectType
 }
 
+func printGradleProject(gradleProject gradle.Project) {
+	log.TPrintf("Project root dir: %s", gradleProject.RootDirEntry.RelPath)
+	log.TPrintf("Gradle wrapper script: %s", gradleProject.GradlewFileEntry.RelPath)
+	if gradleProject.ConfigDirEntry != nil {
+		log.TPrintf("Gradle config dir: %s", gradleProject.ConfigDirEntry.RelPath)
+	}
+	if gradleProject.VersionCatalogFileEntry != nil {
+		log.TPrintf("Version catalog file: %s", gradleProject.VersionCatalogFileEntry.RelPath)
+	}
+	if gradleProject.SettingsGradleFileEntry != nil {
+		log.TPrintf("Gradle settings file: %s", gradleProject.SettingsGradleFileEntry.RelPath)
+	}
+	if len(gradleProject.IncludedProjects) > 0 {
+		log.TPrintf("Included projects:")
+		for _, includedProject := range gradleProject.IncludedProjects {
+			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
+		}
+	}
+}
+
 func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TInfof("Searching for Gradle project files...")
 
@@ -61,9 +79,7 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TInfof("Searching for Kotlin Multiplatform dependencies...")
 	kotlinMultiplatformDetected, err := gradleProject.DetectAnyDependencies([]string{
 		"org.jetbrains.kotlin.multiplatform",
-		"org.jetbrains.kotlin.plugin.compose",
 		`kotlin("multiplatform")`,
-		`kotlin("plugin.compose")`,
 	})
 	if err != nil {
 		return false, err
@@ -153,24 +169,4 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	bitriseDataMap[defaultConfigName] = string(data)
 
 	return bitriseDataMap, nil
-}
-
-func printGradleProject(gradleProject gradle.Project) {
-	log.TPrintf("Project root dir: %s", gradleProject.RootDirEntry.RelPath)
-	log.TPrintf("Gradle wrapper script: %s", gradleProject.GradlewFileEntry.RelPath)
-	if gradleProject.ConfigDirEntry != nil {
-		log.TPrintf("Gradle config dir: %s", gradleProject.ConfigDirEntry.RelPath)
-	}
-	if gradleProject.VersionCatalogFileEntry != nil {
-		log.TPrintf("Version catalog file: %s", gradleProject.VersionCatalogFileEntry.RelPath)
-	}
-	if gradleProject.SettingsGradleFileEntry != nil {
-		log.TPrintf("Gradle settings file: %s", gradleProject.SettingsGradleFileEntry.RelPath)
-	}
-	if len(gradleProject.IncludedProjects) > 0 {
-		log.TPrintf("Included projects:")
-		for _, includedProject := range gradleProject.IncludedProjects {
-			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
-		}
-	}
 }

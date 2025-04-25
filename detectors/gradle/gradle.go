@@ -250,9 +250,9 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 			} else {
 				log.TWarnf("Unable to find build script for %s", include)
 			}
-		}
 
-		projects.includedProjects = subprojects
+			projects.includedProjects = subprojects
+		}
 	}
 
 	return &projects, nil
