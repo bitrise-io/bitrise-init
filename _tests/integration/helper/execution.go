@@ -20,8 +20,6 @@ type TestCase struct {
 	ExpectedVersions  []interface{}
 }
 
-var globalHelper *testHelper
-
 type testHelper struct {
 	repoCache map[string]string
 }
@@ -33,10 +31,7 @@ func newTestHelper() *testHelper {
 }
 
 func Execute(t *testing.T, testCases []TestCase) {
-	if globalHelper == nil {
-		globalHelper = newTestHelper()
-	}
-
+	helper := newTestHelper()
 	cloneDir := t.TempDir()
 
 	for _, testCase := range testCases {
@@ -49,7 +44,7 @@ func Execute(t *testing.T, testCases []TestCase) {
 			}
 
 			var sampleAppDir string
-			if _, ok := globalHelper.repoCache[cacheKey]; !ok {
+			if _, ok := helper.repoCache[cacheKey]; !ok {
 				sampleAppDir = filepath.Join(cloneDir, testCase.Name)
 
 				if testCase.Branch != "" {
@@ -58,9 +53,9 @@ func Execute(t *testing.T, testCases []TestCase) {
 					GitClone(t, sampleAppDir, testCase.RepoURL)
 				}
 
-				globalHelper.repoCache[cacheKey] = sampleAppDir
+				helper.repoCache[cacheKey] = sampleAppDir
 			} else {
-				sampleAppDir = globalHelper.repoCache[cacheKey]
+				sampleAppDir = helper.repoCache[cacheKey]
 			}
 
 			resultDir := t.TempDir()
