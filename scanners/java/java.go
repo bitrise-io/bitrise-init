@@ -26,13 +26,13 @@ const (
 	gradlewPathInputTitle   = "The project's Gradle Wrapper script (gradlew) path."
 	gradlewPathInputSummary = "The project's Gradle Wrapper script (gradlew) path."
 
-	mavenConfigName                 = "java-maven-config"
-	defaultMavenConfigName          = "default-java-maven-config"
-	mavenProjectRootDirInputEnvKey  = "MAVEN_PROJECT_ROOT_DIR"
-	mavenProjectRootDirInputTitle   = "The root directory of the Maven project (where the pom.xml file is located)."
-	mavenProjectRootDirInputSummary = "The root directory of the Maven project (where the pom.xml file is located)."
-	mavenTestScriptTitle            = `Run Maven tests`
-	mavenTestScriptContent          = `#!/usr/bin/env bash
+	mavenConfigName              = "java-maven-config"
+	defaultMavenConfigName       = "default-java-maven-config"
+	mavenWrapperPathInputEnvKey  = "MAVEN_WRAPPER_PATH"
+	mavenWrapperPathInputTitle   = "The project's Maven Wrapper script (mvnw) path."
+	mavenWrapperPathInputSummary = "The project's Maven Wrapper script (mvnw) path."
+	mavenTestScriptTitle         = `Run Maven tests`
+	mavenTestScriptContent       = `#!/usr/bin/env bash
 # fail if any commands fails
 set -e
 # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
@@ -40,18 +40,7 @@ set -o pipefail
 # debug log
 set -x
 
-mvm test
-`
-	installMavenScriptTitle   = `Install Maven`
-	installMavenScriptContent = `#!/usr/bin/env bash
-# fail if any commands fails
-set -e
-# make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
-set -o pipefail
-# debug log
-set -x
-
-sudo apt install maven
+$MAVEN_WRAPPER_PATH test
 `
 )
 
@@ -112,10 +101,10 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 	}
 
 	if s.mavenProject != nil {
-		mavenProjectRootDirOption := models.NewOption(mavenProjectRootDirInputTitle, mavenProjectRootDirInputSummary, mavenProjectRootDirInputEnvKey, models.TypeSelector)
+		mavenWrapperPathOption := models.NewOption(mavenWrapperPathInputTitle, mavenWrapperPathInputSummary, mavenWrapperPathInputEnvKey, models.TypeSelector)
 		configOption := models.NewConfigOption(mavenConfigName, nil)
-		mavenProjectRootDirOption.AddConfig(s.mavenProject.RootDirEntry.RelPath, configOption)
-		return *mavenProjectRootDirOption, nil, nil, nil
+		mavenWrapperPathOption.AddConfig(s.mavenProject.MavenWrapperFileEntry.RelPath, configOption)
+		return *mavenWrapperPathOption, nil, nil, nil
 	}
 
 	return models.OptionNode{}, nil, nil, nil
@@ -130,11 +119,11 @@ func (s *Scanner) DefaultOptions() models.OptionNode {
 	gradleConfigOption := models.NewConfigOption(defaultGradleConfigName, nil)
 	gradlewPathOption.AddConfig("", gradleConfigOption)
 
-	mavenProjectRootDirOption := models.NewOption(mavenProjectRootDirInputTitle, mavenProjectRootDirInputSummary, mavenProjectRootDirInputEnvKey, models.TypeUserInput)
-	buildToolOption.AddOption(buildToolMaven, mavenProjectRootDirOption)
+	mavenWrapperPathOption := models.NewOption(mavenWrapperPathInputTitle, mavenWrapperPathInputSummary, mavenWrapperPathInputEnvKey, models.TypeUserInput)
+	buildToolOption.AddOption(buildToolMaven, mavenWrapperPathOption)
 
 	mavenConfigOption := models.NewConfigOption(defaultMavenConfigName, nil)
-	mavenProjectRootDirOption.AddConfig("", mavenConfigOption)
+	mavenWrapperPathOption.AddConfig("", mavenConfigOption)
 
 	return *buildToolOption
 }
@@ -169,16 +158,12 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 	}
 
 	if s.mavenProject != nil {
-		mavenProjectRootDir := "$" + mavenProjectRootDirInputEnvKey
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})...,
 		)
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
-			steps.ScriptStepListItem(installMavenScriptTitle, installMavenScriptContent),
-		)
-		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.ScriptStepListItem(mavenTestScriptTitle, mavenTestScriptContent, envmanModels.EnvironmentItemModel{
-				"working_dir": mavenProjectRootDir,
+				"working_dir": s.mavenProject.RootDirEntry.RelPath,
 			}),
 		)
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
@@ -192,6 +177,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
+
 		bitriseDataMap[mavenConfigName] = string(data)
 	}
 
@@ -218,31 +204,24 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
-
 		data, err := yaml.Marshal(config)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
 		}
-
 		bitriseDataMap[defaultGradleConfigName] = string(data)
 	}
 
 	if s.mavenProject != nil {
-		mavenProjectRootDir := "$" + mavenProjectRootDirInputEnvKey
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
 		)
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
-			steps.ScriptStepListItem(installMavenScriptTitle, installMavenScriptContent),
-		)
-		configBuilder.AppendStepListItemsTo(testWorkflowID,
-			steps.ScriptStepListItem(mavenTestScriptTitle, mavenTestScriptContent, envmanModels.EnvironmentItemModel{
-				"working_dir": mavenProjectRootDir,
-			}),
+			steps.ScriptStepListItem(mavenTestScriptTitle, mavenTestScriptContent),
 		)
 		configBuilder.AppendStepListItemsTo(testWorkflowID,
 			steps.DefaultDeployStepList()...,
 		)
+
 		config, err := configBuilder.Generate(ProjectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err
@@ -280,4 +259,5 @@ func printGradleProject(gradleProject gradle.Project) {
 func printMavenProject(mavenProject maven.Project) {
 	log.TPrintf("Project root dir: %s", mavenProject.RootDirEntry.RelPath)
 	log.TPrintf("Maven POM file: %s", mavenProject.ProjectObjectModelFileEntry.RelPath)
+	log.TPrintf("Maven wrapper file: %s", mavenProject.MavenWrapperFileEntry.RelPath)
 }

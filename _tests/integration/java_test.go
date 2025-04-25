@@ -2,11 +2,15 @@ package integration
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/output"
+	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
+	"github.com/stretchr/testify/require"
 )
 
 func TestJava(t *testing.T) {
@@ -28,17 +32,9 @@ func TestJava(t *testing.T) {
 			ExpectedVersions:  javaGradleResultVersions,
 		},
 		{
-			Name:              "java-maven-sample",
+			Name:              "spring-boot-maven-sample",
 			RepoURL:           "https://github.com/godrei/java-sample-apps.git",
-			RelativeSearchDir: "java-maven-sample",
-			Branch:            "main",
-			ExpectedResult:    javaMavenResultYML,
-			ExpectedVersions:  javaMavenResultVersions,
-		},
-		{
-			Name:              "maven-sample",
-			RepoURL:           "https://github.com/godrei/java-sample-apps.git",
-			RelativeSearchDir: "maven-sample",
+			RelativeSearchDir: "spring-boot-maven-sample",
 			Branch:            "main",
 			ExpectedResult:    javaMavenResultYML,
 			ExpectedVersions:  javaMavenResultVersions,
@@ -46,6 +42,18 @@ func TestJava(t *testing.T) {
 	}
 
 	helper.Execute(t, testCases)
+}
+
+func TestMissingMavenWrapper(t *testing.T) {
+	tmpDir := t.TempDir()
+	testName := "java-maven-sample"
+	sampleAppDir := filepath.Join(tmpDir, testName)
+	sampleAppURL := "https://github.com/godrei/java-sample-apps.git"
+	helper.GitClone(t, sampleAppDir, sampleAppURL)
+
+	searchDir := filepath.Join(sampleAppDir, "java-maven-sample")
+	_, err := scanner.GenerateAndWriteResults(searchDir, searchDir, output.YAMLFormat)
+	require.EqualError(t, err, "No known platform detected")
 }
 
 var javaGradleResultVersions = []interface{}{
@@ -91,18 +99,17 @@ var javaMavenResultVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.ScriptVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
 var javaMavenResultYML = fmt.Sprintf(`options:
   java:
-    title: The root directory of the Maven project (where the pom.xml file is located).
-    summary: The root directory of the Maven project (where the pom.xml file is located).
-    env_key: MAVEN_PROJECT_ROOT_DIR
+    title: The project's Maven Wrapper script (mvnw) path.
+    summary: The project's Maven Wrapper script (mvnw) path.
+    env_key: MAVEN_WRAPPER_PATH
     type: selector
     value_map:
-      ./:
+      ./mvnw:
         config: java-maven-config
 configs:
   java:
@@ -116,19 +123,6 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - script@%s:
-              title: Install Maven
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  # fail if any commands fails
-                  set -e
-                  # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
-                  set -o pipefail
-                  # debug log
-                  set -x
-
-                  sudo apt install maven
-          - script@%s:
               title: Run Maven tests
               inputs:
               - content: |
@@ -140,8 +134,8 @@ configs:
                   # debug log
                   set -x
 
-                  mvm test
-              - working_dir: $MAVEN_PROJECT_ROOT_DIR
+                  $MAVEN_WRAPPER_PATH test
+              - working_dir: ./
           - deploy-to-bitrise-io@%s: {}
 warnings:
   java: []

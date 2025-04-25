@@ -9,6 +9,7 @@ import (
 type Project struct {
 	RootDirEntry                direntry.DirEntry
 	ProjectObjectModelFileEntry direntry.DirEntry
+	MavenWrapperFileEntry       direntry.DirEntry
 }
 
 func ScanProject(searchDir string) (*Project, error) {
@@ -30,8 +31,14 @@ func detectMavenProjectRoot(searchDir direntry.DirEntry) (*Project, error) {
 		return nil, fmt.Errorf("unable to detect project root")
 	}
 
+	mavenWrapperEntry := projectRootDirEntry.FindImmediateChildByName("mvnw", false)
+	if mavenWrapperEntry == nil {
+		return nil, nil
+	}
+
 	return &Project{
 		RootDirEntry:                *projectRootDirEntry,
 		ProjectObjectModelFileEntry: *projectObjectModelEntry,
+		MavenWrapperFileEntry:       *mavenWrapperEntry,
 	}, nil
 }
