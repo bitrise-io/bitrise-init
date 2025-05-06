@@ -12,25 +12,22 @@ import (
 func TestFlutter(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"sample-apps-flutter-ios-android",
-			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android.git",
-			"",
-			flutterSampleAppResultYML,
-			flutterSampleAppVersions,
+			Name:             "sample-apps-flutter-ios-android",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-flutter-ios-android.git",
+			ExpectedResult:   flutterSampleAppResultYML,
+			ExpectedVersions: flutterSampleAppVersions,
 		},
 		{
-			"sample-apps-flutter-ios-android-package",
-			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-package.git",
-			"",
-			flutterSamplePackageResultYML,
-			flutterSamplePackageVersions,
+			Name:             "sample-apps-flutter-ios-android-package",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-flutter-ios-android-package.git",
+			ExpectedResult:   flutterSamplePackageResultYML,
+			ExpectedVersions: flutterSamplePackageVersions,
 		},
 		{
-			"sample-apps-flutter-ios-android-plugin",
-			"https://github.com/bitrise-samples/sample-apps-flutter-ios-android-plugin.git",
-			"",
-			flutterSamplePluginResultYML,
-			flutterSamplePluginVersions,
+			Name:             "sample-apps-flutter-ios-android-plugin",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-flutter-ios-android-plugin.git",
+			ExpectedResult:   flutterSamplePluginResultYML,
+			ExpectedVersions: flutterSamplePluginVersions,
 		},
 	}
 

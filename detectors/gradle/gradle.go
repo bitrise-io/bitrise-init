@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitrise-io/bitrise-init/detectors/gradle/direntry"
+	"github.com/bitrise-io/bitrise-init/detectors/direntry"
 	"github.com/bitrise-io/go-utils/log"
 )
 
@@ -250,9 +250,9 @@ func detectIncludedProjects(projectRootEntry gradleProjectRootEntry) (*includedP
 			} else {
 				log.TWarnf("Unable to find build script for %s", include)
 			}
-
-			projects.includedProjects = subprojects
 		}
+
+		projects.includedProjects = subprojects
 	}
 
 	return &projects, nil

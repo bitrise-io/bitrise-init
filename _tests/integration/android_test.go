@@ -18,32 +18,28 @@ import (
 func TestAndroid(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"sample-apps-android-sdk22",
-			"https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
-			"",
-			sampleAppsAndroid22ResultYML,
-			sampleAppsAndroid22Versions,
+			Name:             "sample-apps-android-sdk22",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
+			ExpectedResult:   sampleAppsAndroid22ResultYML,
+			ExpectedVersions: sampleAppsAndroid22Versions,
 		},
 		{
-			"android-non-executable-gradlew",
-			"https://github.com/bitrise-samples/android-non-executable-gradlew.git",
-			"",
-			androidNonExecutableGradlewResultYML,
-			androidNonExecutableGradlewVersions,
+			Name:             "android-non-executable-gradlew",
+			RepoURL:          "https://github.com/bitrise-samples/android-non-executable-gradlew.git",
+			ExpectedResult:   androidNonExecutableGradlewResultYML,
+			ExpectedVersions: androidNonExecutableGradlewVersions,
 		},
 		{
-			"android-sdk22-subdir",
-			"https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
-			"",
-			sampleAppsAndroidSDK22SubdirResultYML,
-			sampleAppsAndroidSDK22SubdirVersions,
+			Name:             "android-sdk22-subdir",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
+			ExpectedResult:   sampleAppsAndroidSDK22SubdirResultYML,
+			ExpectedVersions: sampleAppsAndroidSDK22SubdirVersions,
 		},
 		{
-			"android-gradle-kotlin-dsl",
-			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
-			"",
-			sampleAppsKotlinDSLResultYML,
-			sampleAppsKotlinDSLVersions,
+			Name:             "android-gradle-kotlin-dsl",
+			RepoURL:          "https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
+			ExpectedResult:   sampleAppsKotlinDSLResultYML,
+			ExpectedVersions: sampleAppsKotlinDSLVersions,
 		},
 	}
 
@@ -112,7 +108,7 @@ var sampleAppsAndroidSDK22SubdirResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      src:
+      ./src:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -229,32 +225,17 @@ warnings_with_recommendations:
   android: []
 `, sampleAppsAndroidSDK22SubdirVersions...)
 
-var sampleAppsSDK22NoGradlewResultYML = `warnings:
-  android: []
-errors_with_recommendations:
+var sampleAppsSDK22NoGradlewResultYML = `errors_with_recommendations:
   general:
   - error: No known platform detected
     recommendations:
       DetailedError:
         title: We couldn't recognize your platform.
         description: Our auto-configurator supports kotlin-multiplatform, react-native,
-          flutter, ionic, cordova, ios, macos, android, node-js, fastlane projects.
+          flutter, ionic, cordova, ios, macos, android, node-js, java, fastlane projects.
           If you're adding something else, skip this step and configure your Workflow
           manually.
       NoPlatformDetected: true
-warnings_with_recommendations:
-  android:
-  - error: |-
-      <b>No Gradle Wrapper (gradlew) found.</b>
-      Using a Gradle Wrapper (gradlew) is required, as the wrapper is what makes sure
-      that the right Gradle version is installed and used for the build. More info/guide: <a>https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>
-    recommendations:
-      DetailedError:
-        title: We couldn't find your Gradle Wrapper. Please make sure there is a gradlew
-          file in your project's root directory.
-        description: The Gradle Wrapper ensures that the right Gradle version is installed
-          and used for the build. You can find out more about <a target="_blank" href="https://docs.gradle.org/current/userguide/gradle_wrapper.html">the
-          Gradle Wrapper in the Gradle docs</a>.
 `
 
 var sampleAppsAndroid22Versions = []interface{}{
@@ -299,7 +280,7 @@ var sampleAppsAndroid22ResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -458,7 +439,7 @@ var androidNonExecutableGradlewResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file
@@ -617,7 +598,7 @@ var sampleAppsKotlinDSLResultYML = fmt.Sprintf(`options:
     env_key: PROJECT_LOCATION
     type: selector
     value_map:
-      .:
+      ./:
         title: Module
         summary: Modules provide a container for your Android project's source code,
           resource files, and app level settings, such as the module-level build file

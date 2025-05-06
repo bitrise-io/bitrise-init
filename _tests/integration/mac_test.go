@@ -12,18 +12,16 @@ import (
 func TestMacOS(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"sample-apps-osx-10-11",
-			"https://github.com/bitrise-samples/sample-apps-osx-10-11.git",
-			"",
-			sampleAppsOSX1011ResultYML,
-			sampleAppsOSX1011Versions,
+			Name:             "sample-apps-osx-10-11",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-osx-10-11.git",
+			ExpectedResult:   sampleAppsOSX1011ResultYML,
+			ExpectedVersions: sampleAppsOSX1011Versions,
 		},
 		{
-			"sample-spm-mac-project",
-			"https://github.com/bitrise-io/sample-spm-project.git",
-			"",
-			sampleSPMMacProjectResultYML,
-			sampleSPMMacProjectVersions,
+			Name:             "sample-spm-mac-project",
+			RepoURL:          "https://github.com/bitrise-io/sample-spm-project.git",
+			ExpectedResult:   sampleSPMMacProjectResultYML,
+			ExpectedVersions: sampleSPMMacProjectVersions,
 		},
 	}
 
