@@ -12,25 +12,25 @@ import (
 func TestReactNativeExpo(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"managed-workflow-no-tests",
-			"https://github.com/bitrise-io/sample-apps-expo.git",
-			"",
-			managedWorkflowNoTestsResultsYML,
-			managedExpoVersions,
+			Name:             "managed-workflow-no-tests",
+			RepoURL:          "https://github.com/bitrise-io/sample-apps-expo.git",
+			Branch:           "",
+			ExpectedResult:   managedWorkflowNoTestsResultsYML,
+			ExpectedVersions: managedExpoVersions,
 		},
 		{
-			"managed-workflow-with-tests",
-			"https://github.com/bitrise-io/Bitrise-React-Native-Expo-Sample.git",
-			"",
-			managedWorkflowResultsYML,
-			managedExpo2Versions,
+			Name:             "managed-workflow-with-tests",
+			RepoURL:          "https://github.com/bitrise-io/Bitrise-React-Native-Expo-Sample.git",
+			Branch:           "",
+			ExpectedResult:   managedWorkflowResultsYML,
+			ExpectedVersions: managedExpo2Versions,
 		},
 		{
-			"bare-workflow",
-			"https://github.com/bitrise-io/sample-apps-expo.git",
-			"bare",
-			bareWorkflowResultYML,
-			sampleAppsExpoBareVersions,
+			Name:             "bare-workflow",
+			RepoURL:          "https://github.com/bitrise-io/sample-apps-expo.git",
+			Branch:           "bare",
+			ExpectedResult:   bareWorkflowResultYML,
+			ExpectedVersions: sampleAppsExpoBareVersions,
 		},
 	}
 

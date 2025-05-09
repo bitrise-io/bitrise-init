@@ -18,32 +18,28 @@ import (
 func TestAndroid(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"sample-apps-android-sdk22",
-			"https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
-			"",
-			sampleAppsAndroid22ResultYML,
-			sampleAppsAndroid22Versions,
+			Name:             "sample-apps-android-sdk22",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-android-sdk22.git",
+			ExpectedResult:   sampleAppsAndroid22ResultYML,
+			ExpectedVersions: sampleAppsAndroid22Versions,
 		},
 		{
-			"android-non-executable-gradlew",
-			"https://github.com/bitrise-samples/android-non-executable-gradlew.git",
-			"",
-			androidNonExecutableGradlewResultYML,
-			androidNonExecutableGradlewVersions,
+			Name:             "android-non-executable-gradlew",
+			RepoURL:          "https://github.com/bitrise-samples/android-non-executable-gradlew.git",
+			ExpectedResult:   androidNonExecutableGradlewResultYML,
+			ExpectedVersions: androidNonExecutableGradlewVersions,
 		},
 		{
-			"android-sdk22-subdir",
-			"https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
-			"",
-			sampleAppsAndroidSDK22SubdirResultYML,
-			sampleAppsAndroidSDK22SubdirVersions,
+			Name:             "android-sdk22-subdir",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-android-sdk22-subdir",
+			ExpectedResult:   sampleAppsAndroidSDK22SubdirResultYML,
+			ExpectedVersions: sampleAppsAndroidSDK22SubdirVersions,
 		},
 		{
-			"android-gradle-kotlin-dsl",
-			"https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
-			"",
-			sampleAppsKotlinDSLResultYML,
-			sampleAppsKotlinDSLVersions,
+			Name:             "android-gradle-kotlin-dsl",
+			RepoURL:          "https://github.com/bitrise-samples/android-gradle-kotlin-dsl",
+			ExpectedResult:   sampleAppsKotlinDSLResultYML,
+			ExpectedVersions: sampleAppsKotlinDSLVersions,
 		},
 	}
 
