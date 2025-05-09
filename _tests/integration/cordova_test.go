@@ -12,18 +12,16 @@ import (
 func TestCordova(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"sample-apps-cordova-with-jasmine",
-			"https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git",
-			"",
-			sampleAppsCordovaWithJasmineResultYML,
-			sampleAppsCordovaWithJasmineVersions,
+			Name:             "sample-apps-cordova-with-jasmine",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git",
+			ExpectedResult:   sampleAppsCordovaWithJasmineResultYML,
+			ExpectedVersions: sampleAppsCordovaWithJasmineVersions,
 		},
 		{
-			"sample-apps-cordova-with-karma-jasmine",
-			"https://github.com/bitrise-samples/sample-apps-cordova-with-karma-jasmine.git",
-			"",
-			sampleAppsCordovaWithKarmaJasmineResultYML,
-			sampleAppsCordovaWithKarmaJasmineVersions,
+			Name:             "sample-apps-cordova-with-karma-jasmine",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-cordova-with-karma-jasmine.git",
+			ExpectedResult:   sampleAppsCordovaWithKarmaJasmineResultYML,
+			ExpectedVersions: sampleAppsCordovaWithKarmaJasmineVersions,
 		},
 	}
 

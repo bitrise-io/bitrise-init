@@ -11,7 +11,13 @@ import (
 
 func TestNodeJs(t *testing.T) {
 	testCases := []helper.TestCase{
-		{"multi-package", "https://github.com/bitrise-io/nestjs-sample-01-cats-app", "multi-package", multiPackageYml, multiPackageYmlVersions},
+		{
+			Name:             "multi-package",
+			RepoURL:          "https://github.com/bitrise-io/nestjs-sample-01-cats-app",
+			Branch:           "multi-package",
+			ExpectedResult:   multiPackageYml,
+			ExpectedVersions: multiPackageYmlVersions,
+		},
 	}
 
 	helper.Execute(t, testCases)

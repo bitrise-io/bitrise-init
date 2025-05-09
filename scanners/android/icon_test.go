@@ -33,7 +33,7 @@ func manifestWithIcon(iconName string) string {
 }
 
 func TestLookupIconsMultipleApps(t *testing.T) {
-	projectDir:= t.TempDir()
+	projectDir := t.TempDir()
 	defer func() {
 		if err := os.RemoveAll(projectDir); err != nil {
 			t.Logf("Failed to clean up after test, error: %s", err)
@@ -112,7 +112,7 @@ func TestLookupIconsMultipleApps(t *testing.T) {
 				createDummyApp(app)
 			}
 
-			got, err := lookupIcons(tt.projectDir, tt.basepath)
+			got, err := lookupIcons(tt.projectDir)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LookupPossibleMatches() error = %v, wantErr %v", err, tt.wantErr)
 				return
