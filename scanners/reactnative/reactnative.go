@@ -109,8 +109,11 @@ func hasNativeAndroidProject(projectDir string, androidScanner *android.Scanner)
 	if detected, err := androidScanner.DetectPlatform(projectDir); err != nil || !detected {
 		return false, nil, err
 	}
+	if len(androidScanner.Results) == 0 {
+		return false, nil, err
+	}
 
-	return true, &androidScanner.GradleProject, nil
+	return true, &(androidScanner.Results[0].GradleProject), nil
 }
 
 func getNativeProjects(packageJSONPth, relPackageJSONDir string) (ios.DetectResult, *gradle.Project) {
