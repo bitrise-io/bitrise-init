@@ -113,12 +113,12 @@ type DetectResult struct {
 
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
+	log.TInfof("Searching for Gradle project files...")
+
 	rootEntry, err := direntry.WalkDir(searchDir, 6)
 	if err != nil {
 		return false, err
 	}
-
-	log.TInfof("Searching for Gradle project files...")
 
 	gradleWrapperScripts := rootEntry.FindAllEntriesByName("gradlew", false)
 
@@ -138,7 +138,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		if projectRootDir == nil {
 			return false, fmt.Errorf("failed to get parent directory of %s", gradleWrapperScript.AbsPath)
 		}
-		gradleProject, err := gradle.NewGradleProjectFromFile(*projectRootDir)
+		gradleProject, err := gradle.ScanGradleProject(*projectRootDir)
 		if err != nil {
 			return false, err
 		}

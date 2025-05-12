@@ -40,40 +40,8 @@ type Project struct {
 	AllBuildScriptFileEntries []direntry.DirEntry
 }
 
-func NewGradleProjectFromFile(projectRootDir direntry.DirEntry) (*Project, error) {
-	projectRoot, err := detectGradleProjectRoot(projectRootDir)
-	if err != nil {
-		return nil, err
-	}
-	if projectRoot == nil {
-		return nil, nil
-	}
-	projects, err := detectIncludedProjects(*projectRoot)
-	if err != nil {
-		return nil, err
-	}
-
-	project := Project{
-		RootDirEntry:            projectRoot.rootDirEntry,
-		GradlewFileEntry:        projectRoot.gradlewFileEntry,
-		ConfigDirEntry:          projectRoot.configDirEntry,
-		VersionCatalogFileEntry: projectRoot.versionCatalogFileEntry,
-		SettingsGradleFileEntry: projectRoot.settingsGradleFileEntry,
-
-		IncludedProjects:          projects.includedProjects,
-		AllBuildScriptFileEntries: projects.allBuildScriptEntries,
-	}
-
-	return &project, nil
-}
-
-func ScanProject(searchDir string) (*Project, error) {
-	rootEntry, err := direntry.WalkDir(searchDir, 6)
-	if err != nil {
-		return nil, err
-	}
-
-	projectRoot, err := detectGradleProjectRoot(*rootEntry)
+func ScanGradleProject(projectRootDirEntry direntry.DirEntry) (*Project, error) {
+	projectRoot, err := detectGradleProjectRoot(projectRootDirEntry)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +154,7 @@ type gradleProjectRootEntry struct {
 }
 
 func detectGradleProjectRoot(searchDir direntry.DirEntry) (*gradleProjectRootEntry, error) {
-	gradlewFileEntry := searchDir.FindFirstEntryByName("gradlew", false)
+	gradlewFileEntry := searchDir.FindImmediateChildByName("gradlew", false)
 	if gradlewFileEntry == nil {
 		return nil, nil
 	}
