@@ -40,6 +40,10 @@ func Execute(t *testing.T, testCases []TestCase) {
 
 			var sampleAppDir string
 			cacheKey := testCase.RepoURL
+			if testCase.Branch != "" {
+				cacheKey = testCase.RepoURL + testCase.Branch
+			}
+
 			if _, ok := helper.repoCache[cacheKey]; !ok {
 				sampleAppDir = filepath.Join(cloneDir, testCase.Name)
 
