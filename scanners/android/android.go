@@ -138,7 +138,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		if projectRootDir == nil {
 			return false, fmt.Errorf("failed to get parent directory of %s", gradleWrapperScript.AbsPath)
 		}
-		gradleProject, err := gradle.ScanGradleProject(*projectRootDir)
+		gradleProject, err := gradle.ScanProject(*projectRootDir)
 		if err != nil {
 			return false, err
 		}

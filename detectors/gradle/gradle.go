@@ -40,7 +40,7 @@ type Project struct {
 	AllBuildScriptFileEntries []direntry.DirEntry
 }
 
-func ScanGradleProject(projectRootDirEntry direntry.DirEntry) (*Project, error) {
+func ScanProject(projectRootDirEntry direntry.DirEntry) (*Project, error) {
 	projectRoot, err := detectGradleProjectRoot(projectRootDirEntry)
 	if err != nil {
 		return nil, err
