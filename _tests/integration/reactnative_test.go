@@ -44,25 +44,22 @@ const simpleSample = "https://github.com/bitrise-samples/sample-apps-react-nativ
 func TestReactNative(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"joplin",
-			"https://github.com/bitrise-io/joplin.git",
-			"",
-			sampleAppsReactNativeJoplinResultYML,
-			sampleAppsReactNativeJoplinVersions,
+			Name:             "joplin",
+			RepoURL:          "https://github.com/bitrise-io/joplin.git",
+			ExpectedResult:   sampleAppsReactNativeJoplinResultYML,
+			ExpectedVersions: sampleAppsReactNativeJoplinVersions,
 		},
 		{
-			"sample-apps-react-native-ios-and-android",
-			simpleSample,
-			"",
-			sampleAppsReactNativeIosAndAndroidResultYML,
-			sampleAppsReactNativeIosAndAndroidVersions,
+			Name:             "sample-apps-react-native-ios-and-android",
+			RepoURL:          simpleSample,
+			ExpectedResult:   sampleAppsReactNativeIosAndAndroidResultYML,
+			ExpectedVersions: sampleAppsReactNativeIosAndAndroidVersions,
 		},
 		{
-			"sample-apps-react-native-subdir",
-			"https://github.com/bitrise-samples/sample-apps-react-native-subdir.git",
-			"",
-			sampleAppsReactNativeSubdirResultYML,
-			sampleAppsReactNativeSubdirVersions,
+			Name:             "sample-apps-react-native-subdir",
+			RepoURL:          "https://github.com/bitrise-samples/sample-apps-react-native-subdir.git",
+			ExpectedResult:   sampleAppsReactNativeSubdirResultYML,
+			ExpectedVersions: sampleAppsReactNativeSubdirVersions,
 		},
 	}
 

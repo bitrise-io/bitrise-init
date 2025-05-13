@@ -12,11 +12,10 @@ import (
 func TestIonic(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"ionic-2",
-			"https://github.com/bitrise-samples/ionic-2.git",
-			"",
-			ionic2ResultYML,
-			ionic2Versions,
+			Name:             "ionic-2",
+			RepoURL:          "https://github.com/bitrise-samples/ionic-2.git",
+			ExpectedResult:   ionic2ResultYML,
+			ExpectedVersions: ionic2Versions,
 		},
 	}
 

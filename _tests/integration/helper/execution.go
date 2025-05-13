@@ -19,23 +19,51 @@ type TestCase struct {
 	ExpectedVersions []interface{}
 }
 
+type testHelper struct {
+	repoCache map[string]string
+}
+
+func newTestHelper() *testHelper {
+	return &testHelper{
+		repoCache: make(map[string]string),
+	}
+}
+
 func Execute(t *testing.T, testCases []TestCase) {
+	helper := newTestHelper()
+	cloneDir := t.TempDir()
+
 	for _, testCase := range testCases {
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Log("Executing :", testCase.Name)
 
-			sampleAppDir := filepath.Join(t.TempDir(), testCase.Name)
-
+			var sampleAppDir string
+			cacheKey := testCase.RepoURL
 			if testCase.Branch != "" {
-				GitCloneBranch(t, sampleAppDir, testCase.RepoURL, testCase.Branch)
-			} else {
-				GitClone(t, sampleAppDir, testCase.RepoURL)
+				cacheKey = testCase.RepoURL + testCase.Branch
 			}
 
-			_, err := scanner.GenerateAndWriteResults(sampleAppDir, sampleAppDir, output.YAMLFormat)
+			if _, ok := helper.repoCache[cacheKey]; !ok {
+				sampleAppDir = filepath.Join(cloneDir, testCase.Name)
+
+				if testCase.Branch != "" {
+					GitCloneBranch(t, sampleAppDir, testCase.RepoURL, testCase.Branch)
+				} else {
+					GitClone(t, sampleAppDir, testCase.RepoURL)
+				}
+
+				helper.repoCache[cacheKey] = sampleAppDir
+			} else {
+				sampleAppDir = helper.repoCache[cacheKey]
+			}
+
+			resultDir := t.TempDir()
+			searchDir := sampleAppDir
+
+			_, err := scanner.GenerateAndWriteResults(searchDir, resultDir, output.YAMLFormat)
 			require.NoError(t, err)
 
-			scanResultPth := filepath.Join(sampleAppDir, "result.yml")
+			scanResultPth := filepath.Join(resultDir, "result.yml")
 
 			result, err := fileutil.ReadStringFromFile(scanResultPth)
 			require.NoError(t, err)

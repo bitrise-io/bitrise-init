@@ -12,11 +12,11 @@ import (
 func TestKotlinMultiplatform(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			"Taskman",
-			"https://github.com/bitrise-io/kotlin-multiplatform-sample-taskman.git",
-			"main",
-			kmpTaskmanResultYaml,
-			kmpTaskmanResultVersions,
+			Name:             "Taskman",
+			RepoURL:          "https://github.com/bitrise-io/kotlin-multiplatform-sample-taskman.git",
+			Branch:           "main",
+			ExpectedResult:   kmpTaskmanResultYaml,
+			ExpectedVersions: kmpTaskmanResultVersions,
 		},
 	}
 
