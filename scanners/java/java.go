@@ -86,7 +86,9 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			return false, err
 		}
 
+		s.gradleProject = gradleProject
 		printGradleProject(*gradleProject)
+		return true, nil
 	}
 
 	log.TInfof("Searching for Maven project files...")
