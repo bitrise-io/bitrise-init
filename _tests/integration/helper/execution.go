@@ -12,12 +12,12 @@ import (
 )
 
 type TestCase struct {
-	Name              string
-	RepoURL           string
-	Branch            string
-	RelativeSearchDir string
-	ExpectedResult    string
-	ExpectedVersions  []interface{}
+	Name             string
+	RepoURL          string
+	Branch           string
+    RelativeSearchDir string
+	ExpectedResult   string
+	ExpectedVersions []interface{}
 }
 
 type testHelper struct {
@@ -38,12 +38,12 @@ func Execute(t *testing.T, testCases []TestCase) {
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Log("Executing :", testCase.Name)
 
+			var sampleAppDir string
 			cacheKey := testCase.RepoURL
 			if testCase.Branch != "" {
-				cacheKey = cacheKey + "@" + testCase.Branch
+				cacheKey = testCase.RepoURL + testCase.Branch
 			}
 
-			var sampleAppDir string
 			if _, ok := helper.repoCache[cacheKey]; !ok {
 				sampleAppDir = filepath.Join(cloneDir, testCase.Name)
 

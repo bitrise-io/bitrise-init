@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
@@ -15,7 +17,6 @@ import (
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"gopkg.in/yaml.v2"
 )
 
 // ScannerName ...
@@ -135,7 +136,7 @@ func (*Scanner) ExcludedScannerNames() []string {
 	return []string{
 		string(ios.XcodeProjectTypeIOS),
 		string(ios.XcodeProjectTypeMacOS),
-		android.ProjectType,
+		android.ScannerName,
 		nodejs.ScannerName,
 		java.ProjectType,
 	}

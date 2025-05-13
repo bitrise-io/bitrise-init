@@ -7,7 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/bitrise-io/bitrise-init/analytics"
+	"github.com/bitrise-io/bitrise-init/detectors/direntry"
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/java"
@@ -15,7 +18,6 @@ import (
 	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
-	"gopkg.in/yaml.v2"
 )
 
 /*
@@ -26,7 +28,7 @@ Relevant Gradle dependencies:
 */
 
 const (
-	ProjectType                   = "android"
+	ScannerName                   = "android"
 	ConfigName                    = "android-config"
 	ConfigNameKotlinScript        = "android-config-kts"
 	DefaultConfigName             = "default-android-config"
@@ -86,9 +88,7 @@ type gradleModule struct {
 
 // Scanner ...
 type Scanner struct {
-	GradleProject gradle.Project
-	Modules       []gradleModule
-	Icons         models.Icons
+	Results []DetectResult
 }
 
 // NewScanner ...
@@ -98,7 +98,7 @@ func NewScanner() *Scanner {
 
 // Name ...
 func (scanner *Scanner) Name() string {
-	return ProjectType
+	return ScannerName
 }
 
 // ExcludedScannerNames ...
@@ -106,116 +106,162 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 	return []string{java.ProjectType}
 }
 
+type DetectResult struct {
+	GradleProject gradle.Project
+	Modules       []gradleModule
+	Icons         models.Icons
+}
+
 // DetectPlatform ...
 func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 	log.TInfof("Searching for Gradle project files...")
 
-	gradleProject, err := gradle.ScanProject(searchDir)
+	rootEntry, err := direntry.WalkDir(searchDir, 6)
 	if err != nil {
 		return false, err
 	}
 
-	log.TDonef("Gradle project found: %v", gradleProject != nil)
-	if gradleProject == nil {
+	gradleWrapperScripts := rootEntry.FindAllEntriesByName("gradlew", false)
+
+	log.TDonef("%d Gradle wrapper script(s) found", len(gradleWrapperScripts))
+	if len(gradleWrapperScripts) == 0 {
 		return false, nil
 	}
 
-	printGradleProject(*gradleProject)
+	var results []DetectResult
+	for i, gradleWrapperScript := range gradleWrapperScripts {
+		if i > 0 {
+			log.TPrintf("")
+		}
+		log.TInfof("Scanning project with Gradle wrapper script: %s", gradleWrapperScript.AbsPath)
 
-	if len(gradleProject.AllBuildScriptFileEntries) == 0 {
-		analytics.LogInfo("android-no-build-scripts-found", nil, "no build script files found")
-		return false, fmt.Errorf("no Gradle build script file found")
-	}
-
-	log.TInfof("Searching for Android dependencies...")
-	androidDetected, err := gradleProject.DetectAnyDependencies([]string{
-		"com.android.application",
-	})
-	if err != nil {
-		return false, err
-	}
-
-	log.TDonef("Android dependencies found: %v", androidDetected)
-	scanner.GradleProject = *gradleProject
-
-	if gradleProject.SettingsGradleFileEntry != nil && len(gradleProject.IncludedProjects) == 0 {
-		log.TWarnf("No included projects found in settings.gradle file")
-		remoteLogNoIncludedProjectsFound(gradleProject.SettingsGradleFileEntry.AbsPath)
-	}
-
-	log.TInfof("Scanning Gradle modules...")
-	var modules []gradleModule
-	if len(gradleProject.IncludedProjects) > 0 {
-		for _, includedProject := range gradleProject.IncludedProjects {
-			modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, includedProject.BuildScriptFileEntry.RelPath)
-			modules = append(modules, gradleModule{
-				ModulePath:     modulePath,
-				BuildScriptPth: includedProject.BuildScriptFileEntry.RelPath,
-				UsesKotlinDSL:  strings.HasSuffix(includedProject.BuildScriptFileEntry.RelPath, ".kts"),
-			})
+		projectRootDir := gradleWrapperScript.Parent()
+		if projectRootDir == nil {
+			return false, fmt.Errorf("failed to get parent directory of %s", gradleWrapperScript.AbsPath)
+		}
+		gradleProject, err := gradle.ScanProject(*projectRootDir)
+		if err != nil {
+			return false, err
 		}
 
-		log.TDonef("%d included module(s) found:", len(modules))
-		for _, module := range modules {
-			log.TPrintf("- %s", module.ModulePath)
+		printGradleProject(*gradleProject)
+
+		if len(gradleProject.AllBuildScriptFileEntries) == 0 {
+			analytics.LogInfo("android-no-build-scripts-found", nil, "no build script files found")
+			return false, fmt.Errorf("no Gradle build script file found")
 		}
-	} else {
-		for _, buildScript := range gradleProject.AllBuildScriptFileEntries {
-			modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, buildScript.RelPath)
-			if modulePath == "" {
-				// Skipp top-level build script file
-				continue
+
+		log.TPrintf("Searching for Android dependencies...")
+		androidDetected, err := gradleProject.DetectAnyDependencies([]string{
+			"com.android.application",
+		})
+		if err != nil {
+			return false, err
+		}
+
+		log.TDonef("Android dependencies found: %v", androidDetected)
+		if !androidDetected {
+			log.TDonef("No Android dependencies found, skipping this project")
+			continue
+		}
+
+		result := DetectResult{
+			GradleProject: *gradleProject,
+		}
+
+		if gradleProject.SettingsGradleFileEntry != nil && len(gradleProject.IncludedProjects) == 0 {
+			log.TWarnf("No included projects found in settings.gradle file")
+			remoteLogNoIncludedProjectsFound(gradleProject.SettingsGradleFileEntry.AbsPath)
+		}
+
+		log.TPrintf("Scanning Gradle modules...")
+		var modules []gradleModule
+		if len(gradleProject.IncludedProjects) > 0 {
+			for _, includedProject := range gradleProject.IncludedProjects {
+				modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, includedProject.BuildScriptFileEntry.RelPath)
+				modules = append(modules, gradleModule{
+					ModulePath:     modulePath,
+					BuildScriptPth: includedProject.BuildScriptFileEntry.RelPath,
+					UsesKotlinDSL:  strings.HasSuffix(includedProject.BuildScriptFileEntry.RelPath, ".kts"),
+				})
 			}
-			modules = append(modules, gradleModule{
-				ModulePath:     modulePath,
-				BuildScriptPth: buildScript.RelPath,
-				UsesKotlinDSL:  strings.HasSuffix(buildScript.RelPath, ".kts"),
-			})
+
+			log.TDonef("%d included module(s) found:", len(modules))
+			for _, module := range modules {
+				log.TPrintf("- %s", module.ModulePath)
+			}
+		} else {
+			for _, buildScript := range gradleProject.AllBuildScriptFileEntries {
+				modulePath := modulePathFromBuildScriptPath(gradleProject.RootDirEntry.RelPath, buildScript.RelPath)
+				if modulePath == "" {
+					// Skipp top-level build script file
+					continue
+				}
+				modules = append(modules, gradleModule{
+					ModulePath:     modulePath,
+					BuildScriptPth: buildScript.RelPath,
+					UsesKotlinDSL:  strings.HasSuffix(buildScript.RelPath, ".kts"),
+				})
+			}
+
+			log.TDonef("%d module(s) found:", len(modules))
+			for _, module := range modules {
+				log.TPrintf("- %s", module.ModulePath)
+			}
 		}
+		result.Modules = modules
 
-		log.TDonef("%d module(s) found:", len(modules))
-		for _, module := range modules {
-			log.TPrintf("- %s", module.ModulePath)
+		log.TPrintf("Searching for project icons...")
+		result.Icons, err = LookupIcons(result.GradleProject.RootDirEntry.AbsPath, searchDir)
+		if err != nil {
+			log.TWarnf("Failed to find icons: %v", err)
+			analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
 		}
-	}
-	scanner.Modules = modules
+		log.TDonef("%d icon(s) found", len(result.Icons))
 
-	log.TInfof("Searching for project icons...")
-	scanner.Icons, err = LookupIcons(scanner.GradleProject.RootDirEntry.AbsPath, searchDir)
-	if err != nil {
-		log.TWarnf("Failed to find icons: %v", err)
-		analytics.LogInfo("android-icon-lookup", analytics.DetectorErrorData("android", err), "Failed to lookup android icon")
+		results = append(results, result)
 	}
-	log.TDonef("%d icon(s) found", len(scanner.Icons))
 
-	return androidDetected, nil
+	if len(results) == 0 {
+		log.TDonef("No Android projects found")
+		return false, nil
+	}
+
+	scanner.Results = results
+
+	return len(results) > 0, nil
 }
 
 // Options ...
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputSummary, ProjectLocationInputEnvKey, models.TypeSelector)
-	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
-	variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
+	var allIcons models.Icons
 
-	iconIDs := make([]string, len(scanner.Icons))
-	for i, icon := range scanner.Icons {
-		iconIDs[i] = icon.Filename
-	}
+	for _, result := range scanner.Results {
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputSummary, ModuleInputEnvKey, models.TypeUserInput)
+		variantOption := models.NewOption(VariantInputTitle, VariantInputSummary, VariantInputEnvKey, models.TypeOptionalUserInput)
 
-	for _, module := range scanner.Modules {
-		var configOption *models.OptionNode
-		if module.UsesKotlinDSL {
-			configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
-		} else {
-			configOption = models.NewConfigOption(ConfigName, iconIDs)
+		iconIDs := make([]string, len(result.Icons))
+		for i, icon := range result.Icons {
+			iconIDs[i] = icon.Filename
 		}
+		allIcons = append(allIcons, result.Icons...)
 
-		projectLocationOption.AddOption(scanner.GradleProject.RootDirEntry.RelPath, moduleOption)
-		moduleOption.AddOption(module.ModulePath, variantOption)
-		variantOption.AddConfig("", configOption)
+		for _, module := range result.Modules {
+			var configOption *models.OptionNode
+			if module.UsesKotlinDSL {
+				configOption = models.NewConfigOption(ConfigNameKotlinScript, iconIDs)
+			} else {
+				configOption = models.NewConfigOption(ConfigName, iconIDs)
+			}
+
+			projectLocationOption.AddOption(result.GradleProject.RootDirEntry.RelPath, moduleOption)
+			moduleOption.AddOption(module.ModulePath, variantOption)
+			variantOption.AddConfig("", configOption)
+		}
 	}
 
-	return *projectLocationOption, nil, scanner.Icons, nil
+	return *projectLocationOption, nil, allIcons, nil
 }
 
 // DefaultOptions ...
@@ -246,11 +292,13 @@ type configBuildingParams struct {
 // Configs ...
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
 	var usesGradleDSL, usesKotlinDSL bool
-	for _, module := range scanner.Modules {
-		if module.UsesKotlinDSL {
-			usesKotlinDSL = true
-		} else {
-			usesGradleDSL = true
+	for _, result := range scanner.Results {
+		for _, module := range result.Modules {
+			if module.UsesKotlinDSL {
+				usesKotlinDSL = true
+			} else {
+				usesGradleDSL = true
+			}
 		}
 	}
 
@@ -285,7 +333,7 @@ func (scanner *Scanner) generateConfigs(sshKeyActivation models.SSHKeyActivation
 	for _, param := range params {
 		configBuilder := scanner.generateConfigBuilder(sshKeyActivation, param.useKotlinScript)
 
-		config, err := configBuilder.Generate(ProjectType,
+		config, err := configBuilder.Generate(ScannerName,
 			envmanModels.EnvironmentItemModel{TestShardCountEnvKey: TestShardCountEnvValue},
 		)
 		if err != nil {

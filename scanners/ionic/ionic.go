@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/cordova"
@@ -16,7 +18,6 @@ import (
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"gopkg.in/yaml.v2"
 )
 
 const scannerName = "ionic"
@@ -109,7 +110,7 @@ func (Scanner) ExcludedScannerNames() []string {
 		string(ios.XcodeProjectTypeIOS),
 		string(ios.XcodeProjectTypeMacOS),
 		cordova.ScannerName,
-		android.ProjectType,
+		android.ScannerName,
 		nodejs.ScannerName,
 		java.ProjectType,
 	}
