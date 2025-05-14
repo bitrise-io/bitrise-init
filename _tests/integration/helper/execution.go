@@ -12,12 +12,12 @@ import (
 )
 
 type TestCase struct {
-	Name             string
-	RepoURL          string
-	Branch           string
-    RelativeSearchDir string
-	ExpectedResult   string
-	ExpectedVersions []interface{}
+	Name              string
+	RepoURL           string
+	Branch            string
+	RelativeSearchDir string
+	ExpectedResult    string
+	ExpectedVersions  []interface{}
 }
 
 type testHelper struct {
