@@ -70,8 +70,8 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	}
 
 	gradleWrapperScripts := rootEntry.FindAllEntriesByName("gradlew", false)
-
 	log.TDonef("%d Gradle wrapper script(s) found", len(gradleWrapperScripts))
+
 	if len(gradleWrapperScripts) > 0 {
 		gradleWrapperScript := gradleWrapperScripts[0]
 
@@ -86,22 +86,41 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			return false, err
 		}
 
-		s.gradleProject = gradleProject
-		printGradleProject(*gradleProject)
-		return true, nil
+		if gradleProject != nil {
+			s.gradleProject = gradleProject
+			printGradleProject(*gradleProject)
+			return true, nil
+		} else {
+			log.TWarnf("No Gradle project found in %s", projectRootDir.AbsPath)
+		}
 	}
 
 	log.TInfof("Searching for Maven project files...")
-	mavenProject, err := maven.ScanProject(searchDir)
-	if err != nil {
-		return false, err
-	}
 
-	log.TDonef("Maven project found: %v", mavenProject != nil)
-	if mavenProject != nil {
-		s.mavenProject = mavenProject
-		printMavenProject(*mavenProject)
-		return true, nil
+	projectObjectModels := rootEntry.FindAllEntriesByName("pom.xml", false)
+	log.TDonef("%d POM file(s) found", len(projectObjectModels))
+
+	if len(projectObjectModels) > 0 {
+		projectObjectModel := projectObjectModels[0]
+
+		log.TInfof("Scanning project with POM file: %s", projectObjectModel.AbsPath)
+
+		projectRootDir := projectObjectModel.Parent()
+		if projectRootDir == nil {
+			return false, fmt.Errorf("failed to get parent directory of %s", projectObjectModel.AbsPath)
+		}
+		mavenProject, err := maven.ScanProject(*projectRootDir)
+		if err != nil {
+			return false, err
+		}
+
+		if mavenProject != nil {
+			s.mavenProject = mavenProject
+			printMavenProject(*mavenProject)
+			return true, nil
+		} else {
+			log.Warnf("No Maven project found in %s", projectRootDir.AbsPath)
+		}
 	}
 
 	return false, nil

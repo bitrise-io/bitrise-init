@@ -12,16 +12,12 @@ type Project struct {
 	MavenWrapperFileEntry       direntry.DirEntry
 }
 
-func ScanProject(searchDir string) (*Project, error) {
-	rootEntry, err := direntry.WalkDir(searchDir, 6)
-	if err != nil {
-		return nil, err
-	}
-	return detectMavenProjectRoot(*rootEntry)
+func ScanProject(projectRootDirEntry direntry.DirEntry) (*Project, error) {
+	return detectMavenProjectRoot(projectRootDirEntry)
 }
 
 func detectMavenProjectRoot(searchDir direntry.DirEntry) (*Project, error) {
-	projectObjectModelEntry := searchDir.FindFirstEntryByName("pom.xml", false)
+	projectObjectModelEntry := searchDir.FindImmediateChildByName("pom.xml", false)
 	if projectObjectModelEntry == nil {
 		return nil, nil
 	}

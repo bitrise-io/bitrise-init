@@ -143,6 +143,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 		if err != nil {
 			return false, err
 		}
+		if gradleProject == nil {
+			log.TWarnf("No Gradle project found in %s", projectRootDir.AbsPath)
+			continue
+		}
 
 		printGradleProject(*gradleProject)
 
