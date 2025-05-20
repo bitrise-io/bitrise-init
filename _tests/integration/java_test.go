@@ -66,12 +66,14 @@ var javaGradleResultVersions = []interface{}{
 
 var javaGradleResultYML = fmt.Sprintf(`options:
   java:
-    title: The project's Gradle Wrapper script (gradlew) path.
-    summary: The project's Gradle Wrapper script (gradlew) path.
-    env_key: GRADLEW_PATH
+    title: The root directory of the Gradle project.
+    summary: The root directory of the Gradle project, which contains all source files
+      from your project, as well as Gradle files, including the Gradle Wrapper (`+"`gradlew`"+`)
+      file.
+    env_key: PROJECT_ROOT_DIR
     type: selector
     value_map:
-      ./gradlew:
+      ./:
         config: java-gradle-config
 configs:
   java:
@@ -86,7 +88,7 @@ configs:
           - git-clone@%s: {}
           - gradle-unit-test@%s:
               inputs:
-              - gradlew_path: $GRADLEW_PATH
+              - project_root_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
 warnings:
   java: []
@@ -104,12 +106,14 @@ var javaMavenResultVersions = []interface{}{
 
 var javaMavenResultYML = fmt.Sprintf(`options:
   java:
-    title: The project's Maven Wrapper script (mvnw) path.
-    summary: The project's Maven Wrapper script (mvnw) path.
-    env_key: MAVEN_WRAPPER_PATH
+    title: The root directory of the Maven project.
+    summary: The root directory of the Maven project, which contains all source files
+      from your project, as well as Maven files, including the Maven Wrapper (`+"`mvn`"+`)
+      file.
+    env_key: PROJECT_ROOT_DIR
     type: selector
     value_map:
-      ./mvnw:
+      ./:
         config: java-maven-config
 configs:
   java:
@@ -134,8 +138,8 @@ configs:
                   # debug log
                   set -x
 
-                  $MAVEN_WRAPPER_PATH test
-              - working_dir: ./
+                  ./mvn test
+              - working_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
 warnings:
   java: []

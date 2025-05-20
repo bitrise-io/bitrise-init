@@ -496,25 +496,31 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       Gradle:
-        title: The project's Gradle Wrapper script (gradlew) path.
-        summary: The project's Gradle Wrapper script (gradlew) path.
-        env_key: GRADLEW_PATH
+        title: The root directory of the Gradle project.
+        summary: The root directory of the Gradle project, which contains all source
+          files from your project, as well as Gradle files, including the Gradle Wrapper
+          (`+"`gradlew`"+`) file.
+        env_key: PROJECT_ROOT_DIR
         type: user_input
         value_map:
           "":
             config: default-java-gradle-config
       Maven:
-        title: The project's Maven Wrapper script (mvnw) path.
-        summary: The project's Maven Wrapper script (mvnw) path.
-        env_key: MAVEN_WRAPPER_PATH
+        title: The root directory of the Maven project.
+        summary: The root directory of the Maven project, which contains all source
+          files from your project, as well as Maven files, including the Maven Wrapper
+          (`+"`mvn`"+`) file.
+        env_key: PROJECT_ROOT_DIR
         type: user_input
         value_map:
           "":
             config: default-java-maven-config
   kotlin-multiplatform:
-    title: The project's Gradle Wrapper script (gradlew) path.
-    summary: The project's Gradle Wrapper script (gradlew) path.
-    env_key: GRADLEW_PATH
+    title: The root directory of the Gradle project.
+    summary: The root directory of the Gradle project, which contains all source files
+      from your project, as well as Gradle files, including the Gradle Wrapper (`+"`gradlew`"+`)
+      file.
+    env_key: PROJECT_ROOT_DIR
     type: user_input
     value_map:
       "":
@@ -1206,7 +1212,7 @@ configs:
           - git-clone@%s: {}
           - gradle-unit-test@%s:
               inputs:
-              - gradlew_path: $GRADLEW_PATH
+              - project_root_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
     default-java-maven-config: |
       format_version: "%s"
@@ -1230,7 +1236,8 @@ configs:
                   # debug log
                   set -x
 
-                  $MAVEN_WRAPPER_PATH test
+                  ./mvn test
+              - working_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
   kotlin-multiplatform:
     default-kotlin-multiplatform-config: |
@@ -1245,7 +1252,7 @@ configs:
           - git-clone@%s: {}
           - gradle-unit-test@%s:
               inputs:
-              - gradlew_path: $GRADLEW_PATH
+              - project_root_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
