@@ -1236,7 +1236,7 @@ configs:
                   # debug log
                   set -x
 
-                  ./mvn test
+                  ./mvnw test
               - working_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
   kotlin-multiplatform:
