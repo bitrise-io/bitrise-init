@@ -227,6 +227,19 @@ var customConfigVersions = []interface{}{
 	steps.PullIntermediateFilesVersion,
 	steps.XcodeTestWithoutBuildingVersion,
 
+	// java
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.GradleUnitTestVersion,
+	steps.DeployToBitriseIoVersion,
+
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.DeployToBitriseIoVersion,
+
 	// kotlin-multiplatform
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
@@ -477,10 +490,37 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-ios-config
               enterprise:
                 config: default-ios-config
+  java:
+    title: Build tool
+    summary: 'The build tool used in the project. Supported options: Gradle, Maven.'
+    type: selector
+    value_map:
+      Gradle:
+        title: The root directory of the Gradle project.
+        summary: The root directory of the Gradle project, which contains all source
+          files from your project, as well as Gradle files, including the Gradle Wrapper
+          (`+"`gradlew`"+`) file.
+        env_key: PROJECT_ROOT_DIR
+        type: user_input
+        value_map:
+          "":
+            config: default-java-gradle-config
+      Maven:
+        title: The root directory of the Maven project.
+        summary: The root directory of the Maven project, which contains all source
+          files from your project, as well as Maven files, including the Maven Wrapper
+          (`+"`mvn`"+`) file.
+        env_key: PROJECT_ROOT_DIR
+        type: user_input
+        value_map:
+          "":
+            config: default-java-maven-config
   kotlin-multiplatform:
-    title: The project's Gradle Wrapper script (gradlew) path.
-    summary: The project's Gradle Wrapper script (gradlew) path.
-    env_key: GRADLEW_PATH
+    title: The root directory of the Gradle project.
+    summary: The root directory of the Gradle project, which contains all source files
+      from your project, as well as Gradle files, including the Gradle Wrapper (`+"`gradlew`"+`)
+      file.
+    env_key: PROJECT_ROOT_DIR
     type: user_input
     value_map:
       "":
@@ -1159,6 +1199,46 @@ configs:
               inputs:
               - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
               - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
+  java:
+    default-java-gradle-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: java
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - gradle-unit-test@%s:
+              inputs:
+              - project_root_dir: $PROJECT_ROOT_DIR
+          - deploy-to-bitrise-io@%s: {}
+    default-java-maven-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: java
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Run Maven tests
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  # fail if any commands fails
+                  set -e
+                  # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
+                  set -o pipefail
+                  # debug log
+                  set -x
+
+                  ./mvnw test
+              - working_dir: $PROJECT_ROOT_DIR
+          - deploy-to-bitrise-io@%s: {}
   kotlin-multiplatform:
     default-kotlin-multiplatform-config: |
       format_version: "%s"
@@ -1172,7 +1252,7 @@ configs:
           - git-clone@%s: {}
           - gradle-unit-test@%s:
               inputs:
-              - gradlew_path: $GRADLEW_PATH
+              - project_root_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |

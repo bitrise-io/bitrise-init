@@ -12,11 +12,12 @@ import (
 )
 
 type TestCase struct {
-	Name             string
-	RepoURL          string
-	Branch           string
-	ExpectedResult   string
-	ExpectedVersions []interface{}
+	Name              string
+	RepoURL           string
+	Branch            string
+	RelativeSearchDir string
+	ExpectedResult    string
+	ExpectedVersions  []interface{}
 }
 
 type testHelper struct {
@@ -58,7 +59,7 @@ func Execute(t *testing.T, testCases []TestCase) {
 			}
 
 			resultDir := t.TempDir()
-			searchDir := sampleAppDir
+			searchDir := filepath.Join(sampleAppDir, testCase.RelativeSearchDir)
 
 			_, err := scanner.GenerateAndWriteResults(searchDir, resultDir, output.YAMLFormat)
 			require.NoError(t, err)

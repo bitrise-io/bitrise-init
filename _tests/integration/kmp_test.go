@@ -25,12 +25,14 @@ func TestKotlinMultiplatform(t *testing.T) {
 
 var kmpTaskmanResultYaml = fmt.Sprintf(`options:
   kotlin-multiplatform:
-    title: The project's Gradle Wrapper script (gradlew) path.
-    summary: The project's Gradle Wrapper script (gradlew) path.
-    env_key: GRADLEW_PATH
+    title: The root directory of the Gradle project.
+    summary: The root directory of the Gradle project, which contains all source files
+      from your project, as well as Gradle files, including the Gradle Wrapper (`+"`gradlew`"+`)
+      file.
+    env_key: PROJECT_ROOT_DIR
     type: selector
     value_map:
-      ./gradlew:
+      ./:
         config: kotlin-multiplatform-config
 configs:
   kotlin-multiplatform:
@@ -45,7 +47,7 @@ configs:
           - git-clone@%s: {}
           - gradle-unit-test@%s:
               inputs:
-              - gradlew_path: $GRADLEW_PATH
+              - project_root_dir: $PROJECT_ROOT_DIR
           - deploy-to-bitrise-io@%s: {}
 warnings:
   kotlin-multiplatform: []
