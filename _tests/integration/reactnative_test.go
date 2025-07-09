@@ -88,6 +88,15 @@ func TestYarn(t *testing.T) {
 	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndAndroidYarnResultYML, sampleAppsReactNativeIosAndAndroidYarnVersions)
 }
 
+func TestReactNativeIosAndNoAndroidProject(t *testing.T) {
+	testName := "sample-apps-react-native-ios-and-no-android"
+	dir := setupSample(t, testName, simpleSample)
+
+	require.NoError(t, os.RemoveAll(filepath.Join(dir, "android")))
+
+	generateAndValidateResult(t, testName, dir, sampleAppsReactNativeIosAndNoAndroidResultYML, sampleAppsReactNativeIosAndNoAndroidVersions)
+}
+
 // Helpers
 
 func setupSample(t *testing.T, name, repoURL string) string {
@@ -1001,3 +1010,143 @@ warnings:
 warnings_with_recommendations:
   react-native: []
 `, sampleAppsReactNativeJoplinVersions...)
+
+var sampleAppsReactNativeIosAndNoAndroidVersions = []interface{}{
+	models.FormatVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.NpmVersion,
+	steps.NpmVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreNPMVersion,
+	steps.NpmVersion,
+	steps.NpmVersion,
+	steps.CacheSaveNPMVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
+var sampleAppsReactNativeIosAndNoAndroidResultYML = fmt.Sprintf(`options:
+  react-native:
+    title: React Native project directory
+    summary: Path of the directory containing the project's `+"`package.json`"+` file.
+    env_key: WORKDIR
+    type: selector
+    value_map:
+      .:
+        title: Project or Workspace path
+        summary: The location of your Xcode project, Xcode workspace or SPM project
+          files stored as an Environment Variable. In your Workflows, you can specify
+          paths relative to this path.
+        env_key: BITRISE_PROJECT_PATH
+        type: selector
+        value_map:
+          ios/SampleAppsReactNativeAndroid.xcodeproj:
+            title: Scheme name
+            summary: An Xcode scheme defines a collection of targets to build, a configuration
+              to use when building, and a collection of tests to execute. Only shared
+              schemes are detected automatically but you can use any scheme as a target
+              on Bitrise. You can change the scheme at any time in your Env Vars.
+            env_key: BITRISE_SCHEME
+            type: selector
+            value_map:
+              SampleAppsReactNativeAndroid:
+                title: Distribution method
+                summary: The export method used to create an .ipa file in your builds,
+                  stored as an Environment Variable. You can change this at any time,
+                  or even create several .ipa files with different export methods
+                  in the same build.
+                env_key: BITRISE_DISTRIBUTION_METHOD
+                type: selector
+                value_map:
+                  ad-hoc:
+                    config: react-native-ios-test-config
+                  app-store:
+                    config: react-native-ios-test-config
+                  development:
+                    config: react-native-ios-test-config
+                  enterprise:
+                    config: react-native-ios-test-config
+              SampleAppsReactNativeAndroid-tvOS:
+                title: Distribution method
+                summary: The export method used to create an .ipa file in your builds,
+                  stored as an Environment Variable. You can change this at any time,
+                  or even create several .ipa files with different export methods
+                  in the same build.
+                env_key: BITRISE_DISTRIBUTION_METHOD
+                type: selector
+                value_map:
+                  ad-hoc:
+                    config: react-native-ios-test-config
+                  app-store:
+                    config: react-native-ios-test-config
+                  development:
+                    config: react-native-ios-test-config
+                  enterprise:
+                    config: react-native-ios-test-config
+configs:
+  react-native:
+    react-native-ios-test-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: react-native
+      workflows:
+        deploy:
+          description: |
+            Tests, builds and deploys the app using *Deploy to bitrise.io* Step.
+
+            Next steps:
+            - Set up an [Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html).
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - npm@%s:
+              title: npm install
+              inputs:
+              - workdir: $WORKDIR
+              - command: install
+          - npm@%s:
+              title: npm test
+              inputs:
+              - workdir: $WORKDIR
+              - command: test
+          - xcode-archive@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - configuration: Release
+              - automatic_code_signing: api-key
+          - deploy-to-bitrise-io@%s: {}
+        primary:
+          description: |
+            Runs tests.
+
+            Next steps:
+            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - restore-npm-cache@%s: {}
+          - npm@%s:
+              title: npm install
+              inputs:
+              - workdir: $WORKDIR
+              - command: install
+          - npm@%s:
+              title: npm test
+              inputs:
+              - workdir: $WORKDIR
+              - command: test
+          - save-npm-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+warnings:
+  react-native: []
+warnings_with_recommendations:
+  react-native: []
+`, sampleAppsReactNativeIosAndNoAndroidVersions...)
