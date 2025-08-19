@@ -29,6 +29,10 @@ type SubProject struct {
 	BuildScriptFileEntry direntry.DirEntry
 }
 
+func (inc SubProject) DetectAnyDependenciesInBuildScript(dependencies []string) (bool, error) {
+	return detectAnyDependencies(inc.BuildScriptFileEntry.AbsPath, dependencies)
+}
+
 type Project struct {
 	RootDirEntry            direntry.DirEntry
 	GradlewFileEntry        direntry.DirEntry
@@ -87,16 +91,30 @@ func (proj Project) DetectAnyDependencies(dependencies []string) (bool, error) {
 	return proj.detectAnyDependenciesInBuildScripts(dependencies)
 }
 
+func (proj Project) FindSubProjectsWithAnyDependencies(dependencies []string) ([]SubProject, error) {
+	var subProjects []SubProject
+	for _, includedProject := range proj.IncludedProjects {
+		detected, err := includedProject.DetectAnyDependenciesInBuildScript(dependencies)
+		if err != nil {
+			return nil, err
+		}
+		if detected {
+			subProjects = append(subProjects, includedProject)
+		}
+	}
+	return subProjects, nil
+}
+
 func (proj Project) detectAnyDependenciesInVersionCatalogFile(dependencies []string) (bool, error) {
 	if proj.VersionCatalogFileEntry == nil {
 		return false, nil
 	}
-	return proj.detectAnyDependencies(proj.VersionCatalogFileEntry.AbsPath, dependencies)
+	return detectAnyDependencies(proj.VersionCatalogFileEntry.AbsPath, dependencies)
 }
 
 func (proj Project) detectAnyDependenciesInIncludedProjectBuildScripts(dependencies []string) (bool, error) {
 	for _, includedProject := range proj.IncludedProjects {
-		detected, err := proj.detectAnyDependencies(includedProject.BuildScriptFileEntry.AbsPath, dependencies)
+		detected, err := detectAnyDependencies(includedProject.BuildScriptFileEntry.AbsPath, dependencies)
 		if err != nil {
 			return false, err
 		}
@@ -109,7 +127,7 @@ func (proj Project) detectAnyDependenciesInIncludedProjectBuildScripts(dependenc
 
 func (proj Project) detectAnyDependenciesInBuildScripts(dependencies []string) (bool, error) {
 	for _, BuildScriptFileEntry := range proj.AllBuildScriptFileEntries {
-		detected, err := proj.detectAnyDependencies(BuildScriptFileEntry.AbsPath, dependencies)
+		detected, err := detectAnyDependencies(BuildScriptFileEntry.AbsPath, dependencies)
 		if err != nil {
 			return false, err
 		}
@@ -120,7 +138,7 @@ func (proj Project) detectAnyDependenciesInBuildScripts(dependencies []string) (
 	return false, nil
 }
 
-func (proj Project) detectAnyDependencies(pth string, dependencies []string) (bool, error) {
+func detectAnyDependencies(pth string, dependencies []string) (bool, error) {
 	file, err := os.Open(pth)
 	if err != nil {
 		return false, err

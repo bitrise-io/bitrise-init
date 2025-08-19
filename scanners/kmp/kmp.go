@@ -7,6 +7,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-init/detectors/direntry"
 	"github.com/bitrise-io/bitrise-init/detectors/gradle"
+	"github.com/bitrise-io/bitrise-init/detectors/kmp"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/scanners/android"
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
@@ -34,7 +35,7 @@ const (
 )
 
 type Scanner struct {
-	gradleProject gradle.Project
+	kmpProject *kmp.Project
 }
 
 func NewScanner() *Scanner {
@@ -98,19 +99,14 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 
 	printGradleProject(*gradleProject)
 
-	log.TInfof("Searching for Kotlin Multiplatform dependencies...")
-	kotlinMultiplatformDetected, err := gradleProject.DetectAnyDependencies([]string{
-		"org.jetbrains.kotlin.multiplatform",
-		`kotlin("multiplatform")`,
-	})
+	kmpProject, err := kmp.ScanProject(*gradleProject)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to scan Kotlin Multiplatform project: %w", err)
 	}
 
-	log.TDonef("Kotlin Multiplatform dependencies found: %v", kotlinMultiplatformDetected)
-	s.gradleProject = *gradleProject
+	s.kmpProject = kmpProject
 
-	return kotlinMultiplatformDetected, nil
+	return kmpProject != nil, nil
 }
 
 func (s *Scanner) ExcludedScannerNames() []string {
@@ -124,7 +120,7 @@ func (s *Scanner) ExcludedScannerNames() []string {
 func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	gradleProjectRootDirOption := models.NewOption(gradleProjectRootDirInputTitle, gradleProjectRootDirInputSummary, gradleProjectRootDirInputEnvKey, models.TypeSelector)
 	configOption := models.NewConfigOption(configName, nil)
-	gradleProjectRootDirOption.AddConfig(s.gradleProject.RootDirEntry.RelPath, configOption)
+	gradleProjectRootDirOption.AddConfig(s.kmpProject.GradleProject.RootDirEntry.RelPath, configOption)
 	return *gradleProjectRootDirOption, nil, nil, nil
 }
 
