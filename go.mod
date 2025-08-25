@@ -3,6 +3,7 @@ module github.com/bitrise-io/bitrise-init
 go 1.22.0
 
 require (
+	github.com/BurntSushi/toml v1.5.0
 	github.com/beevik/etree v1.2.0
 	github.com/bitrise-io/bitrise/v2 v2.30.5
 	github.com/bitrise-io/envman/v2 v2.5.3

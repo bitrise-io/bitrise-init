@@ -36,12 +36,24 @@ func ScanProject(gradleProject gradle.Project) (*Project, error) {
 	log.TInfof("Scanning Kotlin Multiplatform targets...")
 	xcodeProjectFile := gradleProject.RootDirEntry.FindFirstFileEntryByExtension(".xcodeproj")
 	if xcodeProjectFile != nil {
-		log.TPrintf("iOS target: %s", xcodeProjectFile.AbsPath)
+		log.TPrintf("iOS App target: %s", xcodeProjectFile.RelPath)
 	}
 
-	androidProjects, err := gradleProject.FindSubProjectsWithAnyDependencies([]string{
+	androidApplicationPluginID, err := gradleProject.GetDependencyID(`com.android.application`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Android application plugin ID: %w", err)
+	}
+
+	androidAppDependencies := []string{
 		`"com.android.application"`,
-	})
+	}
+	if androidApplicationPluginID != "" {
+		// alias(libs.plugins.androidApplication)
+		// TODO?: make it more reliable by using a regex/glob matching (alias.*<androidApplicationPluginID>)
+		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(libs.plugins.%s)", androidApplicationPluginID))
+	}
+
+	androidProjects, err := gradleProject.FindSubProjectsWithAnyDependencies(androidAppDependencies)
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +64,26 @@ func ScanProject(gradleProject gradle.Project) (*Project, error) {
 	if len(androidProjects) > 0 {
 		for _, androidProject := range androidProjects {
 			androidProjectDir := androidProject.BuildScriptFileEntry.Parent()
-			manifestFile := androidProjectDir.FindFirstEntryByName("AndroidManifest.xml", false)
-			if manifestFile != nil {
-				manifestContent, err := os.ReadFile(manifestFile.AbsPath)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read AndroidManifest.xml file: %w", err)
-				}
-				if strings.Contains(string(manifestContent), "android.hardware.type.watch") {
-					androidWearAppDirs = append(androidWearAppDirs, *androidProjectDir)
-					continue
+			manifestFiles := androidProjectDir.FindAllEntriesByName("AndroidManifest.xml", false)
+			isWearApp := false
+			if len(manifestFiles) > 0 {
+				for _, manifestFile := range manifestFiles {
+					manifestContent, err := os.ReadFile(manifestFile.AbsPath)
+					if err != nil {
+						return nil, fmt.Errorf("failed to read AndroidManifest.xml file: %w", err)
+					}
+					if strings.Contains(string(manifestContent), "android.hardware.type.watch") {
+						isWearApp = true
+						break
+					}
 				}
 			}
 
-			androidAppDirs = append(androidAppDirs, *androidProjectDir)
+			if isWearApp {
+				androidWearAppDirs = append(androidWearAppDirs, *androidProjectDir)
+			} else {
+				androidAppDirs = append(androidAppDirs, *androidProjectDir)
+			}
 		}
 	}
 
@@ -74,7 +93,7 @@ func ScanProject(gradleProject gradle.Project) (*Project, error) {
 		if len(androidAppDirs) > 1 {
 			log.TWarnf("%d Android targets found in the Gradle project, using the first one: %s", len(androidAppDirs), androidAppDir.RelPath)
 		} else {
-			log.TPrintf("Android target: %s", androidAppDir.RelPath)
+			log.TPrintf("Android App target: %s", androidAppDir.RelPath)
 		}
 	}
 

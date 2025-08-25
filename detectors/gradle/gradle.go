@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/bitrise-io/bitrise-init/detectors/direntry"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -103,6 +104,54 @@ func (proj Project) FindSubProjectsWithAnyDependencies(dependencies []string) ([
 		}
 	}
 	return subProjects, nil
+}
+
+func (proj Project) GetDependencyID(dependency string) (string, error) {
+	if proj.VersionCatalogFileEntry == nil {
+		return "", fmt.Errorf("version catalog file entry is not set")
+	}
+
+	file, err := os.Open(proj.VersionCatalogFileEntry.AbsPath)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.TWarnf("Unable to close file %s: %s", proj.VersionCatalogFileEntry.AbsPath, err)
+		}
+	}()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	/*
+		[plugins]
+		androidApplication = { id = "com.android.application", version.ref = "agp" } # referenced in build.gradle: alias(libs.plugins.androidApplication)
+		androidLibrary = { id = "com.android.library", version.ref = "agp" }
+	*/
+
+	type versionCatalog struct {
+		Plugins map[string]struct {
+			ID         string `toml:"id"`
+			VersionRef string `toml:"version.ref"`
+		} `toml:"plugins"`
+	}
+	var catalog versionCatalog
+	if _, err := toml.Decode(string(content), &catalog); err != nil {
+		return "", fmt.Errorf("failed to decode version catalog file: %w", err)
+	}
+
+	var pluginID string
+	for ID, plugin := range catalog.Plugins {
+		if plugin.ID == dependency {
+			pluginID = ID
+			break
+		}
+	}
+
+	return pluginID, nil
 }
 
 func (proj Project) detectAnyDependenciesInVersionCatalogFile(dependencies []string) (bool, error) {
