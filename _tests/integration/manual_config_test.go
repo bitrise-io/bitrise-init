@@ -730,7 +730,7 @@ configs:
           - wait-for-android-emulator@%s: {}
           - gradle-runner@%s:
               inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - build_root_directory: $PROJECT_LOCATION
               - gradle_task: |-
                   connectedAndroidTest \
                     -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
@@ -822,7 +822,7 @@ configs:
           - wait-for-android-emulator@%s: {}
           - gradle-runner@%s:
               inputs:
-              - gradlew_path: $PROJECT_LOCATION/gradlew
+              - build_root_directory: $PROJECT_LOCATION
               - gradle_task: |-
                   connectedAndroidTest \
                     -Pandroid.testInstrumentationRunnerArguments.numShards=$BITRISE_IO_PARALLEL_TOTAL \
