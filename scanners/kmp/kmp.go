@@ -46,26 +46,6 @@ func (s *Scanner) Name() string {
 	return projectType
 }
 
-func printGradleProject(gradleProject gradle.Project) {
-	log.TPrintf("Project root dir: %s", gradleProject.RootDirEntry.RelPath)
-	log.TPrintf("Gradle wrapper script: %s", gradleProject.GradlewFileEntry.RelPath)
-	if gradleProject.ConfigDirEntry != nil {
-		log.TPrintf("Gradle config dir: %s", gradleProject.ConfigDirEntry.RelPath)
-	}
-	if gradleProject.VersionCatalogFileEntry != nil {
-		log.TPrintf("Version catalog file: %s", gradleProject.VersionCatalogFileEntry.RelPath)
-	}
-	if gradleProject.SettingsGradleFileEntry != nil {
-		log.TPrintf("Gradle settings file: %s", gradleProject.SettingsGradleFileEntry.RelPath)
-	}
-	if len(gradleProject.IncludedProjects) > 0 {
-		log.TPrintf("Included projects:")
-		for _, includedProject := range gradleProject.IncludedProjects {
-			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
-		}
-	}
-}
-
 func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	log.TInfof("Searching for Gradle project files...")
 
@@ -97,12 +77,12 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, nil
 	}
 
-	printGradleProject(*gradleProject)
-
 	kmpProject, err := kmp.ScanProject(*gradleProject)
 	if err != nil {
 		return false, fmt.Errorf("failed to scan Kotlin Multiplatform project: %w", err)
 	}
+
+	printKMPProject(*kmpProject)
 
 	s.kmpProject = kmpProject
 
@@ -121,6 +101,7 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 	gradleProjectRootDirOption := models.NewOption(gradleProjectRootDirInputTitle, gradleProjectRootDirInputSummary, gradleProjectRootDirInputEnvKey, models.TypeSelector)
 	configOption := models.NewConfigOption(configName, nil)
 	gradleProjectRootDirOption.AddConfig(s.kmpProject.GradleProject.RootDirEntry.RelPath, configOption)
+
 	return *gradleProjectRootDirOption, nil, nil, nil
 }
 
@@ -189,4 +170,31 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	bitriseDataMap[defaultConfigName] = string(data)
 
 	return bitriseDataMap, nil
+}
+
+func printKMPProject(kmpProject kmp.Project) {
+	log.TPrintf("Project root dir: %s", kmpProject.GradleProject.RootDirEntry.RelPath)
+	log.TPrintf("Gradle wrapper script: %s", kmpProject.GradleProject.GradlewFileEntry.RelPath)
+	if kmpProject.GradleProject.ConfigDirEntry != nil {
+		log.TPrintf("Gradle config dir: %s", kmpProject.GradleProject.ConfigDirEntry.RelPath)
+	}
+	if kmpProject.GradleProject.VersionCatalogFileEntry != nil {
+		log.TPrintf("Version catalog file: %s", kmpProject.GradleProject.VersionCatalogFileEntry.RelPath)
+	}
+	if kmpProject.GradleProject.SettingsGradleFileEntry != nil {
+		log.TPrintf("Gradle settings file: %s", kmpProject.GradleProject.SettingsGradleFileEntry.RelPath)
+	}
+	if len(kmpProject.GradleProject.IncludedProjects) > 0 {
+		log.TPrintf("Included projects:")
+		for _, includedProject := range kmpProject.GradleProject.IncludedProjects {
+			log.TPrintf("- %s: %s", includedProject.Name, includedProject.BuildScriptFileEntry.RelPath)
+		}
+	}
+
+	if kmpProject.IOSAppDetectResult != nil {
+		log.TPrintf("iOS App target: %s", kmpProject.IOSAppDetectResult.Projects[0].RelPath)
+	}
+	if kmpProject.AndroidAppDetectResult != nil {
+		log.TPrintf("Android App target: %s", kmpProject.AndroidAppDetectResult.Modules[0].BuildScriptPth)
+	}
 }
