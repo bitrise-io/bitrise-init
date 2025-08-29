@@ -144,8 +144,73 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 
 func (s *Scanner) DefaultOptions() models.OptionNode {
 	gradleProjectRootDirOption := models.NewOption(gradleProjectRootDirInputTitle, gradleProjectRootDirInputSummary, gradleProjectRootDirInputEnvKey, models.TypeUserInput)
-	configOption := models.NewConfigOption(defaultConfigName, nil)
-	gradleProjectRootDirOption.AddConfig(models.UserInputOptionDefaultValue, configOption)
+	hasAndroidAppTarget := models.NewOption("Has Android app target?", "Indicates whether the project contains an Android app target.", "", models.TypeSelector)
+	gradleProjectRootDirOption.AddOption(models.UserInputOptionDefaultValue, hasAndroidAppTarget)
+
+	// Has Android app target
+	{
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+		hasAndroidAppTarget.AddOption("yes", moduleOption)
+
+		variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
+		moduleOption.AddOption("", variantOption)
+
+		hasIosAppTarget := models.NewOption("Has iOS app target?", "Indicates whether the project contains an iOS app target.", "", models.TypeSelector)
+		variantOption.AddOption("", hasIosAppTarget)
+
+		// Has iOS app target
+		{
+			projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeUserInput)
+			hasIosAppTarget.AddOption("yes", projectPathOption)
+
+			schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
+			projectPathOption.AddOption("", schemeOption)
+
+			exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+			schemeOption.AddOption("", exportMethodOption)
+
+			for _, exportMethod := range ios.IosExportMethods {
+				configOption := models.NewConfigOption("default-kotlin-multiplatform-config-android-ios", nil)
+				exportMethodOption.AddConfig(exportMethod, configOption)
+			}
+		}
+
+		// Has no iOS app target
+		{
+			configOption := models.NewConfigOption("default-kotlin-multiplatform-config-android", nil)
+			hasIosAppTarget.AddConfig("no", configOption)
+		}
+	}
+
+	// Has no Android app target
+	{
+		hasIosAppTarget := models.NewOption("Has iOS app target?", "Indicates whether the project contains an iOS app target.", "", models.TypeSelector)
+		hasAndroidAppTarget.AddOption("no", hasIosAppTarget)
+
+		// Has iOS app target
+		{
+			projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeUserInput)
+			hasIosAppTarget.AddOption("yes", projectPathOption)
+
+			schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeUserInput)
+			projectPathOption.AddOption("", schemeOption)
+
+			exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+			schemeOption.AddOption("", exportMethodOption)
+
+			for _, exportMethod := range ios.IosExportMethods {
+				configOption := models.NewConfigOption("default-kotlin-multiplatform-config-ios", nil)
+				exportMethodOption.AddConfig(exportMethod, configOption)
+			}
+		}
+
+		// Has no iOS app target
+		{
+			configOption := models.NewConfigOption("default-kotlin-multiplatform-config", nil)
+			hasIosAppTarget.AddConfig("no", configOption)
+		}
+	}
+
 	return *gradleProjectRootDirOption
 }
 
@@ -269,31 +334,247 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 }
 
 func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	configBuilder := models.NewDefaultConfigBuilder()
-
-	gradleProjectRootDir := "$" + gradleProjectRootDirInputEnvKey
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: models.SSHKeyActivationConditional})...,
-	)
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.GradleUnitTestStepListItem(gradleProjectRootDir),
-	)
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.DefaultDeployStepList()...,
-	)
-
-	config, err := configBuilder.Generate(projectType)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return models.BitriseConfigMap{}, err
-	}
-
 	bitriseDataMap := models.BitriseConfigMap{}
-	bitriseDataMap[defaultConfigName] = string(data)
+
+	// No Android and no iOS config
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
+		//
+		// Test workflow
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+
+		// Test step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultDeployStepList()...)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap["default-kotlin-multiplatform-config"] = string(data)
+	}
+
+	// Android and no iOS config
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
+		//
+		// Test workflow
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+
+		// Test step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultDeployStepList()...)
+
+		//
+		// Android build workflow
+		androidBuildWorkflowID := models.WorkflowID("android_build")
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
+			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + gradleProjectRootDirInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
+		))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultDeployStepList()...)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap["default-kotlin-multiplatform-config-android"] = string(data)
+	}
+
+	// iOS and no Android config
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
+		//
+		// Test workflow
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+
+		// Test step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultDeployStepList()...)
+
+		//
+		// iOS build workflow
+		iosBuildWorkflowID := models.WorkflowID("ios_build")
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.AutomaticCodeSigningInputKey: ios.AutomaticCodeSigningInputAPIKeyValue},
+		))
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultDeployStepList()...)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap["default-kotlin-multiplatform-config-ios"] = string(data)
+	}
+
+	// Android and iOS config
+	{
+		configBuilder := models.NewDefaultConfigBuilder()
+
+		//
+		// Test workflow
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+
+		// Test step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultDeployStepList()...)
+
+		//
+		// Android build workflow
+		androidBuildWorkflowID := models.WorkflowID("android_build")
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
+			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + gradleProjectRootDirInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
+		))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultDeployStepList()...)
+
+		//
+		// iOS build workflow
+		iosBuildWorkflowID := models.WorkflowID("ios_build")
+
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: models.SSHKeyActivationConditional,
+		})...)
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.AutomaticCodeSigningInputKey: ios.AutomaticCodeSigningInputAPIKeyValue},
+		))
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultDeployStepList()...)
+
+		config, err := configBuilder.Generate(projectType)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		data, err := yaml.Marshal(config)
+		if err != nil {
+			return models.BitriseConfigMap{}, err
+		}
+
+		bitriseDataMap["default-kotlin-multiplatform-config-android-ios"] = string(data)
+	}
 
 	return bitriseDataMap, nil
 }
