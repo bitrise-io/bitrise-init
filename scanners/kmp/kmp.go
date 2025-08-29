@@ -13,6 +13,8 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/scanners/java"
 	"github.com/bitrise-io/bitrise-init/steps"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
+	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
 )
 
@@ -99,8 +101,43 @@ func (s *Scanner) ExcludedScannerNames() []string {
 
 func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	gradleProjectRootDirOption := models.NewOption(gradleProjectRootDirInputTitle, gradleProjectRootDirInputSummary, gradleProjectRootDirInputEnvKey, models.TypeSelector)
-	configOption := models.NewConfigOption(configName, nil)
-	gradleProjectRootDirOption.AddConfig(s.kmpProject.GradleProject.RootDirEntry.RelPath, configOption)
+
+	var nextOption models.OptionNode
+	var nextOptionValue string
+	if s.kmpProject.AndroidAppDetectResult != nil {
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+		gradleProjectRootDirOption.AddOption(s.kmpProject.GradleProject.RootDirEntry.RelPath, moduleOption)
+
+		variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
+		moduleOption.AddOption(s.kmpProject.AndroidAppDetectResult.Modules[0].ModulePath, variantOption)
+
+		nextOption = *variantOption
+		nextOptionValue = models.UserInputOptionDefaultValue
+	} else {
+		nextOption = *gradleProjectRootDirOption
+		nextOptionValue = s.kmpProject.GradleProject.RootDirEntry.RelPath
+	}
+
+	if s.kmpProject.IOSAppDetectResult != nil {
+		projectPathOption := models.NewOption(ios.ProjectPathInputTitle, ios.ProjectPathInputSummary, ios.ProjectPathInputEnvKey, models.TypeSelector)
+		nextOption.AddOption(nextOptionValue, projectPathOption)
+
+		schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputSummary, ios.SchemeInputEnvKey, models.TypeSelector)
+		projectPathOption.AddOption(s.kmpProject.IOSAppDetectResult.Projects[0].RelPath, schemeOption)
+
+		for _, scheme := range s.kmpProject.IOSAppDetectResult.Projects[0].Schemes {
+			exportMethodOption := models.NewOption(ios.DistributionMethodInputTitle, ios.DistributionMethodInputSummary, ios.DistributionMethodEnvKey, models.TypeSelector)
+			schemeOption.AddOption(scheme.Name, exportMethodOption)
+
+			for _, exportMethod := range ios.IosExportMethods {
+				configOption := models.NewConfigOption(configName, nil)
+				exportMethodOption.AddConfig(exportMethod, configOption)
+			}
+		}
+	} else {
+		configOption := models.NewConfigOption(configName, nil)
+		nextOption.AddConfig(models.UserInputOptionDefaultValue, configOption)
+	}
 
 	return *gradleProjectRootDirOption, nil, nil, nil
 }
@@ -113,18 +150,108 @@ func (s *Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
+	bitriseDataMap := models.BitriseConfigMap{}
 	configBuilder := models.NewDefaultConfigBuilder()
 
-	gradleProjectRootDir := "$" + gradleProjectRootDirInputEnvKey
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})...,
-	)
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.GradleUnitTestStepListItem(gradleProjectRootDir),
-	)
-	configBuilder.AppendStepListItemsTo(testWorkflowID,
-		steps.DefaultDeployStepList()...,
-	)
+	// Test workflow
+	{
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: sshKeyActivation,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+
+		// Test step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.DefaultDeployStepList()...)
+	}
+
+	// Android build workflow
+	androidBuildWorkflowID := models.WorkflowID("android_build")
+	if s.kmpProject.AndroidAppDetectResult != nil {
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: sshKeyActivation,
+		})...)
+
+		// Cache setup steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
+			envmanModels.EnvironmentItemModel{android.ProjectLocationInputKey: "$" + gradleProjectRootDirInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
+			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
+		))
+
+		// Cache teardown steps
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.DefaultDeployStepList()...)
+	}
+
+	// iOS build workflow
+	iosBuildWorkflowID := models.WorkflowID("ios_build")
+	if s.kmpProject.IOSAppDetectResult != nil {
+		// Repository clone steps
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
+			SSHKeyActivation: sshKeyActivation,
+		})...)
+
+		// Dependency install & cache setup steps
+		if s.kmpProject.IOSAppDetectResult.HasSPMDependencies {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreSPMCache())
+		}
+
+		if s.kmpProject.IOSAppDetectResult.Projects[0].IsPodWorkspace {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreCocoapodsCache())
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.CocoapodsInstallStepListItem())
+		}
+
+		if s.kmpProject.IOSAppDetectResult.Projects[0].CarthageCommand != "" {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreCarthageCache())
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.CarthageStepListItem(
+				envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: s.kmpProject.IOSAppDetectResult.Projects[0].CarthageCommand},
+			))
+		}
+
+		// Build step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(
+			envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+			envmanModels.EnvironmentItemModel{ios.DistributionMethodInputKey: "$" + ios.DistributionMethodEnvKey},
+			envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
+			envmanModels.EnvironmentItemModel{ios.AutomaticCodeSigningInputKey: ios.AutomaticCodeSigningInputAPIKeyValue},
+		))
+
+		// Cache teardown steps
+		if s.kmpProject.IOSAppDetectResult.HasSPMDependencies {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.SaveSPMCache())
+		}
+		if s.kmpProject.IOSAppDetectResult.Projects[0].IsPodWorkspace {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.SaveCocoapodsCache())
+		}
+		if s.kmpProject.IOSAppDetectResult.Projects[0].CarthageCommand != "" {
+			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.SaveCarthageCache())
+		}
+
+		// Deploy step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultDeployStepList()...)
+	}
+
+	if s.kmpProject.AndroidAppDetectResult != nil && s.kmpProject.IOSAppDetectResult != nil {
+		pipelineID := models.PipelineID("build")
+		configBuilder.SetGraphPipelineWorkflowTo(pipelineID, androidBuildWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
+		configBuilder.SetGraphPipelineWorkflowTo(pipelineID, iosBuildWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
+	}
 
 	config, err := configBuilder.Generate(projectType)
 	if err != nil {
@@ -136,7 +263,6 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 		return models.BitriseConfigMap{}, err
 	}
 
-	bitriseDataMap := models.BitriseConfigMap{}
 	bitriseDataMap[configName] = string(data)
 
 	return bitriseDataMap, nil
