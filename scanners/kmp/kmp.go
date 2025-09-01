@@ -84,11 +84,15 @@ func (s *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		return false, fmt.Errorf("failed to scan Kotlin Multiplatform project: %w", err)
 	}
 
+	if kmpProject == nil {
+		return false, nil
+	}
+
 	printKMPProject(*kmpProject)
 
 	s.kmpProject = kmpProject
 
-	return kmpProject != nil, nil
+	return true, nil
 }
 
 func (s *Scanner) ExcludedScannerNames() []string {
