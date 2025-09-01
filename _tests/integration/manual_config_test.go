@@ -241,10 +241,57 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 
 	// kotlin-multiplatform
+	// default-kotlin-multiplatform-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.GradleUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+	// default-kotlin-multiplatform-config-android
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.AndroidBuildVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.GradleUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+	// default-kotlin-multiplatform-config-android-ios
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.AndroidBuildVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.GradleUnitTestVersion,
+	steps.CacheSaveGradleVersion,
+	steps.DeployToBitriseIoVersion,
+	// default-kotlin-multiplatform-config-ios
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
+	steps.GradleUnitTestVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 
 	// macos
@@ -524,7 +571,114 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        config: default-kotlin-multiplatform-config
+        title: Has Android app target?
+        summary: Indicates whether the project contains an Android app target.
+        type: selector
+        value_map:
+          "no":
+            title: Has iOS app target?
+            summary: Indicates whether the project contains an iOS app target.
+            type: selector
+            value_map:
+              "no":
+                config: default-kotlin-multiplatform-config
+              "yes":
+                title: Project or Workspace path
+                summary: The location of your Xcode project, Xcode workspace or SPM
+                  project files stored as an Environment Variable. In your Workflows,
+                  you can specify paths relative to this path.
+                env_key: BITRISE_PROJECT_PATH
+                type: user_input
+                value_map:
+                  "":
+                    title: Scheme name
+                    summary: An Xcode scheme defines a collection of targets to build,
+                      a configuration to use when building, and a collection of tests
+                      to execute. Only shared schemes are detected automatically but
+                      you can use any scheme as a target on Bitrise. You can change
+                      the scheme at any time in your Env Vars.
+                    env_key: BITRISE_SCHEME
+                    type: user_input
+                    value_map:
+                      "":
+                        title: Distribution method
+                        summary: The export method used to create an .ipa file in
+                          your builds, stored as an Environment Variable. You can
+                          change this at any time, or even create several .ipa files
+                          with different export methods in the same build.
+                        env_key: BITRISE_DISTRIBUTION_METHOD
+                        type: selector
+                        value_map:
+                          ad-hoc:
+                            config: default-kotlin-multiplatform-config-ios
+                          app-store:
+                            config: default-kotlin-multiplatform-config-ios
+                          development:
+                            config: default-kotlin-multiplatform-config-ios
+                          enterprise:
+                            config: default-kotlin-multiplatform-config-ios
+          "yes":
+            title: Module
+            summary: Modules provide a container for your Android project's source
+              code, resource files, and app level settings, such as the module-level
+              build file and Android manifest file. Each module can be independently
+              built, tested, and debugged. You can add new modules to your Bitrise
+              builds at any time.
+            env_key: MODULE
+            type: user_input
+            value_map:
+              "":
+                title: Variant
+                summary: Your Android build variant. You can add variants at any time,
+                  as well as further configure your existing variants later.
+                env_key: VARIANT
+                type: user_input_optional
+                value_map:
+                  "":
+                    title: Has iOS app target?
+                    summary: Indicates whether the project contains an iOS app target.
+                    type: selector
+                    value_map:
+                      "no":
+                        config: default-kotlin-multiplatform-config-android
+                      "yes":
+                        title: Project or Workspace path
+                        summary: The location of your Xcode project, Xcode workspace
+                          or SPM project files stored as an Environment Variable.
+                          In your Workflows, you can specify paths relative to this
+                          path.
+                        env_key: BITRISE_PROJECT_PATH
+                        type: user_input
+                        value_map:
+                          "":
+                            title: Scheme name
+                            summary: An Xcode scheme defines a collection of targets
+                              to build, a configuration to use when building, and
+                              a collection of tests to execute. Only shared schemes
+                              are detected automatically but you can use any scheme
+                              as a target on Bitrise. You can change the scheme at
+                              any time in your Env Vars.
+                            env_key: BITRISE_SCHEME
+                            type: user_input
+                            value_map:
+                              "":
+                                title: Distribution method
+                                summary: The export method used to create an .ipa
+                                  file in your builds, stored as an Environment Variable.
+                                  You can change this at any time, or even create
+                                  several .ipa files with different export methods
+                                  in the same build.
+                                env_key: BITRISE_DISTRIBUTION_METHOD
+                                type: selector
+                                value_map:
+                                  ad-hoc:
+                                    config: default-kotlin-multiplatform-config-android-ios
+                                  app-store:
+                                    config: default-kotlin-multiplatform-config-android-ios
+                                  development:
+                                    config: default-kotlin-multiplatform-config-android-ios
+                                  enterprise:
+                                    config: default-kotlin-multiplatform-config-android-ios
   macos:
     title: Project or Workspace path
     summary: The location of your Xcode project, Xcode workspace or SPM project files
@@ -1250,9 +1404,111 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+    default-kotlin-multiplatform-config-android: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: kotlin-multiplatform
+      workflows:
+        android_build:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_ROOT_DIR
+              - module: $MODULE
+              - variant: $VARIANT
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - gradle-unit-test@%s:
+              inputs:
+              - project_root_dir: $PROJECT_ROOT_DIR
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+    default-kotlin-multiplatform-config-android-ios: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: kotlin-multiplatform
+      workflows:
+        android_build:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - android-build@%s:
+              inputs:
+              - project_location: $PROJECT_ROOT_DIR
+              - module: $MODULE
+              - variant: $VARIANT
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+        ios_build:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - xcode-archive@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - configuration: Release
+              - automatic_code_signing: api-key
+          - deploy-to-bitrise-io@%s: {}
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - gradle-unit-test@%s:
+              inputs:
+              - project_root_dir: $PROJECT_ROOT_DIR
+          - save-gradle-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+    default-kotlin-multiplatform-config-ios: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: kotlin-multiplatform
+      workflows:
+        ios_build:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - xcode-archive@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - configuration: Release
+              - automatic_code_signing: api-key
+          - deploy-to-bitrise-io@%s: {}
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
+          - gradle-unit-test@%s:
+              inputs:
+              - project_root_dir: $PROJECT_ROOT_DIR
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
   macos:
     default-macos-config: |
