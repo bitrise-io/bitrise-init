@@ -39,7 +39,7 @@ var kmpTaskmanResultYaml = fmt.Sprintf(`options:
           and Android manifest file. Each module can be independently built, tested,
           and debugged. You can add new modules to your Bitrise builds at any time.
         env_key: MODULE
-        type: user_input
+        type: selector
         value_map:
           composeApp:
             title: Variant

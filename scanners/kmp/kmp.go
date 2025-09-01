@@ -105,7 +105,7 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 	var nextOption models.OptionNode
 	var nextOptionValue string
 	if s.kmpProject.AndroidAppDetectResult != nil {
-		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeUserInput)
+		moduleOption := models.NewOption(android.ModuleInputTitle, android.ModuleInputSummary, android.ModuleInputEnvKey, models.TypeSelector)
 		gradleProjectRootDirOption.AddOption(s.kmpProject.GradleProject.RootDirEntry.RelPath, moduleOption)
 
 		variantOption := models.NewOption(android.VariantInputTitle, android.VariantInputSummary, android.VariantInputEnvKey, models.TypeOptionalUserInput)
