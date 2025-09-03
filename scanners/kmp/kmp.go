@@ -231,6 +231,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Test step
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
@@ -252,6 +253,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
@@ -280,18 +282,17 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 		if s.kmpProject.IOSAppDetectResult.HasSPMDependencies {
 			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreSPMCache())
 		}
-
 		if s.kmpProject.IOSAppDetectResult.Projects[0].IsPodWorkspace {
 			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreCocoapodsCache())
 			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.CocoapodsInstallStepListItem())
 		}
-
 		if s.kmpProject.IOSAppDetectResult.Projects[0].CarthageCommand != "" {
 			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.RestoreCarthageCache())
 			configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.CarthageStepListItem(
 				envmanModels.EnvironmentItemModel{ios.CarthageCommandInputKey: s.kmpProject.IOSAppDetectResult.Projects[0].CarthageCommand},
 			))
 		}
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(
@@ -355,6 +356,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Test step
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
@@ -392,6 +394,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Test step
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
@@ -413,6 +416,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
@@ -455,6 +459,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Test step
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
@@ -473,6 +478,9 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 			SSHKeyActivation: models.SSHKeyActivationConditional,
 		})...)
+
+		// Cache setup step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(
@@ -513,6 +521,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Test step
 		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.GradleUnitTestStepListItem("$"+gradleProjectRootDirInputEnvKey))
@@ -534,6 +543,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 
 		// Cache setup steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.RestoreGradleCache())
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.AndroidBuildStepListItem(
@@ -557,6 +567,9 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 			SSHKeyActivation: models.SSHKeyActivationConditional,
 		})...)
+
+		// Cache setup step
+		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.ActivateBuildCacheForGradle())
 
 		// Build step
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.XcodeArchiveStepListItem(

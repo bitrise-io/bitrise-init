@@ -100,6 +100,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_ROOT_DIR
@@ -113,6 +114,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -126,6 +128,7 @@ configs:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
@@ -143,6 +146,7 @@ var kmpTaskmanResultVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
@@ -150,12 +154,14 @@ var kmpTaskmanResultVersions = []interface{}{
 	// ios_build
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 	// run_tests
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.GradleUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,

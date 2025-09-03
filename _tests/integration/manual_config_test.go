@@ -246,6 +246,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.GradleUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
@@ -254,6 +255,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
@@ -261,6 +263,7 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.GradleUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
@@ -269,17 +272,20 @@ var customConfigVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.AndroidBuildVersion,
 	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.GradleUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
@@ -287,11 +293,13 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
+	steps.ActivateBuildCacheForGradleVersion,
 	steps.GradleUnitTestVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
@@ -1407,6 +1415,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
@@ -1423,6 +1432,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_ROOT_DIR
@@ -1438,6 +1448,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
@@ -1454,6 +1465,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - android-build@%s:
               inputs:
               - project_location: $PROJECT_ROOT_DIR
@@ -1468,6 +1480,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1482,6 +1495,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
@@ -1497,6 +1511,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1511,6 +1526,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - restore-gradle-cache@%s: {}
+          - activate-build-cache-for-gradle@%s: {}
           - gradle-unit-test@%s:
               inputs:
               - project_root_dir: $PROJECT_ROOT_DIR
