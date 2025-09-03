@@ -573,49 +573,42 @@ var customConfigResultYML = fmt.Sprintf(`options:
           "":
             config: default-java-maven-config
   kotlin-multiplatform:
-    title: The root directory of the Gradle project.
-    summary: The root directory of the Gradle project, which contains all source files
-      from your project, as well as Gradle files, including the Gradle Wrapper (`+"`gradlew`"+`)
-      file.
+    title: The root directory of the Kotlin Multiplatform project.
+    summary: The root directory of the Kotlin Multiplatform project, which contains
+      all source files from your project, as well as Gradle files, including the Gradle
+      Wrapper (gradlew) file.
     env_key: PROJECT_ROOT_DIR
     type: user_input
     value_map:
       "":
-        title: Has Android app target?
-        summary: Indicates whether the project contains an Android app target.
+        title: Has Android Application target?
+        summary: Indicates whether the project contains an Android Application target.
         type: selector
         value_map:
           "no":
-            title: Has iOS app target?
-            summary: Indicates whether the project contains an iOS app target.
+            title: Has iOS Application target?
+            summary: Indicates whether the project contains an iOS Application target.
             type: selector
             value_map:
               "no":
                 config: default-kotlin-multiplatform-config
               "yes":
-                title: Project or Workspace path
-                summary: The location of your Xcode project, Xcode workspace or SPM
-                  project files stored as an Environment Variable. In your Workflows,
-                  you can specify paths relative to this path.
+                title: iOS Application Project or Workspace path
+                summary: The path of iOS application Xcode project or workspace to
+                  build.
                 env_key: BITRISE_PROJECT_PATH
                 type: user_input
                 value_map:
                   "":
-                    title: Scheme name
-                    summary: An Xcode scheme defines a collection of targets to build,
-                      a configuration to use when building, and a collection of tests
-                      to execute. Only shared schemes are detected automatically but
-                      you can use any scheme as a target on Bitrise. You can change
-                      the scheme at any time in your Env Vars.
+                    title: iOS Application Scheme
+                    summary: The name of the iOS application scheme to build.
                     env_key: BITRISE_SCHEME
                     type: user_input
                     value_map:
                       "":
-                        title: Distribution method
-                        summary: The export method used to create an .ipa file in
-                          your builds, stored as an Environment Variable. You can
-                          change this at any time, or even create several .ipa files
-                          with different export methods in the same build.
+                        title: iOS Application Distribution method
+                        summary: The export method to use to build the iOS application
+                          IPA file.
                         env_key: BITRISE_DISTRIBUTION_METHOD
                         type: selector
                         value_map:
@@ -628,56 +621,42 @@ var customConfigResultYML = fmt.Sprintf(`options:
                           enterprise:
                             config: default-kotlin-multiplatform-config-ios
           "yes":
-            title: Module
-            summary: Modules provide a container for your Android project's source
-              code, resource files, and app level settings, such as the module-level
-              build file and Android manifest file. Each module can be independently
-              built, tested, and debugged. You can add new modules to your Bitrise
-              builds at any time.
+            title: Android Application Module
+            summary: The name of the Android application module to build.
             env_key: MODULE
             type: user_input
             value_map:
               "":
-                title: Variant
-                summary: Your Android build variant. You can add variants at any time,
-                  as well as further configure your existing variants later.
+                title: Android Application Variant
+                summary: The name of the Android application variant to build.
                 env_key: VARIANT
                 type: user_input_optional
                 value_map:
                   "":
-                    title: Has iOS app target?
-                    summary: Indicates whether the project contains an iOS app target.
+                    title: Has iOS Application target?
+                    summary: Indicates whether the project contains an iOS Application
+                      target.
                     type: selector
                     value_map:
                       "no":
                         config: default-kotlin-multiplatform-config-android
                       "yes":
-                        title: Project or Workspace path
-                        summary: The location of your Xcode project, Xcode workspace
-                          or SPM project files stored as an Environment Variable.
-                          In your Workflows, you can specify paths relative to this
-                          path.
+                        title: iOS Application Project or Workspace path
+                        summary: The path of iOS application Xcode project or workspace
+                          to build.
                         env_key: BITRISE_PROJECT_PATH
                         type: user_input
                         value_map:
                           "":
-                            title: Scheme name
-                            summary: An Xcode scheme defines a collection of targets
-                              to build, a configuration to use when building, and
-                              a collection of tests to execute. Only shared schemes
-                              are detected automatically but you can use any scheme
-                              as a target on Bitrise. You can change the scheme at
-                              any time in your Env Vars.
+                            title: iOS Application Scheme
+                            summary: The name of the iOS application scheme to build.
                             env_key: BITRISE_SCHEME
                             type: user_input
                             value_map:
                               "":
-                                title: Distribution method
-                                summary: The export method used to create an .ipa
-                                  file in your builds, stored as an Environment Variable.
-                                  You can change this at any time, or even create
-                                  several .ipa files with different export methods
-                                  in the same build.
+                                title: iOS Application Distribution method
+                                summary: The export method to use to build the iOS
+                                  application IPA file.
                                 env_key: BITRISE_DISTRIBUTION_METHOD
                                 type: selector
                                 value_map:
