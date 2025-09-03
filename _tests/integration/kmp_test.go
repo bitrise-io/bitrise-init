@@ -105,6 +105,8 @@ configs:
               - project_location: $PROJECT_ROOT_DIR
               - module: $MODULE
               - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         ios_build:
@@ -142,6 +144,7 @@ var kmpTaskmanResultVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
 	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	// ios_build

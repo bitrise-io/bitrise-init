@@ -255,6 +255,7 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
 	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
@@ -269,6 +270,7 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.CacheRestoreGradleVersion,
 	steps.AndroidBuildVersion,
+	steps.SignAPKVersion,
 	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
@@ -1426,6 +1428,8 @@ configs:
               - project_location: $PROJECT_ROOT_DIR
               - module: $MODULE
               - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
@@ -1455,6 +1459,8 @@ configs:
               - project_location: $PROJECT_ROOT_DIR
               - module: $MODULE
               - variant: $VARIANT
+          - sign-apk@%s:
+              run_if: '{{getenv "BITRISEIO_ANDROID_KEYSTORE_URL" | ne ""}}'
           - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         ios_build:

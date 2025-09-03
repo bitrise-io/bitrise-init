@@ -259,6 +259,7 @@ func (s *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.Bitr
 			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
 			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SignAPKStepListItem())
 
 		// Cache teardown steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
@@ -419,6 +420,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
 			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SignAPKStepListItem())
 
 		// Cache teardown steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
@@ -539,6 +541,7 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 			envmanModels.EnvironmentItemModel{android.ModuleInputKey: "$" + android.ModuleInputEnvKey},
 			envmanModels.EnvironmentItemModel{android.VariantInputKey: "$" + android.VariantInputEnvKey},
 		))
+		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SignAPKStepListItem())
 
 		// Cache teardown steps
 		configBuilder.AppendStepListItemsTo(androidBuildWorkflowID, steps.SaveGradleCache())
