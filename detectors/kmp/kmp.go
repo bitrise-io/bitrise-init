@@ -92,7 +92,6 @@ func scanAndroidAppProject(gradleProject gradle.Project) (*android.DetectResult,
 	}
 	if androidApplicationPluginID != "" {
 		// alias(libs.plugins.androidApplication)
-		// TODO?: make it more reliable by using a regex/glob matching (alias.*<androidApplicationPluginID>)
 		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(libs.plugins.%s)", androidApplicationPluginID))
 	}
 
@@ -101,6 +100,7 @@ func scanAndroidAppProject(gradleProject gradle.Project) (*android.DetectResult,
 		return nil, err
 	}
 
+	// The com.android.application dependency presents in Wear projects as well, we need to filter them out.
 	// Wear projects Manifest files contains this: <uses-feature android:name="android.hardware.type.watch" />
 	var androidAppProjects []gradle.SubProject
 	if len(androidProjects) > 0 {

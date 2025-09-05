@@ -9,6 +9,7 @@ replace github.com/bitrise-io/bitrise-init => ../
 require github.com/bitrise-io/bitrise-init v0.0.0-20220216150510-ee1c4fb90ff6
 
 require (
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/bitrise-io/bitrise/v2 v2.30.5 // indirect
 	github.com/bitrise-io/envman/v2 v2.5.3 // indirect
