@@ -30,8 +30,8 @@ type SubProject struct {
 	BuildScriptFileEntry direntry.DirEntry
 }
 
-func (inc SubProject) DetectAnyDependenciesInBuildScript(dependencies []string) (bool, error) {
-	return detectAnyDependencies(inc.BuildScriptFileEntry.AbsPath, dependencies)
+func (proj SubProject) DetectAnyDependenciesInBuildScript(dependencies []string) (bool, error) {
+	return detectAnyDependencies(proj.BuildScriptFileEntry.AbsPath, dependencies)
 }
 
 type Project struct {
