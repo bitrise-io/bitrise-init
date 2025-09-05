@@ -98,8 +98,9 @@ func scanAndroidAppProject(gradleProject gradle.Project) (*android.DetectResult,
 		`"com.android.application"`,
 	}
 	if androidApplicationPluginAlias != "" {
-		// alias(libs.plugins.androidApplication)
-		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(libs.plugins.%s)", androidApplicationPluginAlias))
+		// Convert plugin alias to accessor format: groovyJson-core -> libs.plugins.groovyJson.core
+		androidApplicationPluginAccessor := fmt.Sprintf("libs.plugins.%s", strings.Replace(androidApplicationPluginAlias, "-", ".", -1))
+		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(%s)", androidApplicationPluginAccessor))
 	}
 
 	androidProjects, err := gradleProject.FindSubProjectsWithAnyDependencies(androidAppDependencies)
