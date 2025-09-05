@@ -89,7 +89,7 @@ func scanIOSAppProject(gradleProject gradle.Project) (*ios.DetectResult, error) 
 }
 
 func scanAndroidAppProject(gradleProject gradle.Project) (*android.DetectResult, error) {
-	androidApplicationPluginID, err := gradleProject.GetDependencyID(`com.android.application`)
+	androidApplicationPluginAlias, err := gradleProject.GetPluginAliasFromVersionCatalog(`com.android.application`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get Android application plugin ID: %w", err)
 	}
@@ -97,9 +97,9 @@ func scanAndroidAppProject(gradleProject gradle.Project) (*android.DetectResult,
 	androidAppDependencies := []string{
 		`"com.android.application"`,
 	}
-	if androidApplicationPluginID != "" {
+	if androidApplicationPluginAlias != "" {
 		// alias(libs.plugins.androidApplication)
-		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(libs.plugins.%s)", androidApplicationPluginID))
+		androidAppDependencies = append(androidAppDependencies, fmt.Sprintf("alias(libs.plugins.%s)", androidApplicationPluginAlias))
 	}
 
 	androidProjects, err := gradleProject.FindSubProjectsWithAnyDependencies(androidAppDependencies)
