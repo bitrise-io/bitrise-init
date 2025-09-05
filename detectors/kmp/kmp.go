@@ -36,12 +36,12 @@ func ScanProject(gradleProject gradle.Project) (*Project, error) {
 	log.TInfof("Scanning Kotlin Multiplatform targets...")
 	iosAppDetectResult, err := scanIOSAppProject(gradleProject)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan IOS project: %w", err)
+		log.TWarnf("Failed to scan iOS project: %s", err)
 	}
 
 	androidAppDetectResult, err := scanAndroidAppProject(gradleProject)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan Android project: %w", err)
+		log.TWarnf("Failed to scan Android project: %s", err)
 	}
 
 	return &Project{
@@ -60,24 +60,31 @@ func scanIOSAppProject(gradleProject gradle.Project) (*ios.DetectResult, error) 
 	iosScanner := ios.NewScanner()
 	detected, err := iosScanner.DetectPlatform(filepath.Dir(xcodeProjectFile.AbsPath))
 	if err != nil {
-		log.TWarnf("Failed to detect iOS project: %s", err)
+		return nil, err
 	}
+
 	if detected && len(iosScanner.DetectResult.Projects) > 0 {
 		result := iosScanner.DetectResult
 		if len(result.Projects) > 1 {
 			log.TWarnf("%d iOS projects found in the Gradle project, using the first one: %s", len(result.Projects), result.Projects[0].RelPath)
 		}
-		result.Projects = result.Projects[:1]
-		iosAppProjectRelPath := result.Projects[0].RelPath
-		iosAppProjectRelPath = filepath.Join(filepath.Dir(xcodeProjectFile.RelPath), iosAppProjectRelPath)
-		if !strings.HasPrefix(iosAppProjectRelPath, "./") {
-			iosAppProjectRelPath = "./" + iosAppProjectRelPath
+
+		// Keep the first project only and update the iOS project path to be relative to the root of the Gradle project
+		firstProject := result.Projects[0]
+
+		firstProjectRelPath := firstProject.RelPath
+		firstProjectRelPath = filepath.Join(filepath.Dir(xcodeProjectFile.RelPath), firstProjectRelPath)
+		if !strings.HasPrefix(firstProjectRelPath, "./") {
+			firstProjectRelPath = "./" + firstProjectRelPath
 		}
-		project := result.Projects[0]
-		project.RelPath = iosAppProjectRelPath
-		result.Projects[0] = project
+		firstProject.RelPath = firstProjectRelPath
+
+		result.Projects[0] = firstProject
+		result.Projects = result.Projects[:1]
+
 		return &result, nil
 	}
+
 	return nil, nil
 }
 
