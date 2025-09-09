@@ -7,14 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/bitrise-io/bitrise-init/_tests/integration/helper"
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/output"
 	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/stretchr/testify/require"
 )
 
 func TestManualConfig(t *testing.T) {
@@ -279,8 +278,10 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -293,8 +294,10 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1437,6 +1440,11 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: kotlin-multiplatform
+      pipelines:
+        build:
+          workflows:
+            android_build: {}
+            ios_build: {}
       workflows:
         android_build:
           steps:
@@ -1459,6 +1467,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -1467,6 +1476,7 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
               - automatic_code_signing: api-key
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           steps:
@@ -1490,6 +1500,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -1498,6 +1509,7 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
               - automatic_code_signing: api-key
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           steps:
