@@ -627,6 +627,11 @@ func (s *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		// Deploy step
 		configBuilder.AppendStepListItemsTo(iosBuildWorkflowID, steps.DefaultDeployStepList()...)
 
+		//
+		// iOS and Android build pipeline
+		configBuilder.SetGraphPipelineWorkflowTo(buildPipelineID, androidBuildWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
+		configBuilder.SetGraphPipelineWorkflowTo(buildPipelineID, iosBuildWorkflowID, bitriseModels.GraphPipelineWorkflowModel{})
+
 		config, err := configBuilder.Generate(projectType)
 		if err != nil {
 			return models.BitriseConfigMap{}, err

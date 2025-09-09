@@ -1441,6 +1441,11 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: kotlin-multiplatform
+      pipelines:
+        build:
+          workflows:
+            android_build: {}
+            ios_build: {}
       workflows:
         android_build:
           steps:
