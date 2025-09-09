@@ -103,6 +103,7 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -111,6 +112,7 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
               - automatic_code_signing: api-key
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           steps:
@@ -143,8 +145,10 @@ var kmpTaskmanResultVersions = []interface{}{
 	// ios_build
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	// run_tests
 	steps.ActivateSSHKeyVersion,

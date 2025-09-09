@@ -279,8 +279,10 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -293,8 +295,10 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.CacheRestoreGradleVersion,
 	steps.ActivateBuildCacheForGradleVersion,
 	steps.XcodeArchiveVersion,
+	steps.CacheSaveGradleVersion,
 	steps.DeployToBitriseIoVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -1459,6 +1463,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -1467,6 +1472,7 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
               - automatic_code_signing: api-key
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           steps:
@@ -1490,6 +1496,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - restore-gradle-cache@%s: {}
           - activate-build-cache-for-gradle@%s: {}
           - xcode-archive@%s:
               inputs:
@@ -1498,6 +1505,7 @@ configs:
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - configuration: Release
               - automatic_code_signing: api-key
+          - save-gradle-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
         run_tests:
           steps:
