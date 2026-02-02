@@ -58,7 +58,7 @@ var multiPackageYmlVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.NpmVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
