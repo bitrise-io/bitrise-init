@@ -397,10 +397,10 @@ var customConfigVersions = []interface{}{
 
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
+    title: The root directory of your Android project
+    summary: The root directory of your Android project where the gradlew or gradlew.bat
+      wrapper is located. This is stored as an Environment Variable and you can specify
+      paths relative to this path in your Workflows. It can be changed any time.
     env_key: PROJECT_LOCATION
     type: user_input
     value_map:
@@ -730,10 +730,11 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       "no":
-        title: The root directory of an Android project
-        summary: The root directory of your Android project, stored as an Environment
-          Variable. In your Workflows, you can specify paths relative to this path.
-          You can change this at any time.
+        title: The root directory of your Android project
+        summary: The root directory of your Android project where the gradlew or gradlew.bat
+          wrapper is located. This is stored as an Environment Variable and you can
+          specify paths relative to this path in your Workflows. It can be changed
+          any time.
         env_key: PROJECT_LOCATION
         type: user_input
         value_map:
