@@ -1080,9 +1080,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1104,9 +1102,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -1132,9 +1128,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1157,9 +1151,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -1185,9 +1177,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1210,9 +1200,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
