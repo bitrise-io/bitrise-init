@@ -254,7 +254,7 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 
 	// Common steps to all workflows
 	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKeyActivation})
-	flutterInstallStep := steps.FlutterInstallStepListItem(proj.flutterVersionToUse, false)
+	flutterInstallStep := steps.FlutterInstallStepListItem(proj.flutterVersionToUse)
 	deploySteps := steps.DefaultDeployStepList()
 
 	// primary
