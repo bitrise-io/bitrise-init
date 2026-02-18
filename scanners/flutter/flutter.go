@@ -155,6 +155,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 // ExcludedScannerNames ...
 func (scanner *Scanner) ExcludedScannerNames() []string {
 	return []string{
+		string(ios.XcodeProjectTypeMacOS),
 		string(ios.XcodeProjectTypeIOS),
 		android.ScannerName,
 		java.ProjectType,
