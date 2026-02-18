@@ -55,7 +55,7 @@ const (
 	ProjectLocationInputKey     = "project_location"
 	ProjectLocationInputEnvKey  = "PROJECT_LOCATION"
 	ProjectLocationInputTitle   = "The root directory of your Android project"
-	ProjectLocationInputSummary = "The root directory of your Android project where the gradlew or gradlew.bat wrapper is located. This is stored as an Environment Variable and you can specify paths relative to this path in your Workflows. It can be changed any time."
+	ProjectLocationInputSummary = "The root directory of your Android project where the gradlew or gradlew.bat wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION) and you can specify paths relative to this path in your Workflows. It can be changed any time."
 
 	ModuleBuildGradlePathInputKey = "build_gradle_path"
 

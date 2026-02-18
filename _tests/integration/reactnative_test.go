@@ -152,9 +152,9 @@ var sampleAppsReactNativeSubdirResultYML = fmt.Sprintf(`options:
       project:
         title: The root directory of your Android project
         summary: The root directory of your Android project where the gradlew or gradlew.bat
-          wrapper is located. This is stored as an Environment Variable and you can
-          specify paths relative to this path in your Workflows. It can be changed
-          any time.
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: selector
         value_map:
@@ -331,9 +331,9 @@ var sampleAppsReactNativeIosAndAndroidResultYML = fmt.Sprintf(`options:
       .:
         title: The root directory of your Android project
         summary: The root directory of your Android project where the gradlew or gradlew.bat
-          wrapper is located. This is stored as an Environment Variable and you can
-          specify paths relative to this path in your Workflows. It can be changed
-          any time.
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: selector
         value_map:
@@ -508,9 +508,9 @@ var sampleAppsReactNativeIosAndAndroidNoTestResultYML = fmt.Sprintf(`options:
       .:
         title: The root directory of your Android project
         summary: The root directory of your Android project where the gradlew or gradlew.bat
-          wrapper is located. This is stored as an Environment Variable and you can
-          specify paths relative to this path in your Workflows. It can be changed
-          any time.
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: selector
         value_map:
@@ -678,9 +678,9 @@ var sampleAppsReactNativeIosAndAndroidYarnResultYML = fmt.Sprintf(`options:
       .:
         title: The root directory of your Android project
         summary: The root directory of your Android project where the gradlew or gradlew.bat
-          wrapper is located. This is stored as an Environment Variable and you can
-          specify paths relative to this path in your Workflows. It can be changed
-          any time.
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: selector
         value_map:
@@ -856,9 +856,9 @@ var sampleAppsReactNativeJoplinResultYML = fmt.Sprintf(`options:
       packages/app-mobile:
         title: The root directory of your Android project
         summary: The root directory of your Android project where the gradlew or gradlew.bat
-          wrapper is located. This is stored as an Environment Variable and you can
-          specify paths relative to this path in your Workflows. It can be changed
-          any time.
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: selector
         value_map:
