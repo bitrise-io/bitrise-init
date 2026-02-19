@@ -91,7 +91,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -116,7 +115,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -171,7 +169,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -257,7 +254,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -278,7 +274,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - restore-dart-cache@%s: {}
           - flutter-analyze@%s:
               inputs:
@@ -306,7 +301,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -331,7 +325,6 @@ configs:
           - flutter-installer@%s:
               inputs:
               - version: 3.7.12
-              - is_update: "false"
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:

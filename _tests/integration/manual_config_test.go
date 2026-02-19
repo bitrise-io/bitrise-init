@@ -397,10 +397,11 @@ var customConfigVersions = []interface{}{
 
 var customConfigResultYML = fmt.Sprintf(`options:
   android:
-    title: The root directory of an Android project
-    summary: The root directory of your Android project, stored as an Environment
-      Variable. In your Workflows, you can specify paths relative to this path. You
-      can change this at any time.
+    title: The root directory of your Android project
+    summary: The root directory of your Android project where the gradlew or gradlew.bat
+      wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+      and you can specify paths relative to this path in your Workflows. It can be
+      changed any time.
     env_key: PROJECT_LOCATION
     type: user_input
     value_map:
@@ -730,10 +731,11 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       "no":
-        title: The root directory of an Android project
-        summary: The root directory of your Android project, stored as an Environment
-          Variable. In your Workflows, you can specify paths relative to this path.
-          You can change this at any time.
+        title: The root directory of your Android project
+        summary: The root directory of your Android project where the gradlew or gradlew.bat
+          wrapper is located. This is stored as an Environment Variable (PROJECT_LOCATION)
+          and you can specify paths relative to this path in your Workflows. It can
+          be changed any time.
         env_key: PROJECT_LOCATION
         type: user_input
         value_map:
@@ -1080,9 +1082,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1104,9 +1104,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -1132,9 +1130,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1157,9 +1153,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -1185,9 +1179,7 @@ configs:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
           - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -1210,9 +1202,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - flutter-installer@%s:
-              inputs:
-              - is_update: "false"
+          - flutter-installer@%s: {}
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:

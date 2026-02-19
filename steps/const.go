@@ -189,7 +189,7 @@ const (
 
 const (
 	FlutterInstallID      = "flutter-installer"
-	FlutterInstallVersion = "0"
+	FlutterInstallVersion = "1"
 )
 
 const (
