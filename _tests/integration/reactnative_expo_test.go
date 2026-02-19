@@ -82,7 +82,7 @@ configs:
 
             Next steps:
             - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
             - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
@@ -101,7 +101,7 @@ configs:
 
             Next steps:
             - Add tests to your project and configure the workflow to run them.
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -163,7 +163,7 @@ configs:
 
             Next steps:
             - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
             - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
@@ -185,7 +185,7 @@ configs:
             Runs tests.
 
             Next steps:
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
@@ -252,7 +252,7 @@ configs:
 
             Next steps:
             - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
             - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s: {}
@@ -274,7 +274,7 @@ configs:
             Runs tests.
 
             Next steps:
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
