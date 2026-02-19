@@ -62,6 +62,16 @@ func SaveDartCache() bitriseModels.StepListItemModel {
 	return stepListItem(stepIDComposite, "", "")
 }
 
+func RestoreGemCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheRestoreGemID, CacheRestoreGemVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
+func SaveGemCache() bitriseModels.StepListItemModel {
+	stepIDComposite := stepIDComposite(CacheSaveGemID, CacheSaveGemVersion)
+	return stepListItem(stepIDComposite, "", "")
+}
+
 func ActivateBuildCacheForGradle() bitriseModels.StepListItemModel {
 	stepIDComposite := stepIDComposite(ActivateBuildCacheForGradleID, ActivateBuildCacheForGradleVersion)
 	return stepListItem(stepIDComposite, "", "")
