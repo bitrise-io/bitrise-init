@@ -11,16 +11,14 @@ import (
 
 func TestRuby(t *testing.T) {
 	var testCases = []helper.TestCase{
-		// Add test cases here when you have sample Ruby projects
-		// Example:
-		// {
-		// 	Name:              "ruby-sample",
-		// 	RepoURL:           "https://github.com/example/ruby-sample.git",
-		// 	RelativeSearchDir: ".",
-		// 	Branch:            "main",
-		// 	ExpectedResult:    rubyResultYML,
-		// 	ExpectedVersions:  rubyResultVersions,
-		// },
+		{
+			Name:              "sample-ruby-rails-rspec",
+			RepoURL:           "https://github.com/bitrise-io/sample-ruby-rails-rspec",
+			RelativeSearchDir: ".",
+			Branch:            "main",
+			ExpectedResult:    rubyResultYML,
+			ExpectedVersions:  rubyResultVersions,
+		},
 	}
 
 	if len(testCases) > 0 {
@@ -36,6 +34,8 @@ var rubyResultVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
 	steps.CacheRestoreGemVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
 	steps.CacheSaveGemVersion,
 	steps.DeployToBitriseIoVersion,
 }
@@ -47,7 +47,7 @@ var rubyResultYML = fmt.Sprintf(`options:
     env_key: RUBY_PROJECT_DIR
     type: selector
     value_map:
-      ./:
+      .:
         config: ruby-root-bundler-rspec-config
 configs:
   ruby:
@@ -91,7 +91,7 @@ configs:
           - script@%s:
               title: Run tests
               inputs:
-              - content: |
+              - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
