@@ -2,7 +2,7 @@
 
 This repository hosts the `bitrise-init` which contains all the shared project detection and config generation logic. 
 
-This package ia consumed by the following tools:
+This package is consumed by the following tools:
 - [project-scanner step](https://github.com/bitrise-steplib/steps-project-scanner)
 - [bitrise-init plugin](https://github.com/bitrise-io/bitrise-plugins-init)
 - [bitrise-add-new-project](https://github.com/bitrise-io/bitrise-add-new-project)
