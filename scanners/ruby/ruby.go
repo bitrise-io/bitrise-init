@@ -38,6 +38,8 @@ type project struct {
 	hasRakefile    bool
 	testFramework  string
 	hasRubyVersion bool
+	databases      []databaseGem
+	dbYMLInfo      databaseYMLInfo
 }
 
 // Scanner implements the Scanner interface for Ruby projects
@@ -74,6 +76,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		hasRakefile := checkRakefile(gemfileDir)
 		testFw := detectTestFramework(gemfileDir)
 		hasRubyVersion := checkRubyVersion(gemfileDir)
+		databases := detectDatabases(gemfileDir)
+		dbYMLInfo := parseDatabaseYML(gemfileDir)
 
 		projectRelDir, err := utility.RelPath(searchDir, gemfileDir)
 		if err != nil {
@@ -87,6 +91,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasRakefile:    hasRakefile,
 			testFramework:  testFw,
 			hasRubyVersion: hasRubyVersion,
+			databases:      databases,
+			dbYMLInfo:      dbYMLInfo,
 		}
 
 		scanner.projects = append(scanner.projects, project)

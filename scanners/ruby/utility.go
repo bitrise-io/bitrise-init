@@ -3,13 +3,21 @@ package ruby
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v2"
+
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
+	envmanModels "github.com/bitrise-io/envman/v2/models"
+	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pointers"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/utility"
-	"github.com/bitrise-io/go-utils/log"
 )
 
 const (
@@ -97,6 +105,207 @@ func detectTestFramework(searchDir string) string {
 	return ""
 }
 
+// Database detection
+
+// databaseEnvVar represents an environment variable with its name and default value.
+type databaseEnvVar struct {
+	name         string
+	defaultValue string
+}
+
+// databaseGem represents a detected database dependency and its container configuration.
+type databaseGem struct {
+	gemName         string
+	containerName   string
+	image           string
+	ports           []string
+	containerEnvKey string // env var name the container needs (e.g., POSTGRES_PASSWORD)
+	healthCheck     string
+	isRelationalDB  bool
+}
+
+var knownDatabaseGems = []databaseGem{
+	{
+		gemName:         "pg",
+		containerName:   "postgres",
+		image:           "postgres:17",
+		ports:           []string{"5432:5432"},
+		containerEnvKey: "POSTGRES_PASSWORD",
+		healthCheck:     `--health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5`,
+		isRelationalDB:  true,
+	},
+	{
+		gemName:         "mysql2",
+		containerName:   "mysql",
+		image:           "mysql:8",
+		ports:           []string{"3306:3306"},
+		containerEnvKey: "MYSQL_ROOT_PASSWORD",
+		healthCheck:     `--health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout 5s --health-retries 5`,
+		isRelationalDB:  true,
+	},
+	{
+		gemName:       "redis",
+		containerName: "redis",
+		image:         "redis:7",
+		ports:         []string{"6379:6379"},
+		healthCheck:   `--health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5`,
+	},
+	{
+		gemName:       "mongoid",
+		containerName: "mongo",
+		image:         "mongo:7",
+		ports:         []string{"27017:27017"},
+		healthCheck:   `--health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5`,
+	},
+	{
+		gemName:       "mongo",
+		containerName: "mongo",
+		image:         "mongo:7",
+		ports:         []string{"27017:27017"},
+		healthCheck:   `--health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5`,
+	},
+}
+
+// databaseYMLInfo holds env var names and defaults extracted from config/database.yml.
+type databaseYMLInfo struct {
+	hostEnvVar     databaseEnvVar
+	usernameEnvVar databaseEnvVar
+	passwordEnvVar databaseEnvVar
+}
+
+var (
+	gemDeclPattern    = regexp.MustCompile(`^\s*gem\s+['"]([^'"]+)['"]`)
+	envFetchPattern   = regexp.MustCompile(`ENV\.fetch\(\s*["'](\w+)["']\s*\)\s*\{\s*["']([^"']*)["']\s*\}`)
+	envBracketPattern = regexp.MustCompile(`ENV\[["'](\w+)["']\]`)
+)
+
+func detectDatabases(searchDir string) []databaseGem {
+	gemfilePath := filepath.Join(searchDir, "Gemfile")
+	content, err := fileutil.ReadStringFromFile(gemfilePath)
+	if err != nil {
+		log.TWarnf("Failed to read Gemfile: %s", err)
+		return nil
+	}
+
+	databases := detectDatabaseGemsFromContent(content)
+	return databases
+}
+
+func detectDatabaseGemsFromContent(content string) []databaseGem {
+	declaredGems := map[string]bool{}
+	for _, line := range strings.Split(content, "\n") {
+		match := gemDeclPattern.FindStringSubmatch(line)
+		if len(match) >= 2 {
+			declaredGems[match[1]] = true
+		}
+	}
+
+	var detected []databaseGem
+	seen := map[string]bool{}
+	for _, dbGem := range knownDatabaseGems {
+		if declaredGems[dbGem.gemName] && !seen[dbGem.containerName] {
+			detected = append(detected, dbGem)
+			seen[dbGem.containerName] = true
+		}
+	}
+	return detected
+}
+
+func parseDatabaseYML(searchDir string) databaseYMLInfo {
+	info := databaseYMLInfo{}
+
+	ymlPath := filepath.Join(searchDir, "config", "database.yml")
+	content, err := fileutil.ReadStringFromFile(ymlPath)
+	if err != nil {
+		log.TPrintf("- config/database.yml - not found or not readable")
+		return info
+	}
+
+	log.TPrintf("- config/database.yml - found, parsing credentials")
+
+	// Extract the test section if available, otherwise use the whole content.
+	// We look for lines after "test:" until the next top-level section.
+	section := extractYMLSection(content, "test")
+	if section == "" {
+		section = content
+	}
+
+	info.hostEnvVar = extractEnvVarFromYMLField(section, "host")
+	info.usernameEnvVar = extractEnvVarFromYMLField(section, "username")
+	info.passwordEnvVar = extractEnvVarFromYMLField(section, "password")
+
+	return info
+}
+
+// extractYMLSection extracts the content of a top-level YAML section (e.g., "test:").
+func extractYMLSection(content, sectionName string) string {
+	lines := strings.Split(content, "\n")
+	var result []string
+	inSection := false
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Check if this is the target section start
+		if !inSection {
+			if trimmed == sectionName+":" || strings.HasPrefix(trimmed, sectionName+":") {
+				inSection = true
+			}
+			continue
+		}
+
+		// If we hit another top-level key (not indented, not a comment, not empty), stop
+		if len(line) > 0 && line[0] != ' ' && line[0] != '\t' && line[0] != '#' {
+			break
+		}
+
+		result = append(result, line)
+	}
+
+	return strings.Join(result, "\n")
+}
+
+// extractEnvVarFromYMLField finds an env var reference in a YAML field line.
+func extractEnvVarFromYMLField(section, fieldName string) databaseEnvVar {
+	for _, line := range strings.Split(section, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, fieldName+":") {
+			continue
+		}
+
+		// Try ENV.fetch("KEY") { "default" }
+		if match := envFetchPattern.FindStringSubmatch(line); len(match) >= 3 {
+			return databaseEnvVar{name: match[1], defaultValue: match[2]}
+		}
+
+		// Try ENV["KEY"] (no default)
+		if match := envBracketPattern.FindStringSubmatch(line); len(match) >= 2 {
+			return databaseEnvVar{name: match[1], defaultValue: ""}
+		}
+
+		// Plain value (no env var reference) — extract the value after the colon
+		parts := strings.SplitN(trimmed, ":", 2)
+		if len(parts) == 2 {
+			val := strings.TrimSpace(parts[1])
+			if val != "" && !strings.Contains(val, "<%") {
+				return databaseEnvVar{name: "", defaultValue: val}
+			}
+		}
+	}
+
+	return databaseEnvVar{}
+}
+
+// hasRelationalDB returns true if any detected database is relational (pg, mysql).
+func hasRelationalDB(databases []databaseGem) bool {
+	for _, db := range databases {
+		if db.isRelationalDB {
+			return true
+		}
+	}
+	return false
+}
+
 // Options & Configs
 type configDescriptor struct {
 	workdir        string
@@ -105,6 +314,8 @@ type configDescriptor struct {
 	testFramework  string
 	hasRubyVersion bool
 	isDefault      bool
+	databases      []databaseGem
+	dbYMLInfo      databaseYMLInfo
 }
 
 func createConfigDescriptor(project project, isDefault bool) configDescriptor {
@@ -115,6 +326,8 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 		testFramework:  project.testFramework,
 		hasRubyVersion: project.hasRubyVersion,
 		isDefault:      isDefault,
+		databases:      project.databases,
+		dbYMLInfo:      project.dbYMLInfo,
 	}
 
 	// Gemfile placed in the search dir, no need to change-dir
@@ -152,6 +365,10 @@ func configName(params configDescriptor) string {
 
 	if params.testFramework != "" {
 		name = name + "-" + params.testFramework
+	}
+
+	if len(params.databases) > 0 {
+		name = name + "-" + params.databases[0].containerName
 	}
 
 	return name + "-config"
@@ -209,22 +426,59 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(bundlerInstallScriptStepTitle, bundlerInstallScriptStepContent))
 	}
 
+	serviceContainerNames := serviceContainerNamesFromDatabases(descriptor.databases)
+
+	// Database setup (only for relational DBs)
+	if hasRelationalDB(descriptor.databases) {
+		dbSetupScript := generateDBSetupScript(descriptor)
+		if len(serviceContainerNames) > 0 {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Database setup", dbSetupScript, serviceContainerNames))
+		} else {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Database setup", dbSetupScript))
+		}
+	}
+
 	// Run tests based on detected framework
 	testScript := generateTestScript(descriptor)
 	if testScript != "" {
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", testScript))
+		if len(serviceContainerNames) > 0 {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Run tests", testScript, serviceContainerNames))
+		} else {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", testScript))
+		}
 	}
 
-	// TODO: check if save and restore cache steps are used properly / if they are needed.
 	// Save gem cache
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveGemCache())
 
 	// Deploy steps
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.DefaultDeployStepList()...)
 
-	config, err := configBuilder.Generate(ScannerName)
+	// Build app-level env vars for database connections
+	appEnvs := buildAppEnvs(descriptor.databases, descriptor.dbYMLInfo)
+
+	config, err := configBuilder.Generate(ScannerName, appEnvs...)
 	if err != nil {
 		return "", err
+	}
+
+	// If databases detected, use the wrapper struct for YAML serialization
+	if len(descriptor.databases) > 0 {
+		containers := buildContainerDefinitions(descriptor.databases, descriptor.dbYMLInfo)
+		wrapped := bitriseConfigWithContainers{
+			FormatVersion:        config.FormatVersion,
+			DefaultStepLibSource: config.DefaultStepLibSource,
+			ProjectType:          config.ProjectType,
+			Containers:           containers,
+			App:                  config.App,
+			Pipelines:            config.Pipelines,
+			Workflows:            config.Workflows,
+		}
+		data, err := yaml.Marshal(wrapped)
+		if err != nil {
+			return "", err
+		}
+		return string(data), nil
 	}
 
 	data, err := yaml.Marshal(config)
@@ -233,6 +487,120 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	}
 
 	return string(data), nil
+}
+
+func serviceContainerNamesFromDatabases(databases []databaseGem) []string {
+	var names []string
+	for _, db := range databases {
+		names = append(names, db.containerName)
+	}
+	return names
+}
+
+func scriptStepWithServiceContainers(title, content string, serviceContainers []string) bitriseModels.StepListItemModel {
+	stepID := steps.ScriptID + "@" + steps.ScriptVersion
+	step := stepModelWithServiceContainers{
+		StepModel: stepmanModels.StepModel{
+			Title:  pointers.NewStringPtr(title),
+			Inputs: []envmanModels.EnvironmentItemModel{{"content": content}},
+		},
+		ServiceContainers: serviceContainers,
+	}
+	return bitriseModels.StepListItemModel{stepID: step}
+}
+
+func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]serviceContainerDefinition {
+	containers := map[string]serviceContainerDefinition{}
+	for _, db := range databases {
+		def := serviceContainerDefinition{
+			Type:    "service",
+			Image:   db.image,
+			Ports:   db.ports,
+			Options: db.healthCheck,
+		}
+
+		// Set container env var referencing the app-level env var
+		if db.containerEnvKey != "" && ymlInfo.passwordEnvVar.name != "" {
+			def.Envs = []envmanModels.EnvironmentItemModel{
+				{db.containerEnvKey: "$" + ymlInfo.passwordEnvVar.name},
+			}
+		}
+
+		containers[db.containerName] = def
+	}
+	return containers
+}
+
+func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanModels.EnvironmentItemModel {
+	var envs []envmanModels.EnvironmentItemModel
+
+	hasRelational := false
+	for _, db := range databases {
+		if db.isRelationalDB {
+			hasRelational = true
+			break
+		}
+	}
+
+	if !hasRelational {
+		return nil
+	}
+
+	// Host env var: use name from database.yml or default to DB_HOST
+	hostEnvName := "DB_HOST"
+	if ymlInfo.hostEnvVar.name != "" {
+		hostEnvName = ymlInfo.hostEnvVar.name
+	}
+	// Default value is the container name of the first relational DB
+	for _, db := range databases {
+		if db.isRelationalDB {
+			envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: db.containerName})
+			break
+		}
+	}
+
+	// Username env var
+	if ymlInfo.usernameEnvVar.name != "" {
+		envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.usernameEnvVar.name: ymlInfo.usernameEnvVar.defaultValue})
+	}
+
+	// Password env var
+	if ymlInfo.passwordEnvVar.name != "" {
+		envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.passwordEnvVar.name: ymlInfo.passwordEnvVar.defaultValue})
+	}
+
+	return envs
+}
+
+const (
+	dbSetupScriptStepTitle = "Database setup"
+)
+
+func generateDBSetupScript(descriptor configDescriptor) string {
+	workdirSetup := ""
+	if descriptor.workdir != "" {
+		workdirSetup = `pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
+
+`
+	}
+
+	workdirCleanup := ""
+	if descriptor.workdir != "" {
+		workdirCleanup = `
+popd > /dev/null`
+	}
+
+	dbCommand := ""
+	if descriptor.hasBundler {
+		dbCommand = "bundle exec rake db:create db:schema:load"
+	} else {
+		dbCommand = "rake db:create db:schema:load"
+	}
+
+	return fmt.Sprintf(`#!/usr/bin/env bash
+set -euxo pipefail
+
+%s%s%s`, workdirSetup, dbCommand, workdirCleanup)
 }
 
 func generateTestScript(descriptor configDescriptor) string {

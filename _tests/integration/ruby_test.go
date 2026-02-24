@@ -36,6 +36,7 @@ var rubyResultVersions = []interface{}{
 	steps.CacheRestoreGemVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
+	steps.ScriptVersion,
 	steps.CacheSaveGemVersion,
 	steps.DeployToBitriseIoVersion,
 }
@@ -48,13 +49,28 @@ var rubyResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        config: ruby-root-bundler-rspec-config
+        config: ruby-root-bundler-rspec-postgres-config
 configs:
   ruby:
-    ruby-root-bundler-rspec-config: |
+    ruby-root-bundler-rspec-postgres-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
+      containers:
+        postgres:
+          type: service
+          image: postgres:17
+          ports:
+          - 5432:5432
+          envs:
+          - POSTGRES_PASSWORD: $DB_PASSWORD
+          options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
+            5
+      app:
+        envs:
+        - DB_HOST: postgres
+        - DB_USERNAME: postgres
+        - DB_PASSWORD: password
       workflows:
         run_tests:
           steps:
@@ -89,6 +105,16 @@ configs:
 
                   popd > /dev/null
           - script@%s:
+              title: Database setup
+              inputs:
+              - content: |-
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle exec rake db:create db:schema:load
+              service_containers:
+              - postgres
+          - script@%s:
               title: Run tests
               inputs:
               - content: |-
@@ -96,6 +122,8 @@ configs:
                   set -euxo pipefail
 
                   bundle exec rspec
+              service_containers:
+              - postgres
           - save-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
 warnings:
