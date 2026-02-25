@@ -1071,13 +1071,13 @@ configs:
       workflows:
         deploy:
           description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
             If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
-            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
+            - Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1099,7 +1099,7 @@ configs:
             Builds project and runs tests.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1118,13 +1118,13 @@ configs:
       workflows:
         deploy:
           description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
             If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
-            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
+            - Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1148,7 +1148,7 @@ configs:
             Builds project and runs tests.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1167,13 +1167,13 @@ configs:
       workflows:
         deploy:
           description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html#deploying-a-flutter-app).
+            Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
             If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html) for signing and deployment options.
-            - Check out the [Code signing guide](https://devcenter.bitrise.io/en/code-signing.html) for iOS and Android
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
+            - Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1197,7 +1197,7 @@ configs:
             Builds project and runs tests.
 
             Next steps:
-            - Check out [Getting started with Flutter apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-flutter-apps.html).
+            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1671,8 +1671,8 @@ configs:
             Tests, builds and deploys the app using *Deploy to bitrise.io* Step.
 
             Next steps:
-            - Set up an [Apple service with API key](https://devcenter.bitrise.io/en/accounts/connecting-to-services/connecting-to-an-apple-service-with-api-key.html).
-            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+            - Set up an [Apple service with API key](https://docs.bitrise.io/en/bitrise-platform/integrations/apple-services-connection/connecting-to-an-apple-service-with-api-key.html).
+            - Check out [Getting started with React Native apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-react-native-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1706,7 +1706,7 @@ configs:
             Runs tests.
 
             Next steps:
-            - Check out [Getting started with React Native apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-react-native-apps.html).
+            - Check out [Getting started with React Native apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-react-native-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -1733,7 +1733,7 @@ configs:
 
             Next steps:
             - Configure the `+"`Run Expo Application Services (EAS) build`"+` Step's `+"`Access Token`"+` input.
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
             - For an alternative deploy workflow checkout the [(React Native) Expo: Build using Turtle CLI recipe](https://github.com/bitrise-io/workflow-recipes/blob/main/recipes/rn-expo-turtle-build.md).
           steps:
           - activate-ssh-key@%s:
@@ -1759,7 +1759,7 @@ configs:
             Runs tests.
 
             Next steps:
-            - Check out [Getting started with Expo apps](https://devcenter.bitrise.io/en/getting-started/getting-started-with-expo-apps.html).
+            - Check out [Getting started with Expo apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-expo-projects.html).
           steps:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
