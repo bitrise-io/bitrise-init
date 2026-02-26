@@ -89,7 +89,7 @@ configs:
                   asdf install ruby
           - restore-cache@%s:
               inputs:
-              - key: 'gem-{{ checksum "Gemfile.lock" }}'
+              - key: gem-{{ checksum "Gemfile.lock" }}
           - script@%s:
               title: Install dependencies
               inputs:
@@ -121,7 +121,7 @@ configs:
               - postgres
           - save-cache@%s:
               inputs:
-              - key: 'gem-{{ checksum "Gemfile.lock" }}'
+              - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
 warnings:
