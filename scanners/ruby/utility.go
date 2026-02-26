@@ -30,26 +30,18 @@ const (
 	rubyInstallScriptStepContent = `#!/usr/bin/env bash
 set -euxo pipefail
 
-pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
 # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
 # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
 # See: https://github.com/asdf-vm/asdf-ruby
 asdf install ruby
-
-popd > /dev/null
 `
 
 	bundlerInstallScriptStepTitle   = "Install dependencies"
 	bundlerInstallScriptStepContent = `#!/usr/bin/env bash
 set -euxo pipefail
 
-pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
 bundle config set --local path vendor/bundle
 bundle install
-
-popd > /dev/null
 `
 )
 
@@ -421,7 +413,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 
 	// Install Ruby
 	if descriptor.hasRubyVersion {
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(rubyInstallScriptStepTitle, rubyInstallScriptStepContent))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(rubyInstallScriptStepTitle, rubyInstallScriptStepContent, workdirInputs(descriptor.workdir)...))
 	}
 
 	// Restore gem cache
@@ -429,7 +421,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 
 	// Install dependencies
 	if descriptor.hasBundler {
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(bundlerInstallScriptStepTitle, bundlerInstallScriptStepContent))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(bundlerInstallScriptStepTitle, bundlerInstallScriptStepContent, workdirInputs(descriptor.workdir)...))
 	}
 
 	serviceContainerNames := serviceContainerNamesFromDatabases(descriptor.databases)
@@ -438,9 +430,9 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	if hasRelationalDB(descriptor.databases) {
 		dbSetupScript := generateDBSetupScript(descriptor)
 		if len(serviceContainerNames) > 0 {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Database setup", dbSetupScript, serviceContainerNames))
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Database setup", dbSetupScript, serviceContainerNames, descriptor.workdir))
 		} else {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Database setup", dbSetupScript))
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Database setup", dbSetupScript, workdirInputs(descriptor.workdir)...))
 		}
 	}
 
@@ -448,9 +440,9 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	testScript := generateTestScript(descriptor)
 	if testScript != "" {
 		if len(serviceContainerNames) > 0 {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Run tests", testScript, serviceContainerNames))
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Run tests", testScript, serviceContainerNames, descriptor.workdir))
 		} else {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", testScript))
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", testScript, workdirInputs(descriptor.workdir)...))
 		}
 	}
 
@@ -503,12 +495,21 @@ func serviceContainerNamesFromDatabases(databases []databaseGem) []string {
 	return names
 }
 
-func scriptStepWithServiceContainers(title, content string, serviceContainers []string) bitriseModels.StepListItemModel {
+func workdirInputs(workdir string) []envmanModels.EnvironmentItemModel {
+	if workdir == "" {
+		return nil
+	}
+	return []envmanModels.EnvironmentItemModel{{"working_dir": workdir}}
+}
+
+func scriptStepWithServiceContainers(title, content string, serviceContainers []string, workdir string) bitriseModels.StepListItemModel {
 	stepID := steps.ScriptID + "@" + steps.ScriptVersion
+	inputs := []envmanModels.EnvironmentItemModel{{"content": content}}
+	inputs = append(inputs, workdirInputs(workdir)...)
 	step := stepModelWithServiceContainers{
 		StepModel: stepmanModels.StepModel{
 			Title:  pointers.NewStringPtr(title),
-			Inputs: []envmanModels.EnvironmentItemModel{{"content": content}},
+			Inputs: inputs,
 		},
 		ServiceContainers: serviceContainers,
 	}
@@ -583,46 +584,18 @@ const (
 )
 
 func generateDBSetupScript(descriptor configDescriptor) string {
-	workdirSetup := ""
-	if descriptor.workdir != "" {
-		workdirSetup = `pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
-`
-	}
-
-	workdirCleanup := ""
-	if descriptor.workdir != "" {
-		workdirCleanup = `
-popd > /dev/null`
-	}
-
-	dbCommand := ""
+	dbCommand := "rake db:create db:schema:load"
 	if descriptor.hasBundler {
 		dbCommand = "bundle exec rake db:create db:schema:load"
-	} else {
-		dbCommand = "rake db:create db:schema:load"
 	}
 
 	return fmt.Sprintf(`#!/usr/bin/env bash
 set -euxo pipefail
 
-%s%s%s`, workdirSetup, dbCommand, workdirCleanup)
+%s`, dbCommand)
 }
 
 func generateTestScript(descriptor configDescriptor) string {
-	workdirSetup := ""
-	if descriptor.workdir != "" {
-		workdirSetup = `pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
-`
-	}
-
-	workdirCleanup := ""
-	if descriptor.workdir != "" {
-		workdirCleanup = `
-popd > /dev/null`
-	}
-
 	testCommand := ""
 	switch descriptor.testFramework {
 	case "rspec":
@@ -661,5 +634,5 @@ popd > /dev/null`
 	return fmt.Sprintf(`#!/usr/bin/env bash
 set -euxo pipefail
 
-%s%s%s`, workdirSetup, testCommand, workdirCleanup)
+%s`, testCommand)
 }

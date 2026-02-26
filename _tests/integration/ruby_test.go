@@ -83,14 +83,10 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
                   # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
                   # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
                   # See: https://github.com/asdf-vm/asdf-ruby
                   asdf install ruby
-
-                  popd > /dev/null
           - restore-cache@%s:
               inputs:
               - key: 'gem-{{ checksum "Gemfile.lock" }}'
@@ -101,12 +97,8 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
-
                   bundle config set --local path vendor/bundle
                   bundle install
-
-                  popd > /dev/null
           - script@%s:
               title: Database setup
               inputs:
