@@ -33,11 +33,11 @@ var rubyResultVersions = []interface{}{
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.ScriptVersion,
-	steps.CacheRestoreGemVersion,
+	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
-	steps.CacheSaveGemVersion,
+	steps.CacheSaveVersion,
 	steps.DeployToBitriseIoVersion,
 }
 
@@ -91,7 +91,9 @@ configs:
                   asdf install ruby
 
                   popd > /dev/null
-          - restore-cache@%s: {}
+          - restore-cache@%s:
+              inputs:
+              - key: 'gem-{{ checksum "Gemfile.lock" }}'
           - script@%s:
               title: Install dependencies
               inputs:
@@ -101,6 +103,7 @@ configs:
 
                   pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
 
+                  bundle config set --local path vendor/bundle
                   bundle install
 
                   popd > /dev/null
@@ -124,7 +127,10 @@ configs:
                   bundle exec rspec
               service_containers:
               - postgres
-          - save-cache@%s: {}
+          - save-cache@%s:
+              inputs:
+              - key: 'gem-{{ checksum "Gemfile.lock" }}'
+              - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
 warnings:
   ruby: []

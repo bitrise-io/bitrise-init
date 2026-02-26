@@ -21,6 +21,11 @@ import (
 )
 
 const (
+	gemCachePaths = "vendor/bundle"
+	gemCacheKey   = `gem-{{ checksum "Gemfile.lock" }}`
+)
+
+const (
 	rubyInstallScriptStepTitle   = "Install Ruby"
 	rubyInstallScriptStepContent = `#!/usr/bin/env bash
 set -euxo pipefail
@@ -41,6 +46,7 @@ set -euxo pipefail
 
 pushd "${RUBY_PROJECT_DIR:-.}" > /dev/null
 
+bundle config set --local path vendor/bundle
 bundle install
 
 popd > /dev/null
@@ -419,7 +425,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	}
 
 	// Restore gem cache
-	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreGemCache())
+	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(gemCacheKey))
 
 	// Install dependencies
 	if descriptor.hasBundler {
@@ -449,7 +455,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	}
 
 	// Save gem cache
-	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveGemCache())
+	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(gemCacheKey, gemCachePaths))
 
 	// Deploy steps
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.DefaultDeployStepList()...)
