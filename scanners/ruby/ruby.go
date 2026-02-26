@@ -17,9 +17,6 @@ const (
 	projectDirInputTitle   = "Project Directory"
 	projectDirInputSummary = "The directory containing the Gemfile"
 	projectDirInputEnvKey  = "RUBY_PROJECT_DIR"
-
-	bundlerInputTitle   = "Bundler"
-	bundlerInputSummary = "Whether to use Bundler for dependency management"
 )
 
 type testFramework struct {

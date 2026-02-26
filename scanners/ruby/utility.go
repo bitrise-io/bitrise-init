@@ -579,10 +579,6 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanMode
 	return envs
 }
 
-const (
-	dbSetupScriptStepTitle = "Database setup"
-)
-
 func generateDBSetupScript(descriptor configDescriptor) string {
 	dbCommand := "rake db:create db:schema:load"
 	if descriptor.hasBundler {
