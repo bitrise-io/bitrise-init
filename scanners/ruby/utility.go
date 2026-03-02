@@ -424,7 +424,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(bundlerInstallScriptStepTitle, bundlerInstallScriptStepContent, workdirInputs(descriptor.workdir)...))
 	}
 
-	serviceContainerNames := serviceContainerNamesFromDatabases(descriptor.databases)
+	serviceContainerNames := serviceContainerReferences(descriptor.databases)
 
 	// Database setup (only for relational DBs)
 	if hasRelationalDB(descriptor.databases) {
@@ -455,28 +455,14 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	// Build app-level env vars for database connections
 	appEnvs := buildAppEnvs(descriptor.databases, descriptor.dbYMLInfo)
 
+	if len(descriptor.databases) > 0 {
+		containers := buildContainerDefinitions(descriptor.databases, descriptor.dbYMLInfo)
+		configBuilder.SetContainerDefinitions(containers)
+	}
+
 	config, err := configBuilder.Generate(ScannerName, appEnvs...)
 	if err != nil {
 		return "", err
-	}
-
-	// If databases detected, use the wrapper struct for YAML serialization
-	if len(descriptor.databases) > 0 {
-		containers := buildContainerDefinitions(descriptor.databases, descriptor.dbYMLInfo)
-		wrapped := bitriseConfigWithContainers{
-			FormatVersion:        config.FormatVersion,
-			DefaultStepLibSource: config.DefaultStepLibSource,
-			ProjectType:          config.ProjectType,
-			Containers:           containers,
-			App:                  config.App,
-			Pipelines:            config.Pipelines,
-			Workflows:            config.Workflows,
-		}
-		data, err := yaml.Marshal(wrapped)
-		if err != nil {
-			return "", err
-		}
-		return string(data), nil
 	}
 
 	data, err := yaml.Marshal(config)
@@ -487,12 +473,12 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	return string(data), nil
 }
 
-func serviceContainerNamesFromDatabases(databases []databaseGem) []string {
-	var names []string
+func serviceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
+	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
-		names = append(names, db.containerName)
+		refs = append(refs, db.containerName)
 	}
-	return names
+	return refs
 }
 
 func workdirInputs(workdir string) []envmanModels.EnvironmentItemModel {
@@ -502,24 +488,22 @@ func workdirInputs(workdir string) []envmanModels.EnvironmentItemModel {
 	return []envmanModels.EnvironmentItemModel{{"working_dir": workdir}}
 }
 
-func scriptStepWithServiceContainers(title, content string, serviceContainers []string, workdir string) bitriseModels.StepListItemModel {
+func scriptStepWithServiceContainers(title, content string, serviceContainerRefs []stepmanModels.ContainerReference, workdir string) bitriseModels.StepListItemModel {
 	stepID := steps.ScriptID + "@" + steps.ScriptVersion
 	inputs := []envmanModels.EnvironmentItemModel{{"content": content}}
 	inputs = append(inputs, workdirInputs(workdir)...)
-	step := stepModelWithServiceContainers{
-		StepModel: stepmanModels.StepModel{
-			Title:  pointers.NewStringPtr(title),
-			Inputs: inputs,
-		},
-		ServiceContainers: serviceContainers,
+	step := stepmanModels.StepModel{
+		Title:             pointers.NewStringPtr(title),
+		Inputs:            inputs,
+		ServiceContainers: serviceContainerRefs,
 	}
 	return bitriseModels.StepListItemModel{stepID: step}
 }
 
-func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]serviceContainerDefinition {
-	containers := map[string]serviceContainerDefinition{}
+func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]bitriseModels.Container {
+	containers := map[string]bitriseModels.Container{}
 	for _, db := range databases {
-		def := serviceContainerDefinition{
+		def := bitriseModels.Container{
 			Type:    "service",
 			Image:   db.image,
 			Ports:   db.ports,

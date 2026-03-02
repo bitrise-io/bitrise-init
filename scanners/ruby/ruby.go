@@ -8,7 +8,6 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-// Options
 const (
 	ScannerName = "ruby"
 
@@ -39,22 +38,18 @@ type project struct {
 	dbYMLInfo      databaseYMLInfo
 }
 
-// Scanner implements the Scanner interface for Ruby projects
 type Scanner struct {
 	projects []project
 }
 
-// NewScanner creates a new scanner instance.
 func NewScanner() *Scanner {
 	return &Scanner{}
 }
 
-// Name returns the name of the scanner
 func (scanner *Scanner) Name() string {
 	return ScannerName
 }
 
-// DetectPlatform checks if the given search directory contains a Ruby project
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	gemfilePaths, err := utility.FindFileInAppDir(searchDir, "Gemfile")
 	if err != nil {
@@ -108,17 +103,14 @@ func (scanner *Scanner) ExcludedScannerNames() []string {
 	return []string{}
 }
 
-// Options returns the options for the scanner
 func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	return generateOptions(scanner.projects)
 }
 
-// Configs returns the default configurations for the scanner
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
 	return generateConfigs(scanner.projects, sshKeyActivation)
 }
 
-// DefaultOptions returns the default options for the scanner
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	projectRootOption := models.NewOption(projectDirInputTitle, projectDirInputSummary, projectDirInputEnvKey, models.TypeUserInput)
 
