@@ -63,7 +63,8 @@ step_bundles:
             fi
 
             pipx install yamllint
-            yamllint --format colored . # Config file is implicitly set via $YAMLLINT_CONFIG_FILE
+            yamllint --list-files .
+            yamllint --format colored . # Config file is implicitly set via ./yamllint.yml
     - script:
         title: golangci-lint
         inputs:
