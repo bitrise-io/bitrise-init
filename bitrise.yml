@@ -8,24 +8,67 @@ workflows:
         title: Set up Go
         inputs:
         - content: asdf install
-    after_run:
-    - test
-    - integration-test
+    - bundle::run_linters: { }
+    - bundle::run_unit_tests: { }
+    - bundle::run_integration_tests: { }
 
-  test:
-    steps:
-    - git::https://github.com/bitrise-steplib/steps-check.git:
-        inputs:
-        - skip_step_yml_validation: "yes"
-
-  integration-test:
+step_bundles:
+  run_integration_tests:
     steps:
     - script:
         title: Run integration tests
         inputs:
+        - content: go test -v ./_tests/integration/...
+
+  run_unit_tests:
+    steps:
+    - go-list: { }
+    - go-test: { }
+
+  run_linters:
+    steps:
+    - script:
+        title: YAML lint
+        inputs:
         - content: |-
-            #!/bin/bash
-            echo "Running integration tests ..."
+            #!/bin/env bash
             set -ex
 
-            go test -v ./_tests/integration/...
+            if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+              # pipx is only available in OS repos from Ubuntu 23+, so we need to install via pip for now
+              ubuntu_version=$(lsb_release -rs)
+              if [[ $ubuntu_version == "20.04" ]]; then
+                apt-get remove -y yamllint
+                # Default Python version is the system-wide and it doesn't have venv (which is needed for pipx)
+                apt-get update
+                yes | apt-get install python3.8-venv
+                # Ubuntu 20 ships with an old pip that doesn't recognize the --break-system-packages flag
+                pip install pipx
+              else
+                pip install --user --break-system-packages pipx
+              fi
+              export PATH="$PATH:/root/.local/bin"
+              pipx ensurepath
+              source ~/.bashrc # reload $PATH changes
+            else
+              if brew list pipx &>/dev/null ; then
+                echo "pipx already installed"
+              else
+                echo "Installing pipx"
+                HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install pipx
+                export PATH="$PATH:$HOME/.local/bin"
+                pipx ensurepath
+                source ~/.bashrc # reload $PATH changes
+              fi
+            fi
+
+            pipx install yamllint
+            yamllint --format colored . # Config file is implicitly set via $YAMLLINT_CONFIG_FILE
+    - script:
+        title: golangci-lint
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s v2.6.0
+            ./bin/golangci-lint run --max-same-issues 0
