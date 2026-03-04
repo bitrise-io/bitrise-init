@@ -296,6 +296,7 @@ func TestParseDatabaseYMLContent(t *testing.T) {
 	tests := []struct {
 		name            string
 		content         string
+		wantAdapter     string
 		wantHostEnv     string
 		wantHostDefault string
 		wantUsernameEnv string
@@ -316,6 +317,7 @@ test:
 production:
   <<: *default
   database: myapp_prod`,
+			wantAdapter:     "postgresql",
 			wantHostEnv:     "DB_HOST",
 			wantHostDefault: "localhost",
 			wantUsernameEnv: "DB_USERNAME",
@@ -331,6 +333,7 @@ production:
 test:
   <<: *default
   database: myapp_test`,
+			wantAdapter:     "",
 			wantHostEnv:     "DB_HOST",
 			wantHostDefault: "localhost",
 			wantUsernameEnv: "",
@@ -339,9 +342,11 @@ test:
 		{
 			name: "plain values without ENV references",
 			content: `test:
+  adapter: mysql2
   host: myhost
   username: myuser
   password: mypass`,
+			wantAdapter:     "mysql2",
 			wantHostEnv:     "",
 			wantHostDefault: "myhost",
 			wantUsernameEnv: "",
@@ -356,6 +361,7 @@ test:
 development:
   <<: *default
   database: myapp_dev`,
+			wantAdapter:     "",
 			wantHostEnv:     "DB_HOST",
 			wantHostDefault: "localhost",
 			wantUsernameEnv: "",
@@ -366,6 +372,7 @@ development:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := parseDatabaseYMLContent(tt.content)
+			assert.Equal(t, tt.wantAdapter, result.adapter)
 			assert.Equal(t, tt.wantHostEnv, result.hostEnvVar.name)
 			assert.Equal(t, tt.wantHostDefault, result.hostEnvVar.defaultValue)
 			assert.Equal(t, tt.wantUsernameEnv, result.usernameEnvVar.name)

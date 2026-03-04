@@ -166,6 +166,7 @@ var knownDatabaseGems = []databaseGem{
 
 // databaseYMLInfo holds env var names and defaults extracted from config/database.yml.
 type databaseYMLInfo struct {
+	adapter        string // e.g. "postgresql", "mysql2", "sqlite3"
 	hostEnvVar     databaseEnvVar
 	usernameEnvVar databaseEnvVar
 	passwordEnvVar databaseEnvVar
@@ -256,6 +257,7 @@ func parseDatabaseYMLContent(content string) databaseYMLInfo {
 	}
 
 	return databaseYMLInfo{
+		adapter:        asString(section["adapter"]),
 		hostEnvVar:     extractEnvVarFromValue(asString(section["host"])),
 		usernameEnvVar: extractEnvVarFromValue(asString(section["username"])),
 		passwordEnvVar: extractEnvVarFromValue(asString(section["password"])),
