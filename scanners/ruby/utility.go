@@ -114,6 +114,7 @@ type databaseEnvVar struct {
 // databaseGem represents a detected database dependency and its container configuration.
 type databaseGem struct {
 	gemName         string
+	adapterName     string // Rails adapter name in database.yml (e.g. "postgresql", "mysql2")
 	containerName   string
 	image           string
 	ports           []string
@@ -125,6 +126,7 @@ type databaseGem struct {
 var knownDatabaseGems = []databaseGem{
 	{
 		gemName:         "pg",
+		adapterName:     "postgresql",
 		containerName:   "postgres",
 		image:           "postgres:17",
 		ports:           []string{"5432:5432"},
@@ -134,6 +136,7 @@ var knownDatabaseGems = []databaseGem{
 	},
 	{
 		gemName:         "mysql2",
+		adapterName:     "mysql2",
 		containerName:   "mysql",
 		image:           "mysql:8",
 		ports:           []string{"3306:3306"},
@@ -213,7 +216,7 @@ func detectDatabaseGemsFromContent(content string) []databaseGem {
 	return detected
 }
 
-func parseDatabaseYML(searchDir string) databaseYMLInfo {
+func parseDatabaseYML(searchDir string, databases []databaseGem) databaseYMLInfo {
 	ymlPath := filepath.Join(searchDir, "config", "database.yml")
 	content, err := fileutil.ReadStringFromFile(ymlPath)
 	if err != nil {
@@ -222,14 +225,15 @@ func parseDatabaseYML(searchDir string) databaseYMLInfo {
 	}
 
 	log.TPrintf("- config/database.yml - found, parsing credentials")
-	return parseDatabaseYMLContent(content)
+	return parseDatabaseYMLContent(content, databases)
 }
 
 // parseDatabaseYMLContent parses the contents of a database.yml file and extracts
 // env-var references for the host, username, and password fields.
 // It prefers the "test" environment section, then "default", then any other section.
 // YAML anchor merges (<<: *default) are resolved automatically by the YAML parser.
-func parseDatabaseYMLContent(content string) databaseYMLInfo {
+// The adapter field is required: if absent or not matching a detected database gem, the result is empty.
+func parseDatabaseYMLContent(content string, databases []databaseGem) databaseYMLInfo {
 	preprocessed := preprocessERBForYAML(content)
 
 	var rawYML map[string]map[string]interface{}
@@ -256,12 +260,26 @@ func parseDatabaseYMLContent(content string) databaseYMLInfo {
 		return databaseYMLInfo{}
 	}
 
-	return databaseYMLInfo{
+	info := databaseYMLInfo{
 		adapter:        asString(section["adapter"]),
 		hostEnvVar:     extractEnvVarFromValue(asString(section["host"])),
 		usernameEnvVar: extractEnvVarFromValue(asString(section["username"])),
 		passwordEnvVar: extractEnvVarFromValue(asString(section["password"])),
 	}
+
+	if info.adapter == "" {
+		log.TWarnf("database.yml has no adapter field, skipping database.yml config")
+		return databaseYMLInfo{}
+	}
+
+	for _, db := range databases {
+		if db.adapterName == info.adapter {
+			return info
+		}
+	}
+
+	log.TWarnf("database.yml adapter %q does not match any detected database gem, skipping database.yml config", info.adapter)
+	return databaseYMLInfo{}
 }
 
 // preprocessERBForYAML wraps ERB template tags (e.g. <%= ENV.fetch(...) %>) in

@@ -70,7 +70,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		testFw := detectTestFramework(gemfileDir)
 		hasRubyVersion := checkRubyVersion(gemfileDir)
 		databases := detectDatabases(gemfileDir)
-		dbYMLInfo := parseDatabaseYML(gemfileDir)
+		var dbYMLInfo databaseYMLInfo
+		if hasRelationalDB(databases) {
+			dbYMLInfo = parseDatabaseYML(gemfileDir, databases)
+		}
 
 		projectRelDir, err := utility.RelPath(searchDir, gemfileDir)
 		if err != nil {

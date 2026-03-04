@@ -293,17 +293,17 @@ func TestExtractEnvVarFromValue(t *testing.T) {
 }
 
 func TestParseDatabaseYMLContent(t *testing.T) {
+	pgGem := databaseGem{gemName: "pg", adapterName: "postgresql", isRelationalDB: true}
+	mysqlGem := databaseGem{gemName: "mysql2", adapterName: "mysql2", isRelationalDB: true}
+
 	tests := []struct {
-		name            string
-		content         string
-		wantAdapter     string
-		wantHostEnv     string
-		wantHostDefault string
-		wantUsernameEnv string
-		wantPasswordEnv string
+		name      string
+		content   string
+		databases []databaseGem
+		want      databaseYMLInfo
 	}{
 		{
-			name: "test section with ENV.fetch fields",
+			name: "postgresql adapter matches pg gem",
 			content: `default: &default
   adapter: postgresql
 
@@ -317,40 +317,28 @@ test:
 production:
   <<: *default
   database: myapp_prod`,
-			wantAdapter:     "postgresql",
-			wantHostEnv:     "DB_HOST",
-			wantHostDefault: "localhost",
-			wantUsernameEnv: "DB_USERNAME",
-			wantPasswordEnv: "DB_PASSWORD",
+			databases: []databaseGem{pgGem},
+			want: databaseYMLInfo{
+				adapter:        "postgresql",
+				hostEnvVar:     databaseEnvVar{name: "DB_HOST", defaultValue: "localhost"},
+				usernameEnvVar: databaseEnvVar{name: "DB_USERNAME", defaultValue: "postgres"},
+				passwordEnvVar: databaseEnvVar{name: "DB_PASSWORD", defaultValue: "password"},
+			},
 		},
 		{
-			name: "fields inherited via YAML anchor merge",
-			content: `default: &default
-  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
-  username: postgres
-  password: secret
-
-test:
-  <<: *default
-  database: myapp_test`,
-			wantAdapter:     "",
-			wantHostEnv:     "DB_HOST",
-			wantHostDefault: "localhost",
-			wantUsernameEnv: "",
-			wantPasswordEnv: "",
-		},
-		{
-			name: "plain values without ENV references",
+			name: "mysql2 adapter matches mysql2 gem",
 			content: `test:
   adapter: mysql2
   host: myhost
   username: myuser
   password: mypass`,
-			wantAdapter:     "mysql2",
-			wantHostEnv:     "",
-			wantHostDefault: "myhost",
-			wantUsernameEnv: "",
-			wantPasswordEnv: "",
+			databases: []databaseGem{mysqlGem},
+			want: databaseYMLInfo{
+				adapter:        "mysql2",
+				hostEnvVar:     databaseEnvVar{defaultValue: "myhost"},
+				usernameEnvVar: databaseEnvVar{defaultValue: "myuser"},
+				passwordEnvVar: databaseEnvVar{defaultValue: "mypass"},
+			},
 		},
 		{
 			name: "no test section falls back to default",
@@ -361,22 +349,38 @@ test:
 development:
   <<: *default
   database: myapp_dev`,
-			wantAdapter:     "",
-			wantHostEnv:     "DB_HOST",
-			wantHostDefault: "localhost",
-			wantUsernameEnv: "",
-			wantPasswordEnv: "",
+			databases: []databaseGem{pgGem},
+			want:      databaseYMLInfo{},
+		},
+		{
+			name: "adapter mismatch returns empty result",
+			content: `test:
+  adapter: mysql2
+  host: myhost
+  username: myuser
+  password: mypass`,
+			databases: []databaseGem{pgGem},
+			want:      databaseYMLInfo{},
+		},
+		{
+			name: "no adapter in database.yml returns empty result",
+			content: `default: &default
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: postgres
+  password: secret
+
+test:
+  <<: *default
+  database: myapp_test`,
+			databases: []databaseGem{pgGem},
+			want:      databaseYMLInfo{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := parseDatabaseYMLContent(tt.content)
-			assert.Equal(t, tt.wantAdapter, result.adapter)
-			assert.Equal(t, tt.wantHostEnv, result.hostEnvVar.name)
-			assert.Equal(t, tt.wantHostDefault, result.hostEnvVar.defaultValue)
-			assert.Equal(t, tt.wantUsernameEnv, result.usernameEnvVar.name)
-			assert.Equal(t, tt.wantPasswordEnv, result.passwordEnvVar.name)
+			result := parseDatabaseYMLContent(tt.content, tt.databases)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
