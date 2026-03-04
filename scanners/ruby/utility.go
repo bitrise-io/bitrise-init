@@ -175,6 +175,9 @@ var (
 	gemDeclPattern    = regexp.MustCompile(`^\s*gem\s+['"]([^'"]+)['"]`)
 	envFetchPattern   = regexp.MustCompile(`ENV\.fetch\(\s*["'](\w+)["']\s*\)\s*\{\s*["']([^"']*)["']\s*\}`)
 	envBracketPattern = regexp.MustCompile(`ENV\[["'](\w+)["']\]`)
+	// erbTagPattern matches ERB template tags like <%= ... %> that appear in Rails database.yml.
+	// It assumes the expression itself does not contain a bare '%>' sequence.
+	erbTagPattern = regexp.MustCompile(`<%[^%]*%>`)
 )
 
 func detectDatabases(searchDir string) []databaseGem {
@@ -210,87 +213,88 @@ func detectDatabaseGemsFromContent(content string) []databaseGem {
 }
 
 func parseDatabaseYML(searchDir string) databaseYMLInfo {
-	info := databaseYMLInfo{}
-
 	ymlPath := filepath.Join(searchDir, "config", "database.yml")
 	content, err := fileutil.ReadStringFromFile(ymlPath)
 	if err != nil {
 		log.TPrintf("- config/database.yml - not found or not readable")
-		return info
+		return databaseYMLInfo{}
 	}
 
 	log.TPrintf("- config/database.yml - found, parsing credentials")
-
-	// Extract the test section if available, otherwise use the whole content.
-	// We look for lines after "test:" until the next top-level section.
-	section := extractYMLSection(content, "test")
-	if section == "" {
-		section = content
-	}
-
-	info.hostEnvVar = extractEnvVarFromYMLField(section, "host")
-	info.usernameEnvVar = extractEnvVarFromYMLField(section, "username")
-	info.passwordEnvVar = extractEnvVarFromYMLField(section, "password")
-
-	return info
+	return parseDatabaseYMLContent(content)
 }
 
-// extractYMLSection extracts the content of a top-level YAML section (e.g., "test:").
-func extractYMLSection(content, sectionName string) string {
-	lines := strings.Split(content, "\n")
-	var result []string
-	inSection := false
+// parseDatabaseYMLContent parses the contents of a database.yml file and extracts
+// env-var references for the host, username, and password fields.
+// It prefers the "test" environment section, then "default", then any other section.
+// YAML anchor merges (<<: *default) are resolved automatically by the YAML parser.
+func parseDatabaseYMLContent(content string) databaseYMLInfo {
+	preprocessed := preprocessERBForYAML(content)
 
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
+	var rawYML map[string]map[string]interface{}
+	if err := yaml.Unmarshal([]byte(preprocessed), &rawYML); err != nil {
+		log.TWarnf("- config/database.yml - failed to parse: %s", err)
+		return databaseYMLInfo{}
+	}
 
-		// Check if this is the target section start
-		if !inSection {
-			if trimmed == sectionName+":" || strings.HasPrefix(trimmed, sectionName+":") {
-				inSection = true
-			}
-			continue
-		}
-
-		// If we hit another top-level key (not indented, not a comment, not empty), stop
-		if len(line) > 0 && line[0] != ' ' && line[0] != '\t' && line[0] != '#' {
+	// Prefer "test", then "default", then the first available section.
+	var section map[string]interface{}
+	for _, name := range []string{"test", "default"} {
+		if s, ok := rawYML[name]; ok {
+			section = s
 			break
 		}
-
-		result = append(result, line)
+	}
+	if section == nil {
+		for _, s := range rawYML {
+			section = s
+			break
+		}
+	}
+	if section == nil {
+		return databaseYMLInfo{}
 	}
 
-	return strings.Join(result, "\n")
+	return databaseYMLInfo{
+		hostEnvVar:     extractEnvVarFromValue(asString(section["host"])),
+		usernameEnvVar: extractEnvVarFromValue(asString(section["username"])),
+		passwordEnvVar: extractEnvVarFromValue(asString(section["password"])),
+	}
 }
 
-// extractEnvVarFromYMLField finds an env var reference in a YAML field line.
-func extractEnvVarFromYMLField(section, fieldName string) databaseEnvVar {
-	for _, line := range strings.Split(section, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if !strings.HasPrefix(trimmed, fieldName+":") {
-			continue
-		}
+// preprocessERBForYAML wraps ERB template tags (e.g. <%= ENV.fetch(...) %>) in
+// single quotes so that the surrounding YAML can be parsed by a standard YAML parser.
+func preprocessERBForYAML(content string) string {
+	return erbTagPattern.ReplaceAllStringFunc(content, func(match string) string {
+		// Escape any single quotes inside the ERB expression (YAML single-quote escaping uses '').
+		escaped := strings.ReplaceAll(match, "'", "''")
+		return "'" + escaped + "'"
+	})
+}
 
-		// Try ENV.fetch("KEY") { "default" }
-		if match := envFetchPattern.FindStringSubmatch(line); len(match) >= 3 {
-			return databaseEnvVar{name: match[1], defaultValue: match[2]}
-		}
-
-		// Try ENV["KEY"] (no default)
-		if match := envBracketPattern.FindStringSubmatch(line); len(match) >= 2 {
-			return databaseEnvVar{name: match[1], defaultValue: ""}
-		}
-
-		// Plain value (no env var reference) — extract the value after the colon
-		parts := strings.SplitN(trimmed, ":", 2)
-		if len(parts) == 2 {
-			val := strings.TrimSpace(parts[1])
-			if val != "" && !strings.Contains(val, "<%") {
-				return databaseEnvVar{name: "", defaultValue: val}
-			}
-		}
+// asString converts any value from yaml.Unmarshal to its string representation.
+func asString(v interface{}) string {
+	if v == nil {
+		return ""
 	}
+	return fmt.Sprintf("%v", v)
+}
 
+// extractEnvVarFromValue extracts an env-var name and default from a YAML field value.
+// It recognises ENV.fetch("KEY") { "default" }, ENV["KEY"], and plain string values.
+func extractEnvVarFromValue(value string) databaseEnvVar {
+	// ENV.fetch("KEY") { "default" }
+	if match := envFetchPattern.FindStringSubmatch(value); len(match) >= 3 {
+		return databaseEnvVar{name: match[1], defaultValue: match[2]}
+	}
+	// ENV["KEY"]
+	if match := envBracketPattern.FindStringSubmatch(value); len(match) >= 2 {
+		return databaseEnvVar{name: match[1], defaultValue: ""}
+	}
+	// Plain value (no ERB reference)
+	if value != "" && !strings.Contains(value, "<%") {
+		return databaseEnvVar{name: "", defaultValue: value}
+	}
 	return databaseEnvVar{}
 }
 

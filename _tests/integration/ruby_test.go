@@ -56,16 +56,6 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
-      containers:
-        postgres:
-          type: service
-          image: postgres:17
-          ports:
-          - 5432:5432
-          envs:
-          - POSTGRES_PASSWORD: $DB_PASSWORD
-          options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
-            5
       app:
         envs:
         - DB_HOST: postgres
@@ -101,29 +91,39 @@ configs:
                   bundle install
           - script@%s:
               title: Database setup
+              service_containers:
+              - postgres
               inputs:
               - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
                   bundle exec rake db:create db:schema:load
-              service_containers:
-              - postgres
           - script@%s:
               title: Run tests
+              service_containers:
+              - postgres
               inputs:
               - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
                   bundle exec rspec
-              service_containers:
-              - postgres
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      containers:
+        postgres:
+          type: service
+          image: postgres:17
+          ports:
+          - 5432:5432
+          envs:
+          - POSTGRES_PASSWORD: $DB_PASSWORD
+          options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
+            5
 warnings:
   ruby: []
 warnings_with_recommendations:

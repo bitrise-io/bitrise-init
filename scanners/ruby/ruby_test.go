@@ -250,39 +250,34 @@ func TestConfigNameWithDatabase(t *testing.T) {
 	}
 }
 
-func TestExtractEnvVarFromYMLField(t *testing.T) {
+func TestExtractEnvVarFromValue(t *testing.T) {
 	tests := []struct {
-		name         string
-		section      string
-		fieldName    string
-		wantEnvName  string
-		wantDefault  string
+		name        string
+		value       string
+		wantEnvName string
+		wantDefault string
 	}{
 		{
 			name:        "ENV.fetch with default",
-			section:     `  password: <%= ENV.fetch("DB_PASSWORD") { "password" } %>`,
-			fieldName:   "password",
+			value:       `<%= ENV.fetch("DB_PASSWORD") { "password" } %>`,
 			wantEnvName: "DB_PASSWORD",
 			wantDefault: "password",
 		},
 		{
 			name:        "ENV bracket without default",
-			section:     `  password: <%= ENV["MY_DB_PASS"] %>`,
-			fieldName:   "password",
+			value:       `<%= ENV["MY_DB_PASS"] %>`,
 			wantEnvName: "MY_DB_PASS",
 			wantDefault: "",
 		},
 		{
 			name:        "plain value",
-			section:     `  username: postgres`,
-			fieldName:   "username",
+			value:       "postgres",
 			wantEnvName: "",
 			wantDefault: "postgres",
 		},
 		{
-			name:        "field not found",
-			section:     `  username: postgres`,
-			fieldName:   "password",
+			name:        "empty value",
+			value:       "",
 			wantEnvName: "",
 			wantDefault: "",
 		},
@@ -290,20 +285,26 @@ func TestExtractEnvVarFromYMLField(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := extractEnvVarFromYMLField(tt.section, tt.fieldName)
+			result := extractEnvVarFromValue(tt.value)
 			assert.Equal(t, tt.wantEnvName, result.name)
 			assert.Equal(t, tt.wantDefault, result.defaultValue)
 		})
 	}
 }
 
-func TestExtractYMLSection(t *testing.T) {
-	content := `default: &default
+func TestParseDatabaseYMLContent(t *testing.T) {
+	tests := []struct {
+		name            string
+		content         string
+		wantHostEnv     string
+		wantHostDefault string
+		wantUsernameEnv string
+		wantPasswordEnv string
+	}{
+		{
+			name: "test section with ENV.fetch fields",
+			content: `default: &default
   adapter: postgresql
-
-development:
-  <<: *default
-  database: myapp_dev
 
 test:
   <<: *default
@@ -314,13 +315,63 @@ test:
 
 production:
   <<: *default
-  database: myapp_prod`
+  database: myapp_prod`,
+			wantHostEnv:     "DB_HOST",
+			wantHostDefault: "localhost",
+			wantUsernameEnv: "DB_USERNAME",
+			wantPasswordEnv: "DB_PASSWORD",
+		},
+		{
+			name: "fields inherited via YAML anchor merge",
+			content: `default: &default
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: postgres
+  password: secret
 
-	section := extractYMLSection(content, "test")
-	assert.Contains(t, section, "myapp_test")
-	assert.Contains(t, section, "DB_PASSWORD")
-	assert.NotContains(t, section, "myapp_dev")
-	assert.NotContains(t, section, "myapp_prod")
+test:
+  <<: *default
+  database: myapp_test`,
+			wantHostEnv:     "DB_HOST",
+			wantHostDefault: "localhost",
+			wantUsernameEnv: "",
+			wantPasswordEnv: "",
+		},
+		{
+			name: "plain values without ENV references",
+			content: `test:
+  host: myhost
+  username: myuser
+  password: mypass`,
+			wantHostEnv:     "",
+			wantHostDefault: "myhost",
+			wantUsernameEnv: "",
+			wantPasswordEnv: "",
+		},
+		{
+			name: "no test section falls back to default",
+			content: `default: &default
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: postgres
+
+development:
+  <<: *default
+  database: myapp_dev`,
+			wantHostEnv:     "DB_HOST",
+			wantHostDefault: "localhost",
+			wantUsernameEnv: "",
+			wantPasswordEnv: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := parseDatabaseYMLContent(tt.content)
+			assert.Equal(t, tt.wantHostEnv, result.hostEnvVar.name)
+			assert.Equal(t, tt.wantHostDefault, result.hostEnvVar.defaultValue)
+			assert.Equal(t, tt.wantUsernameEnv, result.usernameEnvVar.name)
+			assert.Equal(t, tt.wantPasswordEnv, result.passwordEnvVar.name)
+		})
+	}
 }
 
 func TestGenerateConfigWithServices(t *testing.T) {
