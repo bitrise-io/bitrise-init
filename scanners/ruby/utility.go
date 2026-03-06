@@ -389,8 +389,8 @@ func configName(params configDescriptor) string {
 		name = name + "-" + params.testFramework
 	}
 
-	if len(params.databases) > 0 {
-		name = name + "-" + params.databases[0].containerName
+	for _, db := range params.databases {
+		name = name + "-" + db.containerName
 	}
 
 	return name + "-config"

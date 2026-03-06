@@ -12,9 +12,9 @@ import (
 func TestRuby(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			Name:              "sample-ruby-rails-rspec",
-			RepoURL:           "https://github.com/bitrise-io/sample-ruby-rails-rspec",
-			RelativeSearchDir: ".",
+			Name:              "sample-ruby-on-rails-rspec-postgres-redis",
+			RepoURL:           "https://github.com/bitrise-io/ruby-samples.git",
+			RelativeSearchDir: "sample-ruby-on-rails-rspec-postgres-redis",
 			Branch:            "main",
 			ExpectedResult:    rubyResultYML,
 			ExpectedVersions:  rubyResultVersions,
@@ -49,10 +49,10 @@ var rubyResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        config: ruby-root-bundler-rspec-postgres-config
+        config: ruby-root-bundler-rspec-postgres-redis-config
 configs:
   ruby:
-    ruby-root-bundler-rspec-postgres-config: |
+    ruby-root-bundler-rspec-postgres-redis-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
@@ -93,6 +93,7 @@ configs:
               title: Database setup
               service_containers:
               - postgres
+              - redis
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -103,6 +104,7 @@ configs:
               title: Run tests
               service_containers:
               - postgres
+              - redis
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -124,6 +126,13 @@ configs:
           - POSTGRES_PASSWORD: $DB_PASSWORD
           options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
             5
+        redis:
+          type: service
+          image: redis:7
+          ports:
+          - 6379:6379
+          options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout
+            5s --health-retries 5
 warnings:
   ruby: []
 warnings_with_recommendations:

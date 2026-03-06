@@ -220,7 +220,7 @@ func TestConfigNameWithDatabase(t *testing.T) {
 			want: "ruby-root-bundler-minitest-mysql-config",
 		},
 		{
-			name: "multiple databases uses first",
+			name: "multiple databases includes all container names",
 			descriptor: configDescriptor{
 				workdir:       "",
 				hasBundler:    true,
@@ -230,7 +230,7 @@ func TestConfigNameWithDatabase(t *testing.T) {
 					{containerName: "redis"},
 				},
 			},
-			want: "ruby-root-bundler-rspec-postgres-config",
+			want: "ruby-root-bundler-rspec-postgres-redis-config",
 		},
 		{
 			name: "no databases keeps original name",
