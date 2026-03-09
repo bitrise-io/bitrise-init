@@ -76,6 +76,7 @@ configs:
         - DB_HOST: postgres
         - DB_USERNAME: postgres
         - DB_PASSWORD: password
+        - REDIS_URL: redis://redis:6379/0
       workflows:
         run_tests:
           steps:
@@ -354,6 +355,7 @@ configs:
         - DB_HOST: mysql
         - DB_USERNAME: root
         - DB_PASSWORD: ""
+        - REDIS_URL: redis://redis:6379/0
       workflows:
         run_tests:
           steps:
@@ -438,6 +440,7 @@ configs:
         - DB_HOST: postgres
         - DB_USERNAME: postgres
         - DB_PASSWORD: password
+        - REDIS_URL: redis://redis:6379/0
       workflows:
         run_tests:
           steps:

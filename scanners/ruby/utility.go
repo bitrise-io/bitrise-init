@@ -113,14 +113,16 @@ type databaseEnvVar struct {
 
 // databaseGem represents a detected database dependency and its container configuration.
 type databaseGem struct {
-	gemName         string
-	adapterName     string // Rails adapter name in database.yml (e.g. "postgresql", "mysql2")
-	containerName   string
-	image           string
-	ports           []string
-	containerEnvKey string // env var name the container needs (e.g., POSTGRES_PASSWORD)
-	healthCheck     string
-	isRelationalDB  bool
+	gemName              string
+	adapterName          string // Rails adapter name in database.yml (e.g. "postgresql", "mysql2")
+	containerName        string
+	image                string
+	ports                []string
+	containerEnvKey      string // env var name the container needs (e.g., POSTGRES_PASSWORD)
+	healthCheck          string
+	isRelationalDB       bool
+	connectionURLEnvKey  string // app-level env var for the service URL (e.g., REDIS_URL)
+	connectionURL        string // value for connectionURLEnvKey (e.g., redis://redis:6379/0)
 }
 
 var knownDatabaseGems = []databaseGem{
@@ -145,11 +147,13 @@ var knownDatabaseGems = []databaseGem{
 		isRelationalDB:  true,
 	},
 	{
-		gemName:       "redis",
-		containerName: "redis",
-		image:         "redis:7",
-		ports:         []string{"6379:6379"},
-		healthCheck:   `--health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5`,
+		gemName:             "redis",
+		containerName:       "redis",
+		image:               "redis:7",
+		ports:               []string{"6379:6379"},
+		healthCheck:         `--health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5`,
+		connectionURLEnvKey: "REDIS_URL",
+		connectionURL:       "redis://redis:6379/0",
 	},
 	{
 		gemName:       "mongoid",
@@ -586,6 +590,13 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanMode
 	// Password env var
 	if ymlInfo.passwordEnvVar.name != "" {
 		envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.passwordEnvVar.name: ymlInfo.passwordEnvVar.defaultValue})
+	}
+
+	// Connection URL env vars for databases with a standard URL convention (e.g. REDIS_URL)
+	for _, db := range databases {
+		if db.connectionURLEnvKey != "" {
+			envs = append(envs, envmanModels.EnvironmentItemModel{db.connectionURLEnvKey: db.connectionURL})
+		}
 	}
 
 	return envs
