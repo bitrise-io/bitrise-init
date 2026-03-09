@@ -547,19 +547,12 @@ func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo)
 }
 
 func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanModels.EnvironmentItemModel {
-	var envs []envmanModels.EnvironmentItemModel
-
-	hasRelational := false
-	for _, db := range databases {
-		if db.isRelationalDB {
-			hasRelational = true
-			break
-		}
-	}
-
+	hasRelational := hasRelationalDB(databases)
 	if !hasRelational {
 		return nil
 	}
+
+	var envs []envmanModels.EnvironmentItemModel
 
 	// Host env var: use name from database.yml or default to DB_HOST
 	hostEnvName := "DB_HOST"
