@@ -638,9 +638,13 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanMode
 }
 
 func generateDBSetupScript(descriptor configDescriptor) string {
-	dbCommand := "rake db:create db:schema:load"
+	runner := "rake"
+	if descriptor.hasRails {
+		runner = "rails"
+	}
+	dbCommand := runner + " db:create db:schema:load"
 	if descriptor.hasBundler {
-		dbCommand = "bundle exec rake db:create db:schema:load"
+		dbCommand = "bundle exec " + runner + " db:create db:schema:load"
 	}
 
 	return fmt.Sprintf(`#!/usr/bin/env bash

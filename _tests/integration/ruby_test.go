@@ -114,7 +114,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake db:create db:schema:load
+                  bundle exec rails db:create db:schema:load
           - script@%s:
               title: Run tests
               service_containers:
@@ -217,7 +217,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake db:create db:schema:load
+                  bundle exec rails db:create db:schema:load
           - script@%s:
               title: Run tests
               service_containers:
@@ -339,7 +339,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake db:create db:schema:load
+                  bundle exec rails db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Run tests
@@ -414,7 +414,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake db:create db:schema:load
+                  bundle exec rails db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Run tests
@@ -499,7 +499,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake db:create db:schema:load
+                  bundle exec rails db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Run tests
