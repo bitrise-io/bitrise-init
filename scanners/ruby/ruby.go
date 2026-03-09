@@ -34,6 +34,7 @@ type project struct {
 	hasRakefile    bool
 	testFramework  string
 	hasRubyVersion bool
+	hasRails       bool
 	databases      []databaseGem
 	dbYMLInfo      databaseYMLInfo
 }
@@ -69,6 +70,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		hasRakefile := checkRakefile(gemfileDir)
 		testFw := detectTestFramework(gemfileDir)
 		hasRubyVersion := checkRubyVersion(gemfileDir)
+		hasRails := detectRails(gemfileDir)
 		databases := detectDatabases(gemfileDir)
 		var dbYMLInfo databaseYMLInfo
 		if hasRelationalDB(databases) {
@@ -87,6 +89,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasRakefile:    hasRakefile,
 			testFramework:  testFw,
 			hasRubyVersion: hasRubyVersion,
+			hasRails:       hasRails,
 			databases:      databases,
 			dbYMLInfo:      dbYMLInfo,
 		}

@@ -188,6 +188,21 @@ var (
 	erbTagPattern = regexp.MustCompile(`<%[^%]*%>`)
 )
 
+func detectRails(searchDir string) bool {
+	gemfilePath := filepath.Join(searchDir, "Gemfile")
+	content, err := fileutil.ReadStringFromFile(gemfilePath)
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(content, "\n") {
+		match := gemDeclPattern.FindStringSubmatch(line)
+		if len(match) >= 2 && match[1] == "rails" {
+			return true
+		}
+	}
+	return false
+}
+
 func detectDatabases(searchDir string) []databaseGem {
 	gemfilePath := filepath.Join(searchDir, "Gemfile")
 	content, err := fileutil.ReadStringFromFile(gemfilePath)
@@ -339,6 +354,7 @@ type configDescriptor struct {
 	hasRakefile    bool
 	testFramework  string
 	hasRubyVersion bool
+	hasRails       bool
 	isDefault      bool
 	databases      []databaseGem
 	dbYMLInfo      databaseYMLInfo
@@ -351,6 +367,7 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 		hasRakefile:    project.hasRakefile,
 		testFramework:  project.testFramework,
 		hasRubyVersion: project.hasRubyVersion,
+		hasRails:       project.hasRails,
 		isDefault:      isDefault,
 		databases:      project.databases,
 		dbYMLInfo:      project.dbYMLInfo,
@@ -624,7 +641,13 @@ func generateTestScript(descriptor configDescriptor) string {
 			testCommand = "rspec"
 		}
 	case "minitest":
-		if descriptor.hasRakefile {
+		if descriptor.hasRails {
+			if descriptor.hasBundler {
+				testCommand = "bundle exec rails test"
+			} else {
+				testCommand = "rails test"
+			}
+		} else if descriptor.hasRakefile {
 			if descriptor.hasBundler {
 				testCommand = "bundle exec rake test"
 			} else {

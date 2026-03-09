@@ -218,7 +218,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake test
+                  bundle exec rails test
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -331,7 +331,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
-                  bundle exec rake test
+                  bundle exec rails test
               - working_dir: $RUBY_PROJECT_DIR
           - save-cache@%s:
               inputs:
