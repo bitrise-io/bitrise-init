@@ -143,7 +143,7 @@ var knownDatabaseGems = []databaseGem{
 		image:           "mysql:8",
 		ports:           []string{"3306:3306"},
 		containerEnvKey: "MYSQL_ROOT_PASSWORD",
-		healthCheck:     `--health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout 5s --health-retries 5`,
+		healthCheck:     `--health-cmd "mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD" --health-interval 10s --health-timeout 5s --health-retries 5`,
 		isRelationalDB:  true,
 	},
 	{
@@ -157,15 +157,15 @@ var knownDatabaseGems = []databaseGem{
 	},
 	{
 		gemName:       "mongoid",
-		containerName: "mongo",
-		image:         "mongo:7",
+		containerName: "mongodb",
+		image:         "mongo:8",
 		ports:         []string{"27017:27017"},
 		healthCheck:   `--health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5`,
 	},
 	{
 		gemName:       "mongo",
-		containerName: "mongo",
-		image:         "mongo:7",
+		containerName: "mongodb",
+		image:         "mongo:8",
 		ports:         []string{"27017:27017"},
 		healthCheck:   `--health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5`,
 	},

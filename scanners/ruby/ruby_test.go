@@ -147,7 +147,7 @@ func TestDetectDatabaseGemsFromContent(t *testing.T) {
 		{
 			name:           "multiple databases",
 			content:        "gem 'pg'\ngem 'redis'\ngem 'mongoid'",
-			wantContainers: []string{"postgres", "redis", "mongo"},
+			wantContainers: []string{"postgres", "redis", "mongodb"},
 		},
 		{
 			name:           "commented out gem is ignored",
@@ -162,7 +162,7 @@ func TestDetectDatabaseGemsFromContent(t *testing.T) {
 		{
 			name:           "mongoid and mongo deduplicated",
 			content:        "gem 'mongoid'\ngem 'mongo'",
-			wantContainers: []string{"mongo"},
+			wantContainers: []string{"mongodb"},
 		},
 		{
 			name:           "mysql2 gem",

@@ -174,10 +174,10 @@ var rubyMinitestSqliteMongoDBResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        config: ruby-root-bundler-minitest-mongo-config
+        config: ruby-root-bundler-minitest-mongodb-config
 configs:
   ruby:
-    ruby-root-bundler-minitest-mongo-config: |
+    ruby-root-bundler-minitest-mongodb-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
@@ -212,7 +212,7 @@ configs:
           - script@%s:
               title: Run tests
               service_containers:
-              - mongo
+              - mongodb
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -225,9 +225,9 @@ configs:
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
       containers:
-        mongo:
+        mongodb:
           type: service
-          image: mongo:7
+          image: mongo:8
           ports:
           - 27017:27017
           options: --health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval
@@ -239,7 +239,7 @@ warnings_with_recommendations:
 `, rubyMinitestSqliteMongoDBResultVersions...)
 
 var rubyMonorepoResultVersions = []interface{}{
-	// ruby-bundler-minitest-mongo-config
+	// ruby-bundler-minitest-mongodb-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -281,14 +281,14 @@ var rubyMonorepoResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       sample-ruby-on-rails-minitest-sqlite-mongodb:
-        config: ruby-bundler-minitest-mongo-config
+        config: ruby-bundler-minitest-mongodb-config
       sample-ruby-on-rails-rspec-mysql-redis:
         config: ruby-bundler-rspec-mysql-redis-config
       sample-ruby-on-rails-rspec-postgres-redis:
         config: ruby-bundler-rspec-postgres-redis-config
 configs:
   ruby:
-    ruby-bundler-minitest-mongo-config: |
+    ruby-bundler-minitest-mongodb-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
@@ -325,7 +325,7 @@ configs:
           - script@%s:
               title: Run tests
               service_containers:
-              - mongo
+              - mongodb
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -339,9 +339,9 @@ configs:
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
       containers:
-        mongo:
+        mongodb:
           type: service
-          image: mongo:7
+          image: mongo:8
           ports:
           - 27017:27017
           options: --health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval
@@ -354,7 +354,7 @@ configs:
         envs:
         - DB_HOST: mysql
         - DB_USERNAME: root
-        - DB_PASSWORD: ""
+        - DB_PASSWORD: password
         - REDIS_URL: redis://redis:6379/0
       workflows:
         run_tests:
@@ -422,8 +422,8 @@ configs:
           - 3306:3306
           envs:
           - MYSQL_ROOT_PASSWORD: $DB_PASSWORD
-          options: --health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout
-            5s --health-retries 5
+          options: --health-cmd "mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD"
+            --health-interval 10s --health-timeout 5s --health-retries 5
         redis:
           type: service
           image: redis:7
