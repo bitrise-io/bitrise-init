@@ -170,9 +170,9 @@ func TestDetectDatabaseGemsFromContent(t *testing.T) {
 			wantContainers: []string{"mysql"},
 		},
 		{
-			name:           "sqlite3 is not detected",
+			name:           "sqlite3 detected without container",
 			content:        "gem 'sqlite3'",
-			wantContainers: nil,
+			wantContainers: []string{""},
 		},
 		{
 			name:           "gem in group block",

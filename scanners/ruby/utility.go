@@ -169,6 +169,11 @@ var knownDatabaseGems = []databaseGem{
 		ports:         []string{"27017:27017"},
 		healthCheck:   `--health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5`,
 	},
+	{
+		// SQLite is file-based, no service container needed, but ActiveRecord setup is required
+		gemName:        "sqlite3",
+		isRelationalDB: true,
+	},
 }
 
 // databaseYMLInfo holds env var names and defaults extracted from config/database.yml.
@@ -227,9 +232,13 @@ func detectDatabaseGemsFromContent(content string) []databaseGem {
 	var detected []databaseGem
 	seen := map[string]bool{}
 	for _, dbGem := range knownDatabaseGems {
-		if declaredGems[dbGem.gemName] && !seen[dbGem.containerName] {
+		dedupKey := dbGem.containerName
+		if dedupKey == "" {
+			dedupKey = dbGem.gemName
+		}
+		if declaredGems[dbGem.gemName] && !seen[dedupKey] {
 			detected = append(detected, dbGem)
-			seen[dbGem.containerName] = true
+			seen[dedupKey] = true
 		}
 	}
 	return detected
@@ -411,7 +420,9 @@ func configName(params configDescriptor) string {
 	}
 
 	for _, db := range params.databases {
-		name = name + "-" + db.containerName
+		if db.containerName != "" {
+			name = name + "-" + db.containerName
+		}
 	}
 
 	return name + "-config"
@@ -503,7 +514,9 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 
 	if len(descriptor.databases) > 0 {
 		containers := buildContainerDefinitions(descriptor.databases, descriptor.dbYMLInfo)
-		configBuilder.SetContainerDefinitions(containers)
+		if len(containers) > 0 {
+			configBuilder.SetContainerDefinitions(containers)
+		}
 	}
 
 	config, err := configBuilder.Generate(ScannerName, appEnvs...)
@@ -522,7 +535,9 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 func serviceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
 	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
-		refs = append(refs, db.containerName)
+		if db.containerName != "" {
+			refs = append(refs, db.containerName)
+		}
 	}
 	return refs
 }
@@ -530,7 +545,7 @@ func serviceContainerReferences(databases []databaseGem) []stepmanModels.Contain
 func relationalServiceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
 	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
-		if db.isRelationalDB {
+		if db.isRelationalDB && db.containerName != "" {
 			refs = append(refs, db.containerName)
 		}
 	}
@@ -559,6 +574,9 @@ func scriptStepWithServiceContainers(title, content string, serviceContainerRefs
 func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]bitriseModels.Container {
 	containers := map[string]bitriseModels.Container{}
 	for _, db := range databases {
+		if db.containerName == "" {
+			continue
+		}
 		def := bitriseModels.Container{
 			Type:    "service",
 			Image:   db.image,
@@ -591,9 +609,9 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanMode
 	if ymlInfo.hostEnvVar.name != "" {
 		hostEnvName = ymlInfo.hostEnvVar.name
 	}
-	// Default value is the container name of the first relational DB
+	// Default value is the container name of the first relational DB that has a container
 	for _, db := range databases {
-		if db.isRelationalDB {
+		if db.isRelationalDB && db.containerName != "" {
 			envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: db.containerName})
 			break
 		}

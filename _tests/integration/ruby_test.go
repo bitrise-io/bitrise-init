@@ -161,7 +161,8 @@ var rubyMinitestSqliteMongoDBResultVersions = []interface{}{
 	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
-	steps.ScriptVersion,
+	steps.ScriptVersion, // Database setup
+	steps.ScriptVersion, // Run tests
 	steps.CacheSaveVersion,
 	steps.DeployToBitriseIoVersion,
 }
@@ -210,6 +211,14 @@ configs:
                   bundle config set --local path vendor/bundle
                   bundle install
           - script@%s:
+              title: Database setup
+              inputs:
+              - content: |-
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle exec rake db:create db:schema:load
+          - script@%s:
               title: Run tests
               service_containers:
               - mongodb
@@ -246,6 +255,7 @@ var rubyMonorepoResultVersions = []interface{}{
 	steps.ScriptVersion, // Install Ruby
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion, // Install dependencies
+	steps.ScriptVersion, // Database setup
 	steps.ScriptVersion, // Run tests
 	steps.CacheSaveVersion,
 	steps.DeployToBitriseIoVersion,
@@ -321,6 +331,15 @@ configs:
 
                   bundle config set --local path vendor/bundle
                   bundle install
+              - working_dir: $RUBY_PROJECT_DIR
+          - script@%s:
+              title: Database setup
+              inputs:
+              - content: |-
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle exec rake db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Run tests
