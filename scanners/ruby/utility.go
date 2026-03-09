@@ -184,9 +184,16 @@ type databaseYMLInfo struct {
 	passwordEnvVar databaseEnvVar
 }
 
+// mongoidYMLInfo holds connection URL info extracted from config/mongoid.yml.
+type mongoidYMLInfo struct {
+	connectionURLEnvKey string // e.g. "MONGODB_URL"
+	connectionURL       string // e.g. "mongodb://mongodb:27017/myapp_test"
+}
+
 var (
 	gemDeclPattern    = regexp.MustCompile(`^\s*gem\s+['"]([^'"]+)['"]`)
 	envFetchPattern   = regexp.MustCompile(`ENV\.fetch\(\s*["'](\w+)["']\s*\)\s*\{\s*["']([^"']*)["']\s*\}`)
+	envFetchArgPattern = regexp.MustCompile(`ENV\.fetch\(\s*['"](\w+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)`)
 	envBracketPattern = regexp.MustCompile(`ENV\[["'](\w+)["']\]`)
 	// erbTagPattern matches ERB template tags like <%= ... %> that appear in Rails database.yml.
 	// It assumes the expression itself does not contain a bare '%>' sequence.
@@ -346,6 +353,48 @@ func extractEnvVarFromValue(value string) databaseEnvVar {
 	return databaseEnvVar{}
 }
 
+func parseMongoidYML(searchDir string, mongoDB databaseGem) mongoidYMLInfo {
+	ymlPath := filepath.Join(searchDir, "config", "mongoid.yml")
+	content, err := fileutil.ReadStringFromFile(ymlPath)
+	if err != nil {
+		log.TPrintf("- config/mongoid.yml - not found or not readable")
+		return mongoidYMLInfo{}
+	}
+
+	log.TPrintf("- config/mongoid.yml - found, parsing connection URL")
+	return parseMongoidYMLContent(content, mongoDB)
+}
+
+func parseMongoidYMLContent(content string, mongoDB databaseGem) mongoidYMLInfo {
+	// Look for ENV.fetch('KEY', 'mongodb://...') pattern anywhere in the file
+	match := envFetchArgPattern.FindStringSubmatch(content)
+	if len(match) < 3 {
+		return mongoidYMLInfo{}
+	}
+
+	envKey := match[1]
+	defaultURL := match[2]
+
+	// Replace localhost/127.0.0.1 with the container name so it works in CI
+	connectionURL := strings.ReplaceAll(defaultURL, "localhost", mongoDB.containerName)
+	connectionURL = strings.ReplaceAll(connectionURL, "127.0.0.1", mongoDB.containerName)
+
+	return mongoidYMLInfo{
+		connectionURLEnvKey: envKey,
+		connectionURL:       connectionURL,
+	}
+}
+
+// findMongoDBGem returns the first detected non-relational DB gem that has a container (e.g. mongoid/mongo).
+func findMongoDBGem(databases []databaseGem) (databaseGem, bool) {
+	for _, db := range databases {
+		if !db.isRelationalDB && db.containerName != "" {
+			return db, true
+		}
+	}
+	return databaseGem{}, false
+}
+
 // hasRelationalDB returns true if any detected database is relational (pg, mysql).
 func hasRelationalDB(databases []databaseGem) bool {
 	for _, db := range databases {
@@ -358,15 +407,16 @@ func hasRelationalDB(databases []databaseGem) bool {
 
 // Options & Configs
 type configDescriptor struct {
-	workdir        string
-	hasBundler     bool
-	hasRakefile    bool
-	testFramework  string
-	hasRubyVersion bool
-	hasRails       bool
-	isDefault      bool
-	databases      []databaseGem
-	dbYMLInfo      databaseYMLInfo
+	workdir          string
+	hasBundler       bool
+	hasRakefile      bool
+	testFramework    string
+	hasRubyVersion   bool
+	hasRails         bool
+	isDefault        bool
+	databases        []databaseGem
+	dbYMLInfo        databaseYMLInfo
+	mongoidYMLInfo   mongoidYMLInfo
 }
 
 func createConfigDescriptor(project project, isDefault bool) configDescriptor {
@@ -380,6 +430,7 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 		isDefault:      isDefault,
 		databases:      project.databases,
 		dbYMLInfo:      project.dbYMLInfo,
+		mongoidYMLInfo: project.mongoidYMLInfo,
 	}
 
 	// Gemfile placed in the search dir, no need to change-dir
@@ -510,7 +561,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.DefaultDeployStepList()...)
 
 	// Build app-level env vars for database connections
-	appEnvs := buildAppEnvs(descriptor.databases, descriptor.dbYMLInfo)
+	appEnvs := buildAppEnvs(descriptor.databases, descriptor.dbYMLInfo, descriptor.mongoidYMLInfo)
 
 	if len(descriptor.databases) > 0 {
 		containers := buildContainerDefinitions(descriptor.databases, descriptor.dbYMLInfo)
@@ -596,42 +647,50 @@ func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo)
 	return containers
 }
 
-func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo) []envmanModels.EnvironmentItemModel {
+func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo, mongoidInfo mongoidYMLInfo) []envmanModels.EnvironmentItemModel {
 	hasRelational := hasRelationalDB(databases)
-	if !hasRelational {
+	hasMongoidURL := mongoidInfo.connectionURLEnvKey != ""
+	if !hasRelational && !hasMongoidURL {
 		return nil
 	}
 
 	var envs []envmanModels.EnvironmentItemModel
 
-	// Host env var: use name from database.yml or default to DB_HOST
-	hostEnvName := "DB_HOST"
-	if ymlInfo.hostEnvVar.name != "" {
-		hostEnvName = ymlInfo.hostEnvVar.name
-	}
-	// Default value is the container name of the first relational DB that has a container
-	for _, db := range databases {
-		if db.isRelationalDB && db.containerName != "" {
-			envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: db.containerName})
-			break
+	if hasRelational {
+		// Host env var: use name from database.yml or default to DB_HOST
+		hostEnvName := "DB_HOST"
+		if ymlInfo.hostEnvVar.name != "" {
+			hostEnvName = ymlInfo.hostEnvVar.name
+		}
+		// Default value is the container name of the first relational DB that has a container
+		for _, db := range databases {
+			if db.isRelationalDB && db.containerName != "" {
+				envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: db.containerName})
+				break
+			}
+		}
+
+		// Username env var
+		if ymlInfo.usernameEnvVar.name != "" {
+			envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.usernameEnvVar.name: ymlInfo.usernameEnvVar.defaultValue})
+		}
+
+		// Password env var
+		if ymlInfo.passwordEnvVar.name != "" {
+			envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.passwordEnvVar.name: ymlInfo.passwordEnvVar.defaultValue})
+		}
+
+		// Connection URL env vars for databases with a standard URL convention (e.g. REDIS_URL)
+		for _, db := range databases {
+			if db.connectionURLEnvKey != "" {
+				envs = append(envs, envmanModels.EnvironmentItemModel{db.connectionURLEnvKey: db.connectionURL})
+			}
 		}
 	}
 
-	// Username env var
-	if ymlInfo.usernameEnvVar.name != "" {
-		envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.usernameEnvVar.name: ymlInfo.usernameEnvVar.defaultValue})
-	}
-
-	// Password env var
-	if ymlInfo.passwordEnvVar.name != "" {
-		envs = append(envs, envmanModels.EnvironmentItemModel{ymlInfo.passwordEnvVar.name: ymlInfo.passwordEnvVar.defaultValue})
-	}
-
-	// Connection URL env vars for databases with a standard URL convention (e.g. REDIS_URL)
-	for _, db := range databases {
-		if db.connectionURLEnvKey != "" {
-			envs = append(envs, envmanModels.EnvironmentItemModel{db.connectionURLEnvKey: db.connectionURL})
-		}
+	// MongoDB connection URL parsed from config/mongoid.yml
+	if hasMongoidURL {
+		envs = append(envs, envmanModels.EnvironmentItemModel{mongoidInfo.connectionURLEnvKey: mongoidInfo.connectionURL})
 	}
 
 	return envs

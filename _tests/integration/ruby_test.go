@@ -182,6 +182,9 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
+      app:
+        envs:
+        - MONGODB_URL: mongodb://mongodb:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
       workflows:
         run_tests:
           steps:
@@ -302,6 +305,9 @@ configs:
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: ruby
+      app:
+        envs:
+        - MONGODB_URL: mongodb://mongodb:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
       workflows:
         run_tests:
           steps:

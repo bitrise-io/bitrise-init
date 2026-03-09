@@ -37,6 +37,7 @@ type project struct {
 	hasRails       bool
 	databases      []databaseGem
 	dbYMLInfo      databaseYMLInfo
+	mongoidYMLInfo mongoidYMLInfo
 }
 
 type Scanner struct {
@@ -76,6 +77,10 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if hasRelationalDB(databases) {
 			dbYMLInfo = parseDatabaseYML(gemfileDir, databases)
 		}
+		var mongoidInfo mongoidYMLInfo
+		if mongoDB, ok := findMongoDBGem(databases); ok {
+			mongoidInfo = parseMongoidYML(gemfileDir, mongoDB)
+		}
 
 		projectRelDir, err := utility.RelPath(searchDir, gemfileDir)
 		if err != nil {
@@ -92,6 +97,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasRails:       hasRails,
 			databases:      databases,
 			dbYMLInfo:      dbYMLInfo,
+			mongoidYMLInfo: mongoidInfo,
 		}
 
 		scanner.projects = append(scanner.projects, project)
