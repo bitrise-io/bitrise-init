@@ -16,8 +16,16 @@ func TestRuby(t *testing.T) {
 			RepoURL:           "https://github.com/bitrise-io/ruby-samples.git",
 			RelativeSearchDir: "sample-ruby-on-rails-rspec-postgres-redis",
 			Branch:            "main",
-			ExpectedResult:    rubyResultYML,
-			ExpectedVersions:  rubyResultVersions,
+			ExpectedResult:    rubyRspecPostgresRedisResultYML,
+			ExpectedVersions:  rubyRspecPostgresRedisResultVersions,
+		},
+		{
+			Name:              "sample-ruby-on-rails-minitest-sqlite-mongodb",
+			RepoURL:           "https://github.com/bitrise-io/ruby-samples.git",
+			RelativeSearchDir: "sample-ruby-on-rails-minitest-sqlite-mongodb",
+			Branch:            "main",
+			ExpectedResult:    rubyMinitestSqliteMongoDBResultYML,
+			ExpectedVersions:  rubyMinitestSqliteMongoDBResultVersions,
 		},
 	}
 
@@ -28,7 +36,7 @@ func TestRuby(t *testing.T) {
 	}
 }
 
-var rubyResultVersions = []interface{}{
+var rubyRspecPostgresRedisResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -41,7 +49,7 @@ var rubyResultVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 }
 
-var rubyResultYML = fmt.Sprintf(`options:
+var rubyRspecPostgresRedisResultYML = fmt.Sprintf(`options:
   ruby:
     title: Project Directory
     summary: The directory containing the Gemfile
@@ -137,4 +145,88 @@ warnings:
   ruby: []
 warnings_with_recommendations:
   ruby: []
-`, rubyResultVersions...)
+`, rubyRspecPostgresRedisResultVersions...)
+
+var rubyMinitestSqliteMongoDBResultVersions = []interface{}{
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CacheRestoreVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.CacheSaveVersion,
+	steps.DeployToBitriseIoVersion,
+}
+
+var rubyMinitestSqliteMongoDBResultYML = fmt.Sprintf(`options:
+  ruby:
+    title: Project Directory
+    summary: The directory containing the Gemfile
+    env_key: RUBY_PROJECT_DIR
+    type: selector
+    value_map:
+      .:
+        config: ruby-root-bundler-minitest-mongo-config
+configs:
+  ruby:
+    ruby-root-bundler-minitest-mongo-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ruby
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - script@%s:
+              title: Install Ruby
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
+                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
+                  # See: https://github.com/asdf-vm/asdf-ruby
+                  asdf install ruby
+          - restore-cache@%s:
+              inputs:
+              - key: gem-{{ checksum "Gemfile.lock" }}
+          - script@%s:
+              title: Install dependencies
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle config set --local path vendor/bundle
+                  bundle install
+          - script@%s:
+              title: Run tests
+              service_containers:
+              - mongo
+              inputs:
+              - content: |-
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle exec rake test
+          - save-cache@%s:
+              inputs:
+              - key: gem-{{ checksum "Gemfile.lock" }}
+              - paths: vendor/bundle
+          - deploy-to-bitrise-io@%s: {}
+      containers:
+        mongo:
+          type: service
+          image: mongo:7
+          ports:
+          - 27017:27017
+          options: --health-cmd "mongosh --eval 'db.runCommand({ping:1})'" --health-interval
+            10s --health-timeout 5s --health-retries 5
+warnings:
+  ruby: []
+warnings_with_recommendations:
+  ruby: []
+`, rubyMinitestSqliteMongoDBResultVersions...)
