@@ -108,7 +108,6 @@ configs:
               title: Database setup
               service_containers:
               - postgres
-              - redis
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -389,7 +388,6 @@ configs:
               title: Database setup
               service_containers:
               - mysql
-              - redis
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -474,7 +472,6 @@ configs:
               title: Database setup
               service_containers:
               - postgres
-              - redis
               inputs:
               - content: |-
                   #!/usr/bin/env bash

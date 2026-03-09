@@ -449,12 +449,13 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	}
 
 	serviceContainerNames := serviceContainerReferences(descriptor.databases)
+	relationalServiceContainerNames := relationalServiceContainerReferences(descriptor.databases)
 
 	// Database setup (only for relational DBs)
 	if hasRelationalDB(descriptor.databases) {
 		dbSetupScript := generateDBSetupScript(descriptor)
-		if len(serviceContainerNames) > 0 {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Database setup", dbSetupScript, serviceContainerNames, descriptor.workdir))
+		if len(relationalServiceContainerNames) > 0 {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, scriptStepWithServiceContainers("Database setup", dbSetupScript, relationalServiceContainerNames, descriptor.workdir))
 		} else {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Database setup", dbSetupScript, workdirInputs(descriptor.workdir)...))
 		}
@@ -501,6 +502,16 @@ func serviceContainerReferences(databases []databaseGem) []stepmanModels.Contain
 	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
 		refs = append(refs, db.containerName)
+	}
+	return refs
+}
+
+func relationalServiceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
+	var refs []stepmanModels.ContainerReference
+	for _, db := range databases {
+		if db.isRelationalDB {
+			refs = append(refs, db.containerName)
+		}
 	}
 	return refs
 }
