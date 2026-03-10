@@ -385,6 +385,40 @@ test:
 	}
 }
 
+func TestGenerateConfigWithMySQLSystemDeps(t *testing.T) {
+	descriptor := configDescriptor{
+		hasBundler:    true,
+		testFramework: "rspec",
+		databases: []databaseGem{
+			{
+				gemName:         "mysql2",
+				containerName:   "mysql",
+				image:           "mysql:8",
+				ports:           []string{"3306:3306"},
+				containerEnvKey: "MYSQL_ROOT_PASSWORD",
+				healthCheck:     `--health-cmd "mysqladmin ping"`,
+				isRelationalDB:  true,
+				aptPackages:     []string{"libmariadb-dev"},
+			},
+		},
+		dbYMLInfo: databaseYMLInfo{
+			hostEnvVar:     databaseEnvVar{name: "DB_HOST", defaultValue: "localhost"},
+			usernameEnvVar: databaseEnvVar{name: "DB_USERNAME", defaultValue: "root"},
+			passwordEnvVar: databaseEnvVar{name: "DB_PASSWORD", defaultValue: "password"},
+		},
+	}
+
+	config, err := generateConfigBasedOn(descriptor, models.SSHKeyActivationConditional)
+	require.NoError(t, err)
+
+	assert.True(t, strings.Contains(config, "Install system dependencies"), "should have system deps step")
+	assert.True(t, strings.Contains(config, "apt-get install -y libmariadb-dev"), "should install libmariadb-dev")
+	// System deps step must come before Install dependencies
+	sysDepsIdx := strings.Index(config, "Install system dependencies")
+	installDepsIdx := strings.Index(config, "Install dependencies")
+	assert.True(t, sysDepsIdx < installDepsIdx, "system deps step should come before Install dependencies")
+}
+
 func TestGenerateConfigWithServices(t *testing.T) {
 	descriptor := configDescriptor{
 		hasBundler:    true,

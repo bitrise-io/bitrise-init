@@ -28,9 +28,9 @@ func TestRuby(t *testing.T) {
 			ExpectedVersions:  rubyMinitestSqliteMongoDBResultVersions,
 		},
 		{
-			Name:    "ruby-samples-monorepo",
-			RepoURL: "https://github.com/bitrise-io/ruby-samples.git",
-			Branch:  "main",
+			Name:             "ruby-samples-monorepo",
+			RepoURL:          "https://github.com/bitrise-io/ruby-samples.git",
+			Branch:           "main",
 			ExpectedResult:   rubyMonorepoResultYML,
 			ExpectedVersions: rubyMonorepoResultVersions,
 		},
@@ -268,6 +268,7 @@ var rubyMonorepoResultVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.ScriptVersion, // Install Ruby
 	steps.CacheRestoreVersion,
+	steps.ScriptVersion, // Install system dependencies
 	steps.ScriptVersion, // Install dependencies
 	steps.ScriptVersion, // Database setup
 	steps.ScriptVersion, // Run tests
@@ -380,7 +381,7 @@ configs:
         - DB_HOST: localhost
         - DB_USERNAME: root
         - DB_PASSWORD: password
-        - REDIS_URL: redis://redis:6379/0
+        - REDIS_URL: redis://localhost:6379/0
       workflows:
         run_tests:
           steps:
@@ -401,6 +402,14 @@ configs:
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
+          - script@%s:
+              title: Install system dependencies
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  apt-get install -y libmariadb-dev
           - script@%s:
               title: Install dependencies
               inputs:

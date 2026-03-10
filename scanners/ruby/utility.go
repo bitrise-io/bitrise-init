@@ -36,6 +36,8 @@ set -euxo pipefail
 asdf install ruby
 `
 
+	systemDepsInstallScriptStepTitle = "Install system dependencies"
+
 	bundlerInstallScriptStepTitle   = "Install dependencies"
 	bundlerInstallScriptStepContent = `#!/usr/bin/env bash
 set -euxo pipefail
@@ -123,6 +125,7 @@ type databaseGem struct {
 	isRelationalDB       bool
 	connectionURLEnvKey  string // app-level env var for the service URL (e.g., REDIS_URL)
 	connectionURL        string // value for connectionURLEnvKey (e.g., redis://localhost:6379/0)
+	aptPackages          []string // system packages required to compile the gem's native extension
 }
 
 var knownDatabaseGems = []databaseGem{
@@ -145,6 +148,7 @@ var knownDatabaseGems = []databaseGem{
 		containerEnvKey: "MYSQL_ROOT_PASSWORD",
 		healthCheck:     `--health-cmd "mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD" --health-interval 10s --health-timeout 5s --health-retries 5`,
 		isRelationalDB:  true,
+		aptPackages:     []string{"libmariadb-dev"},
 	},
 	{
 		gemName:             "redis",
@@ -527,6 +531,11 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	// Restore gem cache
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(gemCacheKey))
 
+	// Install system dependencies (e.g. native library headers required by some gems)
+	if aptPackages := collectAptPackages(descriptor.databases); len(aptPackages) > 0 {
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(systemDepsInstallScriptStepTitle, generateSystemDepsScript(aptPackages)))
+	}
+
 	// Install dependencies
 	if descriptor.hasBundler {
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(bundlerInstallScriptStepTitle, bundlerInstallScriptStepContent, workdirInputs(descriptor.workdir)...))
@@ -696,6 +705,25 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo, mongoidInfo 
 	}
 
 	return envs
+}
+
+// collectAptPackages returns the deduplicated list of apt packages required by the detected database gems.
+func collectAptPackages(databases []databaseGem) []string {
+	seen := map[string]bool{}
+	var packages []string
+	for _, db := range databases {
+		for _, pkg := range db.aptPackages {
+			if !seen[pkg] {
+				seen[pkg] = true
+				packages = append(packages, pkg)
+			}
+		}
+	}
+	return packages
+}
+
+func generateSystemDepsScript(packages []string) string {
+	return "#!/usr/bin/env bash\nset -euxo pipefail\n\napt-get install -y " + strings.Join(packages, " ") + "\n"
 }
 
 func generateDBSetupScript(descriptor configDescriptor) string {
