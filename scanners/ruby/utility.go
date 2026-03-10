@@ -122,7 +122,7 @@ type databaseGem struct {
 	healthCheck          string
 	isRelationalDB       bool
 	connectionURLEnvKey  string // app-level env var for the service URL (e.g., REDIS_URL)
-	connectionURL        string // value for connectionURLEnvKey (e.g., redis://redis:6379/0)
+	connectionURL        string // value for connectionURLEnvKey (e.g., redis://localhost:6379/0)
 }
 
 var knownDatabaseGems = []databaseGem{
@@ -153,7 +153,7 @@ var knownDatabaseGems = []databaseGem{
 		ports:               []string{"6379:6379"},
 		healthCheck:         `--health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5`,
 		connectionURLEnvKey: "REDIS_URL",
-		connectionURL:       "redis://redis:6379/0",
+		connectionURL:       "redis://localhost:6379/0",
 	},
 	{
 		gemName:       "mongoid",
@@ -187,7 +187,7 @@ type databaseYMLInfo struct {
 // mongoidYMLInfo holds connection URL info extracted from config/mongoid.yml.
 type mongoidYMLInfo struct {
 	connectionURLEnvKey string // e.g. "MONGODB_URL"
-	connectionURL       string // e.g. "mongodb://mongodb:27017/myapp_test"
+	connectionURL       string // e.g. "mongodb://localhost:27017/myapp_test"
 }
 
 var (
@@ -375,9 +375,10 @@ func parseMongoidYMLContent(content string, mongoDB databaseGem) mongoidYMLInfo 
 	envKey := match[1]
 	defaultURL := match[2]
 
-	// Replace localhost/127.0.0.1 with the container name so it works in CI
-	connectionURL := strings.ReplaceAll(defaultURL, "localhost", mongoDB.containerName)
-	connectionURL = strings.ReplaceAll(connectionURL, "127.0.0.1", mongoDB.containerName)
+	// Script steps run on the host machine, not inside Docker, so they connect to service
+	// containers via localhost (ports are mapped to the host).
+	// Normalize any IP-based localhost references to the hostname form.
+	connectionURL := strings.ReplaceAll(defaultURL, "127.0.0.1", "localhost")
 
 	return mongoidYMLInfo{
 		connectionURLEnvKey: envKey,
@@ -662,10 +663,11 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo, mongoidInfo 
 		if ymlInfo.hostEnvVar.name != "" {
 			hostEnvName = ymlInfo.hostEnvVar.name
 		}
-		// Default value is the container name of the first relational DB that has a container
+		// Script steps run on the host machine, not inside Docker, so they connect to service
+		// containers via localhost (ports are mapped to the host).
 		for _, db := range databases {
 			if db.isRelationalDB && db.containerName != "" {
-				envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: db.containerName})
+				envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: "localhost"})
 				break
 			}
 		}

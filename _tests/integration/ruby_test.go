@@ -73,10 +73,10 @@ configs:
       project_type: ruby
       app:
         envs:
-        - DB_HOST: postgres
+        - DB_HOST: localhost
         - DB_USERNAME: postgres
         - DB_PASSWORD: password
-        - REDIS_URL: redis://redis:6379/0
+        - REDIS_URL: redis://localhost:6379/0
       workflows:
         run_tests:
           steps:
@@ -184,7 +184,7 @@ configs:
       project_type: ruby
       app:
         envs:
-        - MONGODB_URL: mongodb://mongodb:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
+        - MONGODB_URL: mongodb://localhost:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
       workflows:
         run_tests:
           steps:
@@ -307,7 +307,7 @@ configs:
       project_type: ruby
       app:
         envs:
-        - MONGODB_URL: mongodb://mongodb:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
+        - MONGODB_URL: mongodb://localhost:27017/sample_ruby_on_rails_minitest_sqlite_mongodb_test
       workflows:
         run_tests:
           steps:
@@ -377,7 +377,7 @@ configs:
       project_type: ruby
       app:
         envs:
-        - DB_HOST: mysql
+        - DB_HOST: localhost
         - DB_USERNAME: root
         - DB_PASSWORD: password
         - REDIS_URL: redis://redis:6379/0
@@ -462,10 +462,10 @@ configs:
       project_type: ruby
       app:
         envs:
-        - DB_HOST: postgres
+        - DB_HOST: localhost
         - DB_USERNAME: postgres
         - DB_PASSWORD: password
-        - REDIS_URL: redis://redis:6379/0
+        - REDIS_URL: redis://localhost:6379/0
       workflows:
         run_tests:
           steps:

@@ -425,6 +425,6 @@ func TestGenerateConfigWithServices(t *testing.T) {
 	assert.True(t, strings.Contains(config, "db:create db:schema:load"), "should have db:create db:schema:load")
 
 	// Verify app-level env vars
-	assert.True(t, strings.Contains(config, "DB_HOST: postgres"), "should set DB_HOST to container name")
+	assert.True(t, strings.Contains(config, "DB_HOST: localhost"), "should set DB_HOST to localhost (scripts run on host, not in Docker)")
 	assert.True(t, strings.Contains(config, "DB_PASSWORD: password"), "should set DB_PASSWORD default")
 }
