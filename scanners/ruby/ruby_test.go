@@ -399,6 +399,7 @@ func TestGenerateConfigWithMySQLSystemDeps(t *testing.T) {
 				healthCheck:     `--health-cmd "mysqladmin ping"`,
 				isRelationalDB:  true,
 				aptPackages:     []string{"libmariadb-dev"},
+				hostValue:       "127.0.0.1",
 			},
 		},
 		dbYMLInfo: databaseYMLInfo{
@@ -413,6 +414,7 @@ func TestGenerateConfigWithMySQLSystemDeps(t *testing.T) {
 
 	assert.True(t, strings.Contains(config, "Install system dependencies"), "should have system deps step")
 	assert.True(t, strings.Contains(config, "apt-get install -y libmariadb-dev"), "should install libmariadb-dev")
+	assert.True(t, strings.Contains(config, "DB_HOST: 127.0.0.1"), "MySQL must use 127.0.0.1, not localhost (localhost uses Unix socket)")
 	// System deps step must come before Install dependencies
 	sysDepsIdx := strings.Index(config, "Install system dependencies")
 	installDepsIdx := strings.Index(config, "Install dependencies")

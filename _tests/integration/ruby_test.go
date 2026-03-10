@@ -378,7 +378,7 @@ configs:
       project_type: ruby
       app:
         envs:
-        - DB_HOST: localhost
+        - DB_HOST: 127.0.0.1
         - DB_USERNAME: root
         - DB_PASSWORD: password
         - REDIS_URL: redis://localhost:6379/0

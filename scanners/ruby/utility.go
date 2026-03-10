@@ -126,6 +126,9 @@ type databaseGem struct {
 	connectionURLEnvKey  string // app-level env var for the service URL (e.g., REDIS_URL)
 	connectionURL        string // value for connectionURLEnvKey (e.g., redis://localhost:6379/0)
 	aptPackages          []string // system packages required to compile the gem's native extension
+	// hostValue overrides the default "localhost" for DB_HOST. Use "127.0.0.1" for MySQL,
+	// which treats "localhost" as a Unix socket path rather than a TCP address.
+	hostValue            string
 }
 
 var knownDatabaseGems = []databaseGem{
@@ -149,6 +152,7 @@ var knownDatabaseGems = []databaseGem{
 		healthCheck:     `--health-cmd "mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD" --health-interval 10s --health-timeout 5s --health-retries 5`,
 		isRelationalDB:  true,
 		aptPackages:     []string{"libmariadb-dev"},
+		hostValue:       "127.0.0.1",
 	},
 	{
 		gemName:             "redis",
@@ -673,10 +677,15 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo, mongoidInfo 
 			hostEnvName = ymlInfo.hostEnvVar.name
 		}
 		// Script steps run on the host machine, not inside Docker, so they connect to service
-		// containers via localhost (ports are mapped to the host).
+		// containers via mapped ports. Most databases work with "localhost", but MySQL treats
+		// "localhost" as a Unix socket path — "127.0.0.1" forces TCP/IP.
 		for _, db := range databases {
 			if db.isRelationalDB && db.containerName != "" {
-				envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: "localhost"})
+				hostValue := "localhost"
+				if db.hostValue != "" {
+					hostValue = db.hostValue
+				}
+				envs = append(envs, envmanModels.EnvironmentItemModel{hostEnvName: hostValue})
 				break
 			}
 		}
