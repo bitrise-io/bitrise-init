@@ -115,20 +115,20 @@ type databaseEnvVar struct {
 
 // databaseGem represents a detected database dependency and its container configuration.
 type databaseGem struct {
-	gemName              string
-	adapterName          string // Rails adapter name in database.yml (e.g. "postgresql", "mysql2")
-	containerName        string
-	image                string
-	ports                []string
-	containerEnvKey      string // env var name the container needs (e.g., POSTGRES_PASSWORD)
-	healthCheck          string
-	isRelationalDB       bool
-	connectionURLEnvKey  string // app-level env var for the service URL (e.g., REDIS_URL)
-	connectionURL        string // value for connectionURLEnvKey (e.g., redis://localhost:6379/0)
-	aptPackages          []string // system packages required to compile the gem's native extension
+	gemName             string
+	adapterName         string // Rails adapter name in database.yml (e.g. "postgresql", "mysql2")
+	containerName       string
+	image               string
+	ports               []string
+	containerEnvKey     string // env var name the container needs (e.g., POSTGRES_PASSWORD)
+	healthCheck         string
+	isRelationalDB      bool
+	connectionURLEnvKey string   // app-level env var for the service URL (e.g., REDIS_URL)
+	connectionURL       string   // value for connectionURLEnvKey (e.g., redis://localhost:6379/0)
+	aptPackages         []string // system packages required to compile the gem's native extension
 	// hostValue overrides the default "localhost" for DB_HOST. Use "127.0.0.1" for MySQL,
 	// which treats "localhost" as a Unix socket path rather than a TCP address.
-	hostValue            string
+	hostValue string
 }
 
 var knownDatabaseGems = []databaseGem{
@@ -199,10 +199,10 @@ type mongoidYMLInfo struct {
 }
 
 var (
-	gemDeclPattern    = regexp.MustCompile(`^\s*gem\s+['"]([^'"]+)['"]`)
-	envFetchPattern   = regexp.MustCompile(`ENV\.fetch\(\s*["'](\w+)["']\s*\)\s*\{\s*["']([^"']*)["']\s*\}`)
+	gemDeclPattern     = regexp.MustCompile(`^\s*gem\s+['"]([^'"]+)['"]`)
+	envFetchPattern    = regexp.MustCompile(`ENV\.fetch\(\s*["'](\w+)["']\s*\)\s*\{\s*["']([^"']*)["']\s*\}`)
 	envFetchArgPattern = regexp.MustCompile(`ENV\.fetch\(\s*['"](\w+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)`)
-	envBracketPattern = regexp.MustCompile(`ENV\[["'](\w+)["']\]`)
+	envBracketPattern  = regexp.MustCompile(`ENV\[["'](\w+)["']\]`)
 	// erbTagPattern matches ERB template tags like <%= ... %> that appear in Rails database.yml.
 	// It assumes the expression itself does not contain a bare '%>' sequence.
 	erbTagPattern = regexp.MustCompile(`<%[^%]*%>`)
@@ -370,10 +370,10 @@ func parseMongoidYML(searchDir string, mongoDB databaseGem) mongoidYMLInfo {
 	}
 
 	log.TPrintf("- config/mongoid.yml - found, parsing connection URL")
-	return parseMongoidYMLContent(content, mongoDB)
+	return parseMongoidYMLContent(content)
 }
 
-func parseMongoidYMLContent(content string, mongoDB databaseGem) mongoidYMLInfo {
+func parseMongoidYMLContent(content string) mongoidYMLInfo {
 	// Look for ENV.fetch('KEY', 'mongodb://...') pattern anywhere in the file
 	match := envFetchArgPattern.FindStringSubmatch(content)
 	if len(match) < 3 {
@@ -416,16 +416,16 @@ func hasRelationalDB(databases []databaseGem) bool {
 
 // Options & Configs
 type configDescriptor struct {
-	workdir          string
-	hasBundler       bool
-	hasRakefile      bool
-	testFramework    string
-	hasRubyVersion   bool
-	hasRails         bool
-	isDefault        bool
-	databases        []databaseGem
-	dbYMLInfo        databaseYMLInfo
-	mongoidYMLInfo   mongoidYMLInfo
+	workdir        string
+	hasBundler     bool
+	hasRakefile    bool
+	testFramework  string
+	hasRubyVersion bool
+	hasRails       bool
+	isDefault      bool
+	databases      []databaseGem
+	dbYMLInfo      databaseYMLInfo
+	mongoidYMLInfo mongoidYMLInfo
 }
 
 func createConfigDescriptor(project project, isDefault bool) configDescriptor {
