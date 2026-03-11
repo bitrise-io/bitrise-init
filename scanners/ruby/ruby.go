@@ -78,8 +78,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			dbYMLInfo = parseDatabaseYML(gemfileDir, databases)
 		}
 		var mongoidInfo mongoidYMLInfo
-		if mongoDB, ok := findMongoDBGem(databases); ok {
-			mongoidInfo = parseMongoidYML(gemfileDir, mongoDB)
+		if _, ok := findMongoDBGem(databases); ok {
+			mongoidInfo = parseMongoidYML(gemfileDir)
 		}
 
 		projectRelDir, err := utility.RelPath(searchDir, gemfileDir)

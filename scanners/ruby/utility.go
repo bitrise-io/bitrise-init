@@ -361,7 +361,7 @@ func extractEnvVarFromValue(value string) databaseEnvVar {
 	return databaseEnvVar{}
 }
 
-func parseMongoidYML(searchDir string, mongoDB databaseGem) mongoidYMLInfo {
+func parseMongoidYML(searchDir string) mongoidYMLInfo {
 	ymlPath := filepath.Join(searchDir, "config", "mongoid.yml")
 	content, err := fileutil.ReadStringFromFile(ymlPath)
 	if err != nil {
