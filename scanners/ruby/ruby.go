@@ -41,7 +41,6 @@ func (scanner *Scanner) Name() string {
 }
 
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
-	// TODO: filter out vendor, node_modules, ... directories
 	gemfilePaths, err := utility.FindFileInAppDir(searchDir, "Gemfile")
 	if err != nil {
 		log.TWarnf("%s", err)
