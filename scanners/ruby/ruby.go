@@ -21,7 +21,7 @@ type project struct {
 	hasBundler     bool
 	hasRakefile    bool
 	testFramework  string
-	hasRubyVersion bool
+	rubyVersion    string
 	hasRails       bool
 	databases      []databaseGem
 	dbYMLInfo      databaseYMLInfo
@@ -57,7 +57,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		hasBundler := checkBundler(gemfileDir)
 		hasRakefile := checkRakefile(gemfileDir)
 		testFw := detectTestFramework(gemfileDir)
-		hasRubyVersion := checkRubyVersion(gemfileDir)
+		rubyVersion := readRubyVersion(gemfileDir)
 		hasRails := detectRails(gemfileDir)
 		databases := detectDatabases(gemfileDir)
 		var dbYMLInfo databaseYMLInfo
@@ -80,7 +80,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasBundler:     hasBundler,
 			hasRakefile:    hasRakefile,
 			testFramework:  testFw,
-			hasRubyVersion: hasRubyVersion,
+			rubyVersion:    rubyVersion,
 			hasRails:       hasRails,
 			databases:      databases,
 			dbYMLInfo:      dbYMLInfo,

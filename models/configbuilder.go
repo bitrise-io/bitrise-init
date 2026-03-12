@@ -28,6 +28,7 @@ type ConfigBuilderModel struct {
 	workflowBuilderMap   map[WorkflowID]*workflowBuilderModel
 	pipelineBuilderMap   map[PipelineID]*pipelineBuilderModel
 	containerDefinitions map[string]bitriseModels.Container
+	tools                bitriseModels.ToolsModel
 }
 
 // NewDefaultConfigBuilder ...
@@ -83,6 +84,14 @@ func (builder *ConfigBuilderModel) SetContainerDefinitions(containers map[string
 	builder.containerDefinitions = containers
 }
 
+// AddTool appends a tool with its version to the tools map.
+func (builder *ConfigBuilderModel) AddTool(id bitriseModels.ToolID, version string) {
+	if builder.tools == nil {
+		builder.tools = bitriseModels.ToolsModel{}
+	}
+	builder.tools[id] = version
+}
+
 // Generate ...
 func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envmanModels.EnvironmentItemModel) (bitriseModels.BitriseDataModel, error) {
 	pipelines := map[string]bitriseModels.PipelineModel{}
@@ -103,6 +112,7 @@ func (builder *ConfigBuilderModel) Generate(projectType string, appEnvs ...envma
 		FormatVersion:        FormatVersion,
 		DefaultStepLibSource: defaultSteplibSource,
 		ProjectType:          projectType,
+		Tools:                builder.tools,
 		Containers:           builder.containerDefinitions,
 		Pipelines:            pipelines,
 		Workflows:            workflows,

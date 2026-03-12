@@ -398,7 +398,6 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
@@ -1807,18 +1806,6 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
-              - working_dir: $RUBY_PROJECT_DIR
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}

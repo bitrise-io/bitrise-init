@@ -46,19 +46,36 @@ func checkRakefile(searchDir string) bool {
 	return true
 }
 
-func checkRubyVersion(searchDir string) bool {
+// readRubyVersion returns the Ruby version declared in .ruby-version or .tool-versions,
+// or an empty string if no version file is found.
+func readRubyVersion(searchDir string) string {
 	log.TPrintf("Checking for Ruby version file")
 
-	versionFiles := []string{".ruby-version", ".tool-versions"}
-	for _, versionFile := range versionFiles {
-		if utility.FileExists(filepath.Join(searchDir, versionFile)) {
-			log.TPrintf("- %s - found", versionFile)
-			return true
+	// .ruby-version: single line containing the version (e.g. "3.3.0" or "ruby-3.3.0")
+	rubyVersionPath := filepath.Join(searchDir, ".ruby-version")
+	if content, err := fileutil.ReadStringFromFile(rubyVersionPath); err == nil {
+		version := strings.TrimSpace(content)
+		version = strings.TrimPrefix(version, "ruby-")
+		if version != "" {
+			log.TPrintf("- .ruby-version - found (%s)", version)
+			return version
+		}
+	}
+
+	// .tool-versions: asdf format, one tool per line (e.g. "ruby 3.3.0")
+	toolVersionsPath := filepath.Join(searchDir, ".tool-versions")
+	if content, err := fileutil.ReadStringFromFile(toolVersionsPath); err == nil {
+		for _, line := range strings.Split(content, "\n") {
+			fields := strings.Fields(line)
+			if len(fields) >= 2 && fields[0] == "ruby" {
+				log.TPrintf("- .tool-versions - found ruby %s", fields[1])
+				return fields[1]
+			}
 		}
 	}
 
 	log.TPrintf("- Ruby version file - not found")
-	return false
+	return ""
 }
 
 func detectTestFramework(searchDir string) string {

@@ -47,7 +47,6 @@ var rubyRspecPostgresRedisResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
@@ -82,17 +81,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -131,6 +119,8 @@ configs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      tools:
+        ruby: 3.3.9
       containers:
         postgres:
           type: service
@@ -158,7 +148,6 @@ var rubyMinitestSqliteMongoDBResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion, // Database setup
@@ -190,17 +179,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -236,6 +214,8 @@ configs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      tools:
+        ruby: 3.3.9
       containers:
         mongodb:
           type: service
@@ -255,7 +235,6 @@ var rubyMonorepoResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion, // Install Ruby
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion, // Install dependencies
 	steps.ScriptVersion, // Database setup
@@ -266,7 +245,6 @@ var rubyMonorepoResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion, // Install Ruby
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion, // Install system dependencies
 	steps.ScriptVersion, // Install dependencies
@@ -278,7 +256,6 @@ var rubyMonorepoResultVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
-	steps.ScriptVersion, // Install Ruby
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion, // Install dependencies
 	steps.ScriptVersion, // Database setup
@@ -314,18 +291,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
-              - working_dir: $RUBY_PROJECT_DIR
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -364,6 +329,8 @@ configs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      tools:
+        ruby: 3.3.9
       containers:
         mongodb:
           type: service
@@ -387,18 +354,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
-              - working_dir: $RUBY_PROJECT_DIR
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -448,6 +403,8 @@ configs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      tools:
+        ruby: 3.3.9
       containers:
         mysql:
           type: service
@@ -480,18 +437,6 @@ configs:
           steps:
           - activate-ssh-key@%s: {}
           - git-clone@%s: {}
-          - script@%s:
-              title: Install Ruby
-              inputs:
-              - content: |
-                  #!/usr/bin/env bash
-                  set -euxo pipefail
-
-                  # Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-                  # asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-                  # See: https://github.com/asdf-vm/asdf-ruby
-                  asdf install ruby
-              - working_dir: $RUBY_PROJECT_DIR
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -533,6 +478,8 @@ configs:
               - key: gem-{{ checksum "Gemfile.lock" }}
               - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
+      tools:
+        ruby: 3.3.9
       containers:
         postgres:
           type: service

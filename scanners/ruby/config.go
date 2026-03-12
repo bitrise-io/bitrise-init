@@ -22,16 +22,6 @@ const (
 )
 
 const (
-	rubyInstallScriptStepTitle   = "Install Ruby"
-	rubyInstallScriptStepContent = `#!/usr/bin/env bash
-set -euxo pipefail
-
-# Bitrise stacks come with asdf pre-installed to help auto-switch between various software versions
-# asdf looks for the Ruby version in these files: .tool-versions, .ruby-version
-# See: https://github.com/asdf-vm/asdf-ruby
-asdf install ruby
-`
-
 	systemDepsInstallScriptStepTitle = "Install system dependencies"
 
 	bundlerInstallScriptStepTitle   = "Install dependencies"
@@ -48,7 +38,7 @@ type configDescriptor struct {
 	hasBundler     bool
 	hasRakefile    bool
 	testFramework  string
-	hasRubyVersion bool
+	rubyVersion    string
 	hasRails       bool
 	isDefault      bool
 	databases      []databaseGem
@@ -95,9 +85,9 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKey})
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, prepareSteps...)
 
-	// Install Ruby
-	if descriptor.hasRubyVersion {
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem(rubyInstallScriptStepTitle, rubyInstallScriptStepContent, workdirInputs(descriptor.workdir)...))
+	// Declarative Ruby version — runs before any step, no explicit install step needed
+	if descriptor.rubyVersion != "" {
+		configBuilder.AddTool("ruby", descriptor.rubyVersion)
 	}
 
 	// Restore gem cache
@@ -171,7 +161,7 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 		hasBundler:     project.hasBundler,
 		hasRakefile:    project.hasRakefile,
 		testFramework:  project.testFramework,
-		hasRubyVersion: project.hasRubyVersion,
+		rubyVersion:    project.rubyVersion,
 		hasRails:       project.hasRails,
 		isDefault:      isDefault,
 		databases:      project.databases,
@@ -189,11 +179,10 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 
 func createDefaultConfigDescriptor() configDescriptor {
 	return createConfigDescriptor(project{
-		projectRelDir:  "$" + projectDirInputEnvKey,
-		hasBundler:     true,
-		hasRakefile:    true,
-		testFramework:  "rspec",
-		hasRubyVersion: true,
+		projectRelDir: "$" + projectDirInputEnvKey,
+		hasBundler:    true,
+		hasRakefile:   true,
+		testFramework: "rspec",
 	}, true)
 }
 
