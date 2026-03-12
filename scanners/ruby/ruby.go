@@ -11,22 +11,10 @@ import (
 const (
 	ScannerName = "ruby"
 
-	runTestsWorkflowID = models.WorkflowID("run_tests")
-
 	projectDirInputTitle   = "Project Directory"
 	projectDirInputSummary = "The directory containing the Gemfile"
 	projectDirInputEnvKey  = "RUBY_PROJECT_DIR"
 )
-
-type testFramework struct {
-	name           string
-	detectionFiles []string
-}
-
-var testFrameworks = []testFramework{
-	{"rspec", []string{"spec/spec_helper.rb", ".rspec"}},
-	{"minitest", []string{"test/test_helper.rb"}},
-}
 
 type project struct {
 	projectRelDir  string
