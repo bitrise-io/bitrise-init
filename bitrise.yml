@@ -8,45 +8,67 @@ workflows:
         title: Set up Go
         inputs:
         - content: asdf install
-    after_run:
-    - test
-    - integration-test
+    - bundle::run_linters: { }
+    - bundle::run_unit_tests: { }
+    - bundle::run_integration_tests: { }
 
-  test:
-    steps:
-    - git::https://github.com/bitrise-steplib/steps-check.git:
-        inputs:
-        - skip_step_yml_validation: "yes"
-
-  integration-test:
+step_bundles:
+  run_integration_tests:
     steps:
     - script:
         title: Run integration tests
         inputs:
-        - content: |-
-            #!/bin/bash
-            echo "Running integration tests ..."
-            set -ex
+        - content: go test -v ./_tests/integration/...
 
-            go test -v ./_tests/integration/...
+  run_unit_tests:
+    steps:
+    - go-list: { }
+    - go-test: { }
 
-  maintenance:
+  run_linters:
     steps:
     - script:
-        title: Check step version change
+        title: YAML lint
+        inputs:
+        - content: |-
+            #!/bin/env bash
+            set -ex
+
+            if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+              # pipx is only available in OS repos from Ubuntu 23+, so we need to install via pip for now
+              ubuntu_version=$(lsb_release -rs)
+              if [[ $ubuntu_version == "20.04" ]]; then
+                apt-get remove -y yamllint
+                # Default Python version is the system-wide and it doesn't have venv (which is needed for pipx)
+                apt-get update
+                yes | apt-get install python3.8-venv
+                # Ubuntu 20 ships with an old pip that doesn't recognize the --break-system-packages flag
+                pip install pipx
+              else
+                pip install --user --break-system-packages pipx
+              fi
+              export PATH="$PATH:/root/.local/bin"
+              pipx ensurepath
+              source ~/.bashrc # reload $PATH changes
+            else
+              if brew list pipx &>/dev/null ; then
+                echo "pipx already installed"
+              else
+                echo "Installing pipx"
+                HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install pipx
+                export PATH="$PATH:$HOME/.local/bin"
+                pipx ensurepath
+                source ~/.bashrc # reload $PATH changes
+              fi
+            fi
+
+            pipx install yamllint
+            yamllint -c yamllint.yml --format colored .
+    - script:
+        title: golangci-lint
         inputs:
         - content: |-
             #!/usr/bin/env bash
-            go get -u github.com/godrei/stepper
-
-            # explanation:
-            # 1. run stepper tool
-            # 2. extract relevant part
-            # https://stackoverflow.com/questions/7103531/how-to-get-the-part-of-a-file-after-the-first-line-that-matches-a-regular-expres
-            stepper stepLatests --steps-const-file=$BITRISE_SOURCE_DIR/steps/const.go | sed -n -e '/package steps/,$p' > stepper_output.go
-
-            # 3. diff the generated const file with current one
-            diff $BITRISE_SOURCE_DIR/steps/const.go stepper_output.go
-
-            # 4. diff returns nonzero if diff not empty
-            exit $?
+            set -ex
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s v2.6.0
+            ./bin/golangci-lint run --max-same-issues 0

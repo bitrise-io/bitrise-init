@@ -163,7 +163,7 @@ func TestPatternErrorMatcher_Run(t *testing.T) {
 					}
 				},
 				patternToBuilder: map[string]DetailedErrorBuilder{
-					"Test": func(errorMsg string, params ...string) DetailedError {
+					"Test": func(_ string, _ ...string) DetailedError {
 						return DetailedError{
 							Title:       "PatternTitle",
 							Description: "PatternDesc",
@@ -191,7 +191,7 @@ func TestPatternErrorMatcher_Run(t *testing.T) {
 					}
 				},
 				patternToBuilder: map[string]DetailedErrorBuilder{
-					"Test (.+)!": func(errorMsg string, params ...string) DetailedError {
+					"Test (.+)!": func(_ string, params ...string) DetailedError {
 						p := GetParamAt(0, params)
 						return DetailedError{
 							Title:       "PatternTitle",
