@@ -4,10 +4,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
-
-	"github.com/bitrise-io/bitrise-init/utility"
 )
 
 type testFramework struct {

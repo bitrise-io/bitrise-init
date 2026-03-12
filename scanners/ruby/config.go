@@ -6,13 +6,12 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/bitrise-io/bitrise-init/models"
+	"github.com/bitrise-io/bitrise-init/steps"
 	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
-
-	"github.com/bitrise-io/bitrise-init/models"
-	"github.com/bitrise-io/bitrise-init/steps"
 )
 
 const (
@@ -426,4 +425,3 @@ func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo)
 	}
 	return containers
 }
-
