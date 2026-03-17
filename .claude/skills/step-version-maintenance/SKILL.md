@@ -2,7 +2,7 @@
 name: step-version-maintenance
 description: Instructions for upgrading the pinned major versions in starter workflows to the latest step major versions.
 disable-model-invocation: true
-allowed-tools: mcp__bitrise__step_search, mcp__bitrise__step_inputs
+allowed-tools: mcp__bitrise__step_search, mcp__bitrise__step_inputs, mcp__bitrise__get_build_log, mcp__bitrise__get_build_steps
 ---
 
 ### Context
