@@ -201,7 +201,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
@@ -361,7 +360,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
@@ -588,7 +586,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build:
           summary: Build your Xcode project.
@@ -641,7 +638,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
@@ -801,7 +797,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
@@ -972,7 +967,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1015,7 +1009,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build:
           summary: Build your Xcode project.
@@ -1051,7 +1044,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - export-xcarchive@%s:
               inputs:
               - project_path: $BITRISE_PROJECT_PATH
@@ -1094,7 +1086,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build:
           summary: Build your Xcode project.
@@ -1272,7 +1263,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
@@ -1458,7 +1448,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
