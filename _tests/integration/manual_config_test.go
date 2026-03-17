@@ -1295,7 +1295,6 @@ configs:
               - scheme: $BITRISE_SCHEME
               - distribution_method: $BITRISE_DISTRIBUTION_METHOD
               - automatic_code_signing: api-key
-              - cache_level: none
           - deploy-to-bitrise-io@%s: {}
         build_for_testing:
           steps:
