@@ -25,5 +25,6 @@ If the above are not met, do not proceed, just flag the issue to the user.
 2. For each step, check the current latest major version. You can do this via the Bitrise MCP step search tool.
 3. Update the major version in @steps/const.go to the latest major version for each step.
 4. Read the release notes of the new major versions to check for any breaking changes that might affect the starter workflows. If there are breaking changes, make the necessary adjustments in the starter workflows to accommodate those changes.
-5. Run Go tests to verify your changes. There might be failing tests unrelated to the changes (mostly tooling issues). In this case, go ahead and let CI be the judge.
-6. Create a new branch, commit your changes, and open a PR.
+5. When removing or adding step inputs in `scanners/*/workflow.go`, immediately grep `_tests/integration/` for those input key-value strings (e.g., `cache_level: none`) and update the expected YAML fixture strings in the test files. The integration tests are golden-file tests.
+6. Run Go unit tests to verify your changes. There might be failing tests unrelated to the changes (mostly tooling issues). In this case, go ahead and let CI be the judge.
+7. Create a new branch, commit your changes, and open a PR.
