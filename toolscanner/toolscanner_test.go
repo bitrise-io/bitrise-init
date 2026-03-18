@@ -152,7 +152,7 @@ func TestAddProjectTypeToConfig(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want map[string]bitriseModels.BitriseDataModel
+		want map[string]models.BitriseConfig
 	}{
 		{
 			name: "2 project types",
@@ -164,21 +164,21 @@ func TestAddProjectTypeToConfig(t *testing.T) {
 				},
 				detectedProjectTypes: []string{"ios", "android"},
 			},
-			want: map[string]bitriseModels.BitriseDataModel{
-				"fastlane-config_ios": bitriseModels.BitriseDataModel{
+			want: map[string]models.BitriseConfig{
+				"fastlane-config_ios": models.BitriseConfig{BitriseDataModel: bitriseModels.BitriseDataModel{
 					Title:       title,
 					ProjectType: "ios",
-				},
-				"fastlane-config_android": bitriseModels.BitriseDataModel{
+				}},
+				"fastlane-config_android": models.BitriseConfig{BitriseDataModel: bitriseModels.BitriseDataModel{
 					Title:       title,
 					ProjectType: "android",
-				},
+				}},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := AddProjectTypeToConfig(tt.args.configName, tt.args.config, tt.args.detectedProjectTypes); !reflect.DeepEqual(got, tt.want) {
+			if got := AddProjectTypeToConfig(tt.args.configName, models.BitriseConfig{BitriseDataModel: tt.args.config}, tt.args.detectedProjectTypes); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("AddProjectTypeToConfig() = %v, want %v", got, tt.want)
 			}
 		})

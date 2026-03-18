@@ -95,25 +95,25 @@ configs:
                   bundle install
           - script@%s:
               title: Database setup
-              service_containers:
-              - postgres
               inputs:
               - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
                   bundle exec rails db:create db:schema:load
-          - script@%s:
-              title: Run tests
               service_containers:
               - postgres
-              - redis
+          - script@%s:
+              title: Run tests
               inputs:
               - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
                   bundle exec rspec
+              service_containers:
+              - postgres
+              - redis
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -201,14 +201,14 @@ configs:
                   bundle exec rails db:create db:schema:load
           - script@%s:
               title: Run tests
-              service_containers:
-              - mongodb
               inputs:
               - content: |-
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
                   bundle exec rails test
+              service_containers:
+              - mongodb
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -315,8 +315,6 @@ configs:
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Run tests
-              service_containers:
-              - mongodb
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -324,6 +322,8 @@ configs:
 
                   bundle exec rails test
               - working_dir: $RUBY_PROJECT_DIR
+              service_containers:
+              - mongodb
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -377,8 +377,6 @@ configs:
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Database setup
-              service_containers:
-              - mysql
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -386,11 +384,10 @@ configs:
 
                   bundle exec rails db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
-          - script@%s:
-              title: Run tests
               service_containers:
               - mysql
-              - redis
+          - script@%s:
+              title: Run tests
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -398,6 +395,9 @@ configs:
 
                   bundle exec rspec
               - working_dir: $RUBY_PROJECT_DIR
+              service_containers:
+              - mysql
+              - redis
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
@@ -452,8 +452,6 @@ configs:
               - working_dir: $RUBY_PROJECT_DIR
           - script@%s:
               title: Database setup
-              service_containers:
-              - postgres
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -461,11 +459,10 @@ configs:
 
                   bundle exec rails db:create db:schema:load
               - working_dir: $RUBY_PROJECT_DIR
-          - script@%s:
-              title: Run tests
               service_containers:
               - postgres
-              - redis
+          - script@%s:
+              title: Run tests
               inputs:
               - content: |-
                   #!/usr/bin/env bash
@@ -473,6 +470,9 @@ configs:
 
                   bundle exec rspec
               - working_dir: $RUBY_PROJECT_DIR
+              service_containers:
+              - postgres
+              - redis
           - save-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
