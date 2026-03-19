@@ -1,6 +1,6 @@
 module example.com/hello
 
-go 1.23.12
+go 1.23.0
 
 replace github.com/bitrise-io/bitrise-init => ../
 
