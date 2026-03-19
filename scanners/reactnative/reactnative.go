@@ -10,7 +10,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/scanners/java"
 	"github.com/bitrise-io/bitrise-init/scanners/nodejs"
-	"github.com/bitrise-io/bitrise-init/scanners/ruby"
 	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -310,6 +309,5 @@ func (Scanner) ExcludedScannerNames() []string {
 		android.ScannerName,
 		nodejs.ScannerName,
 		java.ProjectType,
-		ruby.ScannerName,
 	}
 }

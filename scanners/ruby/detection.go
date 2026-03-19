@@ -7,6 +7,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 )
 
 type testFramework struct {
@@ -17,6 +18,22 @@ type testFramework struct {
 var testFrameworks = []testFramework{
 	{"rspec", []string{"spec/spec_helper.rb", ".rspec"}},
 	{"minitest", []string{"test/test_helper.rb"}},
+}
+
+func collectGemfiles(searchDir string) ([]string, error) {
+	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, false)
+	if err != nil {
+		return nil, err
+	}
+
+	filters := []pathutil.FilterFunc{
+		pathutil.BaseFilter("Gemfile", true),
+		pathutil.ComponentFilter("node_modules", false),
+		pathutil.ComponentFilter("Pods", false),
+		pathutil.ComponentFilter("Carthage", false),
+		pathutil.ComponentFilter(".git", false),
+	}
+	return pathutil.FilterPaths(fileList, filters...)
 }
 
 func checkBundler(searchDir string) bool {
