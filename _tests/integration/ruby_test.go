@@ -124,7 +124,7 @@ configs:
       containers:
         postgres:
           type: service
-          image: postgres:17
+          image: postgres:18
           ports:
           - 5432:5432
           envs:
@@ -133,7 +133,7 @@ configs:
             5
         redis:
           type: service
-          image: redis:7
+          image: redis:8
           ports:
           - 6379:6379
           options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout
@@ -408,7 +408,7 @@ configs:
       containers:
         mysql:
           type: service
-          image: mysql:8
+          image: mysql:9
           ports:
           - 3306:3306
           envs:
@@ -417,7 +417,7 @@ configs:
             --health-interval 10s --health-timeout 5s --health-retries 5
         redis:
           type: service
-          image: redis:7
+          image: redis:8
           ports:
           - 6379:6379
           options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout
@@ -483,7 +483,7 @@ configs:
       containers:
         postgres:
           type: service
-          image: postgres:17
+          image: postgres:18
           ports:
           - 5432:5432
           envs:
@@ -492,7 +492,7 @@ configs:
             5
         redis:
           type: service
-          image: redis:7
+          image: redis:8
           ports:
           - 6379:6379
           options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout
