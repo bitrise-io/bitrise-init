@@ -142,7 +142,7 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		}
 	}
 
-	config, err := configBuilder.Generate(ScannerName, appEnvs...)
+	config, err := configBuilder.Generate(scannerName, appEnvs...)
 	if err != nil {
 		return "", err
 	}

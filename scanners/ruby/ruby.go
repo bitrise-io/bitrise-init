@@ -9,8 +9,7 @@ import (
 )
 
 const (
-	ScannerName = "ruby"
-
+	scannerName            = "ruby"
 	projectDirInputTitle   = "Project Directory"
 	projectDirInputSummary = "The directory containing the Gemfile"
 	projectDirInputEnvKey  = "RUBY_PROJECT_DIR"
@@ -37,7 +36,7 @@ func NewScanner() *Scanner {
 }
 
 func (scanner *Scanner) Name() string {
-	return ScannerName
+	return scannerName
 }
 
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
