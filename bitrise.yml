@@ -32,7 +32,7 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             go get -u github.com/godrei/stepper
-            
+
             # explanation:
             # 1. run stepper tool
             # 2. extract relevant part
