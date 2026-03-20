@@ -3,6 +3,8 @@ package models
 import (
 	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
+	stepmanModels "github.com/bitrise-io/stepman/models"
+	"gopkg.in/yaml.v2"
 )
 
 // WorkflowID ...
@@ -22,6 +24,51 @@ const (
 
 	defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
 )
+
+type Container struct {
+	Type    string                              `json:"type,omitempty" yaml:"type,omitempty"`
+	Image   string                              `json:"image,omitempty" yaml:"image,omitempty"`
+	Ports   []string                            `json:"ports,omitempty" yaml:"ports,omitempty"`
+	Envs    []envmanModels.EnvironmentItemModel `json:"envs,omitempty" yaml:"envs,omitempty"`
+	Options string                              `json:"options,omitempty" yaml:"options,omitempty"`
+}
+
+type BitriseConfig struct {
+	bitriseModels.BitriseDataModel
+	Tools      map[string]string    `json:"tools,omitempty" yaml:"tools,omitempty"`
+	Containers map[string]Container `json:"containers,omitempty" yaml:"containers,omitempty"`
+}
+
+// MarshalYAML inlines BitriseDataModel's fields and appends Tools and Containers,
+// overriding the embedded Containers field which has a conflicting yaml key.
+func (c BitriseConfig) MarshalYAML() (interface{}, error) {
+	base := c.BitriseDataModel
+	base.Containers = nil
+
+	baseBytes, err := yaml.Marshal(base)
+	if err != nil {
+		return nil, err
+	}
+
+	var result yaml.MapSlice
+	if err := yaml.Unmarshal(baseBytes, &result); err != nil {
+		return nil, err
+	}
+
+	if len(c.Tools) > 0 {
+		result = append(result, yaml.MapItem{Key: "tools", Value: c.Tools})
+	}
+	if len(c.Containers) > 0 {
+		result = append(result, yaml.MapItem{Key: "containers", Value: c.Containers})
+	}
+
+	return result, nil
+}
+
+type Step struct {
+	stepmanModels.StepModel `yaml:",inline"`
+	ServiceContainers       []string `json:"service_containers,omitempty" yaml:"service_containers,omitempty"`
+}
 
 // ConfigBuilderModel ...
 type ConfigBuilderModel struct {
