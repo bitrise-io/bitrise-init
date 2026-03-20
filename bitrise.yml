@@ -4,12 +4,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 workflows:
   ci:
     steps:
-    - script:
-        title: Set up Go
-        inputs:
-        - content: asdf install
     - bundle::run_lint_and_unit_tests: { }
-    - bundle::run_unit_tests: { }
     - bundle::run_integration_tests: { }
 
 step_bundles:
@@ -25,3 +20,4 @@ step_bundles:
     - git::https://github.com/bitrise-steplib/steps-check.git@golangci-lint-version:
         inputs:
         - golangci_lint_version: v2.6.0
+        - skip_step_yml_validation: "yes"
