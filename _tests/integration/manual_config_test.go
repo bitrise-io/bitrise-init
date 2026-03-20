@@ -393,6 +393,16 @@ var customConfigVersions = []interface{}{
 	steps.YarnVersion,
 	steps.CacheSaveNPMVersion,
 	steps.DeployToBitriseIoVersion,
+
+	// ruby
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.CacheRestoreVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.CacheSaveVersion,
+	steps.DeployToBitriseIoVersion,
 }
 
 var customConfigResultYML = fmt.Sprintf(`options:
@@ -811,6 +821,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-react-native-expo-config
               ios:
                 config: default-react-native-expo-config
+  ruby:
+    title: Project Directory
+    summary: The directory containing the Gemfile
+    env_key: RUBY_PROJECT_DIR
+    type: user_input
+    value_map:
+      "":
+        config: default-ruby-config
 configs:
   android:
     default-android-config: |
@@ -1775,5 +1793,43 @@ configs:
               - workdir: $WORKDIR
               - command: test
           - save-npm-cache@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+  ruby:
+    default-ruby-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ruby
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - restore-cache@%s:
+              inputs:
+              - key: gem-{{ checksum "Gemfile.lock" }}
+          - script@%s:
+              title: Install dependencies
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle config set --local path vendor/bundle
+                  bundle install
+              - working_dir: $RUBY_PROJECT_DIR
+          - script@%s:
+              title: Run tests
+              inputs:
+              - content: |-
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bundle exec rspec
+              - working_dir: $RUBY_PROJECT_DIR
+          - save-cache@%s:
+              inputs:
+              - key: gem-{{ checksum "Gemfile.lock" }}
+              - paths: vendor/bundle
           - deploy-to-bitrise-io@%s: {}
 `, customConfigVersions...)
