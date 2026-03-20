@@ -232,8 +232,8 @@ func generateSystemDepsScript(packages []string) string {
 	return "#!/usr/bin/env bash\nset -euxo pipefail\n\napt-get install -y " + strings.Join(packages, " ") + "\n"
 }
 
-func serviceContainerReferences(databases []databaseGem) []string {
-	var refs []string
+func serviceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
+	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
 		if db.containerName != "" {
 			refs = append(refs, db.containerName)
@@ -242,8 +242,8 @@ func serviceContainerReferences(databases []databaseGem) []string {
 	return refs
 }
 
-func relationalServiceContainerReferences(databases []databaseGem) []string {
-	var refs []string
+func relationalServiceContainerReferences(databases []databaseGem) []stepmanModels.ContainerReference {
+	var refs []stepmanModels.ContainerReference
 	for _, db := range databases {
 		if db.isRelationalDB && db.containerName != "" {
 			refs = append(refs, db.containerName)
@@ -252,15 +252,13 @@ func relationalServiceContainerReferences(databases []databaseGem) []string {
 	return refs
 }
 
-func scriptStepWithServiceContainers(title, content string, serviceContainerRefs []string, workdir string) bitriseModels.StepListItemModel {
+func scriptStepWithServiceContainers(title, content string, serviceContainerRefs []stepmanModels.ContainerReference, workdir string) bitriseModels.StepListItemModel {
 	stepID := steps.ScriptID + "@" + steps.ScriptVersion
 	inputs := []envmanModels.EnvironmentItemModel{{"content": content}}
 	inputs = append(inputs, workdirInputs(workdir)...)
-	step := models.Step{
-		StepModel: stepmanModels.StepModel{
-			Title:  pointers.NewStringPtr(title),
-			Inputs: inputs,
-		},
+	step := stepmanModels.StepModel{
+		Title:             pointers.NewStringPtr(title),
+		Inputs:            inputs,
 		ServiceContainers: serviceContainerRefs,
 	}
 	return bitriseModels.StepListItemModel{stepID: step}
@@ -392,13 +390,13 @@ func buildAppEnvs(databases []databaseGem, ymlInfo databaseYMLInfo, mongoidInfo 
 	return envs
 }
 
-func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]models.Container {
-	containers := map[string]models.Container{}
+func buildContainerDefinitions(databases []databaseGem, ymlInfo databaseYMLInfo) map[string]bitriseModels.Container {
+	containers := map[string]bitriseModels.Container{}
 	for _, db := range databases {
 		if db.containerName == "" {
 			continue
 		}
-		def := models.Container{
+		def := bitriseModels.Container{
 			Type:    "service",
 			Image:   db.image,
 			Ports:   db.ports,

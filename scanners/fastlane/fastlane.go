@@ -8,6 +8,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/models"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"github.com/bitrise-io/bitrise-init/toolscanner"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -189,7 +190,7 @@ func (*Scanner) DefaultOptions() models.OptionNode {
 }
 
 func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (models.BitriseConfigMap, error) {
-	generateConfig := func(isIOS bool) (models.BitriseConfig, error) {
+	generateConfig := func(isIOS bool) (bitriseModels.BitriseDataModel, error) {
 		configBuilder := models.NewDefaultConfigBuilder()
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.DefaultPrepareStepList(steps.PrepareListParams{
 			SSHKeyActivation: sshKeyActivation,
@@ -215,7 +216,7 @@ func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (model
 	}
 
 	// Create list of possible configs with project types
-	nameToConfigModel := map[string]models.BitriseConfig{}
+	nameToConfigModel := map[string]bitriseModels.BitriseDataModel{}
 
 	for _, platform := range scanner.projectTypes {
 		config, err := generateConfig(platform == iosPlatform)

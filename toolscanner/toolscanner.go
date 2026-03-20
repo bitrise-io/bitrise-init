@@ -2,6 +2,7 @@ package toolscanner
 
 import (
 	"github.com/bitrise-io/bitrise-init/models"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 )
 
 // ProjectTypeEnvKey is the name of the enviroment variable used to substitute the project type for
@@ -15,8 +16,8 @@ const (
 )
 
 // AddProjectTypeToConfig returns the config filled in with every detected project type, that could be selected
-func AddProjectTypeToConfig(configName string, config models.BitriseConfig, detectedProjectTypes []string) map[string]models.BitriseConfig {
-	configMapWithProjecTypes := map[string]models.BitriseConfig{}
+func AddProjectTypeToConfig(configName string, config bitriseModels.BitriseDataModel, detectedProjectTypes []string) map[string]bitriseModels.BitriseDataModel {
+	configMapWithProjecTypes := map[string]bitriseModels.BitriseDataModel{}
 	for _, projectType := range detectedProjectTypes {
 		configWithProjectType := config
 		configWithProjectType.ProjectType = projectType
