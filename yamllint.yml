@@ -1,0 +1,28 @@
+extends: default
+
+# Bitrise CLI contains _examples, _lessons
+ignore: |
+  _tmp/
+  .bitrise.secrets.yml
+  .git/
+  .github/
+  vendor/
+  _examples/
+  _lessons/
+
+rules:
+  empty-lines: { max: 1 }
+  line-length: disable
+  document-start: disable
+  indentation:
+    indent-sequences: false
+  comments-indentation: disable
+  comments:
+    level: error
+  octal-values: enable
+  quoted-strings:
+    quote-type: double
+    required: only-when-needed
+  braces:
+    min-spaces-inside: 1
+    max-spaces-inside: 1

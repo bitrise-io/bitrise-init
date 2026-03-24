@@ -48,6 +48,8 @@ const (
 	CacheRestoreSPMVersion       = "3"
 	CacheRestoreDartID           = "restore-dart-cache"
 	CacheRestoreDartVersion      = "3"
+	CacheRestoreID               = "restore-cache"
+	CacheRestoreVersion          = "3"
 
 	CacheSaveGradleID         = "save-gradle-cache"
 	CacheSaveGradleVersion    = "1"
@@ -61,6 +63,8 @@ const (
 	CacheSaveSPMVersion       = "1"
 	CacheSaveDartID           = "save-dart-cache"
 	CacheSaveDartVersion      = "1"
+	CacheSaveID               = "save-cache"
+	CacheSaveVersion          = "1"
 
 	ActivateBuildCacheForGradleID      = "activate-build-cache-for-gradle"
 	ActivateBuildCacheForGradleVersion = "2"
