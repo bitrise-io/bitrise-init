@@ -15,6 +15,7 @@ type PackagesModel struct {
 	Scripts         map[string]string `json:"scripts"`
 	Dependencies    map[string]string `json:"dependencies"`
 	DevDependencies map[string]string `json:"devDependencies"`
+	Engines         map[string]string `json:"engines"`
 }
 
 func parsePackagesJSONContent(content string) (PackagesModel, error) {

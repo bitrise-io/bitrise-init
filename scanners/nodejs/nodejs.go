@@ -39,6 +39,8 @@ type project struct {
 	hasTest        bool
 	hasLint        bool
 	hasBuild       bool
+	framework      string // "nextjs" | "nestjs" | ""
+	nodeVersion    string // from .nvmrc, .node-version, .tool-versions, or engines.node
 }
 
 // Scanner implements the Scanner interface for Node.js projects
@@ -77,6 +79,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			log.TWarnf("Failed to check package scripts: %s", err)
 			continue
 		}
+		framework := detectFramework(packageJsonPath)
+		nodeVersion := detectNodeVersion(pkgJsonDir, packageJsonPath)
 
 		projectRelDir, err := utility.RelPath(searchDir, pkgJsonDir)
 		if err != nil {
@@ -91,6 +95,8 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasTest:        results.hasTest,
 			hasLint:        results.hasLint,
 			hasBuild:       results.hasBuild,
+			framework:      framework,
+			nodeVersion:    nodeVersion,
 		}
 
 		scanner.projects = append(scanner.projects, project)
