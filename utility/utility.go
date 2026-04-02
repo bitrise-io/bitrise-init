@@ -45,6 +45,7 @@ func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 	filters := []pathutil.FilterFunc{
 		pathutil.BaseFilter("package.json", true),
 		pathutil.ComponentFilter("node_modules", false),
+		pathutil.ComponentFilter(".next", false),
 	}
 	packageFileList, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {
