@@ -39,8 +39,8 @@ type project struct {
 	hasTest        bool
 	hasLint        bool
 	hasBuild       bool
-	framework      string // "nextjs" | "nestjs" | ""
-	nodeVersion    string // from .nvmrc, .node-version, .tool-versions, or engines.node
+	framework      string
+	nodeVersion    string
 }
 
 // Scanner implements the Scanner interface for Node.js projects
