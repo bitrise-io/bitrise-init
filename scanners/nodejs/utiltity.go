@@ -214,7 +214,6 @@ type configDescriptor struct {
 	hasLint     bool
 	hasTest     bool
 	isDefault   bool
-	framework   string
 	nodeVersion string
 }
 
@@ -226,7 +225,6 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 		hasLint:     project.hasLint,
 		hasTest:     project.hasTest,
 		isDefault:   isDefault,
-		framework:   project.framework,
 		nodeVersion: project.nodeVersion,
 	}
 
@@ -251,10 +249,6 @@ func createDefaultConfigDescriptor(packageManager string) configDescriptor {
 func configName(params configDescriptor) string {
 	name := "node-js"
 
-	if params.framework != "" {
-		name = name + "-" + params.framework
-	}
-
 	if params.pkgManager != "" {
 		name = name + "-" + params.pkgManager
 	}
@@ -267,31 +261,14 @@ func configName(params configDescriptor) string {
 		name = name + "-root"
 	}
 
-	if params.framework == "nextjs" {
-		// For Next.js: tests are primary; build is the fallback when no tests exist.
-		if params.hasTest {
-			if params.hasLint {
-				name = name + "-lint"
-			}
-			name = name + "-test"
-		} else {
-			if params.hasLint {
-				name = name + "-lint"
-			}
-			if params.hasBuild {
-				name = name + "-build"
-			}
-		}
-	} else {
-		if params.hasBuild {
-			name = name + "-build"
-		}
-		if params.hasLint {
-			name = name + "-lint"
-		}
-		if params.hasTest {
-			name = name + "-test"
-		}
+	if params.hasBuild {
+		name = name + "-build"
+	}
+	if params.hasLint {
+		name = name + "-lint"
+	}
+	if params.hasTest {
+		name = name + "-test"
 	}
 
 	return name + "-config"
@@ -381,8 +358,6 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		}
 		if descriptor.hasTest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.YarnStepListItem("run test", descriptor.workdir))
-		} else if descriptor.framework == "nextjs" && descriptor.hasBuild {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.YarnStepListItem("run build", descriptor.workdir))
 		}
 	case "npm":
 		fallthrough
@@ -393,8 +368,6 @@ func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActi
 		}
 		if descriptor.hasTest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NpmStepListItem("run test", descriptor.workdir))
-		} else if descriptor.framework == "nextjs" && descriptor.hasBuild {
-			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.NpmStepListItem("run build", descriptor.workdir))
 		}
 	}
 
