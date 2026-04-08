@@ -38,7 +38,6 @@ type project struct {
 	scripts        []string
 	hasTest        bool
 	hasLint        bool
-	hasBuild       bool
 	framework      string
 	nodeVersion    string
 }
@@ -94,7 +93,6 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			scripts:        results.scripts,
 			hasTest:        results.hasTest,
 			hasLint:        results.hasLint,
-			hasBuild:       results.hasBuild,
 			framework:      framework,
 			nodeVersion:    nodeVersion,
 		}

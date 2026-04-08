@@ -73,10 +73,10 @@ var nextjsNpmResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           npm:
-            config: node-js-npm-root-build-lint-test-config
+            config: node-js-npm-root-lint-test-config
 configs:
   node-js:
-    node-js-npm-root-build-lint-test-config: |
+    node-js-npm-root-lint-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: node-js
@@ -131,10 +131,10 @@ var nextjsYarnResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           yarn:
-            config: node-js-yarn-root-build-lint-config
+            config: node-js-yarn-root-lint-config
 configs:
   node-js:
-    node-js-yarn-root-build-lint-config: |
+    node-js-yarn-root-lint-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: node-js
@@ -186,10 +186,10 @@ var nestjsCatsAppResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           npm:
-            config: node-js-npm-root-build-lint-test-config
+            config: node-js-npm-root-lint-test-config
 configs:
   node-js:
-    node-js-npm-root-build-lint-test-config: |
+    node-js-npm-root-lint-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: node-js
@@ -220,11 +220,11 @@ warnings_with_recommendations:
   node-js: []`, nestjsCatsAppResultVersions...)
 
 // nodejs-samples: full repo scan — all 4 projects.
-// nestjs-cats-app, nestjs-node-version, and nextjs-npm all share node-js-npm-build-lint-test-config;
+// nestjs-cats-app, nestjs-node-version, and nextjs-npm all share node-js-npm-lint-test-config;
 // the last-written config (nextjs-npm, node: "22") is what ends up in the configs map.
 
 var nodejsSamplesResultVersions = []interface{}{
-	// node-js-npm-build-lint-test-config (nextjs-npm, node: "22")
+	// node-js-npm-lint-test-config (nextjs-npm, node: "22")
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -233,7 +233,7 @@ var nodejsSamplesResultVersions = []interface{}{
 	steps.NpmVersion,
 	steps.NpmVersion,
 	steps.CacheSaveNPMVersion,
-	// node-js-yarn-build-lint-config
+	// node-js-yarn-lint-config
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -256,31 +256,31 @@ var nodejsSamplesResultYML = fmt.Sprintf(`options:
         type: selector
         value_map:
           npm:
-            config: node-js-npm-build-lint-test-config
+            config: node-js-npm-lint-test-config
       nestjs-node-version:
         title: Package Manager
         summary: The package manager used in the project
         type: selector
         value_map:
           npm:
-            config: node-js-npm-build-lint-test-config
+            config: node-js-npm-lint-test-config
       nextjs-npm:
         title: Package Manager
         summary: The package manager used in the project
         type: selector
         value_map:
           npm:
-            config: node-js-npm-build-lint-test-config
+            config: node-js-npm-lint-test-config
       nextjs-yarn:
         title: Package Manager
         summary: The package manager used in the project
         type: selector
         value_map:
           yarn:
-            config: node-js-yarn-build-lint-config
+            config: node-js-yarn-lint-config
 configs:
   node-js:
-    node-js-npm-build-lint-test-config: |
+    node-js-npm-lint-test-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: node-js
@@ -308,7 +308,7 @@ configs:
           - save-npm-cache@%s: {}
       tools:
         node: "22"
-    node-js-yarn-build-lint-config: |
+    node-js-yarn-lint-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: node-js

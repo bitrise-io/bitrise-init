@@ -16,8 +16,8 @@ import (
 )
 
 type checkScriptResult struct {
-	scripts                    []string
-	hasBuild, hasLint, hasTest bool
+	scripts            []string
+	hasLint, hasTest bool
 }
 
 func checkPackageManager(searchDir string) string {
@@ -42,10 +42,9 @@ func checkPackageScripts(packageJsonPath string) (checkScriptResult, error) {
 	log.TPrintf("Checking package scripts")
 
 	result := checkScriptResult{
-		scripts:  make([]string, 0),
-		hasBuild: false,
-		hasLint:  false,
-		hasTest:  false,
+		scripts: make([]string, 0),
+		hasLint: false,
+		hasTest: false,
 	}
 
 	packages, err := utility.ParsePackagesJSON(packageJsonPath)
@@ -56,13 +55,6 @@ func checkPackageScripts(packageJsonPath string) (checkScriptResult, error) {
 	for name := range packages.Scripts {
 		log.TDebugf("- %s", name)
 		result.scripts = append(result.scripts, name)
-	}
-
-	if slices.Contains(result.scripts, "build") {
-		log.TPrintf("- build - found")
-		result.hasBuild = true
-	} else {
-		log.TPrintf("- build - not found")
 	}
 
 	if slices.Contains(result.scripts, "lint") {
@@ -190,7 +182,6 @@ func parseEnginesNodeVersion(constraint string) string {
 type configDescriptor struct {
 	workdir     string
 	pkgManager  string
-	hasBuild    bool
 	hasLint     bool
 	hasTest     bool
 	isDefault   bool
@@ -201,7 +192,6 @@ func createConfigDescriptor(project project, isDefault bool) configDescriptor {
 	descriptor := configDescriptor{
 		workdir:     "$" + projectDirInputEnvKey,
 		pkgManager:  project.packageManager,
-		hasBuild:    project.hasBuild,
 		hasLint:     project.hasLint,
 		hasTest:     project.hasTest,
 		isDefault:   isDefault,
@@ -220,7 +210,6 @@ func createDefaultConfigDescriptor(packageManager string) configDescriptor {
 	return createConfigDescriptor(project{
 		projectRelDir:  "$" + projectDirInputEnvKey,
 		packageManager: packageManager,
-		hasBuild:       true,
 		hasLint:        true,
 		hasTest:        true,
 	}, true)
@@ -241,9 +230,6 @@ func configName(params configDescriptor) string {
 		name = name + "-root"
 	}
 
-	if params.hasBuild {
-		name = name + "-build"
-	}
 	if params.hasLint {
 		name = name + "-lint"
 	}
