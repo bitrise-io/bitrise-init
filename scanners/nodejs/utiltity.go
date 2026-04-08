@@ -319,12 +319,12 @@ func generateConfigs(projects []project, sshKeyActivation models.SSHKeyActivatio
 
 func generateConfigBasedOn(descriptor configDescriptor, sshKey models.SSHKeyActivation) (string, error) {
 	configBuilder := models.NewDefaultConfigBuilder()
-	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKey})
-	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, prepareSteps...)
-
 	if descriptor.nodeVersion != "" {
 		configBuilder.AddTool("node", descriptor.nodeVersion)
 	}
+
+	prepareSteps := steps.DefaultPrepareStepList(steps.PrepareListParams{SSHKeyActivation: sshKey})
+	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, prepareSteps...)
 
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreNPMCache())
 
