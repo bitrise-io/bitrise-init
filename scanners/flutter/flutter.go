@@ -43,10 +43,11 @@ type project struct {
 	hasTest             bool
 	hasIosProject       bool
 	hasAndroidProject   bool
+	hasWebProject       bool
 	flutterVersionToUse string
 }
 
-func (proj project) appPlatform() string {
+func (proj project) mobileTargetPlatform() string {
 	switch {
 	case proj.hasAndroidProject && !proj.hasIosProject:
 		return "android"
@@ -59,6 +60,14 @@ func (proj project) appPlatform() string {
 	}
 }
 
+func (proj project) platformOptionKey() string {
+	mobile := proj.mobileTargetPlatform()
+	if proj.hasWebProject && mobile == "" {
+		return "web"
+	}
+	return mobile
+}
+
 func (proj project) configName() string {
 	name := configName
 	if proj.hasTest {
@@ -66,8 +75,11 @@ func (proj project) configName() string {
 	} else {
 		name += "-notest"
 	}
-	if proj.appPlatform() != "" {
-		name += "-" + proj.appPlatform()
+	if proj.mobileTargetPlatform() != "" {
+		name += "-" + proj.mobileTargetPlatform()
+	}
+	if proj.hasWebProject {
+		name += "-web"
 	}
 	name += fmt.Sprintf("-%d", proj.id)
 
@@ -118,10 +130,11 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		hasTest := flutterProj.TestDirPth() != ""
 		hasIosProject := flutterProj.IOSProjectPth() != ""
 		hasAndroidProject := flutterProj.AndroidProjectPth() != ""
+		hasWebProject := flutterProj.WebProjectDir() != ""
 
 		// TODO: The second return value (flutterChannel) is omitted,
 		//  because the Flutter Installer step is not able to install a Flutter SDK version from a specific channel.
-		//  This is not a hugh issue, because just a few SDK version is available on multiple channels (like 2.2.2).
+		//  This is not a huge issue, because just a few SDK versions are available on multiple channels (like 2.2.2).
 		flutterVersion, _, err := flutterProj.FlutterSDKVersionToUse()
 		if err != nil {
 			log.Warnf(err.Error())
@@ -134,6 +147,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 			hasTest:             hasTest,
 			hasIosProject:       hasIosProject,
 			hasAndroidProject:   hasAndroidProject,
+			hasWebProject:       hasWebProject,
 			flutterVersionToUse: flutterVersion,
 		}
 
@@ -144,6 +158,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		log.TPrintf("  Has test: %v", hasTest)
 		log.TPrintf("  Has Android project: %v", hasAndroidProject)
 		log.TPrintf("  Has iOS project: %v", hasIosProject)
+		log.TPrintf("  Has Web project: %v", hasWebProject)
 		if flutterVersion != "" {
 			log.TPrintf("  Flutter version to use: %s", proj.flutterVersionToUse)
 		}
@@ -178,6 +193,7 @@ var defaultProjects = []project{
 	{hasTest: true, hasAndroidProject: true, hasIosProject: true},
 	{hasTest: true, hasAndroidProject: false, hasIosProject: true},
 	{hasTest: true, hasAndroidProject: true, hasIosProject: false},
+	{hasTest: true, hasWebProject: true},
 }
 
 // DefaultOptions ...
@@ -190,7 +206,7 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	for i, proj := range defaultProjects {
 		proj.id = i
 		configOption := models.NewConfigOption(proj.configName(), nil)
-		flutterPlatformOption.AddConfig(proj.appPlatform(), configOption)
+		flutterPlatformOption.AddConfig(proj.platformOptionKey(), configOption)
 	}
 
 	return *flutterProjectLocationOption
@@ -268,7 +284,17 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 	// restore cache is after flutter-installer, to prevent removal of pub system cache
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreDartCache())
 
-	if proj.hasTest {
+	if proj.hasWebProject && proj.mobileTargetPlatform() == "" {
+		// Web-only CI: always run both analyze and test
+		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
+			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+		))
+		if proj.hasTest {
+			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
+				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
+			))
+		}
+	} else if proj.hasTest {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
@@ -306,7 +332,7 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 
 		flutterBuildInputs := []envmanModels.EnvironmentItemModel{
 			{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-			{platformInputKey: proj.appPlatform()},
+			{platformInputKey: proj.mobileTargetPlatform()},
 		}
 		if proj.hasIosProject {
 			flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
