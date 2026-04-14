@@ -51,7 +51,7 @@ func TestFlutter(t *testing.T) {
 // Expected results
 
 var flutterIosAndroidVersions = []interface{}{
-	// flutter-config-test-both-0
+	// flutter-config-test-ios-android-0
 	models.FormatVersion,
 	// deploy workflow
 	steps.ActivateSSHKeyVersion,
@@ -82,10 +82,10 @@ var flutterIosAndroidResultYML = fmt.Sprintf(`options:
     type: selector
     value_map:
       .:
-        config: flutter-config-test-both-0
+        config: flutter-config-test-ios-android-0
 configs:
   flutter:
-    flutter-config-test-both-0: |
+    flutter-config-test-ios-android-0: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -217,7 +217,7 @@ var flutterPluginVersions = []interface{}{
 	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
 
-	// flutter-config-test-both-1 (example app: iOS + Android, has tests)
+	// flutter-config-test-ios-android-1 (example app: iOS + Android, has tests)
 	models.FormatVersion,
 	// deploy workflow
 	steps.ActivateSSHKeyVersion,
@@ -250,7 +250,7 @@ var flutterPluginResultYML = fmt.Sprintf(`options:
       .:
         config: flutter-config-test-android-0
       example:
-        config: flutter-config-test-both-1
+        config: flutter-config-test-ios-android-1
 configs:
   flutter:
     flutter-config-test-android-0: |
@@ -302,7 +302,7 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - save-dart-cache@%s: {}
           - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-both-1: |
+    flutter-config-test-ios-android-1: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
@@ -367,7 +367,6 @@ var flutterWebVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
 	steps.CacheRestoreDartVersion,
-	steps.FlutterAnalyzeVersion,
 	steps.FlutterTestVersion,
 	steps.CacheSaveDartVersion,
 	steps.DeployToBitriseIoVersion,
@@ -402,11 +401,8 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.29.2
+              - version: 3.41.6
           - restore-dart-cache@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
           - flutter-test@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION

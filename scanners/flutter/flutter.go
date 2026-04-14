@@ -27,8 +27,6 @@ const (
 	projectLocationInputTitle   = "Project location"
 	projectLocationInputSummary = "The path to your Flutter project, stored as an Environment Variable. In your Workflows, you can specify paths relative to this path. You can change this at any time."
 	platformInputKey            = "platform"
-	platformInputTitle          = "Platform"
-	platformInputSummary        = "The target platform for your first build. Your options are iOS, Android, both, or neither. You can change this in your Env Vars at any time."
 	iosOutputTypeKey            = "ios_output_type"
 	iosOutputTypeArchive        = "archive"
 )
@@ -45,45 +43,6 @@ type project struct {
 	hasAndroidProject   bool
 	hasWebProject       bool
 	flutterVersionToUse string
-}
-
-func (proj project) mobileTargetPlatform() string {
-	switch {
-	case proj.hasAndroidProject && !proj.hasIosProject:
-		return "android"
-	case !proj.hasAndroidProject && proj.hasIosProject:
-		return "ios"
-	case proj.hasAndroidProject && proj.hasIosProject:
-		return "both"
-	default:
-		return ""
-	}
-}
-
-func (proj project) platformOptionKey() string {
-	mobile := proj.mobileTargetPlatform()
-	if proj.hasWebProject && mobile == "" {
-		return "web"
-	}
-	return mobile
-}
-
-func (proj project) configName() string {
-	name := configName
-	if proj.hasTest {
-		name += "-test"
-	} else {
-		name += "-notest"
-	}
-	if proj.mobileTargetPlatform() != "" {
-		name += "-" + proj.mobileTargetPlatform()
-	}
-	if proj.hasWebProject {
-		name += "-web"
-	}
-	name += fmt.Sprintf("-%d", proj.id)
-
-	return name
 }
 
 // Scanner ...
@@ -182,7 +141,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeSelector)
 
 	for _, proj := range scanner.projects {
-		configOption := models.NewConfigOption(proj.configName(), nil)
+		configOption := models.NewConfigOption(configNameFor(proj), nil)
 		flutterProjectLocationOption.AddConfig(proj.rootDir, configOption)
 	}
 
@@ -190,23 +149,17 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Ic
 }
 
 var defaultProjects = []project{
-	{hasTest: true, hasAndroidProject: true, hasIosProject: true},
-	{hasTest: true, hasAndroidProject: false, hasIosProject: true},
-	{hasTest: true, hasAndroidProject: true, hasIosProject: false},
-	{hasTest: true, hasWebProject: true},
+	{hasTest: true, hasAndroidProject: true, hasIosProject: true, hasWebProject: true},
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	flutterProjectLocationOption := models.NewOption(projectLocationInputTitle, projectLocationInputSummary, projectLocationInputEnvKey, models.TypeUserInput)
 
-	flutterPlatformOption := models.NewOption(platformInputTitle, platformInputSummary, "", models.TypeSelector)
-	flutterProjectLocationOption.AddOption(models.UserInputOptionDefaultValue, flutterPlatformOption)
-
 	for i, proj := range defaultProjects {
 		proj.id = i
-		configOption := models.NewConfigOption(proj.configName(), nil)
-		flutterPlatformOption.AddConfig(proj.platformOptionKey(), configOption)
+		configOption := models.NewConfigOption(configNameFor(proj), nil)
+		flutterProjectLocationOption.AddConfig(models.UserInputOptionDefaultValue, configOption)
 	}
 
 	return *flutterProjectLocationOption
@@ -221,7 +174,7 @@ func (scanner *Scanner) Configs(sshKeyActivation models.SSHKeyActivation) (model
 			return nil, err
 		}
 
-		configs[proj.configName()] = config
+		configs[configNameFor(proj)] = config
 	}
 
 	return configs, nil
@@ -237,7 +190,7 @@ func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 		if err != nil {
 			return nil, err
 		}
-		configs[proj.configName()] = config
+		configs[configNameFor(proj)] = config
 	}
 
 	return configs, nil
@@ -284,17 +237,7 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 	// restore cache is after flutter-installer, to prevent removal of pub system cache
 	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreDartCache())
 
-	if proj.hasWebProject && proj.mobileTargetPlatform() == "" {
-		// Web-only CI: always run both analyze and test
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
-			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-		))
-		if proj.hasTest {
-			configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
-				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-			))
-		}
-	} else if proj.hasTest {
+	if proj.hasTest {
 		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
@@ -332,7 +275,7 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 
 		flutterBuildInputs := []envmanModels.EnvironmentItemModel{
 			{projectLocationInputKey: "$" + projectLocationInputEnvKey},
-			{platformInputKey: proj.mobileTargetPlatform()},
+			{platformInputKey: targetPlatformInputValueFor(proj)},
 		}
 		if proj.hasIosProject {
 			flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
@@ -353,4 +296,38 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 	}
 
 	return string(data), nil
+}
+
+func targetPlatformInputValueFor(proj project) string {
+	switch {
+	case proj.hasIosProject && proj.hasAndroidProject:
+		return "both"
+	case proj.hasIosProject:
+		return "ios"
+	case proj.hasAndroidProject:
+		return "android"
+	default:
+		return ""
+	}
+}
+
+func configNameFor(proj project) string {
+	name := configName
+	if proj.hasTest {
+		name += "-test"
+	} else {
+		name += "-notest"
+	}
+	if proj.hasIosProject {
+		name += "-ios"
+	}
+	if proj.hasAndroidProject {
+		name += "-android"
+	}
+	if proj.hasWebProject {
+		name += "-web"
+	}
+	name += fmt.Sprintf("-%d", proj.id)
+
+	return name
 }
