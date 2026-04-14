@@ -22,6 +22,8 @@ import (
 const (
 	scannerName                 = "flutter"
 	configName                  = "flutter-config"
+	testWorkflowID              = "run_tests"
+	buildWorkflowID             = "build_app"
 	projectLocationInputKey     = "project_location"
 	projectLocationInputEnvKey  = "BITRISE_FLUTTER_PROJECT_LOCATION"
 	projectLocationInputTitle   = "Project location"
@@ -29,6 +31,25 @@ const (
 	platformInputKey            = "platform"
 	iosOutputTypeKey            = "ios_output_type"
 	iosOutputTypeArchive        = "archive"
+)
+
+const (
+	testWorkflowDescription = `Runs tests or analysis.
+
+Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
+
+Next steps:
+- Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
+`
+
+	buildAppWorkflowDescription = `Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
+
+If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
+
+Next steps:
+- Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
+- Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
+`
 )
 
 //------------------
@@ -228,47 +249,47 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 	deploySteps := steps.DefaultDeployStepList()
 
 	// primary
-	configBuilder.SetWorkflowDescriptionTo(models.PrimaryWorkflowID, primaryWorkflowDescription)
+	configBuilder.SetWorkflowDescriptionTo(testWorkflowID, testWorkflowDescription)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, prepareSteps...)
+	configBuilder.AppendStepListItemsTo(testWorkflowID, prepareSteps...)
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, flutterInstallStep)
+	configBuilder.AppendStepListItemsTo(testWorkflowID, flutterInstallStep)
 
 	// restore cache is after flutter-installer, to prevent removal of pub system cache
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.RestoreDartCache())
+	configBuilder.AppendStepListItemsTo(testWorkflowID, steps.RestoreDartCache())
 
 	if proj.hasTest {
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterTestStepListItem(
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.FlutterTestStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
 	} else {
-		configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.FlutterAnalyzeStepListItem(
+		configBuilder.AppendStepListItemsTo(testWorkflowID, steps.FlutterAnalyzeStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
 	}
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.SaveDartCache())
+	configBuilder.AppendStepListItemsTo(testWorkflowID, steps.SaveDartCache())
 
-	configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, deploySteps...)
+	configBuilder.AppendStepListItemsTo(testWorkflowID, deploySteps...)
 
 	if proj.hasIosProject || proj.hasAndroidProject {
 		// deploy
-		configBuilder.SetWorkflowDescriptionTo(models.DeployWorkflowID, deployWorkflowDescription)
+		configBuilder.SetWorkflowDescriptionTo(buildWorkflowID, buildAppWorkflowDescription)
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, prepareSteps...)
+		configBuilder.AppendStepListItemsTo(buildWorkflowID, prepareSteps...)
 
 		if proj.hasIosProject {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
+			configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.CertificateAndProfileInstallerStepListItem())
 		}
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, flutterInstallStep)
+		configBuilder.AppendStepListItemsTo(buildWorkflowID, flutterInstallStep)
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterAnalyzeStepListItem(
+		configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.FlutterAnalyzeStepListItem(
 			envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 		))
 
 		if proj.hasTest {
-			configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterTestStepListItem(
+			configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.FlutterTestStepListItem(
 				envmanModels.EnvironmentItemModel{projectLocationInputKey: "$" + projectLocationInputEnvKey},
 			))
 		}
@@ -280,9 +301,9 @@ func generateConfig(sshKeyActivation models.SSHKeyActivation, proj project) (str
 		if proj.hasIosProject {
 			flutterBuildInputs = append(flutterBuildInputs, envmanModels.EnvironmentItemModel{iosOutputTypeKey: iosOutputTypeArchive})
 		}
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
+		configBuilder.AppendStepListItemsTo(buildWorkflowID, steps.FlutterBuildStepListItem(flutterBuildInputs...))
 
-		configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, deploySteps...)
+		configBuilder.AppendStepListItemsTo(buildWorkflowID, deploySteps...)
 	}
 
 	config, err := configBuilder.Generate(scannerName)

@@ -1038,7 +1038,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -1065,9 +1065,11 @@ configs:
               - platform: both
               - ios_output_type: archive
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).

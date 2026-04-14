@@ -61,7 +61,7 @@ func TestFlutter(t *testing.T) {
 var flutterIosAndroidVersions = []interface{}{
 	// flutter-config-test-ios-android-0
 	models.FormatVersion,
-	// deploy workflow
+	// build_app workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
@@ -70,7 +70,7 @@ var flutterIosAndroidVersions = []interface{}{
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
-	// primary workflow
+	// run_tests workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -98,7 +98,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -126,9 +126,11 @@ configs:
               - platform: both
               - ios_output_type: archive
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
@@ -153,7 +155,7 @@ warnings_with_recommendations:
 var flutterPackageVersions = []interface{}{
 	// flutter-config-test-0
 	models.FormatVersion,
-	// primary workflow only
+	// run_tests workflow only
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -181,9 +183,11 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
@@ -208,7 +212,7 @@ warnings_with_recommendations:
 var flutterPluginVersions = []interface{}{
 	// flutter-config-test-android-0 (root plugin: Android only, has tests)
 	models.FormatVersion,
-	// deploy workflow
+	// build_app workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -216,7 +220,7 @@ var flutterPluginVersions = []interface{}{
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
-	// primary workflow
+	// run_tests workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -227,7 +231,7 @@ var flutterPluginVersions = []interface{}{
 
 	// flutter-config-test-ios-android-1 (example app: iOS + Android, has tests)
 	models.FormatVersion,
-	// deploy workflow
+	// build_app workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
@@ -236,7 +240,7 @@ var flutterPluginVersions = []interface{}{
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
-	// primary workflow
+	// run_tests workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -266,7 +270,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -292,9 +296,11 @@ configs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
               - platform: android
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
@@ -315,7 +321,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -343,9 +349,11 @@ configs:
               - platform: both
               - ios_output_type: archive
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
@@ -370,7 +378,7 @@ warnings_with_recommendations:
 var flutterWebVersions = []interface{}{
 	// flutter-config-test-web-0
 	models.FormatVersion,
-	// primary workflow only
+	// run_tests workflow only
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -398,9 +406,11 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
@@ -425,7 +435,7 @@ warnings_with_recommendations:
 var flutterIosAndroidWebVersions = []interface{}{
 	// flutter-config-test-ios-android-0
 	models.FormatVersion,
-	// deploy workflow
+	// build_app workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.CertificateAndProfileInstallerVersion,
@@ -434,7 +444,7 @@ var flutterIosAndroidWebVersions = []interface{}{
 	steps.FlutterTestVersion,
 	steps.FlutterBuildVersion,
 	steps.DeployToBitriseIoVersion,
-	// primary workflow
+	// run_tests workflow
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
 	steps.FlutterInstallVersion,
@@ -462,7 +472,7 @@ configs:
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -490,9 +500,11 @@ configs:
               - platform: both
               - ios_output_type: archive
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
+
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
