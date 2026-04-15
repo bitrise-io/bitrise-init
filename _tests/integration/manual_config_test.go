@@ -723,14 +723,21 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        title: Package Manager
-        summary: The package manager used in the project
-        type: selector
+        title: Node.js version
+        summary: The Node.js version to be used for the project. Use exact (20.10.0)
+          or partial (22:latest, 20:installed) versions.
+        env_key: NODEJS_VERSION
+        type: user_input
         value_map:
-          npm:
-            config: default-node-js-npm-config
-          yarn:
-            config: default-node-js-yarn-config
+          "":
+            title: Package Manager
+            summary: The package manager used in the project
+            type: selector
+            value_map:
+              npm:
+                config: default-node-js-npm-config
+              yarn:
+                config: default-node-js-yarn-config
   react-native:
     title: Is this an [Expo](https://expo.dev)-based React Native project?
     summary: |-
@@ -1581,6 +1588,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@1:
+              title: Install Node.js
+              inputs:
+              - content: bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - npm@%s:
               title: npm install
@@ -1608,6 +1619,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@1:
+              title: Install Node.js
+              inputs:
+              - content: bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - yarn@%s:
               title: yarn install
