@@ -332,6 +332,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
@@ -341,6 +342,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
@@ -396,6 +398,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
@@ -833,7 +836,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        config: default-ruby-config
+        title: Ruby version
+        summary: The Ruby version to be used for the project. Use exact (3.2.0) or
+          partial (3:latest, 3:installed) versions.
+        env_key: RUBY_VERSION
+        type: user_input
+        value_map:
+          "":
+            config: default-ruby-config
 configs:
   android:
     default-android-config: |
@@ -1588,7 +1598,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@1:
+          - script@%s:
               title: Install Node.js
               inputs:
               - content: bitrise tools install nodejs $NODEJS_VERSION
@@ -1619,7 +1629,7 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
-          - script@1:
+          - script@%s:
               title: Install Node.js
               inputs:
               - content: bitrise tools install nodejs $NODEJS_VERSION
@@ -1780,6 +1790,10 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Install Ruby
+              inputs:
+              - content: bitrise tools install ruby $NODEJS_VERSION
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}

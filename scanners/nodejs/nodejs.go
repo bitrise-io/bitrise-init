@@ -134,14 +134,14 @@ func (scanner *Scanner) DefaultOptions() models.OptionNode {
 	packageManagerOption := models.NewOption(packageManagerInputTitle, packageManagerInputSummary, "", models.TypeSelector)
 	nodeVersionOption := models.NewOption(nodeVersionInputTitle, nodeVersionInputSummary, nodeVersionEnvKey, models.TypeUserInput)
 
+	projectRootOption.AddOption(models.UserInputOptionDefaultValue, nodeVersionOption)
+	nodeVersionOption.AddOption(models.UserInputOptionDefaultValue, packageManagerOption)
+
 	for _, pkgMgr := range pkgManagers {
 		defaultDescriptor := createDefaultConfigDescriptor(pkgMgr.name)
 		configOption := models.NewConfigOption(configName(defaultDescriptor), nil)
 		packageManagerOption.AddConfig(pkgMgr.name, configOption)
 	}
-
-	nodeVersionOption.AddOption(models.UserInputOptionDefaultValue, packageManagerOption)
-	projectRootOption.AddOption(models.UserInputOptionDefaultValue, nodeVersionOption)
 
 	return *projectRootOption
 }
