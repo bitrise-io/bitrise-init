@@ -1793,7 +1793,7 @@ configs:
           - script@%s:
               title: Install Ruby
               inputs:
-              - content: bitrise tools install ruby $NODEJS_VERSION
+              - content: bitrise tools install ruby $RUBY_VERSION
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}

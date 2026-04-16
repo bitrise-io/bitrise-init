@@ -37,7 +37,7 @@ const (
 	rubyVersionInputTitle           = "Ruby version"
 	rubyVersionInputSummary         = "The Ruby version to be used for the project. Use exact (3.2.0) or partial (3:latest, 3:installed) versions."
 	rubyVersionEnvKey               = "RUBY_VERSION"
-	rubyVersionInstallScriptContent = "bitrise tools install ruby $NODEJS_VERSION"
+	rubyVersionInstallScriptContent = "bitrise tools install ruby $RUBY_VERSION"
 )
 
 type configDescriptor struct {
