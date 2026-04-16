@@ -24,7 +24,11 @@ const (
 	nodeVersionInputTitle           = "Node.js version"
 	nodeVersionInputSummary         = "The Node.js version to be used for the project. Use exact (20.10.0) or partial (22:latest, 20:installed) versions."
 	nodeVersionEnvKey               = "NODEJS_VERSION"
-	nodeVersionInstallScriptContent = "bitrise tools install nodejs $NODEJS_VERSION"
+	nodeVersionInstallScriptContent = `#!/usr/bin/env bash
+set -euxo pipefail
+
+bitrise tools install nodejs $NODEJS_VERSION
+`
 )
 
 type packageManager struct {

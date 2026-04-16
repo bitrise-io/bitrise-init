@@ -1397,12 +1397,7 @@ configs:
               inputs:
               - content: |
                   #!/usr/bin/env bash
-                  # fail if any commands fails
-                  set -e
-                  # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
-                  set -o pipefail
-                  # debug log
-                  set -x
+                  set -euxo pipefail
 
                   ./mvnw test
               - working_dir: $PROJECT_ROOT_DIR
@@ -1601,7 +1596,11 @@ configs:
           - script@%s:
               title: Install Node.js
               inputs:
-              - content: bitrise tools install nodejs $NODEJS_VERSION
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - npm@%s:
               title: npm install
@@ -1632,7 +1631,11 @@ configs:
           - script@%s:
               title: Install Node.js
               inputs:
-              - content: bitrise tools install nodejs $NODEJS_VERSION
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - yarn@%s:
               title: yarn install
@@ -1793,7 +1796,11 @@ configs:
           - script@%s:
               title: Install Ruby
               inputs:
-              - content: bitrise tools install ruby $RUBY_VERSION
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install ruby $RUBY_VERSION
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
