@@ -113,7 +113,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -139,7 +139,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -196,7 +196,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -284,7 +284,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -309,7 +309,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -336,7 +336,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -362,7 +362,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.41.7
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -419,7 +419,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.41.6
+              - version: 3.29.3
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
@@ -487,7 +487,7 @@ configs:
           - certificate-and-profile-installer@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.29.2
+              - version: 3.41.7
           - flutter-analyze@%s:
               inputs:
               - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
@@ -513,7 +513,7 @@ configs:
           - git-clone@%s: {}
           - flutter-installer@%s:
               inputs:
-              - version: 3.29.2
+              - version: 3.41.7
           - restore-dart-cache@%s: {}
           - flutter-test@%s:
               inputs:
