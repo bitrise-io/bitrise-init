@@ -154,7 +154,7 @@ configs:
               - command: run lint
           - save-npm-cache@%s: {}
       tools:
-        node: 22.0.0
+        node: 22.13.0
 warnings:
   node-js: []
 warnings_with_recommendations:
@@ -330,7 +330,7 @@ configs:
               - command: run lint
           - save-npm-cache@%s: {}
       tools:
-        node: 22.0.0
+        node: 22.13.0
 warnings:
   node-js: []
 warnings_with_recommendations:
