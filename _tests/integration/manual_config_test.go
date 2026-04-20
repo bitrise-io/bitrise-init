@@ -332,6 +332,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.NpmVersion,
 	steps.NpmVersion,
@@ -341,6 +342,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreNPMVersion,
 	steps.YarnVersion,
 	steps.YarnVersion,
@@ -396,6 +398,7 @@ var customConfigVersions = []interface{}{
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
+	steps.ScriptVersion,
 	steps.CacheRestoreVersion,
 	steps.ScriptVersion,
 	steps.ScriptVersion,
@@ -723,14 +726,21 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        title: Package Manager
-        summary: The package manager used in the project
-        type: selector
+        title: Node.js version
+        summary: The Node.js version to be used for the project. Use exact (20.10.0)
+          or partial (22:latest, 20:installed) versions.
+        env_key: NODEJS_VERSION
+        type: user_input
         value_map:
-          npm:
-            config: default-node-js-npm-config
-          yarn:
-            config: default-node-js-yarn-config
+          "":
+            title: Package Manager
+            summary: The package manager used in the project
+            type: selector
+            value_map:
+              npm:
+                config: default-node-js-npm-config
+              yarn:
+                config: default-node-js-yarn-config
   react-native:
     title: Is this an [Expo](https://expo.dev)-based React Native project?
     summary: |-
@@ -826,7 +836,14 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        config: default-ruby-config
+        title: Ruby version
+        summary: The Ruby version to be used for the project. Use exact (3.2.0) or
+          partial (3:latest, 3:installed) versions.
+        env_key: RUBY_VERSION
+        type: user_input
+        value_map:
+          "":
+            config: default-ruby-config
 configs:
   android:
     default-android-config: |
@@ -1380,12 +1397,7 @@ configs:
               inputs:
               - content: |
                   #!/usr/bin/env bash
-                  # fail if any commands fails
-                  set -e
-                  # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
-                  set -o pipefail
-                  # debug log
-                  set -x
+                  set -euxo pipefail
 
                   ./mvnw test
               - working_dir: $PROJECT_ROOT_DIR
@@ -1581,6 +1593,14 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Install Node.js
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - npm@%s:
               title: npm install
@@ -1608,6 +1628,14 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Install Node.js
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install nodejs $NODEJS_VERSION
           - restore-npm-cache@%s: {}
           - yarn@%s:
               title: yarn install
@@ -1765,6 +1793,14 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - script@%s:
+              title: Install Ruby
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install ruby $RUBY_VERSION
           - restore-cache@%s:
               inputs:
               - key: gem-{{ checksum "Gemfile.lock" }}
