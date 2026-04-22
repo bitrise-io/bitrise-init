@@ -125,44 +125,7 @@ var customConfigVersions = []interface{}{
 	steps.DeployToBitriseIoVersion,
 
 	// flutter
-	// flutter-config-test-android-2
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.FlutterInstallVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.FlutterTestVersion,
-	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.FlutterInstallVersion,
-	steps.CacheRestoreDartVersion,
-	steps.FlutterTestVersion,
-	steps.CacheSaveDartVersion,
-	steps.DeployToBitriseIoVersion,
-
 	// flutter-config-test-both-0
-	models.FormatVersion,
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.CertificateAndProfileInstallerVersion,
-	steps.FlutterInstallVersion,
-	steps.FlutterAnalyzeVersion,
-	steps.FlutterTestVersion,
-	steps.FlutterBuildVersion,
-	steps.DeployToBitriseIoVersion,
-
-	steps.ActivateSSHKeyVersion,
-	steps.GitCloneVersion,
-	steps.FlutterInstallVersion,
-	steps.CacheRestoreDartVersion,
-	steps.FlutterTestVersion,
-	steps.CacheSaveDartVersion,
-	steps.DeployToBitriseIoVersion,
-
-	// flutter-config-test-ios-1
 	models.FormatVersion,
 	steps.ActivateSSHKeyVersion,
 	steps.GitCloneVersion,
@@ -495,17 +458,7 @@ var customConfigResultYML = fmt.Sprintf(`options:
     type: user_input
     value_map:
       "":
-        title: Platform
-        summary: The target platform for your first build. Your options are iOS, Android,
-          both, or neither. You can change this in your Env Vars at any time.
-        type: selector
-        value_map:
-          android:
-            config: flutter-config-test-android-2
-          both:
-            config: flutter-config-test-both-0
-          ios:
-            config: flutter-config-test-ios-1
+        config: flutter-config-test-ios-android-web-0
   ionic:
     title: Directory of the Ionic config.xml file
     summary: The working directory of your Ionic project is where you store your config.xml
@@ -1097,59 +1050,12 @@ configs:
               - enable_cache: "no"
           - deploy-to-bitrise-io@%s: {}
   flutter:
-    flutter-config-test-android-2: |
+    flutter-config-test-ios-android-web-0: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: flutter
       workflows:
-        deploy:
-          description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
-
-            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
-
-            Next steps:
-            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
-            - Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - flutter-installer@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-build@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-              - platform: android
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Builds project and runs tests.
-
-            Next steps:
-            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - flutter-installer@%s: {}
-          - restore-dart-cache@%s: {}
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - save-dart-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-both-0: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: flutter
-      workflows:
-        deploy:
+        build_app:
           description: |
             Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
 
@@ -1176,58 +1082,11 @@ configs:
               - platform: both
               - ios_output_type: archive
           - deploy-to-bitrise-io@%s: {}
-        primary:
+        run_tests:
           description: |
-            Builds project and runs tests.
+            Runs tests or analysis.
 
-            Next steps:
-            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - flutter-installer@%s: {}
-          - restore-dart-cache@%s: {}
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - save-dart-cache@%s: {}
-          - deploy-to-bitrise-io@%s: {}
-    flutter-config-test-ios-1: |
-      format_version: "%s"
-      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-      project_type: flutter
-      workflows:
-        deploy:
-          description: |
-            Builds and deploys app using [Deploy to bitrise.io Step](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html#deploying-a-flutter-app).
-
-            If you build for iOS, make sure to set up code signing secrets on Bitrise for a successful build.
-
-            Next steps:
-            - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html) for signing and deployment options.
-            - Check out the Code signing guide for [iOS](https://docs.bitrise.io/en/bitrise-ci/code-signing/ios-code-signing.html) and [Android](https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing.html).
-          steps:
-          - activate-ssh-key@%s:
-              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-          - git-clone@%s: {}
-          - certificate-and-profile-installer@%s: {}
-          - flutter-installer@%s: {}
-          - flutter-analyze@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-test@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-          - flutter-build@%s:
-              inputs:
-              - project_location: $BITRISE_FLUTTER_PROJECT_LOCATION
-              - platform: ios
-              - ios_output_type: archive
-          - deploy-to-bitrise-io@%s: {}
-        primary:
-          description: |
-            Builds project and runs tests.
+            Runs flutter-test if a test directory is present, otherwise runs flutter-analyze.
 
             Next steps:
             - Check out [Getting started with Flutter apps](https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-flutter-projects.html).
