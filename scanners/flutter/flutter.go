@@ -9,6 +9,7 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/scanners/java"
 	"github.com/bitrise-io/bitrise-init/steps"
+	"github.com/bitrise-io/bitrise-init/utility"
 	envmanModels "github.com/bitrise-io/envman/v2/models"
 	"github.com/bitrise-io/go-flutter/flutterproject"
 	"github.com/bitrise-io/go-flutter/fluttersdk"
@@ -223,10 +224,7 @@ func findProjectLocations(searchDir string) ([]string, error) {
 		return nil, err
 	}
 
-	filters := []pathutil.FilterFunc{
-		pathutil.BaseFilter("pubspec.yaml", true),
-		pathutil.ComponentFilter("node_modules", false),
-	}
+	filters := append(utility.CommonExcludeFilters(), pathutil.BaseFilter("pubspec.yaml", true))
 
 	paths, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {

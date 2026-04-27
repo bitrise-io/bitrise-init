@@ -7,7 +7,18 @@ import (
 	"strings"
 )
 
-var ignoreDirs = []string{".git", ".github", ".gradle", ".idea", "build", ".kotlin", ".fleet", "CordovaLib", "node_modules"}
+var ignoreDirs = []string{
+	// Version control
+	".git",
+	// IDE and build tool internals
+	".github", ".gradle", ".idea", ".kotlin", ".fleet", "build",
+	// JS dependency caches / build outputs
+	"node_modules",
+	// iOS / macOS dependency managers and compiled artifacts
+	"Pods", "Carthage", "CordovaLib",
+	// Python virtual environments and caches
+	".venv", "venv", "__pycache__",
+}
 
 type DirEntry struct {
 	AbsPath string

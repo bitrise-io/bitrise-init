@@ -3,6 +3,7 @@ package cordova
 import (
 	"encoding/xml"
 
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -33,8 +34,8 @@ func ParseConfigXML(pth string) (WidgetModel, error) {
 
 // FilterRootConfigXMLFile ...
 func FilterRootConfigXMLFile(fileList []string) (string, error) {
-	allowConfigXMLBaseFilter := pathutil.BaseFilter(configXMLBasePath, true)
-	configXMLs, err := pathutil.FilterPaths(fileList, allowConfigXMLBaseFilter)
+	filters := append(utility.CommonExcludeFilters(), pathutil.BaseFilter(configXMLBasePath, true))
+	configXMLs, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {
 		return "", err
 	}

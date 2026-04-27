@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
@@ -16,8 +17,8 @@ const (
 
 // FilterFastfiles ...
 func FilterFastfiles(fileList []string) ([]string, error) {
-	allowFastfileBaseFilter := pathutil.BaseFilter(fastfileBasePath, true)
-	fastfiles, err := pathutil.FilterPaths(fileList, allowFastfileBaseFilter)
+	filters := append(utility.CommonExcludeFilters(), pathutil.BaseFilter(fastfileBasePath, true))
+	fastfiles, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {
 		return []string{}, err
 	}

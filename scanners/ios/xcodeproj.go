@@ -1,6 +1,7 @@
 package ios
 
 import (
+	"github.com/bitrise-io/bitrise-init/utility"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
 	"github.com/bitrise-io/go-xcode/pathfilters"
@@ -86,13 +87,8 @@ func FilterRelevantProjectFiles(fileList []string, projectTypes ...XcodeProjectT
 		pathfilters.AllowXcodeProjExtFilter,
 		pathfilters.AllowIsDirectoryFilter,
 		pathfilters.ForbidEmbeddedWorkspaceRegexpFilter,
-		pathfilters.ForbidGitDirComponentFilter,
-		pathfilters.ForbidPodsDirComponentFilter,
-		pathfilters.ForbidCarthageDirComponentFilter,
-		pathfilters.ForbidFramworkComponentWithExtensionFilter,
-		pathfilters.ForbidCordovaLibDirComponentFilter,
-		pathfilters.ForbidNodeModulesComponentFilter,
 	}
+	filters = append(filters, utility.CommonExcludeFilters()...)
 
 	for _, projectType := range projectTypes {
 		switch projectType {
@@ -113,13 +109,8 @@ func FilterRelevantWorkspaceFiles(fileList []string, projectTypes ...XcodeProjec
 		pathfilters.AllowIsDirectoryFilter,
 		pathfilters.AllowWorkspaceWithContentsFile,
 		pathfilters.ForbidEmbeddedWorkspaceRegexpFilter,
-		pathfilters.ForbidGitDirComponentFilter,
-		pathfilters.ForbidPodsDirComponentFilter,
-		pathfilters.ForbidCarthageDirComponentFilter,
-		pathfilters.ForbidFramworkComponentWithExtensionFilter,
-		pathfilters.ForbidCordovaLibDirComponentFilter,
-		pathfilters.ForbidNodeModulesComponentFilter,
 	}
+	filters = append(filters, utility.CommonExcludeFilters()...)
 
 	for _, projectType := range projectTypes {
 		switch projectType {
@@ -135,24 +126,12 @@ func FilterRelevantWorkspaceFiles(fileList []string, projectTypes ...XcodeProjec
 
 // FilterRelevantPodfiles ...
 func FilterRelevantPodfiles(fileList []string) ([]string, error) {
-	return pathutil.FilterPaths(fileList,
-		AllowPodfileBaseFilter,
-		pathfilters.ForbidGitDirComponentFilter,
-		pathfilters.ForbidPodsDirComponentFilter,
-		pathfilters.ForbidCarthageDirComponentFilter,
-		pathfilters.ForbidFramworkComponentWithExtensionFilter,
-		pathfilters.ForbidCordovaLibDirComponentFilter,
-		pathfilters.ForbidNodeModulesComponentFilter)
+	filters := append(utility.CommonExcludeFilters(), AllowPodfileBaseFilter)
+	return pathutil.FilterPaths(fileList, filters...)
 }
 
 // FilterRelevantCartFile ...
 func FilterRelevantCartFile(fileList []string) ([]string, error) {
-	return pathutil.FilterPaths(fileList,
-		AllowCartfileBaseFilter,
-		pathfilters.ForbidGitDirComponentFilter,
-		pathfilters.ForbidPodsDirComponentFilter,
-		pathfilters.ForbidCarthageDirComponentFilter,
-		pathfilters.ForbidFramworkComponentWithExtensionFilter,
-		pathfilters.ForbidCordovaLibDirComponentFilter,
-		pathfilters.ForbidNodeModulesComponentFilter)
+	filters := append(utility.CommonExcludeFilters(), AllowCartfileBaseFilter)
+	return pathutil.FilterPaths(fileList, filters...)
 }

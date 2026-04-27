@@ -8,6 +8,7 @@ import (
 
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-xcode/pathfilters"
 )
 
 // PackagesModel ...
@@ -35,6 +36,28 @@ func ParsePackagesJSON(packagesJSONPth string) (PackagesModel, error) {
 	return parsePackagesJSONContent(content)
 }
 
+// CommonExcludeFilters returns path filters that exclude all directories
+// known to be non-project roots across all supported platforms.
+// Every scanner should use this list when walking the search tree.
+func CommonExcludeFilters() []pathutil.FilterFunc {
+	return []pathutil.FilterFunc{
+		// Version control
+		pathfilters.ForbidGitDirComponentFilter,
+		// JS dependency caches / build outputs
+		pathfilters.ForbidNodeModulesComponentFilter,
+		pathutil.ComponentFilter(".next", false),
+		// iOS / macOS dependency managers and compiled artifacts
+		pathfilters.ForbidPodsDirComponentFilter,
+		pathfilters.ForbidCarthageDirComponentFilter,
+		pathfilters.ForbidCordovaLibDirComponentFilter,
+		pathfilters.ForbidFramworkComponentWithExtensionFilter,
+		// Python virtual environments and caches
+		pathutil.ComponentFilter(".venv", false),
+		pathutil.ComponentFilter("venv", false),
+		pathutil.ComponentFilter("__pycache__", false),
+	}
+}
+
 // CollectPackageJSONFiles ...
 func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 	fileList, err := pathutil.ListPathInDirSortedByComponents(searchDir, false)
@@ -42,11 +65,7 @@ func CollectPackageJSONFiles(searchDir string) ([]string, error) {
 		return nil, err
 	}
 
-	filters := []pathutil.FilterFunc{
-		pathutil.BaseFilter("package.json", true),
-		pathutil.ComponentFilter("node_modules", false),
-		pathutil.ComponentFilter(".next", false),
-	}
+	filters := append(CommonExcludeFilters(), pathutil.BaseFilter("package.json", true))
 	packageFileList, err := pathutil.FilterPaths(fileList, filters...)
 	if err != nil {
 		return nil, err

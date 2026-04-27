@@ -26,13 +26,7 @@ func collectGemfiles(searchDir string) ([]string, error) {
 		return nil, err
 	}
 
-	filters := []pathutil.FilterFunc{
-		pathutil.BaseFilter("Gemfile", true),
-		pathutil.ComponentFilter("node_modules", false),
-		pathutil.ComponentFilter("Pods", false),
-		pathutil.ComponentFilter("Carthage", false),
-		pathutil.ComponentFilter(".git", false),
-	}
+	filters := append(utility.CommonExcludeFilters(), pathutil.BaseFilter("Gemfile", true))
 	return pathutil.FilterPaths(fileList, filters...)
 }
 

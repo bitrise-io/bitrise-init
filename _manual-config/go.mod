@@ -11,7 +11,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/bitrise-io/bitrise/v2 v2.39.1 // indirect
 	github.com/bitrise-io/envman/v2 v2.5.6 // indirect
-	github.com/bitrise-io/go-flutter v0.1.2-0.20260413123617-d1289effff65 // indirect
+	github.com/bitrise-io/go-flutter v0.2.0 // indirect
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.33 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect

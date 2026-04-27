@@ -11,6 +11,8 @@ github.com/bitrise-io/envman/v2 v2.5.6/go.mod h1:JJjnW87+zJj0Ft4QxuouiIJ40Ir8ZYQ
 github.com/bitrise-io/go-flutter v0.1.1 h1:EKgwqiyeuyMf9V0Oad/MbMNrDA4wh2OZfIWZw5UF/Hs=
 github.com/bitrise-io/go-flutter v0.1.1/go.mod h1:FJyNN3BaI4ifHNaDO8bfkBgFroeybXUczEpOYuBlENo=
 github.com/bitrise-io/go-flutter v0.1.2-0.20260413123617-d1289effff65/go.mod h1:FJyNN3BaI4ifHNaDO8bfkBgFroeybXUczEpOYuBlENo=
+github.com/bitrise-io/go-flutter v0.2.0 h1:6RSh7TMJc9o8hO4oBWzI01VyN36Beb0haDLp8qYnC+M=
+github.com/bitrise-io/go-flutter v0.2.0/go.mod h1:FJyNN3BaI4ifHNaDO8bfkBgFroeybXUczEpOYuBlENo=
 github.com/bitrise-io/go-plist v0.0.0-20210301100253-4b1a112ccd10 h1:/2OyBFI7GjYKexBPcfTPvKFz8Ks7qYzkkz2SQ8aiJgc=
 github.com/bitrise-io/go-plist v0.0.0-20210301100253-4b1a112ccd10/go.mod h1:pARutiL3kEuRLV3JvswidvfCj+9Y3qMZtji2BDqLFsA=
 github.com/bitrise-io/go-steputils v1.0.6 h1:eBRL70DWwEd7DWYGd5Ds7OSIY5HElzhoDOI6UuITKQg=
