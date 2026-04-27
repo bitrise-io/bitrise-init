@@ -146,31 +146,31 @@ func pyprojectRequiresPython(projectDir string) string {
 	return ""
 }
 
-func detectTestRunner(projectDir string) (hasPytest, hasUnittest bool) {
+func detectTestRunner(projectDir string) bool {
 	log.TPrintf("Checking test runner")
 
 	if utility.FileExists(filepath.Join(projectDir, "pytest.ini")) {
 		log.TPrintf("- pytest.ini - found")
-		return true, false
+		return true
 	}
 
 	if utility.FileExists(filepath.Join(projectDir, "conftest.py")) {
 		log.TPrintf("- conftest.py - found")
-		return true, false
+		return true
 	}
 
 	if hasPytestInPyprojectToml(projectDir) {
 		log.TPrintf("- [tool.pytest] in pyproject.toml - found")
-		return true, false
+		return true
 	}
 
 	if hasPytestInRequirementsFiles(projectDir) {
 		log.TPrintf("- pytest in requirements files - found")
-		return true, false
+		return true
 	}
 
 	log.TPrintf("- test runner - not detected")
-	return false, false
+	return false
 }
 
 func hasPytestInPyprojectToml(projectDir string) bool {

@@ -56,7 +56,6 @@ type configDescriptor struct {
 	workdir        string
 	packageManager string
 	hasPytest      bool
-	hasUnittest    bool
 	pythonVersion  string
 	framework      string
 	isDefault      bool
@@ -66,9 +65,8 @@ func createConfigDescriptor(proj project, isDefault bool) configDescriptor {
 	d := configDescriptor{
 		workdir:        "$" + projectDirInputEnvKey,
 		packageManager: proj.packageManager,
-		hasPytest:      proj.hasPytest,
-		hasUnittest:    proj.hasUnittest,
-		pythonVersion:  proj.pythonVersion,
+		hasPytest:     proj.hasPytest,
+		pythonVersion: proj.pythonVersion,
 		framework:      proj.framework,
 		isDefault:      isDefault,
 	}
@@ -98,8 +96,6 @@ func configName(d configDescriptor) string {
 	name += "-" + d.packageManager
 	if d.hasPytest {
 		name += "-pytest"
-	} else if d.hasUnittest {
-		name += "-unittest"
 	}
 	return name + "-config"
 }
