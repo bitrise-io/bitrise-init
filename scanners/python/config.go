@@ -57,7 +57,6 @@ type configDescriptor struct {
 	packageManager string
 	hasPytest      bool
 	pythonVersion  string
-	framework      string
 	isDefault      bool
 }
 
@@ -67,7 +66,6 @@ func createConfigDescriptor(proj project, isDefault bool) configDescriptor {
 		packageManager: proj.packageManager,
 		hasPytest:     proj.hasPytest,
 		pythonVersion: proj.pythonVersion,
-		framework:      proj.framework,
 		isDefault:      isDefault,
 	}
 	if proj.projectRelDir == "." {
@@ -191,10 +189,6 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 	bitriseConfig, err := configBuilder.Generate(scannerName)
 	if err != nil {
 		return "", err
-	}
-
-	if d.framework != "" {
-		bitriseConfig.Meta = map[string]interface{}{"bitrise.io/framework": d.framework}
 	}
 
 	data, err := yaml.Marshal(bitriseConfig)

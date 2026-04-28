@@ -29,7 +29,6 @@ type project struct {
 	projectRelDir  string
 	packageManager string
 	hasPytest      bool
-	framework      string
 	pythonVersion  string
 }
 
@@ -95,14 +94,13 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 		pkgMgr := detectPackageManager(absDir)
 		pythonVersion := detectPythonVersion(absDir)
 		hasPytest := detectTestRunner(absDir)
-		framework := detectFramework(absDir)
+		detectFramework(absDir)
 
 		s.projects = append(s.projects, project{
 			projectRelDir:  relDir,
 			packageManager: pkgMgr,
 			pythonVersion:  pythonVersion,
 			hasPytest:      hasPytest,
-			framework:      framework,
 		})
 	}
 
