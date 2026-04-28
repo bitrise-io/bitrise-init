@@ -318,6 +318,29 @@ var customConfigVersions = []interface{}{
 	steps.GitCloneVersion,
 	steps.DeployToBitriseIoVersion,
 
+	// python
+	// default-python-pip-config
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CacheRestoreVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.CacheSaveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// default-python-poetry-config
+	models.FormatVersion,
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.ScriptVersion,
+	steps.CacheRestoreVersion,
+	steps.ScriptVersion,
+	steps.ScriptVersion,
+	steps.CacheSaveVersion,
+	steps.DeployToBitriseIoVersion,
+
 	// react native
 	// default-react-native-config/deploy
 	models.FormatVersion,
@@ -694,6 +717,29 @@ var customConfigResultYML = fmt.Sprintf(`options:
                 config: default-node-js-npm-config
               yarn:
                 config: default-node-js-yarn-config
+  python:
+    title: Python Project Directory
+    summary: The directory containing the Python project files (requirements.txt,
+      pyproject.toml, etc.)
+    env_key: PYTHON_PROJECT_DIR
+    type: user_input
+    value_map:
+      "":
+        title: Python version
+        summary: The Python version to be used for the project. Use exact (3.12.0)
+          or partial (3.12:latest, 3:installed) versions.
+        env_key: PYTHON_VERSION
+        type: user_input
+        value_map:
+          "":
+            title: Package Manager
+            summary: The package manager used in the project
+            type: selector
+            value_map:
+              pip:
+                config: default-python-pip-config
+              poetry:
+                config: default-python-poetry-config
   react-native:
     title: Is this an [Expo](https://expo.dev)-based React Native project?
     summary: |-
@@ -1523,6 +1569,95 @@ configs:
           - activate-ssh-key@%s:
               run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
           - git-clone@%s: {}
+          - deploy-to-bitrise-io@%s: {}
+  python:
+    default-python-pip-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: python
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Install Python
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install python $PYTHON_VERSION
+          - restore-cache@%s:
+              inputs:
+              - key: pip-{{ checksum "requirements.txt" }}
+          - script@%s:
+              title: Install dependencies
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  pip install -r requirements.txt
+              - working_dir: $PYTHON_PROJECT_DIR
+          - script@%s:
+              title: Run tests
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  pytest
+              - working_dir: $PYTHON_PROJECT_DIR
+          - save-cache@%s:
+              inputs:
+              - key: pip-{{ checksum "requirements.txt" }}
+              - paths: ~/.cache/pip
+          - deploy-to-bitrise-io@%s: {}
+    default-python-poetry-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: python
+      workflows:
+        run_tests:
+          steps:
+          - activate-ssh-key@%s:
+              run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+          - git-clone@%s: {}
+          - script@%s:
+              title: Install Python
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  bitrise tools install python $PYTHON_VERSION
+          - restore-cache@%s:
+              inputs:
+              - key: poetry-{{ checksum "poetry.lock" }}
+          - script@%s:
+              title: Install dependencies
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  poetry install
+              - working_dir: $PYTHON_PROJECT_DIR
+          - script@%s:
+              title: Run tests
+              inputs:
+              - content: |
+                  #!/usr/bin/env bash
+                  set -euxo pipefail
+
+                  poetry run pytest
+              - working_dir: $PYTHON_PROJECT_DIR
+          - save-cache@%s:
+              inputs:
+              - key: poetry-{{ checksum "poetry.lock" }}
+              - paths: ~/.cache/pypoetry
           - deploy-to-bitrise-io@%s: {}
   react-native:
     default-react-native-config: |
