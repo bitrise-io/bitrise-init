@@ -16,7 +16,7 @@ github.com/bitrise-io/bitrise/v2/version
 # github.com/bitrise-io/envman/v2 v2.5.6
 ## explicit; go 1.25.3
 github.com/bitrise-io/envman/v2/models
-# github.com/bitrise-io/go-flutter v0.1.2-0.20260413123617-d1289effff65
+# github.com/bitrise-io/go-flutter v0.2.1-0.20260428141131-b93699c0adfe
 ## explicit; go 1.20
 github.com/bitrise-io/go-flutter/flutterproject
 github.com/bitrise-io/go-flutter/flutterproject/internal/sdk
