@@ -26,10 +26,11 @@ const (
 var packageManagers = []string{"pip", "poetry"}
 
 type project struct {
-	projectRelDir  string
-	packageManager string
-	hasPytest      bool
-	pythonVersion  string
+	projectRelDir       string
+	packageManager      string
+	hasPytest           bool
+	pythonVersion       string
+	devRequirementsFile string
 }
 
 // Scanner implements ScannerInterface for Python projects.
@@ -94,13 +95,15 @@ func (s *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, e
 		pkgMgr := detectPackageManager(absDir)
 		pythonVersion := detectPythonVersion(absDir)
 		hasPytest := detectTestRunner(absDir)
+		devReqFile := detectDevRequirementsFile(absDir)
 		detectFramework(absDir)
 
 		s.projects = append(s.projects, project{
-			projectRelDir:  relDir,
-			packageManager: pkgMgr,
-			pythonVersion:  pythonVersion,
-			hasPytest:      hasPytest,
+			projectRelDir:       relDir,
+			packageManager:      pkgMgr,
+			pythonVersion:       pythonVersion,
+			hasPytest:           hasPytest,
+			devRequirementsFile: devReqFile,
 		})
 	}
 

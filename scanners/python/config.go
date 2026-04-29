@@ -32,6 +32,12 @@ set -euxo pipefail
 
 pip install -r requirements.txt
 `
+	pipInstallWithDevScriptTemplate = `#!/usr/bin/env bash
+set -euxo pipefail
+
+pip install -r requirements.txt
+pip install -r %s
+`
 
 	pytestRunScriptContent = `#!/usr/bin/env bash
 set -euxo pipefail
@@ -53,20 +59,22 @@ poetry run pytest
 )
 
 type configDescriptor struct {
-	workdir        string
-	packageManager string
-	hasPytest      bool
-	pythonVersion  string
-	isDefault      bool
+	workdir             string
+	packageManager      string
+	hasPytest           bool
+	pythonVersion       string
+	devRequirementsFile string
+	isDefault           bool
 }
 
 func createConfigDescriptor(proj project, isDefault bool) configDescriptor {
 	d := configDescriptor{
-		workdir:        "$" + projectDirInputEnvKey,
-		packageManager: proj.packageManager,
-		hasPytest:     proj.hasPytest,
-		pythonVersion: proj.pythonVersion,
-		isDefault:      isDefault,
+		workdir:             "$" + projectDirInputEnvKey,
+		packageManager:      proj.packageManager,
+		hasPytest:           proj.hasPytest,
+		pythonVersion:       proj.pythonVersion,
+		devRequirementsFile: proj.devRequirementsFile,
+		isDefault:           isDefault,
 	}
 	if proj.projectRelDir == "." {
 		d.workdir = ""
@@ -177,7 +185,11 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(poestryCacheKey, poestryCachePaths))
 	default: // pip
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(pipCacheKey))
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", pipInstallScriptContent, workdirInputs(d.workdir)...))
+		pipInstall := pipInstallScriptContent
+		if d.devRequirementsFile != "" {
+			pipInstall = fmt.Sprintf(pipInstallWithDevScriptTemplate, d.devRequirementsFile)
+		}
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", pipInstall, workdirInputs(d.workdir)...))
 		if d.hasPytest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", pytestRunScriptContent, workdirInputs(d.workdir)...))
 		}

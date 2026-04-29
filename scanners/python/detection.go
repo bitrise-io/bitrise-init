@@ -201,6 +201,23 @@ func hasPytestInRequirementsFiles(projectDir string) bool {
 	return false
 }
 
+// detectDevRequirementsFile returns the first dev/test requirements file found in projectDir, or "".
+func detectDevRequirementsFile(projectDir string) string {
+	devFiles := []string{
+		"requirements-dev.txt",
+		"requirements-test.txt",
+		"requirements_dev.txt",
+		"requirements_test.txt",
+	}
+	for _, name := range devFiles {
+		if utility.FileExists(filepath.Join(projectDir, name)) {
+			log.TPrintf("- dev requirements: %s - found", name)
+			return name
+		}
+	}
+	return ""
+}
+
 // packageName extracts the package name from a requirements.txt line by stripping version specifiers.
 func packageName(line string) string {
 	i := strings.IndexAny(line, "=<>![ ;#\t")

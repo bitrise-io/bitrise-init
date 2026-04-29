@@ -12,12 +12,11 @@ import (
 func TestPython(t *testing.T) {
 	var testCases = []helper.TestCase{
 		{
-			Name:              "fastapi-sample",
-			RepoURL:           "https://github.com/bitrise-io/python-samples.git",
-			RelativeSearchDir: "fastapi-sample",
-			Branch:            "main",
-			ExpectedResult:    pythonFastapiResultYML,
-			ExpectedVersions:  pythonFastapiResultVersions,
+			Name:             "fastapi-sample",
+			RepoURL:          "https://github.com/bitrise-io/python-samples.git",
+			Branch:           "main",
+			ExpectedResult:   pythonFastapiResultYML,
+			ExpectedVersions: pythonFastapiResultVersions,
 		},
 	}
 
@@ -43,11 +42,11 @@ var pythonFastapiResultYML = fmt.Sprintf(`options:
     env_key: PYTHON_PROJECT_DIR
     type: selector
     value_map:
-      .:
-        config: python-root-pip-pytest-config
+      fastapi-sample:
+        config: python-pip-pytest-config
 configs:
   python:
-    python-root-pip-pytest-config: |
+    python-pip-pytest-config: |
       format_version: "%s"
       default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
       project_type: python
@@ -67,6 +66,8 @@ configs:
                   set -euxo pipefail
 
                   pip install -r requirements.txt
+                  pip install -r requirements-dev.txt
+              - working_dir: $PYTHON_PROJECT_DIR
           - script@%s:
               title: Run tests
               inputs:
@@ -75,6 +76,7 @@ configs:
                   set -euxo pipefail
 
                   pytest
+              - working_dir: $PYTHON_PROJECT_DIR
           - save-cache@%s:
               inputs:
               - key: pip-{{ checksum "requirements.txt" }}
