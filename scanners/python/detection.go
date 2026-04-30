@@ -64,6 +64,11 @@ func collectPythonProjectDirs(searchDir string) ([]string, error) {
 func detectPackageManager(projectDir string) string {
 	log.TPrintf("Checking package manager")
 
+	if utility.FileExists(filepath.Join(projectDir, "uv.lock")) {
+		log.TPrintf("- uv.lock - found")
+		return "uv"
+	}
+
 	if utility.FileExists(filepath.Join(projectDir, "poetry.lock")) {
 		log.TPrintf("- poetry.lock - found")
 		return "poetry"

@@ -18,6 +18,9 @@ const (
 
 	poestryCacheKey   = `poetry-{{ checksum "poetry.lock" }}`
 	poestryCachePaths = "~/.cache/pypoetry"
+
+	uvCacheKey   = `uv-{{ checksum "uv.lock" }}`
+	uvCachePaths = "~/.cache/uv"
 )
 
 const (
@@ -55,6 +58,18 @@ poetry install
 set -euxo pipefail
 
 poetry run pytest
+`
+
+	uvSyncScriptContent = `#!/usr/bin/env bash
+set -euxo pipefail
+
+uv sync
+`
+
+	uvPytestRunScriptContent = `#!/usr/bin/env bash
+set -euxo pipefail
+
+uv run pytest
 `
 )
 
@@ -176,6 +191,13 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 	}
 
 	switch d.packageManager {
+	case "uv":
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(uvCacheKey))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", uvSyncScriptContent, workdirInputs(d.workdir)...))
+		if d.hasPytest {
+			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", uvPytestRunScriptContent, workdirInputs(d.workdir)...))
+		}
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(uvCacheKey, uvCachePaths))
 	case "poetry":
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(poestryCacheKey))
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", poetryInstallScriptContent, workdirInputs(d.workdir)...))

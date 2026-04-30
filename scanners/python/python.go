@@ -23,7 +23,7 @@ const (
 	pythonVersionEnvKey       = "PYTHON_VERSION"
 )
 
-var packageManagers = []string{"pip", "poetry"}
+var packageManagers = []string{"pip", "poetry", "uv"}
 
 type project struct {
 	projectRelDir       string
