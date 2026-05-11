@@ -1656,6 +1656,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
+                  pip install poetry
                   poetry install
               - working_dir: $PYTHON_PROJECT_DIR
           - script@%s:
@@ -1700,6 +1701,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
+                  pip install uv
                   uv sync
               - working_dir: $PYTHON_PROJECT_DIR
           - script@%s:
