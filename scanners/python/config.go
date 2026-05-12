@@ -233,6 +233,9 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 	return string(data), nil
 }
 
+// packageManagerSetupFor returns the cache config and scripts for the package
+// manager named in d. Pip and Poetry inject extra context (dev requirements
+// file, --no-root) from the descriptor; uv has no per-project variants.
 func packageManagerSetupFor(d configDescriptor) packageManagerSetup {
 	switch d.packageManager {
 	case "uv":

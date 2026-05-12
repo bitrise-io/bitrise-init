@@ -211,19 +211,21 @@ func detectFramework(projectDir string) {
 //  3. project name resolves to <dir>/__init__.py or src/<dir>/__init__.py  -> no --no-root
 //  4. otherwise                                                            -> use --no-root
 func detectPoetryNeedsNoRoot(projectDir string) bool {
+	log.TPrintf("Checking Poetry --no-root requirement")
+
 	content, err := fileutil.ReadStringFromFile(filepath.Join(projectDir, "pyproject.toml"))
 	if err != nil {
-		log.TPrintf("- poetry --no-root: pyproject.toml not found, defaulting to --no-root")
+		log.TPrintf("- pyproject.toml - not found, using --no-root")
 		return true
 	}
 
 	info := parsePyproject(content)
 	if info.poetryPackageModeFalse {
-		log.TPrintf("- poetry --no-root: package-mode = false set, plain install")
+		log.TPrintf("- package-mode = false - found, plain install")
 		return false
 	}
 	if info.poetryHasPackagesField {
-		log.TPrintf("- poetry --no-root: explicit [tool.poetry] packages declared, plain install")
+		log.TPrintf("- [tool.poetry] packages - declared, plain install")
 		return false
 	}
 
@@ -232,21 +234,21 @@ func detectPoetryNeedsNoRoot(projectDir string) bool {
 		name = info.projectName
 	}
 	if name == "" {
-		log.TPrintf("- poetry --no-root: no project name found, defaulting to --no-root")
+		log.TPrintf("- project name - not found, using --no-root")
 		return true
 	}
 
 	pkgDir := strings.ReplaceAll(name, "-", "_")
 	if utility.FileExists(filepath.Join(projectDir, pkgDir, "__init__.py")) {
-		log.TPrintf("- poetry --no-root: %s/__init__.py found, plain install", pkgDir)
+		log.TPrintf("- %s/__init__.py - found, plain install", pkgDir)
 		return false
 	}
 	if utility.FileExists(filepath.Join(projectDir, "src", pkgDir, "__init__.py")) {
-		log.TPrintf("- poetry --no-root: src/%s/__init__.py found, plain install", pkgDir)
+		log.TPrintf("- src/%s/__init__.py - found, plain install", pkgDir)
 		return false
 	}
 
-	log.TPrintf("- poetry --no-root: no installable package layout, using --no-root")
+	log.TPrintf("- installable package layout - not found, using --no-root")
 	return true
 }
 
