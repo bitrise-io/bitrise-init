@@ -1612,6 +1612,7 @@ configs:
                   #!/usr/bin/env bash
                   set -euxo pipefail
 
+                  pip install --upgrade pip
                   pip install -r requirements.txt
               - working_dir: $PYTHON_PROJECT_DIR
           - script@%s:
@@ -1657,7 +1658,7 @@ configs:
                   set -euxo pipefail
 
                   pip install poetry
-                  poetry install
+                  poetry install --no-root
               - working_dir: $PYTHON_PROJECT_DIR
           - script@%s:
               title: Run tests

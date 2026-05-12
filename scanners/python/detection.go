@@ -232,6 +232,108 @@ func packageName(line string) string {
 	return strings.TrimSpace(line[:i])
 }
 
+type pyprojectInfo struct {
+	poetryPackageModeFalse bool
+	poetryHasPackagesField bool
+	poetryName             string
+	projectName            string
+}
+
+func parsePyproject(content string) pyprojectInfo {
+	info := pyprojectInfo{}
+	section := ""
+	for _, line := range strings.Split(content, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "[") && strings.HasSuffix(trimmed, "]") {
+			section = trimmed
+			continue
+		}
+		switch section {
+		case "[tool.poetry]":
+			if strings.HasPrefix(trimmed, "package-mode") {
+				if parts := strings.SplitN(trimmed, "=", 2); len(parts) == 2 && strings.TrimSpace(parts[1]) == "false" {
+					info.poetryPackageModeFalse = true
+				}
+			}
+			if strings.HasPrefix(trimmed, "packages") && strings.Contains(trimmed, "=") {
+				info.poetryHasPackagesField = true
+			}
+			if strings.HasPrefix(trimmed, "name") {
+				if v := pyprojectStringValue(trimmed); v != "" {
+					info.poetryName = v
+				}
+			}
+		case "[project]":
+			if strings.HasPrefix(trimmed, "name") {
+				if v := pyprojectStringValue(trimmed); v != "" {
+					info.projectName = v
+				}
+			}
+		}
+	}
+	return info
+}
+
+func pyprojectStringValue(line string) string {
+	parts := strings.SplitN(line, "=", 2)
+	if len(parts) < 2 {
+		return ""
+	}
+	return strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+}
+
+// detectPoetryNeedsNoRoot decides whether `poetry install` should be invoked
+// with --no-root. Plain `poetry install` fails when poetry is in package mode
+// but the project doesn't ship an installable package, which is the common app
+// case (FastAPI/Django/Flask services). For library projects with a real
+// package layout we skip --no-root so the package is installed for tests that
+// rely on entry points or installed metadata.
+//
+// Heuristics in priority order:
+//  1. `package-mode = false` in [tool.poetry]                       -> no --no-root
+//  2. explicit `packages = ...` in [tool.poetry]                    -> no --no-root
+//  3. project name resolves to <dir>/__init__.py or src/<dir>/__init__.py -> no --no-root
+//  4. otherwise                                                     -> use --no-root
+func detectPoetryNeedsNoRoot(projectDir string) bool {
+	content, err := fileutil.ReadStringFromFile(filepath.Join(projectDir, "pyproject.toml"))
+	if err != nil {
+		log.TPrintf("- poetry --no-root: pyproject.toml not found, defaulting to --no-root")
+		return true
+	}
+
+	info := parsePyproject(content)
+	if info.poetryPackageModeFalse {
+		log.TPrintf("- poetry --no-root: package-mode = false set, plain install")
+		return false
+	}
+	if info.poetryHasPackagesField {
+		log.TPrintf("- poetry --no-root: explicit [tool.poetry] packages declared, plain install")
+		return false
+	}
+
+	name := info.poetryName
+	if name == "" {
+		name = info.projectName
+	}
+	if name == "" {
+		log.TPrintf("- poetry --no-root: no project name found, defaulting to --no-root")
+		return true
+	}
+
+	pkgDir := strings.ReplaceAll(name, "-", "_")
+	if utility.FileExists(filepath.Join(projectDir, pkgDir, "__init__.py")) {
+		log.TPrintf("- poetry --no-root: %s/__init__.py found, plain install", pkgDir)
+		return false
+	}
+	if utility.FileExists(filepath.Join(projectDir, "src", pkgDir, "__init__.py")) {
+		log.TPrintf("- poetry --no-root: src/%s/__init__.py found, plain install", pkgDir)
+		return false
+	}
+
+	log.TPrintf("- poetry --no-root: no installable package layout, using --no-root")
+	return true
+}
+
 func detectFramework(projectDir string) string {
 	log.TPrintf("Checking framework")
 

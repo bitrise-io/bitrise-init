@@ -13,15 +13,14 @@ import (
 const (
 	runTestsWorkflowID = models.WorkflowID("run_tests")
 
-	pipCacheKey   = `pip-{{ checksum "requirements.txt" }}`
-	pipCachePaths = "~/.cache/pip"
-
-	poestryCacheKey   = `poetry-{{ checksum "poetry.lock" }}`
+	pipCachePaths     = "~/.cache/pip"
 	poestryCachePaths = "~/.cache/pypoetry"
-
-	uvCacheKey   = `uv-{{ checksum "uv.lock" }}`
-	uvCachePaths = "~/.cache/uv"
+	uvCachePaths      = "~/.cache/uv"
 )
+
+func cacheKey(prefix, lockFile string) string {
+	return fmt.Sprintf(`%s-{{ checksum "%s" }}`, prefix, lockFile)
+}
 
 const (
 	pythonVersionInstallScriptContent = `#!/usr/bin/env bash
@@ -33,11 +32,13 @@ bitrise tools install python $PYTHON_VERSION
 	pipInstallScriptContent = `#!/usr/bin/env bash
 set -euxo pipefail
 
+pip install --upgrade pip
 pip install -r requirements.txt
 `
 	pipInstallWithDevScriptTemplate = `#!/usr/bin/env bash
 set -euxo pipefail
 
+pip install --upgrade pip
 pip install -r requirements.txt
 pip install -r %s
 `
@@ -53,6 +54,13 @@ set -euxo pipefail
 
 pip install poetry
 poetry install
+`
+
+	poetryInstallNoRootScriptContent = `#!/usr/bin/env bash
+set -euxo pipefail
+
+pip install poetry
+poetry install --no-root
 `
 
 	poetryPytestRunScriptContent = `#!/usr/bin/env bash
@@ -81,6 +89,7 @@ type configDescriptor struct {
 	hasPytest           bool
 	pythonVersion       string
 	devRequirementsFile string
+	poetryNeedsNoRoot   bool
 	isDefault           bool
 }
 
@@ -91,6 +100,7 @@ func createConfigDescriptor(proj project, isDefault bool) configDescriptor {
 		hasPytest:           proj.hasPytest,
 		pythonVersion:       proj.pythonVersion,
 		devRequirementsFile: proj.devRequirementsFile,
+		poetryNeedsNoRoot:   proj.poetryNeedsNoRoot,
 		isDefault:           isDefault,
 	}
 	if proj.projectRelDir == "." {
@@ -101,9 +111,10 @@ func createConfigDescriptor(proj project, isDefault bool) configDescriptor {
 
 func createDefaultConfigDescriptor(packageManager string) configDescriptor {
 	return createConfigDescriptor(project{
-		projectRelDir:  "$" + projectDirInputEnvKey,
-		packageManager: packageManager,
-		hasPytest:      true,
+		projectRelDir:     "$" + projectDirInputEnvKey,
+		packageManager:    packageManager,
+		hasPytest:         true,
+		poetryNeedsNoRoot: true,
 	}, true)
 }
 
@@ -194,21 +205,28 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 
 	switch d.packageManager {
 	case "uv":
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(uvCacheKey))
+		key := cacheKey("uv", "uv.lock")
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(key))
 		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", uvSyncScriptContent, workdirInputs(d.workdir)...))
 		if d.hasPytest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", uvPytestRunScriptContent, workdirInputs(d.workdir)...))
 		}
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(uvCacheKey, uvCachePaths))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(key, uvCachePaths))
 	case "poetry":
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(poestryCacheKey))
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", poetryInstallScriptContent, workdirInputs(d.workdir)...))
+		key := cacheKey("poetry", "poetry.lock")
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(key))
+		installScript := poetryInstallScriptContent
+		if d.poetryNeedsNoRoot {
+			installScript = poetryInstallNoRootScriptContent
+		}
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Install dependencies", installScript, workdirInputs(d.workdir)...))
 		if d.hasPytest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", poetryPytestRunScriptContent, workdirInputs(d.workdir)...))
 		}
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(poestryCacheKey, poestryCachePaths))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(key, poestryCachePaths))
 	default: // pip
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(pipCacheKey))
+		key := cacheKey("pip", "requirements.txt")
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.RestoreCache(key))
 		pipInstall := pipInstallScriptContent
 		if d.devRequirementsFile != "" {
 			pipInstall = fmt.Sprintf(pipInstallWithDevScriptTemplate, d.devRequirementsFile)
@@ -217,7 +235,7 @@ func generateConfigBasedOn(d configDescriptor, sshKey models.SSHKeyActivation) (
 		if d.hasPytest {
 			configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.ScriptStepListItem("Run tests", pytestRunScriptContent, workdirInputs(d.workdir)...))
 		}
-		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(pipCacheKey, pipCachePaths))
+		configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.SaveCache(key, pipCachePaths))
 	}
 
 	configBuilder.AppendStepListItemsTo(runTestsWorkflowID, steps.DefaultDeployStepList()...)
