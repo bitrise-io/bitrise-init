@@ -26,7 +26,7 @@ version = "0.1.0"
 name = "my-app"
 package-mode = false
 `,
-			want: pyprojectInfo{poetryName: "my-app", poetryPackageModeFalse: true},
+			want: pyprojectInfo{poetryName: "my-app", poetryPackageModeDisabled: true},
 		},
 		{
 			name: "explicit packages declaration",
