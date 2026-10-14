@@ -354,14 +354,20 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		}
 
 		for _, project := range containerProjects {
-			var sharedSchemes []xcscheme.Scheme
-			for _, s := range projectToSchemes[project.Path] {
+			projectSchemes := projectToSchemes[project.Path]
+
+			var schemesToDetect []xcscheme.Scheme
+			for _, s := range projectSchemes {
 				if s.IsShared {
-					sharedSchemes = append(sharedSchemes, s)
+					schemesToDetect = append(schemesToDetect, s)
 				}
 			}
+			if len(schemesToDetect) == 0 && len(projectSchemes) > 0 {
+				log.Warnf("No shared schemes found in Project (%s); falling back to user schemes. For stable detection, mark the scheme as Shared in Xcode (Product → Scheme → Manage Schemes).", relPathForLog(searchDir, project.Path))
+				schemesToDetect = projectSchemes
+			}
 
-			for _, scheme := range sharedSchemes {
+			for _, scheme := range schemesToDetect {
 				log.TPrintf("- %s", scheme.Name)
 
 				var icons models.Icons
