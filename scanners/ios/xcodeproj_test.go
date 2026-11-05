@@ -200,6 +200,41 @@ func TestSDKFilter_OpenError(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestFilterRelevantFiles_ProjectTypes(t *testing.T) {
+	dir := t.TempDir()
+	macOSProject := filepath.Join(dir, "macosx.xcodeproj")
+	writeTestFile(t, filepath.Join(macOSProject, "project.pbxproj"), testMacOSPbxprojContent)
+	macOSWorkspace := filepath.Join(dir, "macosx.xcworkspace")
+	writeTestFile(t, filepath.Join(macOSWorkspace, "contents.xcworkspacedata"), `<?xml version="1.0" encoding="UTF-8"?>
+<Workspace version = "1.0">
+   <FileRef location = "group:macosx.xcodeproj"></FileRef>
+</Workspace>
+`)
+	paths := []string{macOSProject, macOSWorkspace}
+
+	tests := []struct {
+		name           string
+		projectTypes   []XcodeProjectType
+		wantProjects   []string
+		wantWorkspaces []string
+	}{
+		{name: "no project type", wantProjects: []string{macOSProject}, wantWorkspaces: []string{macOSWorkspace}},
+		{name: "iOS", projectTypes: []XcodeProjectType{XcodeProjectTypeIOS}},
+		{name: "macOS", projectTypes: []XcodeProjectType{XcodeProjectTypeMacOS}, wantProjects: []string{macOSProject}, wantWorkspaces: []string{macOSWorkspace}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotProjects, err := FilterRelevantProjectFiles(paths, tt.projectTypes...)
+			require.NoError(t, err)
+			require.Equal(t, tt.wantProjects, gotProjects)
+
+			gotWorkspaces, err := FilterRelevantWorkspaceFiles(paths, tt.projectTypes...)
+			require.NoError(t, err)
+			require.Equal(t, tt.wantWorkspaces, gotWorkspaces)
+		})
+	}
+}
+
 func sdkFilterTestPbxproj(projectBuildSettings, targetBuildSettings string) string {
 	return fmt.Sprintf(`// !$*UTF8*$!
 {

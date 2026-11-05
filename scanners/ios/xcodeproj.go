@@ -87,7 +87,7 @@ func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string
 }
 
 // FilterRelevantProjectFiles ...
-func FilterRelevantProjectFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
+func FilterRelevantProjectFiles(fileList []string, projectTypes ...XcodeProjectType) ([]string, error) {
 	filters := []pathutil.FilterFunc{
 		pathfilters.AllowXcodeProjExtFilter,
 		pathfilters.AllowIsDirectoryFilter,
@@ -98,14 +98,14 @@ func FilterRelevantProjectFiles(fileList []string, sdkFilter pathutil.FilterFunc
 		pathfilters.ForbidFramworkComponentWithExtensionFilter,
 		pathfilters.ForbidCordovaLibDirComponentFilter,
 		pathfilters.ForbidNodeModulesComponentFilter,
-		sdkFilter,
 	}
+	filters = append(filters, sdkFilters(projectTypes)...)
 
 	return pathutil.FilterPaths(fileList, filters...)
 }
 
 // FilterRelevantWorkspaceFiles ...
-func FilterRelevantWorkspaceFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
+func FilterRelevantWorkspaceFiles(fileList []string, projectTypes ...XcodeProjectType) ([]string, error) {
 	filters := []pathutil.FilterFunc{
 		pathfilters.AllowXCWorkspaceExtFilter,
 		pathfilters.AllowIsDirectoryFilter,
@@ -117,10 +117,19 @@ func FilterRelevantWorkspaceFiles(fileList []string, sdkFilter pathutil.FilterFu
 		pathfilters.ForbidFramworkComponentWithExtensionFilter,
 		pathfilters.ForbidCordovaLibDirComponentFilter,
 		pathfilters.ForbidNodeModulesComponentFilter,
-		sdkFilter,
 	}
+	filters = append(filters, sdkFilters(projectTypes)...)
 
 	return pathutil.FilterPaths(fileList, filters...)
+}
+
+func sdkFilters(projectTypes []XcodeProjectType) []pathutil.FilterFunc {
+	projectFactory, workspaceFactory := newProjectFactories()
+	var filters []pathutil.FilterFunc
+	for _, projectType := range projectTypes {
+		filters = append(filters, newSDKFilter(projectType, projectFactory, workspaceFactory))
+	}
+	return filters
 }
 
 func newSDKFilter(projectType XcodeProjectType, projectFactory xcodeproj.Factory, workspaceFactory xcworkspace.Factory) pathutil.FilterFunc {
