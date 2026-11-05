@@ -1,8 +1,8 @@
 package ios
 
 import (
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
 )
 
 type podWorkspace struct {
@@ -42,8 +42,8 @@ func (w podWorkspace) schemes() (map[string][]xcscheme.Scheme, error) {
 	return projectToSchemes, nil
 }
 
-func (w podWorkspace) projects() ([]xcodeproj.XcodeProj, []string, error) {
-	var innerProjects []xcodeproj.XcodeProj
+func (w podWorkspace) projects() ([]*xcodeproj.XcodeProj, []string, error) {
+	var innerProjects []*xcodeproj.XcodeProj
 	for _, p := range w.workspaceProjects {
 		projects, _, err := p.projects()
 		if err != nil {

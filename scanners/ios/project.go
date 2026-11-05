@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/bitrise-io/go-utils/pathutil"
-	xcodeproject "github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcworkspace"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcworkspace"
 )
 
 type container interface {
@@ -15,21 +15,21 @@ type container interface {
 	path() string
 	// schemes returns schemes mapped to the project or workspace path
 	schemes() (map[string][]xcscheme.Scheme, error)
-	projects() ([]xcodeproject.XcodeProj, []string, error)
+	projects() ([]*xcodeproj.XcodeProj, []string, error)
 	projectPaths() ([]string, error)
 }
 
 // projectContainer ...
 type projectContainer struct {
-	project xcodeproject.XcodeProj
+	project *xcodeproj.XcodeProj
 }
 
-func newProject(path string) (projectContainer, error) {
-	if !xcodeproject.IsXcodeProj(path) {
+func newProject(path string, projectFactory xcodeproj.Factory) (projectContainer, error) {
+	if !xcodeproj.IsXcodeProj(path) {
 		return projectContainer{}, fmt.Errorf("path (%s) is not a Project", path)
 	}
 
-	project, err := xcodeproject.Open(path)
+	project, err := projectFactory.Open(path)
 	if err != nil {
 		return projectContainer{}, fmt.Errorf("failed to open Project (%s): %w", path, err)
 	}
@@ -59,8 +59,8 @@ func (p projectContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	return containerToSchemes, nil
 }
 
-func (p projectContainer) projects() ([]xcodeproject.XcodeProj, []string, error) {
-	return []xcodeproject.XcodeProj{p.project}, []string{}, nil
+func (p projectContainer) projects() ([]*xcodeproj.XcodeProj, []string, error) {
+	return []*xcodeproj.XcodeProj{p.project}, []string{}, nil
 }
 
 func (p projectContainer) projectPaths() ([]string, error) {
@@ -69,21 +69,23 @@ func (p projectContainer) projectPaths() ([]string, error) {
 
 // workspaceContainer ...
 type workspaceContainer struct {
-	workspace xcworkspace.Workspace
+	workspace      *xcworkspace.Workspace
+	projectFactory xcodeproj.Factory
 }
 
-func newWorkspace(path string) (workspaceContainer, error) {
+func newWorkspace(path string, workspaceFactory xcworkspace.Factory, projectFactory xcodeproj.Factory) (workspaceContainer, error) {
 	if !xcworkspace.IsWorkspace(path) {
 		return workspaceContainer{}, fmt.Errorf("path (%s) is not a Workspace", path)
 	}
 
-	workspace, err := xcworkspace.Open(path)
+	workspace, err := workspaceFactory.Open(path)
 	if err != nil {
 		return workspaceContainer{}, fmt.Errorf("failed to open Workspace (%s): %w", path, err)
 	}
 
 	return workspaceContainer{
-		workspace: workspace,
+		workspace:      workspace,
+		projectFactory: projectFactory,
 	}, nil
 }
 
@@ -104,13 +106,13 @@ func (w workspaceContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	return containerToSchemes, nil
 }
 
-func (w workspaceContainer) projects() ([]xcodeproject.XcodeProj, []string, error) {
+func (w workspaceContainer) projects() ([]*xcodeproj.XcodeProj, []string, error) {
 	projPaths, err := w.workspace.ProjectFileLocations()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var projects []xcodeproject.XcodeProj
+	var projects []*xcodeproj.XcodeProj
 	var missingProjects []string
 	for _, projPath := range projPaths {
 		if exist, err := pathutil.IsPathExists(projPath); err != nil {
@@ -120,7 +122,7 @@ func (w workspaceContainer) projects() ([]xcodeproject.XcodeProj, []string, erro
 			continue
 		}
 
-		project, err := xcodeproject.Open(projPath)
+		project, err := w.projectFactory.Open(projPath)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to open Project (%s) in the Workspace (%s): %w", projPath, w.workspace.Path, err)
 		}

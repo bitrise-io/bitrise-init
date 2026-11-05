@@ -12,7 +12,7 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
 )
 
 const (
@@ -253,7 +253,8 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 		return DetectResult{}, err
 	}
 
-	detectedContainers, err := createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles)
+	projectFactory, workspaceFactory := newProjectFactories()
+	detectedContainers, err := createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles, projectFactory, workspaceFactory)
 	if err != nil {
 		return DetectResult{}, err
 	}
