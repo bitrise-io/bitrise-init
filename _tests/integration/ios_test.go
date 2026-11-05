@@ -92,6 +92,13 @@ func TestIOS(t *testing.T) {
 			ExpectedResult:   sampleSPMProjectResultYML,
 			ExpectedVersions: sampleSPMProjectVersions,
 		},
+		{
+			Name:             "sample-swift-project-json-project-format",
+			RepoURL:          "https://github.com/bitrise-io/sample-swift-project-with-parallel-ui-test.git",
+			Branch:           "json-project-format",
+			ExpectedResult:   sampleSwiftProjectJSONProjectFormatResultYML,
+			ExpectedVersions: sampleSwiftProjectJSONProjectFormatVersions,
+		},
 	}
 
 	helper.Execute(t, testCases)
@@ -1648,3 +1655,160 @@ warnings_with_recommendations:
   ios: []
   macos: []
  `, sampleSPMProjectVersions...)
+
+var sampleSwiftProjectJSONProjectFormatVersions = []interface{}{
+	models.FormatVersion,
+
+	// ios-test-config/archive_and_export_app
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeTestVersion,
+	steps.XcodeArchiveVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-test-config/build_for_testing
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeBuildForTestVersion,
+	steps.XcodeTestShardCalculationVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-test-config/run_tests
+	steps.ActivateSSHKeyVersion,
+	steps.GitCloneVersion,
+	steps.XcodeTestVersion,
+	steps.DeployToBitriseIoVersion,
+
+	// ios-test-config/test_without_building
+	steps.PullIntermediateFilesVersion,
+	steps.XcodeTestWithoutBuildingVersion,
+}
+
+var sampleSwiftProjectJSONProjectFormatResultYML = fmt.Sprintf(`options:
+  ios:
+    title: Project or Workspace path
+    summary: The location of your Xcode project, Xcode workspace or SPM project files
+      stored as an Environment Variable. In your Workflows, you can specify paths
+      relative to this path.
+    env_key: BITRISE_PROJECT_PATH
+    type: selector
+    value_map:
+      BullsEye.xcworkspace:
+        title: Scheme name
+        summary: An Xcode scheme defines a collection of targets to build, a configuration
+          to use when building, and a collection of tests to execute. Only shared
+          schemes are detected automatically but you can use any scheme as a target
+          on Bitrise. You can change the scheme at any time in your Env Vars.
+        env_key: BITRISE_SCHEME
+        type: selector
+        value_map:
+          BullsEye:
+            title: Distribution method
+            summary: The export method used to create an .ipa file in your builds,
+              stored as an Environment Variable. You can change this at any time,
+              or even create several .ipa files with different export methods in the
+              same build.
+            env_key: BITRISE_DISTRIBUTION_METHOD
+            type: selector
+            value_map:
+              ad-hoc:
+                config: ios-test-config
+                icons:
+                - 8cea5789acbf52f282150aaea8929bfd65d69d06417d1ac6f61093500bdfb830.png
+              app-store:
+                config: ios-test-config
+                icons:
+                - 8cea5789acbf52f282150aaea8929bfd65d69d06417d1ac6f61093500bdfb830.png
+              development:
+                config: ios-test-config
+                icons:
+                - 8cea5789acbf52f282150aaea8929bfd65d69d06417d1ac6f61093500bdfb830.png
+              enterprise:
+                config: ios-test-config
+                icons:
+                - 8cea5789acbf52f282150aaea8929bfd65d69d06417d1ac6f61093500bdfb830.png
+configs:
+  ios:
+    ios-test-config: |
+      format_version: "%s"
+      default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+      project_type: ios
+      app:
+        envs:
+        - TEST_SHARD_COUNT: 2
+      pipelines:
+        run_tests:
+          workflows:
+            build_for_testing: {}
+            test_without_building:
+              depends_on:
+              - build_for_testing
+              parallel: $TEST_SHARD_COUNT
+      workflows:
+        archive_and_export_app:
+          summary: Run your Xcode tests and create an IPA file to install your app on a
+            device or share it with your team.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests, export an IPA file
+            from the project and save it.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
+              - cache_level: none
+          - xcode-archive@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - distribution_method: $BITRISE_DISTRIBUTION_METHOD
+              - automatic_code_signing: api-key
+          - deploy-to-bitrise-io@%s: {}
+        build_for_testing:
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-build-for-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - destination: generic/platform=iOS Simulator
+              - cache_level: none
+          - xcode-test-shard-calculation@%s:
+              inputs:
+              - shard_count: $TEST_SHARD_COUNT
+              - product_path: $BITRISE_XCTESTRUN_FILE_PATH
+          - deploy-to-bitrise-io@%s:
+              inputs:
+              - pipeline_intermediate_files: |-
+                  BITRISE_TEST_SHARDS_PATH
+                  BITRISE_TEST_BUNDLE_PATH
+        run_tests:
+          summary: Run your Xcode tests and get the test report.
+          description: The workflow will first clone your Git repository, cache and install
+            your project's dependencies if any, run your Xcode tests and save the test results.
+          steps:
+          - activate-ssh-key@%s: {}
+          - git-clone@%s: {}
+          - xcode-test@%s:
+              inputs:
+              - project_path: $BITRISE_PROJECT_PATH
+              - scheme: $BITRISE_SCHEME
+              - test_repetition_mode: retry_on_failure
+              - cache_level: none
+          - deploy-to-bitrise-io@%s: {}
+        test_without_building:
+          steps:
+          - pull-intermediate-files@%s: {}
+          - xcode-test-without-building@%s:
+              inputs:
+              - only_testing: $BITRISE_TEST_SHARDS_PATH/$BITRISE_IO_PARALLEL_INDEX
+              - xctestrun: $BITRISE_TEST_BUNDLE_PATH/all_tests.xctestrun
+warnings:
+  ios: []
+warnings_with_recommendations:
+  ios: []
+`, sampleSwiftProjectJSONProjectFormatVersions...)
