@@ -4,6 +4,10 @@ import (
 	"fmt"
 
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/v2/fileutil"
+	"github.com/bitrise-io/go-utils/v2/log"
+	v2pathutil "github.com/bitrise-io/go-utils/v2/pathutil"
+	"github.com/bitrise-io/go-xcode/v2/plistutil"
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcworkspace"
@@ -17,6 +21,35 @@ type container interface {
 	schemes() (map[string][]xcscheme.Scheme, error)
 	projects() ([]*xcodeproj.XcodeProj, error)
 	projectPaths() ([]string, error)
+}
+
+func newProjectFactories() (xcodeproj.Factory, xcworkspace.Factory) {
+	logger := log.NewLogger()
+	fileManager := fileutil.NewFileManager()
+	plistFileHandler := plistutil.NewFileHandler(fileManager)
+	pathModifier := v2pathutil.NewPathModifier()
+	userProvider := xcodeproj.NewUserProvider()
+	projectFactory := xcodeproj.NewFactory(
+		logger,
+		nil,
+		fileManager,
+		plistFileHandler,
+		pathModifier,
+		v2pathutil.NewPathProvider(),
+		userProvider,
+		xcodeproj.NewDirCreator(),
+	)
+	workspaceFactory := xcworkspace.NewFactory(
+		logger,
+		nil,
+		fileManager,
+		plistFileHandler,
+		pathModifier,
+		v2pathutil.NewPathChecker(),
+		userProvider,
+		projectFactory,
+	)
+	return projectFactory, workspaceFactory
 }
 
 // projectContainer ...

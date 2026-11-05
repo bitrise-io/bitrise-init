@@ -3,11 +3,7 @@ package ios
 import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
-	"github.com/bitrise-io/go-utils/v2/fileutil"
-	"github.com/bitrise-io/go-utils/v2/log"
-	v2pathutil "github.com/bitrise-io/go-utils/v2/pathutil"
 	"github.com/bitrise-io/go-xcode/pathfilters"
-	"github.com/bitrise-io/go-xcode/v2/plistutil"
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcworkspace"
 )
@@ -39,35 +35,6 @@ func removeProjectFromList(projectPth string, projects []container) []container 
 		}
 	}
 	return newProjects
-}
-
-func newProjectFactories() (xcodeproj.Factory, xcworkspace.Factory) {
-	logger := log.NewLogger()
-	fileManager := fileutil.NewFileManager()
-	plistFileHandler := plistutil.NewFileHandler(fileManager)
-	pathModifier := v2pathutil.NewPathModifier()
-	userProvider := xcodeproj.NewUserProvider()
-	projectFactory := xcodeproj.NewFactory(
-		logger,
-		nil,
-		fileManager,
-		plistFileHandler,
-		pathModifier,
-		v2pathutil.NewPathProvider(),
-		userProvider,
-		xcodeproj.NewDirCreator(),
-	)
-	workspaceFactory := xcworkspace.NewFactory(
-		logger,
-		nil,
-		fileManager,
-		plistFileHandler,
-		pathModifier,
-		v2pathutil.NewPathChecker(),
-		userProvider,
-		projectFactory,
-	)
-	return projectFactory, workspaceFactory
 }
 
 func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string, projectFactory xcodeproj.Factory, workspaceFactory xcworkspace.Factory) (containers, error) {
