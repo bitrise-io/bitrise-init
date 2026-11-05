@@ -234,7 +234,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	// Separate workspaces and standalone projects
 	log.TInfof("Filtering relevant Xcode project files")
-	projectFiles, err := FilterRelevantProjectFiles(fileList, sdkFilter)
+	projectFiles, err := filterRelevantProjectFiles(fileList, sdkFilter)
 	if err != nil {
 		return DetectResult{}, err
 	}
@@ -251,7 +251,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 	log.TSuccessf("Platform detected")
 
-	workspaceFiles, err := FilterRelevantWorkspaceFiles(fileList, sdkFilter)
+	workspaceFiles, err := filterRelevantWorkspaceFiles(fileList, sdkFilter)
 	if err != nil {
 		return DetectResult{}, err
 	}

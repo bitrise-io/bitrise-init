@@ -86,8 +86,7 @@ func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string
 	}, nil
 }
 
-// FilterRelevantProjectFiles ...
-func FilterRelevantProjectFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
+func filterRelevantProjectFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
 	filters := []pathutil.FilterFunc{
 		pathfilters.AllowXcodeProjExtFilter,
 		pathfilters.AllowIsDirectoryFilter,
@@ -104,8 +103,7 @@ func FilterRelevantProjectFiles(fileList []string, sdkFilter pathutil.FilterFunc
 	return pathutil.FilterPaths(fileList, filters...)
 }
 
-// FilterRelevantWorkspaceFiles ...
-func FilterRelevantWorkspaceFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
+func filterRelevantWorkspaceFiles(fileList []string, sdkFilter pathutil.FilterFunc) ([]string, error) {
 	filters := []pathutil.FilterFunc{
 		pathfilters.AllowXCWorkspaceExtFilter,
 		pathfilters.AllowIsDirectoryFilter,
