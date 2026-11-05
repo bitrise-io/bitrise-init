@@ -354,7 +354,7 @@ func ParseProjects(projectType XcodeProjectType, searchDir string, excludeAppIco
 
 		for _, project := range containerProjects {
 			var sharedSchemes []xcscheme.Scheme
-			for _, s := range projectToSchemes[project.Path] {
+			for _, s := range projectToSchemes[project.Path()] {
 				if s.IsShared {
 					sharedSchemes = append(sharedSchemes, s)
 				}

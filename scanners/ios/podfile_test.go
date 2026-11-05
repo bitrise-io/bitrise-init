@@ -505,7 +505,7 @@ func (m mockContainer) projectPaths() ([]string, error) {
 	return m.innerProjects, nil
 }
 
-func (m mockContainer) projects() ([]*xcodeproj.XcodeProj, error) {
+func (m mockContainer) projects() ([]xcodeproj.XcodeProj, error) {
 	panic("not implemented")
 }
 
