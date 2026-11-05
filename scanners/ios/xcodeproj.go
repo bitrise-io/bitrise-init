@@ -4,6 +4,8 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/sliceutil"
 	"github.com/bitrise-io/go-xcode/pathfilters"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcworkspace"
 )
 
 // XcodeProjectType ...
@@ -35,14 +37,14 @@ func removeProjectFromList(projectPth string, projects []container) []container 
 	return newProjects
 }
 
-func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string) (containers, error) {
+func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string, projectFactory xcodeproj.Factory, workspaceFactory xcworkspace.Factory) (containers, error) {
 	var (
 		workspaces         []container
 		standaloneProjects []container
 	)
 
 	for _, workspaceFile := range workspaceFiles {
-		workspace, err := newWorkspace(workspaceFile)
+		workspace, err := newWorkspace(workspaceFile, workspaceFactory, projectFactory)
 		if err != nil {
 			return containers{}, err
 		}
@@ -65,7 +67,7 @@ func createStandaloneProjectsAndWorkspaces(projectFiles, workspaceFiles []string
 		}
 
 		if !workspaceContains {
-			project, err := newProject(projectFile)
+			project, err := newProject(projectFile, projectFactory)
 			if err != nil {
 				return containers{}, err
 			}

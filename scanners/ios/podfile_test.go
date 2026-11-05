@@ -9,8 +9,8 @@ import (
 
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj"
-	"github.com/bitrise-io/go-xcode/xcodeproject/xcscheme"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj"
+	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
 	"github.com/stretchr/testify/require"
 )
 
@@ -505,7 +505,7 @@ func (m mockContainer) projectPaths() ([]string, error) {
 	return m.innerProjects, nil
 }
 
-func (m mockContainer) projects() ([]xcodeproj.XcodeProj, []string, error) {
+func (m mockContainer) projects() ([]*xcodeproj.XcodeProj, error) {
 	panic("not implemented")
 }
 
