@@ -164,6 +164,14 @@ func TestSDKFilter(t *testing.T) {
 	writeTestFile(t, filepath.Join(macDestinationProject, "project.pbxproj"),
 		sdkFilterTestPbxproj("SDKROOT = iphoneos;", `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";`))
 
+	jsonMacOSProject := filepath.Join(dir, "json-macosx.xcodeproj")
+	writeTestFile(t, filepath.Join(jsonMacOSProject, "project.xcproj"),
+		sdkFilterTestXCProj(`"SDKROOT": "macosx"`, ""))
+
+	jsonMacDestinationProject := filepath.Join(dir, "json-mac-destination.xcodeproj")
+	writeTestFile(t, filepath.Join(jsonMacDestinationProject, "project.xcproj"),
+		sdkFilterTestXCProj(`"SDKROOT": "iphoneos"`, `"SUPPORTED_PLATFORMS": "iphoneos iphonesimulator macosx"`))
+
 	tests := []struct {
 		name      string
 		path      string
@@ -175,6 +183,8 @@ func TestSDKFilter(t *testing.T) {
 		{name: "workspace with an iOS project and a missing project", path: iosWorkspace, wantIOS: true},
 		{name: "target with SDKROOT auto", path: autoProject, wantMacOS: true},
 		{name: "iOS target listing macosx in SUPPORTED_PLATFORMS", path: macDestinationProject, wantIOS: true},
+		{name: "JSON macOS project", path: jsonMacOSProject, wantMacOS: true},
+		{name: "JSON iOS target listing macosx in SUPPORTED_PLATFORMS", path: jsonMacDestinationProject, wantIOS: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -197,6 +207,10 @@ func TestSDKFilter_OpenError(t *testing.T) {
 	brokenProject := filepath.Join(dir, "broken.xcodeproj")
 	writeTestFile(t, filepath.Join(brokenProject, "project.pbxproj"), "not a project")
 
+	bothFormatsProject := filepath.Join(dir, "both-formats.xcodeproj")
+	writeTestFile(t, filepath.Join(bothFormatsProject, "project.pbxproj"), testIOSPbxprojContent)
+	writeTestFile(t, filepath.Join(bothFormatsProject, "project.xcproj"), sdkFilterTestXCProj(`"SDKROOT": "iphoneos"`, ""))
+
 	brokenWorkspace := filepath.Join(dir, "broken.xcworkspace")
 	writeTestFile(t, filepath.Join(brokenWorkspace, "contents.xcworkspacedata"), `<?xml version="1.0" encoding="UTF-8"?>
 <Workspace version = "1.0">
@@ -204,7 +218,7 @@ func TestSDKFilter_OpenError(t *testing.T) {
 </Workspace>
 `)
 
-	for _, pth := range []string{brokenProject, brokenWorkspace} {
+	for _, pth := range []string{brokenProject, bothFormatsProject, brokenWorkspace} {
 		t.Run(filepath.Base(pth), func(t *testing.T) {
 			projectFactory, workspaceFactory := newProjectFactories()
 
@@ -232,4 +246,15 @@ func sdkFilterTestPbxproj(projectBuildSettings, targetBuildSettings string) stri
 	rootObject = A10000000000000000000001;
 }
 `, projectBuildSettings, targetBuildSettings)
+}
+
+func sdkFilterTestXCProj(projectBuildSettings, targetBuildSettings string) string {
+	return fmt.Sprintf(`{
+  "configurations": ["Release"],
+  "targets": [
+    { "name": "App", "id": "A1", "product-type": "application", "build-settings": { %s } },
+  ],
+  "build-settings": { %s },
+}
+`, targetBuildSettings, projectBuildSettings)
 }
