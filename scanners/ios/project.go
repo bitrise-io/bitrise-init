@@ -19,7 +19,7 @@ type container interface {
 	path() string
 	// schemes returns schemes mapped to the project or workspace path
 	schemes() (map[string][]xcscheme.Scheme, error)
-	projects() ([]*xcodeproj.XcodeProj, error)
+	projects() ([]xcodeproj.XcodeProj, error)
 	projectPaths() ([]string, error)
 }
 
@@ -54,7 +54,7 @@ func newProjectFactories() (xcodeproj.Factory, xcworkspace.Factory) {
 
 // projectContainer ...
 type projectContainer struct {
-	project *xcodeproj.XcodeProj
+	project xcodeproj.XcodeProj
 }
 
 func newProject(path string, projectFactory xcodeproj.Factory) (projectContainer, error) {
@@ -77,27 +77,27 @@ func (p projectContainer) isWorkspace() bool {
 }
 
 func (p projectContainer) path() string {
-	return p.project.Path
+	return p.project.Path()
 }
 
 func (p projectContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	projectSchemes, err := p.project.Schemes()
 	if err != nil {
-		return nil, fmt.Errorf("failed to list Schemes in Project (%s): %w", p.project.Path, err)
+		return nil, fmt.Errorf("failed to list Schemes in Project (%s): %w", p.project.Path(), err)
 	}
 
 	containerToSchemes := make(map[string][]xcscheme.Scheme)
-	containerToSchemes[p.project.Path] = projectSchemes
+	containerToSchemes[p.project.Path()] = projectSchemes
 
 	return containerToSchemes, nil
 }
 
-func (p projectContainer) projects() ([]*xcodeproj.XcodeProj, error) {
-	return []*xcodeproj.XcodeProj{p.project}, nil
+func (p projectContainer) projects() ([]xcodeproj.XcodeProj, error) {
+	return []xcodeproj.XcodeProj{p.project}, nil
 }
 
 func (p projectContainer) projectPaths() ([]string, error) {
-	return []string{p.project.Path}, nil
+	return []string{p.project.Path()}, nil
 }
 
 // workspaceContainer ...
@@ -139,13 +139,13 @@ func (w workspaceContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	return containerToSchemes, nil
 }
 
-func (w workspaceContainer) projects() ([]*xcodeproj.XcodeProj, error) {
+func (w workspaceContainer) projects() ([]xcodeproj.XcodeProj, error) {
 	projPaths, err := w.workspace.ProjectFileLocations()
 	if err != nil {
 		return nil, err
 	}
 
-	var projects []*xcodeproj.XcodeProj
+	var projects []xcodeproj.XcodeProj
 	for _, projPath := range projPaths {
 		if exist, err := pathutil.IsPathExists(projPath); err != nil {
 			return nil, fmt.Errorf("failed to list Projects in the Workspace (%s), can not check if path (%s) exists: %w", w.workspace.Path, projPath, err)

@@ -149,13 +149,13 @@ func newSDKFilter(projectType XcodeProjectType, projectFactory xcodeproj.Factory
 			return false, err
 		}
 
-		return slices.ContainsFunc(projects, func(project *xcodeproj.XcodeProj) bool {
+		return slices.ContainsFunc(projects, func(project xcodeproj.XcodeProj) bool {
 			return projectSupportsSDK(project, sdk)
 		}), nil
 	}
 }
 
-func projectSupportsSDK(project *xcodeproj.XcodeProj, sdk string) bool {
+func projectSupportsSDK(project xcodeproj.XcodeProj, sdk string) bool {
 	configurations := slices.Clone(project.BuildConfigurations())
 	for _, target := range project.Targets() {
 		configurations = append(configurations, target.BuildConfigurations...)

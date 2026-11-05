@@ -12,7 +12,7 @@ require (
 	github.com/bitrise-io/go-utils v1.0.15
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.39
 	github.com/bitrise-io/go-xcode v1.3.3
-	github.com/bitrise-io/go-xcode/v2 v2.0.0-alpha.92
+	github.com/bitrise-io/go-xcode/v2 v2.0.0-alpha.93
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef
 	github.com/bitrise-io/stepman v0.19.0
 	github.com/google/go-cmp v0.6.0
@@ -32,6 +32,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
+	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
