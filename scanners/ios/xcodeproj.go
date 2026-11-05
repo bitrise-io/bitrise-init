@@ -183,12 +183,7 @@ func projectSupportsSDK(project *xcodeproj.XcodeProj, sdk string) bool {
 		}
 
 		supportedPlatforms, _ := configuration.BuildSetting("SUPPORTED_PLATFORMS")
-		for platform := range strings.SplitSeq(supportedPlatforms, " ") {
-			if platform == sdk {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(strings.Split(supportedPlatforms, " "), sdk)
 	})
 }
 
