@@ -192,12 +192,26 @@ func TestSDKFilter(t *testing.T) {
 }
 
 func TestSDKFilter_OpenError(t *testing.T) {
-	brokenProject := filepath.Join(t.TempDir(), "broken.xcodeproj")
-	writeTestFile(t, filepath.Join(brokenProject, "project.pbxproj"), "not a project")
-	projectFactory, workspaceFactory := newProjectFactories()
+	dir := t.TempDir()
 
-	_, err := newSDKFilter(XcodeProjectTypeIOS, projectFactory, workspaceFactory)(brokenProject)
-	require.Error(t, err)
+	brokenProject := filepath.Join(dir, "broken.xcodeproj")
+	writeTestFile(t, filepath.Join(brokenProject, "project.pbxproj"), "not a project")
+
+	brokenWorkspace := filepath.Join(dir, "broken.xcworkspace")
+	writeTestFile(t, filepath.Join(brokenWorkspace, "contents.xcworkspacedata"), `<?xml version="1.0" encoding="UTF-8"?>
+<Workspace version = "1.0">
+   <FileRef location = "group:broken.xcodeproj"></FileRef>
+</Workspace>
+`)
+
+	for _, pth := range []string{brokenProject, brokenWorkspace} {
+		t.Run(filepath.Base(pth), func(t *testing.T) {
+			projectFactory, workspaceFactory := newProjectFactories()
+
+			_, err := newSDKFilter(XcodeProjectTypeIOS, projectFactory, workspaceFactory)(pth)
+			require.Error(t, err)
+		})
+	}
 }
 
 func TestFilterRelevantFiles_ProjectTypes(t *testing.T) {
