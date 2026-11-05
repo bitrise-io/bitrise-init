@@ -42,18 +42,18 @@ func (w podWorkspace) schemes() (map[string][]xcscheme.Scheme, error) {
 	return projectToSchemes, nil
 }
 
-func (w podWorkspace) projects() ([]*xcodeproj.XcodeProj, []string, error) {
+func (w podWorkspace) projects() ([]*xcodeproj.XcodeProj, error) {
 	var innerProjects []*xcodeproj.XcodeProj
 	for _, p := range w.workspaceProjects {
-		projects, _, err := p.projects()
+		projects, err := p.projects()
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		innerProjects = append(innerProjects, projects...)
 	}
 
-	return innerProjects, nil, nil
+	return innerProjects, nil
 }
 
 func (w podWorkspace) projectPaths() ([]string, error) {

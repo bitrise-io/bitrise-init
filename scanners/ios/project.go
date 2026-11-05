@@ -15,7 +15,7 @@ type container interface {
 	path() string
 	// schemes returns schemes mapped to the project or workspace path
 	schemes() (map[string][]xcscheme.Scheme, error)
-	projects() ([]*xcodeproj.XcodeProj, []string, error)
+	projects() ([]*xcodeproj.XcodeProj, error)
 	projectPaths() ([]string, error)
 }
 
@@ -59,8 +59,8 @@ func (p projectContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	return containerToSchemes, nil
 }
 
-func (p projectContainer) projects() ([]*xcodeproj.XcodeProj, []string, error) {
-	return []*xcodeproj.XcodeProj{p.project}, []string{}, nil
+func (p projectContainer) projects() ([]*xcodeproj.XcodeProj, error) {
+	return []*xcodeproj.XcodeProj{p.project}, nil
 }
 
 func (p projectContainer) projectPaths() ([]string, error) {
@@ -106,31 +106,29 @@ func (w workspaceContainer) schemes() (map[string][]xcscheme.Scheme, error) {
 	return containerToSchemes, nil
 }
 
-func (w workspaceContainer) projects() ([]*xcodeproj.XcodeProj, []string, error) {
+func (w workspaceContainer) projects() ([]*xcodeproj.XcodeProj, error) {
 	projPaths, err := w.workspace.ProjectFileLocations()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	var projects []*xcodeproj.XcodeProj
-	var missingProjects []string
 	for _, projPath := range projPaths {
 		if exist, err := pathutil.IsPathExists(projPath); err != nil {
-			return nil, nil, fmt.Errorf("failed to list Projects in the Workspace (%s), can not check if path (%s) exists: %w", w.workspace.Path, projPath, err)
+			return nil, fmt.Errorf("failed to list Projects in the Workspace (%s), can not check if path (%s) exists: %w", w.workspace.Path, projPath, err)
 		} else if !exist {
-			missingProjects = append(missingProjects, projPath)
 			continue
 		}
 
 		project, err := w.projectFactory.Open(projPath)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to open Project (%s) in the Workspace (%s): %w", projPath, w.workspace.Path, err)
+			return nil, fmt.Errorf("failed to open Project (%s) in the Workspace (%s): %w", projPath, w.workspace.Path, err)
 		}
 
 		projects = append(projects, project)
 	}
 
-	return projects, missingProjects, nil
+	return projects, nil
 }
 
 func (w workspaceContainer) projectPaths() ([]string, error) {
