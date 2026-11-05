@@ -10,8 +10,8 @@ require (
 	github.com/bitrise-io/go-flutter v0.3.0
 	github.com/bitrise-io/go-steputils v1.0.6
 	github.com/bitrise-io/go-utils v1.0.15
-	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.33
-	github.com/bitrise-io/go-xcode v1.0.18
+	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.39
+	github.com/bitrise-io/go-xcode v1.3.3
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef
 	github.com/bitrise-io/stepman v0.19.0
 	github.com/google/go-cmp v0.6.0

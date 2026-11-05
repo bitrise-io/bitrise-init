@@ -39,12 +39,12 @@ github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/pointers
 github.com/bitrise-io/go-utils/pretty
 github.com/bitrise-io/go-utils/sliceutil
-# github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.33
-## explicit; go 1.17
+# github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.39
+## explicit; go 1.21
 github.com/bitrise-io/go-utils/v2/fileutil
 github.com/bitrise-io/go-utils/v2/parseutil
 github.com/bitrise-io/go-utils/v2/pathutil
-# github.com/bitrise-io/go-xcode v1.0.18
+# github.com/bitrise-io/go-xcode v1.3.3
 ## explicit; go 1.20
 github.com/bitrise-io/go-xcode/pathfilters
 github.com/bitrise-io/go-xcode/xcodebuild
