@@ -55,12 +55,13 @@ github.com/bitrise-io/go-xcode/xcodeproject/serialized
 github.com/bitrise-io/go-xcode/xcodeproject/xcodeproj
 github.com/bitrise-io/go-xcode/xcodeproject/xcscheme
 github.com/bitrise-io/go-xcode/xcodeproject/xcworkspace
-# github.com/bitrise-io/go-xcode/v2 v2.0.0-alpha.92
+# github.com/bitrise-io/go-xcode/v2 v2.0.0-alpha.93
 ## explicit; go 1.23
 github.com/bitrise-io/go-xcode/v2/internal/filewriter
 github.com/bitrise-io/go-xcode/v2/plistutil
 github.com/bitrise-io/go-xcode/v2/xcodeproject/serialized
 github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj
+github.com/bitrise-io/go-xcode/v2/xcodeproject/xcodeproj/internal/xcproj
 github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme
 github.com/bitrise-io/go-xcode/v2/xcodeproject/xcworkspace
 # github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef
@@ -114,6 +115,9 @@ github.com/ryanuber/go-glob
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/assert/yaml
 github.com/stretchr/testify/require
+# github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a
+## explicit; go 1.23
+github.com/tailscale/hujson
 # golang.org/x/crypto v0.52.0
 ## explicit; go 1.25.0
 golang.org/x/crypto/ssh/terminal

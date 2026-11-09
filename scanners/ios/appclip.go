@@ -9,11 +9,11 @@ import (
 	"github.com/bitrise-io/go-xcode/v2/xcodeproject/xcscheme"
 )
 
-func schemeHasAppClipTarget(project *xcodeproj.XcodeProj, scheme xcscheme.Scheme) bool {
+func schemeHasAppClipTarget(project xcodeproj.XcodeProj, scheme xcscheme.Scheme) bool {
 	for _, entry := range scheme.BuildAction.BuildActionEntries {
 		target, found := project.Target(entry.BuildableReference.BlueprintIdentifier)
 		if !found {
-			log.TDebugf("no target found for blueprint ID (%s) project (%s)", entry.BuildableReference.BlueprintIdentifier, project.Path)
+			log.TDebugf("no target found for blueprint ID (%s) project (%s)", entry.BuildableReference.BlueprintIdentifier, project.Path())
 			continue
 		}
 
