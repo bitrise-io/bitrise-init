@@ -891,7 +891,6 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
@@ -983,7 +982,6 @@ configs:
               inputs:
               - project_location: $PROJECT_LOCATION
               - variant: $VARIANT
-              - cache_level: none
           - android-unit-test@%s:
               inputs:
               - project_location: $PROJECT_LOCATION
